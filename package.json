@@ -1,0 +1,32 @@
+{
+	"name": "@kilcekru/dcc",
+	"version": "1.0.0",
+	"description": "DCS Crew Chief",
+	"license": "MIT",
+	"author": {
+		"name": "Kilcekru",
+		"email": "kilcekru@unkreativ.at"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Kilcekru/dcc.git"
+	},
+	"homepage": "https://github.com/Kilcekru/dcc#readme",
+	"bugs": "https://github.com/Kilcekru/dcc/issues",
+	"engines": {
+		"node": ">=18.12.0",
+		"pnpm": ">=7.15.0"
+	},
+	"scripts": {
+		"clean": "",
+		"clean:all": "rm -rf node_modules",
+		"prepare": "husky install utils/husky",
+		"prettier": "prettier --write ."
+	},
+	"devDependencies": {
+		"@kilcekru/ts-basics": "^3.1.1",
+		"husky": "^8.0.2",
+		"prettier": "^2.7.1",
+		"typescript": "^4.8.4"
+	}
+}
