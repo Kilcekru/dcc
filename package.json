@@ -1,7 +1,8 @@
 {
 	"name": "@kilcekru/dcc",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"description": "DCS Crew Chief",
+	"private": true,
 	"license": "MIT",
 	"author": {
 		"name": "Kilcekru",
