@@ -1,0 +1,21 @@
+{
+	"name": "@kilcekru/dcc-core",
+	"version": "0.1.0",
+	"description": "DCS Crew Chief - electron core",
+	"private": true,
+	"license": "MIT",
+	"author": {
+		"name": "Kilcekru",
+		"email": "kilcekru@unkreativ.at"
+	},
+	"scripts": {
+		"clean:all": "rm -rf node_modules",
+		"lint": "eslint src",
+		"validate": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/node": "^18.11.10",
+		"electron": "22.0.0",
+		"electron-squirrel-startup": "^1.0.0"
+	}
+}

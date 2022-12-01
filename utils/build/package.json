@@ -1,0 +1,13 @@
+{
+	"name": "@kilcekru/dcc-build",
+	"version": "0.1.0",
+	"description": "Builder for DCS Crew Chief",
+	"private": true,
+	"scripts": {
+		"clean:all": "rm -rf node_modules",
+		"build": "node build.mjs"
+	},
+	"devDependencies": {
+		"esbuild": "^0.15.16"
+	}
+}

@@ -4,6 +4,7 @@
 	"description": "DCS Crew Chief",
 	"private": true,
 	"license": "MIT",
+	"main": "src/index.js",
 	"author": {
 		"name": "Kilcekru",
 		"email": "kilcekru@unkreativ.at"
@@ -19,15 +20,23 @@
 		"pnpm": ">=7.15.0"
 	},
 	"scripts": {
-		"clean": "",
-		"clean:all": "rm -rf node_modules",
+		"build": "pnpm build:ts && pnpm forge:package",
+		"build:ts": "cd utils/build && pnpm build",
+		"clean": "pnpm -sr --parallel clean && pnpm forge:clean",
+		"clean:all": "pnpm -sr --parallel clean:all && rm -rf node_modules && pnpm forge:clean:all",
+		"forge:package": "cd forge && pnpm package",
+		"forge:clean": "cd forge && pnpm -s clean",
+		"forge:clean:all": "cd forge && pnpm -s clean:all",
+		"lint": "pnpm -r lint",
+		"postinstall": "cd forge && pnpm i",
 		"prepare": "husky install utils/husky",
-		"prettier": "prettier --write ."
+		"prettier": "prettier --write .",
+		"validate": "pnpm -r validate"
 	},
 	"devDependencies": {
 		"@kilcekru/ts-basics": "^3.1.1",
 		"husky": "^8.0.2",
-		"prettier": "^2.7.1",
-		"typescript": "^4.8.4"
+		"prettier": "^2.8.0",
+		"typescript": "^4.9.3"
 	}
 }

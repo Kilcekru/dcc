@@ -1,0 +1,28 @@
+{
+	"name": "@kilcekru/dcc-forge",
+	"version": "0.1.0",
+	"description": "DCS Crew Chief",
+	"private": true,
+	"license": "MIT",
+	"main": "dist/dcc/index.js",
+	"author": {
+		"name": "Kilcekru",
+		"email": "kilcekru@unkreativ.at"
+	},
+	"engines": {
+		"node": ">=18.12.0",
+		"pnpm": ">=7.15.0"
+	},
+	"scripts": {
+		"clean": "rm -rf dist out",
+		"clean:all": "rm -rf dist out node_modules",
+		"start": "electron-forge start",
+		"package": "electron-forge package",
+		"make": "electron-forge make"
+	},
+	"devDependencies": {
+		"@electron-forge/cli": "^6.0.4",
+		"@electron-forge/maker-squirrel": "^6.0.4",
+		"electron": "22.0.0"
+	}
+}
