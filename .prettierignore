@@ -1,9 +1,11 @@
 dist
 node_modules
+*.md
 
 /.eslintignore
 /.gitignore
 /.prettierignore
 /pnpm-lock.yaml
 
-*.md
+/forge/dist
+/forge/out

@@ -1,0 +1,4 @@
+{
+	"extends": "../../../utils/config/tsconfig.ui.json",
+	"include": ["src", "../../../utils/config/less.d.ts"]
+}

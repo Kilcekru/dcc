@@ -4,7 +4,7 @@
 	"description": "DCS Crew Chief",
 	"private": true,
 	"license": "MIT",
-	"main": "dist/dcc/index.js",
+	"main": "dist/chief/index.js",
 	"author": {
 		"name": "Kilcekru",
 		"email": "kilcekru@unkreativ.at"

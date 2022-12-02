@@ -5,9 +5,13 @@
 	"private": true,
 	"scripts": {
 		"clean:all": "rm -rf node_modules",
-		"build": "node build.mjs"
+		"build": "node src/build.mjs"
 	},
-	"devDependencies": {
-		"esbuild": "^0.15.16"
+	"dependencies": {
+		"esbuild": "^0.15.16",
+		"esbuild-plugin-postcss2": "^0.1.2",
+		"esbuild-plugin-solid": "^0.4.2",
+		"fs-extra": "^11.1.0",
+		"solid-js": "1.6.2"
 	}
 }

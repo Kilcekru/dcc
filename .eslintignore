@@ -1,12 +1,11 @@
-dist
+
 node_modules
+.eslintrc.js
+*.md
 
 /.eslintignore
-/.eslintrc.js
 /.gitignore
 /.prettierignore
 /pnpm-lock.yaml
-
-*.md
 
 /forge
