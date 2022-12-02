@@ -28,7 +28,7 @@ importers:
     dependencies:
       solid-js: 1.6.2
 
-  packages/crewChief/core:
+  packages/chief/core:
     specifiers:
       '@types/node': ^18.11.10
       electron: 22.0.0
@@ -38,7 +38,7 @@ importers:
       electron: 22.0.0
       electron-squirrel-startup: 1.0.0
 
-  packages/crewChief/preload:
+  packages/chief/preload:
     specifiers:
       '@types/node': ^18.11.10
       electron: 22.0.0

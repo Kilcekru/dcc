@@ -7,5 +7,6 @@
 		"module": "ES2020",
 		"target": "ES2021",
 		"plugins": [{ "name": "typescript-plugin-css-modules" }]
-	}
+	},
+	"files": ["./less.d.ts"]
 }
