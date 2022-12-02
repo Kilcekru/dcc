@@ -1,0 +1,14 @@
+{
+	"$schema": "https://turborepo.org/schema.json",
+	"pipeline": {
+		"validate:ts": {
+			"dependsOn": ["^validate:ts"],
+			"outputs": []
+		},
+		"validate:lint": {
+			"dependsOn": ["^validate:lint"],
+			"outputs": []
+		}
+	},
+	"globalDependencies": ["utils/config/.eslintrc.ui.js", "utils/config/tsconfig.ui.json", ".eslintignore"]
+}

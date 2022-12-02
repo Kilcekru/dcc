@@ -3,9 +3,10 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"clean:all": "rm -rf node_modules",
-		"lint": "eslint src",
-		"validate": "tsc --noEmit"
+		"clean": "rm -rf .turbo",
+		"clean:all": "rm -rf .turbo node_modules",
+		"validate:lint": "eslint src",
+		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
 		"solid-js": "1.6.2"

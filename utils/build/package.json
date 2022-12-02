@@ -3,8 +3,10 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"clean:all": "rm -rf node_modules",
-		"build": "node src/build.mjs"
+		"clean": "rm -rf .turbo",
+		"clean:all": "rm -rf .turbo node_modules",
+		"build": "node src/build.mjs",
+		"validate:lint": "eslint src --ext .mjs"
 	},
 	"dependencies": {
 		"esbuild": "^0.15.16",
