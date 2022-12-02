@@ -1,3 +1,4 @@
 packages:
-  - packages/crewChief/*
+  - packages/apps/*
+  - packages/chief/*
   - utils/*

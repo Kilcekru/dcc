@@ -23,7 +23,7 @@
 		"build": "pnpm build:ts && pnpm forge:package",
 		"build:ts": "cd utils/build && pnpm build",
 		"clean": "pnpm -sr --parallel clean && pnpm forge:clean",
-		"clean:all": "pnpm -sr --parallel clean:all && rm -rf node_modules && pnpm forge:clean:all",
+		"clean:all": "pnpm -r --parallel clean:all && rm -rf node_modules && pnpm forge:clean:all",
 		"forge:package": "cd forge && pnpm package",
 		"forge:clean": "cd forge && pnpm -s clean",
 		"forge:clean:all": "cd forge && pnpm -s clean:all",
