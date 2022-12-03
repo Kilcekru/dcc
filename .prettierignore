@@ -5,7 +5,7 @@ node_modules
 /.eslintignore
 /.gitignore
 /.prettierignore
-/pnpm-lock.yaml
+pnpm-lock.yaml
 
 /forge/dist
 /forge/out

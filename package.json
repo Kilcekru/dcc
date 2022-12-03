@@ -34,8 +34,8 @@
 		"prepare": "husky install utils/husky",
 		"prettier": "prettier --write .",
 		"validate": "pnpm validate:ts && pnpm validate:lint",
-		"validate:lint": "turbo run validate:lint",
-		"validate:ts": "turbo run validate:ts"
+		"validate:lint": "turbo run validate:lint --no-daemon",
+		"validate:ts": "turbo run validate:ts --no-daemon"
 	},
 	"devDependencies": {
 		"@kilcekru/ts-basics": "^3.1.1",
