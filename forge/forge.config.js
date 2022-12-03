@@ -1,6 +1,6 @@
 module.exports = {
 	packagerConfig: {
-		name: "dcc",
+		name: "DCC",
 		ignore: (path) => {
 			return path != "" && path !== "/package.json" && !path.startsWith("/dist");
 		},
@@ -10,9 +10,9 @@ module.exports = {
 		{
 			name: "@electron-forge/maker-squirrel",
 			config: {
-				name: "dcc",
+				name: "DCC",
 				title: "DCS Crew Chief",
-				exe: "dcc.exe",
+				exe: "DCC.exe",
 			},
 		},
 	],

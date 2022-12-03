@@ -16,13 +16,14 @@
 	"scripts": {
 		"clean": "rm -rf dist out",
 		"clean:all": "rm -rf dist out node_modules",
-		"start": "electron-forge start",
+		"start": "node start.mjs",
 		"package": "electron-forge package",
 		"make": "electron-forge make"
 	},
 	"devDependencies": {
 		"@electron-forge/cli": "^6.0.4",
 		"@electron-forge/maker-squirrel": "^6.0.4",
+		"chokidar": "^3.5.3",
 		"electron": "22.0.0"
 	}
 }

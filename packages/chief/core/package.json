@@ -8,9 +8,12 @@
 		"validate:lint": "eslint src",
 		"validate:ts": "tsc --noEmit"
 	},
+	"dependencies": {
+		"chokidar": "^3.5.3",
+		"electron-squirrel-startup": "^1.0.0"
+	},
 	"devDependencies": {
 		"@types/node": "^18.11.10",
-		"electron": "22.0.0",
-		"electron-squirrel-startup": "^1.0.0"
+		"electron": "22.0.0"
 	}
 }

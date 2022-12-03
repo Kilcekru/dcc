@@ -1,5 +1,6 @@
 import * as Path from "node:path";
 
+import chokidar from "chokidar";
 import esbuild from "esbuild";
 import postCss from "esbuild-plugin-postcss2";
 import { solidPlugin } from "esbuild-plugin-solid";
@@ -7,7 +8,7 @@ import FS from "fs-extra";
 
 import { log, paths } from "./utils.mjs";
 
-export async function buildApps() {
+export async function buildApps({ env, watch }) {
 	const apps = await findApps();
 
 	const entryPoints = Object.fromEntries(
@@ -19,13 +20,25 @@ export async function buildApps() {
 			entryPoints,
 			outdir: Path.join(paths.target, "apps"),
 			bundle: true,
-			// minify: true,
+			minify: env === "pro",
+			define: {
+				BUILD_ENV: JSON.stringify(env !== "pro"),
+			},
 			loader: {
 				".svg": "dataurl",
 			},
 			plugins: [solidPlugin(), postCss.default()],
+			watch: watch && {
+				onRebuild: (err) => {
+					if (err) {
+						log("err", `Rebuild apps failed (${err.message})`);
+					} else {
+						log("info", "Rebuilt apps");
+					}
+				},
+			},
 		}),
-		copyIndex(apps),
+		buildIndex({ apps, watch }),
 	]);
 }
 
@@ -46,8 +59,22 @@ async function findApps() {
 	return apps;
 }
 
-async function copyIndex(apps) {
-	const index = await FS.readFile(Path.join(paths.build, "assets/index.html"), "utf-8");
+async function buildIndex({ apps, watch }) {
+	await copyIndex({ apps });
+	if (watch) {
+		chokidar.watch(paths.indexHtml, { ignoreInitial: true }).on("all", async () => {
+			try {
+				await copyIndex({ apps });
+				log("info", "Rebuilt index.html");
+			} catch (err) {
+				log("err", `Rebuild index.html failed (${err.message})`);
+			}
+		});
+	}
+}
+
+async function copyIndex({ apps }) {
+	const index = await FS.readFile(paths.indexHtml, "utf-8");
 
 	const promises = apps.map(async (app) => {
 		const content = index.replaceAll("<!-- INJECT-TITLE -->", app.charAt(0).toUpperCase() + app.slice(1));

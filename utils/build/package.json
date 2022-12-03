@@ -6,9 +6,11 @@
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
 		"build": "node src/build.mjs",
-		"validate:lint": "eslint src --ext .mjs"
+		"validate:lint": "eslint src --ext .mjs",
+		"watch": "node src/build.mjs --watch"
 	},
 	"dependencies": {
+		"chokidar": "^3.5.3",
 		"esbuild": "^0.15.16",
 		"esbuild-plugin-postcss2": "^0.1.2",
 		"esbuild-plugin-solid": "^0.4.2",

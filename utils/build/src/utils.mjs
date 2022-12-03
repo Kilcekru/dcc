@@ -5,9 +5,9 @@ const dirname = Path.dirname(fileURLToPath(import.meta.url));
 const repoPath = Path.join(dirname, "../../..");
 
 export const paths = {
-	build: Path.join(dirname, ".."),
 	apps: Path.join(repoPath, "packages/apps"),
 	chief: Path.join(repoPath, "packages/chief"),
+	indexHtml: Path.join(dirname, "../assets/index.html"),
 	target: Path.join(repoPath, "forge/dist"),
 };
 

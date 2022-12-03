@@ -1,3 +1,5 @@
+import "./index.less";
+
 import { createSignal } from "solid-js";
 import { render } from "solid-js/web";
 

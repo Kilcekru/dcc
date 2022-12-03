@@ -3,11 +3,17 @@ import * as Path from "node:path";
 import { app, BrowserWindow } from "electron";
 import squirrelStartupCheck from "electron-squirrel-startup";
 
+import { enableLiveReload } from "./liveReload";
 import { getAppPath } from "./utils";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (squirrelStartupCheck) {
 	app.quit();
+}
+
+declare const BUILD_ENV: boolean;
+if (BUILD_ENV) {
+	enableLiveReload();
 }
 
 const createWindow = async () => {
