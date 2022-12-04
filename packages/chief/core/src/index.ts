@@ -3,8 +3,9 @@ import * as Path from "node:path";
 import { app, BrowserWindow } from "electron";
 import squirrelStartupCheck from "electron-squirrel-startup";
 
-import { enableLiveReload } from "./liveReload";
-import { getAppPath } from "./utils";
+import { startRpc } from "./rpc";
+import { enableLiveReload } from "./utils/liveReload";
+import { getAppPath } from "./utils/utils";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (squirrelStartupCheck) {
@@ -41,3 +42,5 @@ app.on("activate", async () => {
 		await createWindow();
 	}
 });
+
+startRpc();

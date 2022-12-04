@@ -1,5 +1,5 @@
 {
-	"name": "@kilcekru/dcc-app-launcher",
+	"name": "@kilcekru/dcc-lib-rpc",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
@@ -8,8 +8,8 @@
 		"validate:lint": "eslint src",
 		"validate:ts": "tsc --noEmit"
 	},
-	"dependencies": {
-		"solid-js": "1.6.2",
-		"@kilcekru/dcc-lib-rpc": "workspace:*"
+	"dependencies": {},
+	"devDependencies": {
+		"@kilcekru/dcc-shared-rpc-types": "workspace:*"
 	}
 }

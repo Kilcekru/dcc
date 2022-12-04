@@ -28,12 +28,15 @@ importers:
 
   packages/apps/launcher:
     specifiers:
+      '@kilcekru/dcc-lib-rpc': workspace:*
       solid-js: 1.6.2
     dependencies:
+      '@kilcekru/dcc-lib-rpc': link:../../libs/rpc
       solid-js: 1.6.2
 
   packages/chief/core:
     specifiers:
+      '@kilcekru/dcc-shared-rpc-types': workspace:*
       '@types/node': ^18.11.10
       chokidar: ^3.5.3
       electron: 22.0.0
@@ -42,6 +45,7 @@ importers:
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
     devDependencies:
+      '@kilcekru/dcc-shared-rpc-types': link:../../shared/rpc-types
       '@types/node': 18.11.10
       electron: 22.0.0
 
@@ -52,6 +56,15 @@ importers:
     devDependencies:
       '@types/node': 18.11.10
       electron: 22.0.0
+
+  packages/libs/rpc:
+    specifiers:
+      '@kilcekru/dcc-shared-rpc-types': workspace:*
+    devDependencies:
+      '@kilcekru/dcc-shared-rpc-types': link:../../shared/rpc-types
+
+  packages/shared/rpc-types:
+    specifiers: {}
 
   utils/build:
     specifiers:

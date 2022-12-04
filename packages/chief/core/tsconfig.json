@@ -1,4 +1,9 @@
 {
 	"extends": "@kilcekru/ts-basics/tsconfig-node-app.json",
-	"include": ["src"]
+	"compilerOptions": {
+		"paths": {
+			"@kilcekru/dcc-shared-*": ["../../shared/*/src/index.ts"]
+		}
+	},
+	"include": ["src", "src/@types"]
 }

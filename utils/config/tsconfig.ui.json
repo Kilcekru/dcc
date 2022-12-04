@@ -6,7 +6,11 @@
 		"lib": ["DOM", "DOM.Iterable", "ES2021"],
 		"module": "ES2020",
 		"target": "ES2021",
-		"plugins": [{ "name": "typescript-plugin-css-modules" }]
+		"plugins": [{ "name": "typescript-plugin-css-modules" }],
+		"paths": {
+			"@kilcekru/dcc-shared-*": ["../../packages/shared/*/src/index.ts"],
+			"@kilcekru/dcc-lib-*": ["../../packages/libs/*/src/index.tsx", "../../packages/libs/*/src/index.ts"]
+		}
 	},
 	"files": ["./less.d.ts"]
 }

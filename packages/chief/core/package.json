@@ -13,6 +13,7 @@
 		"electron-squirrel-startup": "^1.0.0"
 	},
 	"devDependencies": {
+		"@kilcekru/dcc-shared-rpc-types": "workspace:*",
 		"@types/node": "^18.11.10",
 		"electron": "22.0.0"
 	}
