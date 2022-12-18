@@ -1,46 +1,34 @@
-import * as Path from "node:path";
-
-import { app, BrowserWindow } from "electron";
+import { app } from "electron";
 import squirrelStartupCheck from "electron-squirrel-startup";
 
+import { enableLiveReload } from "./app/liveReload";
+import { startupApp } from "./app/startup";
 import { startRpc } from "./rpc";
-import { enableLiveReload } from "./utils/liveReload";
-import { getAppPath } from "./utils/utils";
+
+declare const BUILD_ENV: boolean;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (squirrelStartupCheck) {
 	app.quit();
 }
 
-declare const BUILD_ENV: boolean;
-if (BUILD_ENV) {
-	enableLiveReload();
-}
-
-const createWindow = async () => {
-	const mainWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
-		webPreferences: {
-			preload: Path.join(__dirname, "preload.js"),
-		},
+const instanceLock = app.requestSingleInstanceLock();
+if (!instanceLock) {
+	app.quit();
+} else {
+	app.on("second-instance", () => {
+		app.focus();
 	});
 
-	await mainWindow.loadFile(getAppPath("launcher"));
-};
+	if (BUILD_ENV) {
+		enableLiveReload();
+	}
 
-app.on("ready", createWindow);
+	app.on("ready", startupApp);
 
-app.on("window-all-closed", () => {
-	if (process.platform !== "darwin") {
+	app.on("window-all-closed", () => {
 		app.quit();
-	}
-});
+	});
 
-app.on("activate", async () => {
-	if (BrowserWindow.getAllWindows().length === 0) {
-		await createWindow();
-	}
-});
-
-startRpc();
+	startRpc();
+}
