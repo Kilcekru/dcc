@@ -1,5 +1,6 @@
 {
 	"name": "@kilcekru/dcc-forge",
+	"productName": "DCC",
 	"version": "0.1.0",
 	"description": "DCS Crew Chief",
 	"private": true,
