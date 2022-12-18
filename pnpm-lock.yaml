@@ -37,15 +37,19 @@ importers:
   packages/chief/core:
     specifiers:
       '@kilcekru/dcc-shared-rpc-types': workspace:*
+      '@types/fs-extra': ^9.0.13
       '@types/node': ^18.11.10
       chokidar: ^3.5.3
       electron: 22.0.0
       electron-squirrel-startup: ^1.0.0
+      fs-extra: ^11.1.0
     dependencies:
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
+      fs-extra: 11.1.0
     devDependencies:
       '@kilcekru/dcc-shared-rpc-types': link:../../shared/rpc-types
+      '@types/fs-extra': 9.0.13
       '@types/node': 18.11.10
       electron: 22.0.0
 
@@ -568,6 +572,12 @@ packages:
       '@types/keyv': 3.1.4
       '@types/node': 18.11.10
       '@types/responselike': 1.0.0
+    dev: true
+
+  /@types/fs-extra/9.0.13:
+    resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
+    dependencies:
+      '@types/node': 18.11.10
     dev: true
 
   /@types/http-cache-semantics/4.0.1:

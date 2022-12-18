@@ -10,10 +10,12 @@
 	},
 	"dependencies": {
 		"chokidar": "^3.5.3",
-		"electron-squirrel-startup": "^1.0.0"
+		"electron-squirrel-startup": "^1.0.0",
+		"fs-extra": "^11.1.0"
 	},
 	"devDependencies": {
 		"@kilcekru/dcc-shared-rpc-types": "workspace:*",
+		"@types/fs-extra": "^9.0.13",
 		"@types/node": "^18.11.10",
 		"electron": "22.0.0"
 	}
