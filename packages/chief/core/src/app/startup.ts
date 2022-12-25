@@ -24,5 +24,5 @@ export async function startupApp() {
 
 	registerBoundsEvents(mainWindow);
 
-	await mainWindow.loadFile(getAppPath("launcher"));
+	await mainWindow.loadFile(getAppPath("campaign"));
 }

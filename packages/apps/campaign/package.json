@@ -1,0 +1,23 @@
+{
+	"name": "@kilcekru/dcc-app-campaign",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"clean": "rm -rf .turbo",
+		"clean:all": "rm -rf .turbo node_modules",
+		"validate:lint": "eslint src",
+		"validate:ts": "tsc --noEmit"
+	},
+	"dependencies": {
+		"solid-js": "1.6.2",
+		"@kilcekru/dcc-lib-rpc": "workspace:*",
+		"leaflet": "1.9.3",
+		"esri-leaflet": "3.0.9",
+		"fast-astar": "1.0.6",
+		"@zag-js/solid": "0.2.3",
+		"@zag-js/pressable": "0.3.5"
+	},
+	"devDependencies": {
+		"@types/leaflet": "1.9.0"
+	}
+}

@@ -26,6 +26,27 @@ importers:
       typescript: 4.9.3
       typescript-plugin-css-modules: 3.4.0_typescript@4.9.3
 
+  packages/apps/campaign:
+    specifiers:
+      '@kilcekru/dcc-lib-rpc': workspace:*
+      '@types/leaflet': 1.9.0
+      '@zag-js/pressable': 0.3.5
+      '@zag-js/solid': 0.2.3
+      esri-leaflet: 3.0.9
+      fast-astar: 1.0.6
+      leaflet: 1.9.3
+      solid-js: 1.6.2
+    dependencies:
+      '@kilcekru/dcc-lib-rpc': link:../../libs/rpc
+      '@zag-js/pressable': 0.3.5
+      '@zag-js/solid': 0.2.3_solid-js@1.6.2
+      esri-leaflet: 3.0.9_leaflet@1.9.3
+      fast-astar: 1.0.6
+      leaflet: 1.9.3
+      solid-js: 1.6.2
+    devDependencies:
+      '@types/leaflet': 1.9.0
+
   packages/apps/launcher:
     specifiers:
       '@kilcekru/dcc-lib-rpc': workspace:*
@@ -565,6 +586,16 @@ packages:
       defer-to-connect: 2.0.1
     dev: true
 
+  /@terraformer/arcgis/2.1.2:
+    resolution: {integrity: sha512-IvdfqehcNAUtKU1OFMKwPT8EvdKlVFZ7q7ZKzkIF8XzYZIVsZLuXuOS1UBdRh5u/o+X5Gax7jiZhD8U/4TV+Jw==}
+    dependencies:
+      '@terraformer/common': 2.1.2
+    dev: false
+
+  /@terraformer/common/2.1.2:
+    resolution: {integrity: sha512-cwPdTFzIpekZhZRrgDEkqLKNPoqbyCBQHiemaovnGIeUx0Pl336MY/eCxzJ5zXkrQLVo9zPalq/vYW5HnyKevQ==}
+    dev: false
+
   /@types/cacheable-request/6.0.3:
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
     dependencies:
@@ -578,6 +609,10 @@ packages:
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
     dependencies:
       '@types/node': 18.11.10
+    dev: true
+
+  /@types/geojson/7946.0.10:
+    resolution: {integrity: sha512-Nmh0K3iWQJzniTuPRcJn5hxXkfB1T1pgB89SBig5PlJQU5yocazeu4jATJlaA0GYFKWMqDdvYemoSnF2pXgLVA==}
     dev: true
 
   /@types/http-cache-semantics/4.0.1:
@@ -596,6 +631,12 @@ packages:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
       '@types/node': 18.11.10
+    dev: true
+
+  /@types/leaflet/1.9.0:
+    resolution: {integrity: sha512-7LeOSj7EloC5UcyOMo+1kc3S1UT3MjJxwqsMT1d2PTyvQz53w0Y0oSSk9nwZnOZubCmBvpSNGceucxiq+ZPEUw==}
+    dependencies:
+      '@types/geojson': 7946.0.10
     dev: true
 
   /@types/node/16.18.4:
@@ -752,6 +793,49 @@ packages:
       '@typescript-eslint/types': 5.45.0
       eslint-visitor-keys: 3.3.0
     dev: true
+
+  /@zag-js/anatomy/0.1.2:
+    resolution: {integrity: sha512-sj+KuCdPG+wAkAeyROXbN9FbVLTrDZk3N/Am1lL+TQKmZH28NRezt0Wf9arVHCJ+mDnZhW173CoxZ8B5cKT8Kw==}
+    dev: false
+
+  /@zag-js/core/0.2.3:
+    resolution: {integrity: sha512-+YjI1cPnvd3DEuWEO/MWg88OrV6Wh5uO1c0Azb6+9QOrlKfBTEGPJUy5KWd2greyTw9oXyUJX3CsEw8YbRVTIw==}
+    dependencies:
+      '@zag-js/store': 0.2.1
+      klona: 2.0.5
+    dev: false
+
+  /@zag-js/pressable/0.3.5:
+    resolution: {integrity: sha512-uYTKfWOCNWlxy6b3hF876HBS9OjxrkR/EQhXh7hcsTVefdsC3jl+t7La6KWTr0dzQzq6vDeH81EjOFflIhBlZA==}
+    dependencies:
+      '@zag-js/anatomy': 0.1.2
+      '@zag-js/core': 0.2.3
+      '@zag-js/types': 0.3.1
+    dev: false
+
+  /@zag-js/solid/0.2.3_solid-js@1.6.2:
+    resolution: {integrity: sha512-3LNcYoLa3v0ayGr0Pgt49OmYrm7uTyl/dO6zNKiITN0XMYGGKWc/dAGunGlDpj7lW9i8AlYH760muQPnLTkl0g==}
+    peerDependencies:
+      solid-js: '>=1.1.3'
+    dependencies:
+      '@zag-js/core': 0.2.3
+      '@zag-js/store': 0.2.1
+      '@zag-js/types': 0.3.1
+      hyphenate-style-name: 1.0.4
+      solid-js: 1.6.2
+    dev: false
+
+  /@zag-js/store/0.2.1:
+    resolution: {integrity: sha512-QYmAyh9hXRSmqKirD/nyTohSOI86fenSdtF177W88Jyv0SfaGSv4Z+o+kU6g62c+XIQVEP/W9LL3ZH075lQI9A==}
+    dependencies:
+      proxy-compare: 2.3.0
+    dev: false
+
+  /@zag-js/types/0.3.1:
+    resolution: {integrity: sha512-mSGkt+mqmvE+E6RAR1py74Pbzb5q2HjhijkpsUojHsDa+DIX9KJ2XTKGt9Dv3qxqwY81/pQdBQFNLDNKMAeYdQ==}
+    dependencies:
+      csstype: 3.1.1
+    dev: false
 
   /acorn-jsx/5.3.2_acorn@8.8.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1814,6 +1898,16 @@ packages:
       estraverse: 5.3.0
     dev: true
 
+  /esri-leaflet/3.0.9_leaflet@1.9.3:
+    resolution: {integrity: sha512-gcuVpmpYFkfYIc3kOlkPnsQuG4EXDXlq3ypH7UwTmGIxRJko8seMl0lZSvaA78esnMqcwOLaxQN5S2UzDdfi6w==}
+    peerDependencies:
+      leaflet: ^1.0.0
+    dependencies:
+      '@terraformer/arcgis': 2.1.2
+      leaflet: 1.9.3
+      tiny-binary-search: 1.0.3
+    dev: false
+
   /estraverse/4.3.0:
     resolution: {integrity: sha512-39nnKffWz8xN1BU/2c79n9nB9HDzo0niYUqx6xyqUnyoAnQyyWpOTdZEeiCch8BBu515t4wp9ZmgVfVhn9EBpw==}
     engines: {node: '>=4.0'}
@@ -1863,6 +1957,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /fast-astar/1.0.6:
+    resolution: {integrity: sha512-r23aD+DIl2Y/XdhP/Z3kDyi9dJ4BID6z49gjc+lQo1fLBqi9uEkaevcX4v0bqHGxjwc7GKbt/OPRM/UwTCfiEw==}
+    dev: false
 
   /fast-deep-equal/3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -2250,6 +2348,10 @@ packages:
     hasBin: true
     dev: true
 
+  /hyphenate-style-name/1.0.4:
+    resolution: {integrity: sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==}
+    dev: false
+
   /iconv-lite/0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
@@ -2281,7 +2383,7 @@ packages:
     dev: true
 
   /image-size/0.5.5:
-    resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
+    resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
     engines: {node: '>=0.10.0'}
     hasBin: true
     requiresBuild: true
@@ -2560,6 +2662,11 @@ packages:
       is-buffer: 1.1.6
     dev: false
 
+  /klona/2.0.5:
+    resolution: {integrity: sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==}
+    engines: {node: '>= 8'}
+    dev: false
+
   /known-css-properties/0.24.0:
     resolution: {integrity: sha512-RTSoaUAfLvpR357vWzAz/50Q/BmHfmE6ETSWfutT0AJiw10e6CmcdYRQJlLRd95B53D0Y2aD1jSxD3V3ySF+PA==}
     dev: true
@@ -2569,6 +2676,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       set-getter: 0.1.1
+    dev: false
+
+  /leaflet/1.9.3:
+    resolution: {integrity: sha512-iB2cR9vAkDOu5l3HAay2obcUHZ7xwUBBjph8+PGtmW/2lYhbLizWtG7nTeYht36WfOslixQF9D/uSIzhZgGMfQ==}
     dev: false
 
   /less/4.1.3:
@@ -3151,6 +3262,10 @@ packages:
       react-is: 16.13.1
     dev: true
 
+  /proxy-compare/2.3.0:
+    resolution: {integrity: sha512-c3L2CcAi7f7pvlD0D7xsF+2CQIW8C3HaYx2Pfgq8eA4HAl3GAH6/dVYsyBbYF/0XJs2ziGLrzmz5fmzPm6A0pQ==}
+    dev: false
+
   /prr/1.0.1:
     resolution: {integrity: sha512-yPw4Sng1gWghHQWj0B3ZggWUm4qVbPwPFcRG8KyxiU7J2OHFSoEHKS+EZ3fv5l1t9CyCiop6l/ZYeWbrgoQejw==}
     optional: true
@@ -3569,6 +3684,10 @@ packages:
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
+
+  /tiny-binary-search/1.0.3:
+    resolution: {integrity: sha512-STSHX/L5nI9WTLv6wrzJbAPbO7OIISX83KFBh2GVbX1Uz/vgZOU/ANn/8iV6t35yMTpoPzzO+3OQid3mifE0CA==}
+    dev: false
 
   /tmp/0.2.1:
     resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
