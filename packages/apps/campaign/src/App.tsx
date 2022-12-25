@@ -1,12 +1,35 @@
-import { CampaignProvider, Clock, Map } from "./components";
+import { Show, useContext } from "solid-js";
 
-export const App = () => {
+import { CreateCampaign } from "./apps";
+import { CampaignContext, CampaignProvider, Clock, Map } from "./components";
+
+const App = () => {
+	const [state] = useContext(CampaignContext);
+	return (
+		<div>
+			<Show
+				when={state.active === true}
+				fallback={
+					<div>
+						<CreateCampaign />
+					</div>
+				}
+			>
+				<>
+					<Clock />
+					<Map />
+				</>
+			</Show>
+		</div>
+	);
+};
+
+const AppWithContext = () => {
 	return (
 		<CampaignProvider>
-			<div>
-				<Clock />
-				<Map />
-			</div>
+			<App />
 		</CampaignProvider>
 	);
 };
+
+export { AppWithContext as App };
