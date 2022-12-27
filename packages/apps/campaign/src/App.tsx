@@ -1,7 +1,7 @@
 import { Show, useContext } from "solid-js";
 
-import { CreateCampaign } from "./apps";
-import { CampaignContext, CampaignProvider, Clock, Map } from "./components";
+import { CreateCampaign, Home } from "./apps";
+import { CampaignContext, CampaignProvider } from "./components";
 
 const App = () => {
 	const [state] = useContext(CampaignContext);
@@ -15,10 +15,7 @@ const App = () => {
 					</div>
 				}
 			>
-				<>
-					<Clock />
-					<Map />
-				</>
+				<Home />
 			</Show>
 		</div>
 	);

@@ -14,6 +14,7 @@ export const Map = () => {
 		}).addTo(map);
 
 		L.marker([41.8115, 41.7824]).addTo(map);
+		L.marker([43.0038, 41.0189]).addTo(map);
 	});
 
 	return <div class="map" ref={(el) => (mapDiv = el)} />;

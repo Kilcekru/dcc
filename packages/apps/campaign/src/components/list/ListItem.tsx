@@ -4,11 +4,10 @@ import { createMemo, createUniqueId, JSX, Match, Switch } from "solid-js";
 
 import { optionalClass } from "../../utils";
 
-const Item = (props: { children: JSX.Element; class?: string } & JSX.HTMLAttributes<any>) => {
-	const { children, ...htmlProps } = props;
+const Item = (props: { children: JSX.Element; class?: string } & JSX.HTMLAttributes<HTMLLIElement>) => {
 	return (
-		<li class={optionalClass("list-item", props.class)} {...htmlProps}>
-			{children}
+		<li {...props} class={optionalClass("list-item", props.class)}>
+			{props.children}
 		</li>
 	);
 };

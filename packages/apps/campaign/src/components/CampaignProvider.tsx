@@ -1,13 +1,33 @@
 import { createContext, createEffect, JSX, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
 
-type CounterDataStore = { active: boolean; timer: number; multiplier: number; paused: boolean };
+import { FactionStore } from "../types";
+
+type CounterDataStore = {
+	active: boolean;
+	timer: number;
+	multiplier: number;
+	paused: boolean;
+	blueFaction: FactionStore | undefined;
+	redFaction: FactionStore | undefined;
+};
 type CounterStore = [
 	CounterDataStore,
-	{ activate?: () => void; setMultiplier?: (multiplier: number) => void; togglePause?: () => void }
+	{
+		activate?: (blueFaction: FactionStore, redFaction: FactionStore) => void;
+		setMultiplier?: (multiplier: number) => void;
+		togglePause?: () => void;
+	}
 ];
 
-const initState: CounterDataStore = { active: false, timer: 0, multiplier: 1, paused: false };
+const initState: CounterDataStore = {
+	active: false,
+	timer: 0,
+	multiplier: 1,
+	paused: false,
+	blueFaction: undefined,
+	redFaction: undefined,
+};
 
 export const CampaignContext = createContext<CounterStore>([initState, {}]);
 
@@ -18,8 +38,10 @@ export function CampaignProvider(props: { children?: JSX.Element }) {
 	const store: CounterStore = [
 		state,
 		{
-			activate() {
+			activate(blueFaction, redFaction) {
 				setState("active", () => true);
+				setState("blueFaction", () => blueFaction);
+				setState("redFaction", () => redFaction);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
