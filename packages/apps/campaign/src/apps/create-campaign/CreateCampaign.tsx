@@ -1,35 +1,58 @@
+import { FactionData } from "@kilcekru/dcc-shared-rpc-types";
 import { createSignal, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { factionList } from "../../data";
-import { FactionStore } from "../../types";
+import { airdromes, factionList } from "../../data";
+import { Objectives } from "../../data/objectives";
+import { AircraftType } from "../../types/aircraftType";
+import { generateInitAircraftInventory } from "../../utils";
 import { Factions, Start } from "./screens";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
 };
 
-const generateCampaign = (blueFactionId: string, redFactionId: string) => {
-	const blueBaseFaction = factionList.find((f) => f.id === blueFactionId);
+const generateCampaign = (blueFactionName: string, redFactionName: string) => {
+	const blueBaseFaction = factionList.find((f) => f.name === blueFactionName);
+	const kobuleti = airdromes.find((drome) => drome.name === "Kobuleti");
+	const sukhumi = airdromes.find((drome) => drome.name === "Sukhumi-Babushara");
+	const mozdok = airdromes.find((drome) => drome.name === "Mozdok");
 
 	if (blueBaseFaction == null) {
-		throw "unknown faction: " + blueFactionId;
+		throw "unknown faction: " + blueFactionName;
 	}
-	const blueFaction: FactionStore = {
+
+	if (kobuleti == null || sukhumi == null || mozdok == null) {
+		throw "airdrome not found";
+	}
+
+	const blueFaction: FactionData = {
 		...blueBaseFaction,
 		airdromes: ["Kobuleti"],
-		planes: ["F-16"],
+		objectives: [],
+		activeAircrafts: generateInitAircraftInventory(
+			blueBaseFaction.aircrafts as Array<AircraftType>,
+			kobuleti.position,
+			kobuleti.position
+		),
+		packages: [],
 	};
 
-	const redBaseFaction = factionList.find((f) => f.id === redFactionId);
+	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
 
 	if (redBaseFaction == null) {
-		throw "unknown faction: " + blueFactionId;
+		throw "unknown faction: " + blueFactionName;
 	}
-	const redFaction: FactionStore = {
+	const redFaction: FactionData = {
 		...redBaseFaction,
-		airdromes: ["Sukhumi-Babushara"],
-		planes: ["Mig-29"],
+		airdromes: ["Sukhumi-Babushara", "Mozdok"],
+		objectives: Objectives.map((obj) => obj.name),
+		activeAircrafts: generateInitAircraftInventory(
+			redBaseFaction.aircrafts as Array<AircraftType>,
+			sukhumi.position,
+			mozdok.position
+		),
+		packages: [],
 	};
 
 	return {

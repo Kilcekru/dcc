@@ -14,6 +14,7 @@
 		"leaflet": "1.9.3",
 		"esri-leaflet": "3.0.9",
 		"fast-astar": "1.0.6",
+		"milsymbol": "2.0.0",
 		"@zag-js/solid": "0.2.3",
 		"@zag-js/pressable": "0.3.5"
 	},
