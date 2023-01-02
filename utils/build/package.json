@@ -16,5 +16,8 @@
 		"esbuild-plugin-solid": "^0.4.2",
 		"fs-extra": "^11.1.0",
 		"solid-js": "1.6.2"
+	},
+	"devDependencies": {
+		"regedit": "^5.1.1"
 	}
 }
