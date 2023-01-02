@@ -1,15 +1,22 @@
-import { CampaignFlightGroup, CampaignState, FactionData } from "@kilcekru/dcc-shared-rpc-types";
+import {
+	CampaignAircraft,
+	CampaignAircraftState,
+	CampaignFlightGroup,
+	CampaignObjective,
+	CampaignState,
+	FactionData,
+} from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-import { Minutes } from "../utils";
+import { getAircraftStateFromFlightGroup, Minutes } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
 	{
-		activate?: (blueFaction: FactionData, redFaction: FactionData) => void;
+		activate?: (blueFaction: FactionData, redFaction: FactionData, objectives: Array<CampaignObjective>) => void;
 		setMultiplier?: (multiplier: number) => void;
-		tick?: () => void;
+		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
 		cleanupPackages?: () => void;
 		addPackage?: (props: {
@@ -21,6 +28,9 @@ type CampaignStore = [
 			flightGroups: Array<CampaignFlightGroup>;
 		}) => void;
 		clearPackages?: () => void;
+		updateAircraftState?: () => void;
+		updateActiveAircrafts?: (aircrafts: Array<CampaignAircraft>) => void;
+		destroyUnit?: (side: "blue" | "red", objectiveName: string, unitId: string) => void;
 	}
 ];
 
@@ -31,6 +41,7 @@ const initState: CampaignState = {
 	paused: false,
 	blueFaction: undefined,
 	redFaction: undefined,
+	objectives: [],
 };
 
 export const CampaignContext = createContext<CampaignStore>([initState, {}]);
@@ -44,16 +55,21 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(blueFaction, redFaction) {
-				setState("active", () => true);
-				setState("blueFaction", () => blueFaction);
-				setState("redFaction", () => redFaction);
+			activate(blueFaction, redFaction, objectives) {
+				setState(
+					produce((s) => {
+						s.active = true;
+						s.blueFaction = blueFaction;
+						s.redFaction = redFaction;
+						s.objectives = objectives;
+					})
+				);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
 			},
-			tick() {
-				setState("timer", (prev) => prev + state.multiplier);
+			tick(multiplier) {
+				setState("timer", (prev) => prev + multiplier);
 			},
 			togglePause() {
 				setState("paused", (v) => !v);
@@ -85,6 +101,52 @@ export function CampaignProvider(props: {
 							});
 
 							s.blueFaction.packages = s.blueFaction.packages.filter((pkg) => pkg.endTime > state.timer);
+						}
+					})
+				);
+			},
+			updateAircraftState() {
+				setState(
+					produce((s) => {
+						if (s.blueFaction != null) {
+							let aircrafts = s.blueFaction.activeAircrafts.map((aircraft) => {
+								if (
+									aircraft.state === "maintenance" &&
+									aircraft.maintenanceEndTime != null &&
+									aircraft.maintenanceEndTime <= s.timer
+								) {
+									return {
+										...aircraft,
+										state: "idle",
+										maintenanceEndTime: undefined,
+									} as CampaignAircraft;
+								} else {
+									return aircraft;
+								}
+							});
+
+							const aircraftState: Record<string, CampaignAircraftState> = s.blueFaction.packages.reduce(
+								(prev, pkg) => {
+									return {
+										...prev,
+										...pkg.flightGroups.reduce((prev, fg) => {
+											const states: Record<string, string> = {};
+											fg.aircraftIds.forEach((id) => {
+												states[id] = getAircraftStateFromFlightGroup(fg, s.timer);
+											});
+											return { ...prev, ...states };
+										}, {}),
+									};
+								},
+								{}
+							);
+
+							aircrafts = aircrafts.map((aircraft) => ({
+								...aircraft,
+								state: aircraftState[aircraft.id] ?? aircraft.state,
+							}));
+
+							s.blueFaction.activeAircrafts = aircrafts;
 						}
 					})
 				);
@@ -122,6 +184,50 @@ export function CampaignProvider(props: {
 			},
 			clearPackages() {
 				setState("blueFaction", "packages", () => []);
+			},
+			updateActiveAircrafts(aircrafts) {
+				setState("blueFaction", "activeAircrafts", (acs) =>
+					acs.map((ac) => {
+						const updatedAircraft = aircrafts.find((a) => a.id === ac.id);
+
+						if (updatedAircraft == null) {
+							return ac;
+						} else {
+							return updatedAircraft;
+						}
+					})
+				);
+			},
+			destroyUnit(side, objectiveName, unitId) {
+				setState(
+					produce((s) => {
+						s.objectives = s?.objectives.map((obj) => {
+							if (obj.name === objectiveName) {
+								const units = obj.units.map((unit) => {
+									if (unit.id === unitId) {
+										return {
+											...unit,
+											alive: false,
+											destroyedTime: s.timer,
+										};
+									} else {
+										return unit;
+									}
+								});
+
+								const objectiveIsNeutral = units.filter((u) => u.alive === true).length === 0;
+
+								return {
+									...obj,
+									coalition: objectiveIsNeutral ? "neutral" : obj.coalition,
+									units,
+								};
+							} else {
+								return obj;
+							}
+						});
+					})
+				);
 			},
 		},
 	];

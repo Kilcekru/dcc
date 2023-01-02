@@ -1,11 +1,12 @@
-import { FactionData } from "@kilcekru/dcc-shared-rpc-types";
-import { createSignal, Match, Switch, useContext } from "solid-js";
+import { CampaignObjective, CampaignUnit, FactionData } from "@kilcekru/dcc-shared-rpc-types";
+import { createSignal, createUniqueId, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { airdromes, factionList } from "../../data";
 import { Objectives } from "../../data/objectives";
+import { Objective } from "../../types";
 import { AircraftType } from "../../types/aircraftType";
-import { generateInitAircraftInventory } from "../../utils";
+import { distanceToPosition, generateInitAircraftInventory, random } from "../../utils";
 import { Factions, Start } from "./screens";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -26,12 +27,25 @@ const generateCampaign = (blueFactionName: string, redFactionName: string) => {
 		throw "airdrome not found";
 	}
 
+	const nearestObjective = Objectives.reduce(
+		([prevObj, prevDistance], obj) => {
+			const distance = distanceToPosition(kobuleti.position, obj.position);
+
+			if (distance < prevDistance) {
+				return [obj, distance] as [Objective | undefined, number];
+			} else {
+				return [prevObj, prevDistance] as [Objective | undefined, number];
+			}
+		},
+		[undefined, 10000000] as [Objective | undefined, number]
+	)[0];
+
 	const blueFaction: FactionData = {
 		...blueBaseFaction,
 		airdromes: ["Kobuleti"],
-		objectives: [],
 		activeAircrafts: generateInitAircraftInventory(
 			blueBaseFaction.aircrafts as Array<AircraftType>,
+			blueBaseFaction.awacs as Array<AircraftType>,
 			kobuleti.position,
 			kobuleti.position
 		),
@@ -46,9 +60,10 @@ const generateCampaign = (blueFactionName: string, redFactionName: string) => {
 	const redFaction: FactionData = {
 		...redBaseFaction,
 		airdromes: ["Sukhumi-Babushara", "Mozdok"],
-		objectives: Objectives.map((obj) => obj.name),
+
 		activeAircrafts: generateInitAircraftInventory(
 			redBaseFaction.aircrafts as Array<AircraftType>,
+			redBaseFaction.awacs as Array<AircraftType>,
 			sukhumi.position,
 			mozdok.position
 		),
@@ -58,6 +73,26 @@ const generateCampaign = (blueFactionName: string, redFactionName: string) => {
 	return {
 		blueFaction,
 		redFaction,
+		objectives: Objectives.map((obj) => {
+			const isBlue = nearestObjective?.name === obj.name;
+			const unit: CampaignUnit = {
+				id: createUniqueId(),
+				name: isBlue ? "M-2 Bradley" : "BMP-2",
+				displayName: isBlue ? "M-2 Bradley" : "BMP-2",
+				alive: true,
+				category: "Armor",
+			};
+
+			const units: Array<CampaignUnit> = [];
+
+			Array.from({ length: random(4, 8) }, () => units.push({ ...unit, id: createUniqueId() }));
+			return {
+				name: obj.name,
+				position: obj.position,
+				units: units,
+				coalition: isBlue ? "blue" : "red",
+			} as CampaignObjective;
+		}),
 	};
 };
 
@@ -67,7 +102,7 @@ export const CreateCampaign = () => {
 
 	const onFactionsNext = (blueId: string, redId: string) => {
 		const factions = generateCampaign(blueId, redId);
-		activate?.(factions.blueFaction, factions.redFaction);
+		activate?.(factions.blueFaction, factions.redFaction, factions.objectives);
 	};
 
 	return (

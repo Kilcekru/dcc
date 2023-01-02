@@ -6,22 +6,26 @@ import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { airdromes } from "../../data";
-import { Objectives } from "../../data/objectives";
 import { MapPosition } from "../../types";
 import { calcFlightGroupPosition, positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
 
 const sidcUnitCode = {
-	airport: "IBA",
-	airDefence: "UCD",
-	airDefenceMissle: "UCDM",
-	armour: "UCA",
-	armamentProduction: "IMG",
-	attack: "MFA",
+	airport: "IBA---",
+	airDefence: "UCD---",
+	airDefenceMissle: "UCDM--",
+	armour: "UCA---",
+	armamentProduction: "IMG---",
+	attack: "MFA---",
+	aew: "MFRW--",
+	fighter: "MFF---",
 };
+
+type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 
 export const Map = () => {
 	let mapDiv: HTMLDivElement;
+	const objectiveMarkers: Record<string, L.Marker> = {};
 	const flightGroupMarkers: Record<string, L.Marker> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state] = useContext(CampaignContext);
@@ -36,18 +40,13 @@ export const Map = () => {
 		return positionToMapPosition(position);
 	});
 
-	const createSymbol = (
-		mapPosition: MapPosition,
-		hostile: boolean,
-		air: boolean,
-		unitCode: keyof typeof sidcUnitCode
-	) => {
+	const createSymbol = (mapPosition: MapPosition, hostile: boolean, air: boolean, unitCode: SidcUnitCodeKey) => {
 		const map = leaftletMap();
 
 		if (map == null) {
 			return;
 		}
-		const symbol = new Symbol(`S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}----`, {
+		const symbol = new Symbol(`S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`, {
 			size: 20,
 		});
 
@@ -83,7 +82,7 @@ export const Map = () => {
 
 			const mapPosition = positionToMapPosition(airdrome.position);
 
-			createSymbol(mapPosition, false, false, "airport");
+			createSymbol(mapPosition, false, false, "airport")?.bindPopup(airdromeName);
 		});
 
 		state.redFaction?.airdromes.forEach((airdromeName) => {
@@ -95,21 +94,29 @@ export const Map = () => {
 
 			const mapPosition = positionToMapPosition(airdrome.position);
 
-			createSymbol(mapPosition, true, false, "airport");
+			createSymbol(mapPosition, true, false, "airport")?.bindPopup(airdromeName);
 		});
 	};
 
 	const createObjectiveSymbols = () => {
-		state.redFaction?.objectives.forEach((objectiveName) => {
-			const objective = Objectives.find((obj) => obj.name === objectiveName);
-
-			if (objective == null) {
-				return;
-			}
-
+		state.objectives.forEach((objective) => {
 			const mapPosition = positionToMapPosition(objective.position);
 
-			createSymbol(mapPosition, true, false, "armamentProduction");
+			const str = objective.units.reduce((prev, unit) => {
+				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
+			}, objective.name + "<br />");
+
+			if (objective.coalition !== "neutral") {
+				const marker = createSymbol(mapPosition, objective.coalition === "red", false, "armour")?.bindPopup(str);
+
+				if (marker != null) {
+					objectiveMarkers[objective.name] = marker;
+				}
+			}
+
+			if (objective.coalition === "neutral" && objectiveMarkers[objective.name] != null) {
+				objectiveMarkers[objective.name]?.remove();
+			}
 		});
 	};
 
@@ -143,16 +150,20 @@ export const Map = () => {
 				return;
 			}
 
-			if (flightGroupMarkers[fg.name] == null) {
-				const marker = createSymbol(positionToMapPosition(position), false, true, "attack");
+			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
+
+			if (flightGroupMarkers[fg.id] == null) {
+				const marker = createSymbol(positionToMapPosition(position), false, true, code as SidcUnitCodeKey)?.bindPopup(
+					fg.name + " - " + fg.task
+				);
 
 				if (marker == null) {
 					return;
 				}
 
-				flightGroupMarkers[fg.name] = marker;
+				flightGroupMarkers[fg.id] = marker;
 			} else {
-				flightGroupMarkers[fg.name]?.setLatLng(positionToMapPosition(position));
+				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(position));
 			}
 		});
 	});

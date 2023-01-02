@@ -1,8 +1,15 @@
-import { CampaignAircraft, CampaignFlightGroup, CampaignPackage } from "@kilcekru/dcc-shared-rpc-types";
+import {
+	CampaignAircraft,
+	CampaignAircraftState,
+	CampaignCoalition,
+	CampaignFlightGroup,
+	CampaignObjective,
+	CampaignPackage,
+} from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Aircraft as DataAircraft, CallSigns, Objectives } from "./data";
-import { MapPosition, Objective, Position, Task } from "./types";
+import { Aircraft, MapPosition, Objective, Position, Task } from "./types";
 import { AircraftType } from "./types/aircraftType";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -78,14 +85,25 @@ const toDeg = (value: number) => (value * 180) / Math.PI;
 
 export const generateInitAircraftInventory = (
 	availableAircraftTypes: Array<AircraftType>,
+	awacsAircraftTypes: Array<AircraftType>,
 	casAirdromePosition: Position,
 	mainAidromePosition: Position
 ) => {
 	const capCount = 8;
 	const casCount = 4;
 	const strikeCount = 4;
+	const awacsCount = 2;
 
 	const availableAircrafts = availableAircraftTypes.map((aircraftType) => DataAircraft[aircraftType]!);
+	const availableAWACSAircrafts = awacsAircraftTypes.reduce((prev, acType) => {
+		const ac = DataAircraft[acType];
+
+		if (ac == null) {
+			return prev;
+		} else {
+			return [...prev, ac];
+		}
+	}, [] as Array<Aircraft>);
 	const availableCAPAircrafts = availableAircrafts.filter((aircraft) =>
 		aircraft.availableTasks.some((task) => task === "CAP")
 	);
@@ -140,6 +158,20 @@ export const generateInitAircraftInventory = (
 		});
 	});
 
+	availableAWACSAircrafts.forEach((ac) => {
+		const count = Math.min(2, awacsCount * availableAWACSAircrafts.length);
+
+		Array.from({ length: count }, () => {
+			aircrafts.push({
+				aircraftType: ac.name,
+				position: mainAidromePosition,
+				state: "idle",
+				id: createUniqueId(),
+				availableTasks: ac.availableTasks,
+			});
+		});
+	});
+
 	return aircrafts;
 };
 
@@ -162,19 +194,21 @@ export const randomCallSign = () => {
 };
 
 export const findInside = <T>(
-	values: Array<T>,
+	values: Array<T> | undefined,
 	sourcePosition: Position,
 	positionSelector: (value: T) => Position,
 	radius: number
 ): Array<T> => {
-	return values.filter((v) => {
-		const position = positionSelector(v);
-		return (
-			(position.x - sourcePosition.x) * (position.x - sourcePosition.x) +
-				(position.y - sourcePosition.y) * (position.y - sourcePosition.y) <=
-			radius * radius
-		);
-	});
+	return (
+		values?.filter((v) => {
+			const position = positionSelector(v);
+			return (
+				(position.x - sourcePosition.x) * (position.x - sourcePosition.x) +
+					(position.y - sourcePosition.y) * (position.y - sourcePosition.y) <=
+				radius * radius
+			);
+		}) ?? []
+	);
 };
 
 export const objectiveNamesToObjectives = (names: Array<string> | undefined) => {
@@ -261,14 +295,53 @@ export const calcPackageEndTime = (fgs: Array<CampaignFlightGroup>) => {
 	}, 0);
 };
 
-export const getFlightGroups = (packages: Array<CampaignPackage>) => {
-	return packages.reduce((prev, pkg) => {
-		return [...prev, ...pkg.flightGroups];
-	}, [] as Array<CampaignFlightGroup>);
+export const getFlightGroups = (packages: Array<CampaignPackage> | undefined) => {
+	return (
+		packages?.reduce((prev, pkg) => {
+			return [...prev, ...pkg.flightGroups];
+		}, [] as Array<CampaignFlightGroup>) ?? []
+	);
 };
 
 export const getUsableAircrafts = (activeAircrafts: Array<CampaignAircraft> | undefined, task: Task) => {
 	return activeAircrafts?.filter(
 		(aircraft) => aircraft.state === "idle" && aircraft.availableTasks.some((aircraftTask) => aircraftTask === task)
 	);
+};
+
+export const getUsableAircraftsByType = (
+	activeAircrafts: Array<CampaignAircraft> | undefined,
+	aircraftTypes: Array<string> | undefined
+) => {
+	return activeAircrafts?.filter(
+		(aircraft) => aircraft.state === "idle" && aircraftTypes?.some((acType) => aircraft.aircraftType === acType)
+	);
+};
+
+export const getAircraftStateFromFlightGroup = (fg: CampaignFlightGroup, timer: number): CampaignAircraftState => {
+	const activeWaypoint = getActiveWaypoint(fg, timer);
+
+	switch (activeWaypoint?.name) {
+		case "En Route":
+			return "en route";
+		case "CAS":
+			return "on station";
+		case "Landing":
+			return "rtb";
+		default:
+			return "idle";
+	}
+};
+
+export const getAircraftFromId = (activeAircrafts: Array<CampaignAircraft> | undefined, id: string) => {
+	return activeAircrafts?.find((ac) => ac.id === id);
+};
+
+export const filterObjectiveCoalition = (objectives: Array<CampaignObjective>, coalition: CampaignCoalition) => {
+	return objectives.filter((obj) => obj.coalition === coalition);
+};
+
+export const getDurationEnRoute = (startPosition: Position, endPosition: Position, speed: number) => {
+	const distanceToObjective = distanceToPosition(startPosition, endPosition);
+	return distanceToObjective / speed;
 };

@@ -1,5 +1,6 @@
 {
 	"country": "Russia",
 	"name": "Russia 2005",
-	"aircrafts": ["MiG-29S", "Su-25T"]
+	"aircrafts": ["MiG-29S", "Su-25T"],
+	"awacs": ["A-50"]
 }
