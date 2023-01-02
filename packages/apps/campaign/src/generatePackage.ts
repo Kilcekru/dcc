@@ -1,10 +1,13 @@
-import { CampaignAircraft, CampaignFlightGroup, CampaignObjective } from "@kilcekru/dcc-shared-rpc-types";
-import { createUniqueId } from "solid-js";
+import { CampaignCoalition, CampaignFlightGroup } from "@kilcekru/dcc-shared-rpc-types";
+import { createUniqueId, useContext } from "solid-js";
 
+import { CampaignContext } from "./components";
 import { airdromes } from "./data";
+import { useFaction } from "./hooks";
 import {
 	calcPackageEndTime,
 	findInside,
+	firstItem,
 	getDurationEnRoute,
 	getUsableAircrafts,
 	getUsableAircraftsByType,
@@ -15,250 +18,272 @@ import {
 	randomItem,
 } from "./utils";
 
-export const generateCASPackage = (
-	activeAircrafts: Array<CampaignAircraft> | undefined,
-	objectives: Array<CampaignObjective> | undefined,
-	timer: number
-) => {
-	const usableAircrafts = getUsableAircrafts(activeAircrafts, "CAS");
+export const useCas = (coalition: CampaignCoalition) => {
+	const [state] = useContext(CampaignContext);
+	const faction = useFaction(coalition);
 
-	const kobuleti = airdromes.find((drome) => drome.name === "Kobuleti");
+	return () => {
+		const usableAircrafts = getUsableAircrafts(faction?.activeAircrafts, "CAS");
 
-	if (kobuleti == null) {
-		throw "Kobuleti not found";
-	}
+		const airdromeName = firstItem(faction?.airdromes);
+		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
-	const objectivesWithAliveUnits = objectives?.filter(
-		(obj) => obj.units.filter((unit) => unit.alive === true).length > 0
-	);
-	const objectivesInRange = findInside(objectivesWithAliveUnits, kobuleti.position, (obj) => obj?.position, 60000);
+		if (airdromeName == null || airdrome == null) {
+			throw "airdrome not found";
+		}
 
-	const selectedObjective = randomItem(objectivesInRange);
+		const objectivesWithAliveUnits = state.objectives?.filter(
+			(obj) => obj.units.filter((unit) => unit.alive === true).length > 0
+		);
+		const objectivesInRange = findInside(objectivesWithAliveUnits, airdrome.position, (obj) => obj?.position, 60000);
 
-	if (selectedObjective == null) {
-		throw "no objective found";
-	}
+		const selectedObjective = randomItem(objectivesInRange);
 
-	const speed = 170;
-	const durationEnRoute = getDurationEnRoute(kobuleti.position, selectedObjective.position, speed);
+		if (selectedObjective == null) {
+			throw "no objective found";
+		}
 
-	const startTime = timer + Minutes(random(20, 35));
-	const endTakeOffTime = startTime + Minutes(5);
-	const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
-	const endCASTime = endEnRouteTime + 1 + Minutes(30);
-	const endLandingTime = endCASTime + 1 + durationEnRoute;
+		const speed = 170;
+		const durationEnRoute = getDurationEnRoute(airdrome.position, selectedObjective.position, speed);
 
-	const flightGroup: CampaignFlightGroup = {
-		id: createUniqueId(),
-		aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
-		name: randomCallSign(),
-		task: "CAS",
-		startTime,
-		tot: endEnRouteTime + 1,
-		landingTime: endLandingTime,
-		waypoints: [
-			{
-				name: "Take Off",
-				position: kobuleti.position,
-				endPosition: kobuleti.position,
-				time: startTime,
-				endTime: endTakeOffTime,
-				speed,
-			},
-			{
-				name: "En Route",
-				position: kobuleti.position,
-				endPosition: selectedObjective.position,
-				speed,
-				time: endTakeOffTime + 1,
-				endTime: endEnRouteTime,
-			},
-			{
-				name: "CAS",
-				position: selectedObjective.position,
-				endPosition: selectedObjective.position,
-				speed,
-				time: endEnRouteTime + 1,
-				endTime: endCASTime,
-			},
-			{
-				name: "Landing",
-				position: selectedObjective.position,
-				endPosition: kobuleti.position,
-				speed,
-				time: endCASTime + 1,
-				endTime: endLandingTime,
-			},
-		],
-		objective: selectedObjective,
-	};
+		const startTime = state.timer + Minutes(random(20, 35));
+		const endTakeOffTime = startTime + Minutes(5);
+		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
+		const endCASTime = endEnRouteTime + 1 + Minutes(30);
+		const endLandingTime = endCASTime + 1 + durationEnRoute;
 
-	const flightGroups = [flightGroup];
+		const flightGroup: CampaignFlightGroup = {
+			id: createUniqueId(),
+			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
+			name: randomCallSign(),
+			task: "CAS",
+			startTime,
+			tot: endEnRouteTime + 1,
+			landingTime: endLandingTime,
+			waypoints: [
+				{
+					name: "Take Off",
+					position: airdrome.position,
+					endPosition: airdrome.position,
+					time: startTime,
+					endTime: endTakeOffTime,
+					speed,
+				},
+				{
+					name: "En Route",
+					position: airdrome.position,
+					endPosition: selectedObjective.position,
+					speed,
+					time: endTakeOffTime + 1,
+					endTime: endEnRouteTime,
+				},
+				{
+					name: "CAS",
+					position: selectedObjective.position,
+					endPosition: selectedObjective.position,
+					speed,
+					time: endEnRouteTime + 1,
+					endTime: endCASTime,
+				},
+				{
+					name: "Landing",
+					position: selectedObjective.position,
+					endPosition: airdrome.position,
+					speed,
+					time: endCASTime + 1,
+					endTime: endLandingTime,
+				},
+			],
+			objective: selectedObjective,
+		};
 
-	return {
-		side: "blue" as "blue" | "red",
-		task: "CAS",
-		startTime,
-		endTime: calcPackageEndTime(flightGroups),
-		airdrome: "Kobuleti",
-		flightGroups,
-	};
-};
+		const flightGroups = [flightGroup];
 
-export const generateCAPPackage = (activeAircrafts: Array<CampaignAircraft> | undefined, timer: number) => {
-	const usableAircrafts = getUsableAircrafts(activeAircrafts, "CAP");
-
-	const speed = 170;
-
-	const kobuleti = airdromes.find((drome) => drome.name === "Kobuleti");
-
-	if (kobuleti == null) {
-		throw "Kobuleti not found";
-	}
-
-	const endPosition = positionFromHeading(kobuleti.position, 0, 20000);
-	const durationEnRoute = getDurationEnRoute(kobuleti.position, endPosition, speed);
-
-	const startTime = timer + Minutes(random(20, 35));
-	const endTakeOffTime = startTime + Minutes(5);
-
-	const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
-	const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
-	const endLandingTime = endOnStationTime + 1 + durationEnRoute;
-
-	const flightGroup: CampaignFlightGroup = {
-		id: createUniqueId(),
-		aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
-		name: randomCallSign(),
-		task: "CAP",
-		startTime,
-		tot: endEnRouteTime + 1,
-		landingTime: endLandingTime,
-		waypoints: [
-			{
-				name: "Take Off",
-				position: kobuleti.position,
-				endPosition: kobuleti.position,
-				time: startTime,
-				endTime: endTakeOffTime,
-				speed,
-			},
-			{
-				name: "En Route",
-				position: kobuleti.position,
-				endPosition: endPosition,
-				speed,
-				time: endTakeOffTime + 1,
-				endTime: endEnRouteTime,
-			},
-			{
-				name: "On Station",
-				position: endPosition,
-				endPosition: endPosition,
-				speed,
-				time: endEnRouteTime + 1,
-				endTime: endOnStationTime,
-			},
-			{
-				name: "Landing",
-				position: endPosition,
-				endPosition: kobuleti.position,
-				speed,
-				time: endOnStationTime + 1,
-				endTime: endLandingTime,
-			},
-		],
-	};
-
-	const flightGroups = [flightGroup];
-
-	return {
-		side: "blue" as "blue" | "red",
-		task: "CAP",
-		startTime,
-		endTime: calcPackageEndTime(flightGroups),
-		airdrome: "Kobuleti",
-		flightGroups,
+		return {
+			coalition,
+			task: "CAS",
+			startTime,
+			endTime: calcPackageEndTime(flightGroups),
+			airdrome: airdromeName,
+			flightGroups,
+		};
 	};
 };
 
-export const generateAWACSPackage = (
-	activeAircrafts: Array<CampaignAircraft> | undefined,
-	aircraftTypes: Array<string> | undefined,
-	timer: number
-) => {
-	const usableAircrafts = getUsableAircraftsByType(activeAircrafts, aircraftTypes);
+const useCap = (coalition: CampaignCoalition) => {
+	const [state] = useContext(CampaignContext);
+	const faction = useFaction(coalition);
 
-	const speed = 170;
+	return () => {
+		const usableAircrafts = getUsableAircrafts(faction?.activeAircrafts, "CAP");
 
-	const kobuleti = airdromes.find((drome) => drome.name === "Kobuleti");
+		const speed = 170;
 
-	if (kobuleti == null) {
-		throw "Kobuleti not found";
-	}
+		const airdromeName = firstItem(faction?.airdromes);
+		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
-	const endPosition = positionFromHeading(kobuleti.position, 180, 20000);
-	const durationEnRoute = getDurationEnRoute(kobuleti.position, endPosition, speed);
+		if (airdromeName == null || airdrome == null) {
+			throw "airdrome not found";
+		}
 
-	const startTime = timer + Minutes(random(20, 35));
-	const endTakeOffTime = startTime + Minutes(5);
+		const endPosition = positionFromHeading(airdrome.position, 0, 20000);
+		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
 
-	const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
-	const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
-	const endLandingTime = endOnStationTime + 1 + durationEnRoute;
+		const startTime = state.timer + Minutes(random(20, 35));
+		const endTakeOffTime = startTime + Minutes(5);
 
-	const flightGroup: CampaignFlightGroup = {
-		id: createUniqueId(),
-		aircraftIds: usableAircrafts?.slice(0, 1).map((aircraft) => aircraft.id) ?? [],
-		name: randomCallSign(),
-		task: "AWACS",
-		startTime,
-		tot: endEnRouteTime + 1,
-		landingTime: endLandingTime,
-		waypoints: [
-			{
-				name: "Take Off",
-				position: kobuleti.position,
-				endPosition: kobuleti.position,
-				time: startTime,
-				endTime: endTakeOffTime,
-				speed,
-			},
-			{
-				name: "En Route",
-				position: kobuleti.position,
-				endPosition: endPosition,
-				speed,
-				time: endTakeOffTime + 1,
-				endTime: endEnRouteTime,
-			},
-			{
-				name: "On Station",
-				position: endPosition,
-				endPosition: endPosition,
-				speed,
-				time: endEnRouteTime + 1,
-				endTime: endOnStationTime,
-			},
-			{
-				name: "Landing",
-				position: endPosition,
-				endPosition: kobuleti.position,
-				speed,
-				time: endOnStationTime + 1,
-				endTime: endLandingTime,
-			},
-		],
+		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
+		const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
+		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
+
+		const flightGroup: CampaignFlightGroup = {
+			id: createUniqueId(),
+			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
+			name: randomCallSign(),
+			task: "CAP",
+			startTime,
+			tot: endEnRouteTime + 1,
+			landingTime: endLandingTime,
+			waypoints: [
+				{
+					name: "Take Off",
+					position: airdrome.position,
+					endPosition: airdrome.position,
+					time: startTime,
+					endTime: endTakeOffTime,
+					speed,
+				},
+				{
+					name: "En Route",
+					position: airdrome.position,
+					endPosition: endPosition,
+					speed,
+					time: endTakeOffTime + 1,
+					endTime: endEnRouteTime,
+				},
+				{
+					name: "On Station",
+					position: endPosition,
+					endPosition: endPosition,
+					speed,
+					time: endEnRouteTime + 1,
+					endTime: endOnStationTime,
+				},
+				{
+					name: "Landing",
+					position: endPosition,
+					endPosition: airdrome.position,
+					speed,
+					time: endOnStationTime + 1,
+					endTime: endLandingTime,
+				},
+			],
+		};
+
+		const flightGroups = [flightGroup];
+
+		return {
+			coalition,
+			task: "CAP",
+			startTime,
+			endTime: calcPackageEndTime(flightGroups),
+			airdrome: airdromeName,
+			flightGroups,
+		};
 	};
+};
 
-	const flightGroups = [flightGroup];
+const useAwacs = (coalition: CampaignCoalition) => {
+	const [state] = useContext(CampaignContext);
+	const faction = useFaction(coalition);
+
+	return () => {
+		const usableAircrafts = getUsableAircraftsByType(faction?.activeAircrafts, faction?.awacs);
+
+		const speed = 170;
+
+		const airdromeName = firstItem(faction?.airdromes);
+		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
+
+		if (airdromeName == null || airdrome == null) {
+			throw "airdrome not found";
+		}
+
+		const endPosition = positionFromHeading(airdrome.position, 180, 20000);
+		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
+
+		const startTime = state.timer + Minutes(random(20, 35));
+		const endTakeOffTime = startTime + Minutes(5);
+
+		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
+		const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
+		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
+
+		const flightGroup: CampaignFlightGroup = {
+			id: createUniqueId(),
+			aircraftIds: usableAircrafts?.slice(0, 1).map((aircraft) => aircraft.id) ?? [],
+			name: randomCallSign(),
+			task: "AWACS",
+			startTime,
+			tot: endEnRouteTime + 1,
+			landingTime: endLandingTime,
+			waypoints: [
+				{
+					name: "Take Off",
+					position: airdrome.position,
+					endPosition: airdrome.position,
+					time: startTime,
+					endTime: endTakeOffTime,
+					speed,
+				},
+				{
+					name: "En Route",
+					position: airdrome.position,
+					endPosition: endPosition,
+					speed,
+					time: endTakeOffTime + 1,
+					endTime: endEnRouteTime,
+				},
+				{
+					name: "On Station",
+					position: endPosition,
+					endPosition: endPosition,
+					speed,
+					time: endEnRouteTime + 1,
+					endTime: endOnStationTime,
+				},
+				{
+					name: "Landing",
+					position: endPosition,
+					endPosition: airdrome.position,
+					speed,
+					time: endOnStationTime + 1,
+					endTime: endLandingTime,
+				},
+			],
+		};
+
+		const flightGroups = [flightGroup];
+
+		return {
+			coalition,
+			task: "AWACS",
+			startTime,
+			endTime: calcPackageEndTime(flightGroups),
+			airdrome: airdromeName,
+			flightGroups,
+		};
+	};
+};
+
+export const useGeneratePackage = (coalition: CampaignCoalition) => {
+	const awacs = useAwacs(coalition);
+	const cas = useCas(coalition);
+	const cap = useCap(coalition);
 
 	return {
-		side: "blue" as "blue" | "red",
-		task: "AWACS",
-		startTime,
-		endTime: calcPackageEndTime(flightGroups),
-		airdrome: "Kobuleti",
-		flightGroups,
+		awacs,
+		cas,
+		cap,
 	};
 };

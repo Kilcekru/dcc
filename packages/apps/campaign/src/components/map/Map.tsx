@@ -1,6 +1,6 @@
 import "./Map.less";
 
-import { CampaignFlightGroup } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignCoalition, CampaignFlightGroup, CampaignPackage } from "@kilcekru/dcc-shared-rpc-types";
 import L from "leaflet";
 import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
@@ -120,6 +120,39 @@ export const Map = () => {
 		});
 	};
 
+	const createAircraftSymbols = (coalition: CampaignCoalition, packages: Array<CampaignPackage>) => {
+		const flightGroups = packages?.reduce((prev, pkg) => {
+			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
+		}, [] as Array<CampaignFlightGroup>);
+
+		flightGroups?.forEach((fg) => {
+			const position = calcFlightGroupPosition(fg, state.timer);
+
+			if (position == null) {
+				return;
+			}
+
+			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
+
+			if (flightGroupMarkers[fg.id] == null) {
+				const marker = createSymbol(
+					positionToMapPosition(position),
+					coalition === "red",
+					true,
+					code as SidcUnitCodeKey
+				)?.bindPopup(fg.name + " - " + fg.task);
+
+				if (marker == null) {
+					return;
+				}
+
+				flightGroupMarkers[fg.id] = marker;
+			} else {
+				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(position));
+			}
+		});
+	};
+
 	createEffect(() => {
 		const map = leaftletMap();
 		if (map == null) {
@@ -137,35 +170,16 @@ export const Map = () => {
 
 	// Package Markers
 	createEffect(() => {
-		const packages = state.blueFaction?.packages;
+		const bluePackages = state.blueFaction?.packages;
+		const redPackages = state.redFaction?.packages;
 
-		const flightGroups = packages?.reduce((prev, pkg) => {
-			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
-		}, [] as Array<CampaignFlightGroup>);
+		if (bluePackages != null) {
+			createAircraftSymbols("blue", bluePackages);
+		}
 
-		flightGroups?.forEach((fg) => {
-			const position = calcFlightGroupPosition(fg, state.timer);
-
-			if (position == null) {
-				return;
-			}
-
-			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
-
-			if (flightGroupMarkers[fg.id] == null) {
-				const marker = createSymbol(positionToMapPosition(position), false, true, code as SidcUnitCodeKey)?.bindPopup(
-					fg.name + " - " + fg.task
-				);
-
-				if (marker == null) {
-					return;
-				}
-
-				flightGroupMarkers[fg.id] = marker;
-			} else {
-				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(position));
-			}
-		});
+		if (redPackages != null) {
+			createAircraftSymbols("red", redPackages);
+		}
 	});
 
 	return <div class="map" ref={(el) => (mapDiv = el)} />;

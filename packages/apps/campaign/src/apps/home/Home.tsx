@@ -7,22 +7,15 @@ import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Clock, Map } from "../../components";
 import { TimerClock } from "../../components/TimerClock";
-import { generateAWACSPackage, generateCAPPackage, generateCASPackage } from "../../generatePackage";
-import {
-	filterObjectiveCoalition,
-	getActiveWaypoint,
-	getAircraftFromId,
-	getFlightGroups,
-	Minutes,
-	random,
-} from "../../utils";
+import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
 import { Sidebar } from "./components";
+import { usePackagesTick } from "./packages";
 
 export const Home = () => {
-	const [
-		state,
-		{ addPackage, tick, cleanupPackages, clearPackages, updateAircraftState, destroyUnit, updateActiveAircrafts },
-	] = useContext(CampaignContext);
+	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState, destroyUnit, updateActiveAircrafts }] =
+		useContext(CampaignContext);
+	const redPackagesTick = usePackagesTick("red");
+	const bluePackagesTick = usePackagesTick("blue");
 	let inter: number;
 
 	const onSave = () => {
@@ -57,50 +50,6 @@ export const Home = () => {
 
 	const onNextRound = () => {
 		campaignRound();
-	};
-
-	const cas = () => {
-		const runningCASPackages = state.blueFaction?.packages.filter((pkg) => {
-			return pkg.task === "CAS";
-		});
-		const runningCASPackagesCount = runningCASPackages?.length ?? 0;
-
-		if (runningCASPackagesCount < 1) {
-			const pkg = generateCASPackage(
-				state.blueFaction?.activeAircrafts,
-				filterObjectiveCoalition(state.objectives, "red"),
-				state.timer
-			);
-
-			addPackage?.(pkg);
-		}
-	};
-
-	const cap = () => {
-		const runningCAPPackages = state.blueFaction?.packages.filter((pkg) => {
-			return pkg.task === "CAP";
-		});
-		const runningCAPPackagesCount = runningCAPPackages?.length ?? 0;
-
-		if (runningCAPPackagesCount < 1) {
-			const pkg = generateCAPPackage(state.blueFaction?.activeAircrafts, state.timer);
-
-			addPackage?.(pkg);
-		}
-	};
-
-	const awacs = () => {
-		const runningAWACSPackages = state.blueFaction?.packages.filter((pkg) => {
-			return pkg.task === "AWACS";
-		});
-
-		const runningAWACSPackagesCount = runningAWACSPackages?.length ?? 0;
-
-		if (runningAWACSPackagesCount < 1) {
-			const pkg = generateAWACSPackage(state.blueFaction?.activeAircrafts, state.blueFaction?.awacs, state.timer);
-
-			addPackage?.(pkg);
-		}
 	};
 
 	const casAttack = () => {
@@ -153,11 +102,11 @@ export const Home = () => {
 	const campaignRound = () => {
 		cleanupPackages?.();
 		updateAircraftState?.();
-		awacs();
-		cas();
-		cap();
 		casAttack();
+		bluePackagesTick();
+		redPackagesTick();
 	};
+
 	const interval = () => {
 		if (state.multiplier === 1) {
 			tick?.(1 / 60);

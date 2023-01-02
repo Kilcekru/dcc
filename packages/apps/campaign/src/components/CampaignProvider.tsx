@@ -1,6 +1,7 @@
 import {
 	CampaignAircraft,
 	CampaignAircraftState,
+	CampaignCoalition,
 	CampaignFlightGroup,
 	CampaignObjective,
 	CampaignState,
@@ -20,7 +21,7 @@ type CampaignStore = [
 		togglePause?: () => void;
 		cleanupPackages?: () => void;
 		addPackage?: (props: {
-			side: "blue" | "red";
+			coalition: CampaignCoalition;
 			task: string;
 			startTime: number;
 			endTime: number;
@@ -151,15 +152,16 @@ export function CampaignProvider(props: {
 					})
 				);
 			},
-			addPackage({ task, startTime, endTime, airdrome, flightGroups }) {
+			addPackage({ coalition, task, startTime, endTime, airdrome, flightGroups }) {
 				setState(
 					produce((s) => {
-						if (s.blueFaction != null) {
+						const faction = coalition === "blue" ? s.blueFaction : coalition === "red" ? s.redFaction : undefined;
+						if (faction != null) {
 							const usedAircraftIds = flightGroups.reduce((prev, fg) => {
 								return [...prev, ...fg.aircraftIds];
 							}, [] as Array<string>);
 
-							s.blueFaction.activeAircrafts = s.blueFaction.activeAircrafts.map((aircraft) => {
+							faction.activeAircrafts = faction.activeAircrafts.map((aircraft) => {
 								if (usedAircraftIds.some((id) => aircraft.id === id)) {
 									return {
 										...aircraft,
@@ -170,7 +172,7 @@ export function CampaignProvider(props: {
 								}
 							});
 
-							s.blueFaction.packages.push({
+							faction.packages.push({
 								endTime,
 								id: createUniqueId(),
 								startTime,
@@ -178,6 +180,12 @@ export function CampaignProvider(props: {
 								airdrome,
 								flightGroups,
 							});
+
+							if (coalition === "blue") {
+								s.blueFaction = faction;
+							} else if (coalition === "red") {
+								s.redFaction = faction;
+							}
 						}
 					})
 				);
