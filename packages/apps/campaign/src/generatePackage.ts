@@ -3,7 +3,7 @@ import { createUniqueId, useContext } from "solid-js";
 
 import { CampaignContext } from "./components";
 import { airdromes } from "./data";
-import { useFaction } from "./hooks";
+import { useCalcOppositeHeading, useFaction } from "./hooks";
 import {
 	calcPackageEndTime,
 	findInside,
@@ -113,6 +113,7 @@ export const useCas = (coalition: CampaignCoalition) => {
 const useCap = (coalition: CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
+	const calcOppositeHeading = useCalcOppositeHeading(coalition);
 
 	return () => {
 		const usableAircrafts = getUsableAircrafts(faction?.activeAircrafts, "CAP");
@@ -126,7 +127,7 @@ const useCap = (coalition: CampaignCoalition) => {
 			throw "airdrome not found";
 		}
 
-		const endPosition = positionFromHeading(airdrome.position, 0, 20000);
+		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position), 20000);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
 
 		const startTime = state.timer + Minutes(random(20, 35));
@@ -196,6 +197,7 @@ const useCap = (coalition: CampaignCoalition) => {
 const useAwacs = (coalition: CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
+	const calcOppositeHeading = useCalcOppositeHeading(coalition);
 
 	return () => {
 		const usableAircrafts = getUsableAircraftsByType(faction?.activeAircrafts, faction?.awacs);
@@ -209,7 +211,7 @@ const useAwacs = (coalition: CampaignCoalition) => {
 			throw "airdrome not found";
 		}
 
-		const endPosition = positionFromHeading(airdrome.position, 180, 20000);
+		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position) + 180, 20000);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
 
 		const startTime = state.timer + Minutes(random(20, 35));

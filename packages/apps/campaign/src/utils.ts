@@ -345,3 +345,13 @@ export const getDurationEnRoute = (startPosition: Position, endPosition: Positio
 	const distanceToObjective = distanceToPosition(startPosition, endPosition);
 	return distanceToObjective / speed;
 };
+
+export const oppositeCoalition = (coalition: CampaignCoalition | undefined): CampaignCoalition => {
+	if (coalition === "blue") {
+		return "red";
+	} else if (coalition === "red") {
+		return "blue";
+	} else {
+		return "neutral";
+	}
+};
