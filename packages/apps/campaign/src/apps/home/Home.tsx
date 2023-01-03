@@ -2,10 +2,10 @@ import "./Home.less";
 
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignAircraft, CampaignState } from "@kilcekru/dcc-shared-rpc-types";
-import { createEffect, For, onCleanup, useContext } from "solid-js";
+import { createEffect, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { Button, CampaignContext, Clock, Map } from "../../components";
+import { Button, CampaignContext, Map } from "../../components";
 import { TimerClock } from "../../components/TimerClock";
 import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
 import { Sidebar } from "./components";
@@ -45,7 +45,8 @@ export const Home = () => {
 	};
 
 	const onClearPackages = () => {
-		clearPackages?.();
+		clearPackages?.("blueFaction");
+		clearPackages?.("redFaction");
 	};
 
 	const onNextRound = () => {
@@ -61,7 +62,7 @@ export const Home = () => {
 
 		onStationCASfgs.forEach((fg) => {
 			fg.aircraftIds.forEach((id) => {
-				const aircraft = getAircraftFromId(state.blueFaction?.activeAircrafts, id);
+				const aircraft = getAircraftFromId(state.blueFaction?.inventory.aircrafts, id);
 
 				if (aircraft == null) {
 					throw "aircraft not found";
@@ -95,7 +96,7 @@ export const Home = () => {
 		});
 
 		if (updatedAircraft.length > 0) {
-			updateActiveAircrafts?.(updatedAircraft);
+			updateActiveAircrafts?.("blueFaction", updatedAircraft);
 		}
 	};
 
@@ -148,43 +149,8 @@ export const Home = () => {
 				<Button onPress={onClearPackages}>Clear Packages</Button>
 				<Button onPress={onLog}>Log State</Button>
 				<Button onPress={onNextRound}>Next Round</Button>
-				Blue Packages: {state.blueFaction?.packages.length}
 				<TimerClock />
 				<Map />
-				<div>
-					<h3>Packages</h3>
-					<For each={state.blueFaction?.packages}>
-						{(pkg) => (
-							<div>
-								{pkg.id} - {pkg.task}
-								<h4>Flight Groups</h4>
-								<For each={pkg.flightGroups}>
-									{(fg) => (
-										<div>
-											-{fg.name}
-											<For each={fg.waypoints}>
-												{(waypoint) => (
-													<div>
-														--{waypoint.name} <Clock value={waypoint.time} />
-													</div>
-												)}
-											</For>
-											<For each={fg.aircraftIds}>{(id) => <div>--{id}</div>}</For>
-										</div>
-									)}
-								</For>
-							</div>
-						)}
-					</For>
-					<h3>Aircrafts</h3>
-					<For each={state.blueFaction?.activeAircrafts}>
-						{(aircraft) => (
-							<div>
-								{aircraft.id} - {aircraft.aircraftType} - {aircraft.state}
-							</div>
-						)}
-					</For>
-				</div>
 			</div>
 		</div>
 	);

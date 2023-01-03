@@ -23,7 +23,7 @@ export const useCas = (coalition: CampaignCoalition) => {
 	const faction = useFaction(coalition);
 
 	return () => {
-		const usableAircrafts = getUsableAircrafts(faction?.activeAircrafts, "CAS");
+		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAS");
 
 		const airdromeName = firstItem(faction?.airdromes);
 		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
@@ -116,7 +116,7 @@ const useCap = (coalition: CampaignCoalition) => {
 	const calcOppositeHeading = useCalcOppositeHeading(coalition);
 
 	return () => {
-		const usableAircrafts = getUsableAircrafts(faction?.activeAircrafts, "CAP");
+		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAP");
 
 		const speed = 170;
 
@@ -200,7 +200,7 @@ const useAwacs = (coalition: CampaignCoalition) => {
 	const calcOppositeHeading = useCalcOppositeHeading(coalition);
 
 	return () => {
-		const usableAircrafts = getUsableAircraftsByType(faction?.activeAircrafts, faction?.awacs);
+		const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.awacs);
 
 		const speed = 170;
 

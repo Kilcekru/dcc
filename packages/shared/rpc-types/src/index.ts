@@ -3,12 +3,15 @@ export interface Misc {
 }
 
 export type Faction = {
-	aircrafts: Array<string>;
+	cap: Array<string>;
+	cas: Array<string>;
 	awacs: Array<string>;
+	vehicles: Array<string>;
 	country: string;
 	name: string;
 };
 
+export type CampaignUnitState = "idle" | "en route" | "on objective";
 export type CampaignUnit = {
 	id: string;
 	name: string;
@@ -16,6 +19,7 @@ export type CampaignUnit = {
 	category: string;
 	alive: boolean;
 	destroyedTime?: number;
+	state: CampaignUnitState;
 };
 
 export type CampaignCoalition = "blue" | "red" | "neutral";
@@ -27,10 +31,12 @@ export type CampaignObjective = {
 	coalition: CampaignCoalition;
 };
 
-export type FactionData = Faction & {
+export type CampaignFaction = Faction & {
 	airdromes: Array<string>;
-
-	activeAircrafts: Array<CampaignAircraft>;
+	inventory: {
+		aircrafts: Array<CampaignAircraft>;
+		vehicles: Array<CampaignUnit>;
+	};
 	packages: Array<CampaignPackage>;
 };
 
@@ -82,8 +88,8 @@ export type CampaignState = {
 	timer: number;
 	multiplier: number;
 	paused: boolean;
-	blueFaction: FactionData | undefined;
-	redFaction: FactionData | undefined;
+	blueFaction: CampaignFaction | undefined;
+	redFaction: CampaignFaction | undefined;
 	objectives: Array<CampaignObjective>;
 };
 export interface Campaign {

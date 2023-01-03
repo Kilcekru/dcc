@@ -6,11 +6,9 @@ import {
 	CampaignObjective,
 	CampaignPackage,
 } from "@kilcekru/dcc-shared-rpc-types";
-import { createUniqueId } from "solid-js";
 
-import { Aircraft as DataAircraft, CallSigns, Objectives } from "./data";
-import { Aircraft, MapPosition, Objective, Position, Task } from "./types";
-import { AircraftType } from "./types/aircraftType";
+import { CallSigns, Objectives } from "./data";
+import { MapPosition, Objective, Position, Task } from "./types";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
@@ -82,98 +80,6 @@ const getLongitude = (mapPosition: MapPosition) => {
 const toRad = (value: number) => (value * Math.PI) / 180;
 
 const toDeg = (value: number) => (value * 180) / Math.PI;
-
-export const generateInitAircraftInventory = (
-	availableAircraftTypes: Array<AircraftType>,
-	awacsAircraftTypes: Array<AircraftType>,
-	casAirdromePosition: Position,
-	mainAidromePosition: Position
-) => {
-	const capCount = 8;
-	const casCount = 4;
-	const strikeCount = 4;
-	const awacsCount = 2;
-
-	const availableAircrafts = availableAircraftTypes.map((aircraftType) => DataAircraft[aircraftType]!);
-	const availableAWACSAircrafts = awacsAircraftTypes.reduce((prev, acType) => {
-		const ac = DataAircraft[acType];
-
-		if (ac == null) {
-			return prev;
-		} else {
-			return [...prev, ac];
-		}
-	}, [] as Array<Aircraft>);
-	const availableCAPAircrafts = availableAircrafts.filter((aircraft) =>
-		aircraft.availableTasks.some((task) => task === "CAP")
-	);
-	const availableCASAircrafts = availableAircrafts.filter((aircraft) =>
-		aircraft.availableTasks.some((task) => task === "CAS")
-	);
-	const availableStrikeAircrafts = availableAircrafts.filter((aircraft) =>
-		aircraft.availableTasks.some((task) => task === "Pinpoint Strike")
-	);
-
-	const aircrafts: Array<CampaignAircraft> = [];
-
-	availableCAPAircrafts.forEach((aircraft) => {
-		const count = Math.min(2, capCount * availableCAPAircrafts.length);
-
-		Array.from({ length: count }, () => {
-			aircrafts.push({
-				aircraftType: aircraft.name,
-				position: mainAidromePosition,
-				state: "idle",
-				id: createUniqueId(),
-				availableTasks: aircraft.availableTasks,
-			});
-		});
-	});
-
-	availableCASAircrafts.forEach((aircraft) => {
-		const count = Math.min(2, casCount * availableCASAircrafts.length);
-
-		Array.from({ length: count }, () => {
-			aircrafts.push({
-				aircraftType: aircraft.name,
-				position: casAirdromePosition,
-				state: "idle",
-				id: createUniqueId(),
-				availableTasks: aircraft.availableTasks,
-			});
-		});
-	});
-
-	availableStrikeAircrafts.forEach((aircraft) => {
-		const count = Math.min(2, strikeCount * availableStrikeAircrafts.length);
-
-		Array.from({ length: count }, () => {
-			aircrafts.push({
-				aircraftType: aircraft.name,
-				position: mainAidromePosition,
-				state: "idle",
-				id: createUniqueId(),
-				availableTasks: aircraft.availableTasks,
-			});
-		});
-	});
-
-	availableAWACSAircrafts.forEach((ac) => {
-		const count = Math.min(2, awacsCount * availableAWACSAircrafts.length);
-
-		Array.from({ length: count }, () => {
-			aircrafts.push({
-				aircraftType: ac.name,
-				position: mainAidromePosition,
-				state: "idle",
-				id: createUniqueId(),
-				availableTasks: ac.availableTasks,
-			});
-		});
-	});
-
-	return aircrafts;
-};
 
 export const Minutes = (value: number) => {
 	return value * 60;

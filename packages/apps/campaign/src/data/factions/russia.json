@@ -1,6 +1,8 @@
 {
 	"country": "Russia",
 	"name": "Russia 2005",
-	"aircrafts": ["MiG-29S", "Su-25T"],
-	"awacs": ["A-50"]
+	"cap": ["MiG-29S"],
+	"cas": ["Su-25T"],
+	"awacs": ["A-50"],
+	"vehicles": ["BMP-2"]
 }

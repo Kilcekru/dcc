@@ -12,7 +12,7 @@ export const Sidebar = () => {
 		<div class="sidebar">
 			<div>Task</div>
 			<div>Name</div>
-			<div>Take Off</div>
+			<div>Start</div>
 			<div>TOT</div>
 			<div>Duration</div>
 

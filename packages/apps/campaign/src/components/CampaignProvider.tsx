@@ -2,20 +2,91 @@ import {
 	CampaignAircraft,
 	CampaignAircraftState,
 	CampaignCoalition,
+	CampaignFaction,
 	CampaignFlightGroup,
 	CampaignObjective,
 	CampaignState,
-	FactionData,
 } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
 import { getAircraftStateFromFlightGroup, Minutes } from "../utils";
 
+const cleanupPackages = (faction: CampaignFaction, timer: number) => {
+	const finishedPackages = faction.packages.filter((pkg) => pkg.endTime <= timer);
+
+	const usedAircraftIds = finishedPackages.reduce((prev, pkg) => {
+		const fgAircraftIds = pkg.flightGroups.reduce((prev, fg) => {
+			return [...prev, ...fg.aircraftIds];
+		}, [] as Array<string>);
+
+		return [...prev, ...fgAircraftIds];
+	}, [] as Array<string>);
+
+	const updatedAircrafts = faction.inventory.aircrafts.map((aircraft) => {
+		if (usedAircraftIds.some((id) => aircraft.id === id)) {
+			return {
+				...aircraft,
+				state: "maintenance",
+				maintenanceEndTime: timer + Minutes(60),
+			} as CampaignAircraft;
+		} else {
+			return aircraft;
+		}
+	});
+
+	const updatedPackages = faction.packages.filter((pkg) => pkg.endTime > timer);
+
+	return {
+		aircrafts: updatedAircrafts,
+		packages: updatedPackages,
+	};
+};
+
+const updateAircraftState = (faction: CampaignFaction, timer: number) => {
+	const aircrafts = faction.inventory.aircrafts.map((aircraft) => {
+		if (
+			aircraft.state === "maintenance" &&
+			aircraft.maintenanceEndTime != null &&
+			aircraft.maintenanceEndTime <= timer
+		) {
+			return {
+				...aircraft,
+				state: "idle",
+				maintenanceEndTime: undefined,
+			} as CampaignAircraft;
+		} else {
+			return aircraft;
+		}
+	});
+
+	const aircraftState: Record<string, CampaignAircraftState> = faction.packages.reduce((prev, pkg) => {
+		return {
+			...prev,
+			...pkg.flightGroups.reduce((prev, fg) => {
+				const states: Record<string, string> = {};
+				fg.aircraftIds.forEach((id) => {
+					states[id] = getAircraftStateFromFlightGroup(fg, timer);
+				});
+				return { ...prev, ...states };
+			}, {}),
+		};
+	}, {});
+
+	return aircrafts.map((aircraft) => ({
+		...aircraft,
+		state: aircraftState[aircraft.id] ?? aircraft.state,
+	}));
+};
+
 type CampaignStore = [
 	CampaignState,
 	{
-		activate?: (blueFaction: FactionData, redFaction: FactionData, objectives: Array<CampaignObjective>) => void;
+		activate?: (
+			blueFaction: CampaignFaction,
+			redFaction: CampaignFaction,
+			objectives: Array<CampaignObjective>
+		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
@@ -28,9 +99,9 @@ type CampaignStore = [
 			airdrome: string;
 			flightGroups: Array<CampaignFlightGroup>;
 		}) => void;
-		clearPackages?: () => void;
+		clearPackages?: (factionString: "blueFaction" | "redFaction") => void;
 		updateAircraftState?: () => void;
-		updateActiveAircrafts?: (aircrafts: Array<CampaignAircraft>) => void;
+		updateActiveAircrafts?: (factionString: "blueFaction" | "redFaction", aircrafts: Array<CampaignAircraft>) => void;
 		destroyUnit?: (side: "blue" | "red", objectiveName: string, unitId: string) => void;
 	}
 ];
@@ -79,29 +150,17 @@ export function CampaignProvider(props: {
 				setState(
 					produce((s) => {
 						if (s.blueFaction != null) {
-							const finishedPackages = s.blueFaction?.packages.filter((pkg) => pkg.endTime <= state.timer);
+							const update = cleanupPackages(s.blueFaction, s.timer);
 
-							const usedAircraftIds = finishedPackages.reduce((prev, pkg) => {
-								const fgAircraftIds = pkg.flightGroups.reduce((prev, fg) => {
-									return [...prev, ...fg.aircraftIds];
-								}, [] as Array<string>);
+							s.blueFaction.inventory.aircrafts = update.aircrafts;
+							s.blueFaction.packages = update.packages;
+						}
 
-								return [...prev, ...fgAircraftIds];
-							}, [] as Array<string>);
+						if (s.redFaction != null) {
+							const update = cleanupPackages(s.redFaction, s.timer);
 
-							s.blueFaction.activeAircrafts = s.blueFaction.activeAircrafts.map((aircraft) => {
-								if (usedAircraftIds.some((id) => aircraft.id === id)) {
-									return {
-										...aircraft,
-										state: "maintenance",
-										maintenanceEndTime: s.timer + Minutes(60),
-									};
-								} else {
-									return aircraft;
-								}
-							});
-
-							s.blueFaction.packages = s.blueFaction.packages.filter((pkg) => pkg.endTime > state.timer);
+							s.redFaction.inventory.aircrafts = update.aircrafts;
+							s.redFaction.packages = update.packages;
 						}
 					})
 				);
@@ -110,44 +169,11 @@ export function CampaignProvider(props: {
 				setState(
 					produce((s) => {
 						if (s.blueFaction != null) {
-							let aircrafts = s.blueFaction.activeAircrafts.map((aircraft) => {
-								if (
-									aircraft.state === "maintenance" &&
-									aircraft.maintenanceEndTime != null &&
-									aircraft.maintenanceEndTime <= s.timer
-								) {
-									return {
-										...aircraft,
-										state: "idle",
-										maintenanceEndTime: undefined,
-									} as CampaignAircraft;
-								} else {
-									return aircraft;
-								}
-							});
+							s.blueFaction.inventory.aircrafts = updateAircraftState(s.blueFaction, s.timer);
+						}
 
-							const aircraftState: Record<string, CampaignAircraftState> = s.blueFaction.packages.reduce(
-								(prev, pkg) => {
-									return {
-										...prev,
-										...pkg.flightGroups.reduce((prev, fg) => {
-											const states: Record<string, string> = {};
-											fg.aircraftIds.forEach((id) => {
-												states[id] = getAircraftStateFromFlightGroup(fg, s.timer);
-											});
-											return { ...prev, ...states };
-										}, {}),
-									};
-								},
-								{}
-							);
-
-							aircrafts = aircrafts.map((aircraft) => ({
-								...aircraft,
-								state: aircraftState[aircraft.id] ?? aircraft.state,
-							}));
-
-							s.blueFaction.activeAircrafts = aircrafts;
+						if (s.redFaction != null) {
+							s.redFaction.inventory.aircrafts = updateAircraftState(s.redFaction, s.timer);
 						}
 					})
 				);
@@ -157,21 +183,6 @@ export function CampaignProvider(props: {
 					produce((s) => {
 						const faction = coalition === "blue" ? s.blueFaction : coalition === "red" ? s.redFaction : undefined;
 						if (faction != null) {
-							const usedAircraftIds = flightGroups.reduce((prev, fg) => {
-								return [...prev, ...fg.aircraftIds];
-							}, [] as Array<string>);
-
-							faction.activeAircrafts = faction.activeAircrafts.map((aircraft) => {
-								if (usedAircraftIds.some((id) => aircraft.id === id)) {
-									return {
-										...aircraft,
-										state: "en route",
-									};
-								} else {
-									return aircraft;
-								}
-							});
-
 							faction.packages.push({
 								endTime,
 								id: createUniqueId(),
@@ -190,11 +201,11 @@ export function CampaignProvider(props: {
 					})
 				);
 			},
-			clearPackages() {
-				setState("blueFaction", "packages", () => []);
+			clearPackages(factionString) {
+				setState(factionString, "packages", () => []);
 			},
-			updateActiveAircrafts(aircrafts) {
-				setState("blueFaction", "activeAircrafts", (acs) =>
+			updateActiveAircrafts(factionString, aircrafts) {
+				setState(factionString, "inventory", "aircrafts", (acs) =>
 					acs.map((ac) => {
 						const updatedAircraft = aircrafts.find((a) => a.id === ac.id);
 

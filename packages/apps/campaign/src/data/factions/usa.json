@@ -1,6 +1,8 @@
 {
 	"country": "USA",
 	"name": "USA 2005",
-	"aircrafts": ["F-16C_50", "A-10C_2", "AH-64D_BLK_II"],
-	"awacs": ["E-3A"]
+	"cap": ["F-16C_50"],
+	"cas": ["F-16C_50", "A-10C_2", "AH-64D_BLK_II"],
+	"awacs": ["E-3A"],
+	"vehicles": ["M-2 Bradley"]
 }
