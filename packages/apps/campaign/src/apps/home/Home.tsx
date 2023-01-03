@@ -83,7 +83,7 @@ export const Home = () => {
 					if (aliveUnits != null) {
 						// Is the attack successful
 						if (random(1, 100) <= 50) {
-							destroyUnit?.("red", fgObjective.name, aliveUnits.id);
+							destroyUnit?.("redFaction", fgObjective.name, aliveUnits.id);
 							console.log(`CAS: ${aircraft.id} destroyed ${aliveUnits.id} in objective ${fgObjective.name}`); // eslint-disable-line no-console
 						} else {
 							console.log(`CAS: ${aircraft.id} missed ${aliveUnits.id} in objective ${fgObjective.name}`); // eslint-disable-line no-console

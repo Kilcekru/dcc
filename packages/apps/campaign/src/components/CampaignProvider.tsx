@@ -102,7 +102,7 @@ type CampaignStore = [
 		clearPackages?: (factionString: "blueFaction" | "redFaction") => void;
 		updateAircraftState?: () => void;
 		updateActiveAircrafts?: (factionString: "blueFaction" | "redFaction", aircrafts: Array<CampaignAircraft>) => void;
-		destroyUnit?: (side: "blue" | "red", objectiveName: string, unitId: string) => void;
+		destroyUnit?: (factionString: "blueFaction" | "redFaction", objectiveName: string, unitId: string) => void;
 	}
 ];
 
@@ -217,7 +217,16 @@ export function CampaignProvider(props: {
 					})
 				);
 			},
-			destroyUnit(side, objectiveName, unitId) {
+			destroyUnit(factionString, objectiveName, unitId) {
+				setState(factionString, "inventory", "vehicles", (vehicles) =>
+					vehicles.map((vehicle) => {
+						if (vehicle.id === unitId) {
+							return { ...vehicle, alive: false, destroyedTime: state.timer };
+						} else {
+							return vehicle;
+						}
+					})
+				);
 				setState(
 					produce((s) => {
 						s.objectives = s?.objectives.map((obj) => {
