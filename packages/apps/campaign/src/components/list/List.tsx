@@ -1,3 +1,5 @@
+import "./List.less";
+
 import { JSXElement } from "solid-js";
 
 export const List = (props: { children?: JSXElement }) => {

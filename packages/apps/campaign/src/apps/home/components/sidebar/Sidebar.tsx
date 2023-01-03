@@ -2,37 +2,28 @@ import "./Sidebar.less";
 
 import { For, useContext } from "solid-js";
 
-import { CampaignContext, Clock } from "../../../../components";
+import { CampaignContext, List, ListItem } from "../../../../components";
 import { getFlightGroups } from "../../../../utils";
+import { FlightGroupItem } from "./FlightGroupItem";
 
 export const Sidebar = () => {
 	const [state] = useContext(CampaignContext);
 
 	return (
 		<div class="sidebar">
-			<div>Task</div>
-			<div>Name</div>
-			<div>Start</div>
-			<div>TOT</div>
-			<div>Duration</div>
+			<List>
+				<ListItem class="sidebar__header">
+					<div>Task</div>
+					<div>Name</div>
+					<div>Start</div>
+					<div>TOT</div>
+					<div>Duration</div>
+				</ListItem>
 
-			<For each={getFlightGroups(state.blueFaction?.packages ?? [])}>
-				{(fg) => (
-					<>
-						<div>{fg.task}</div>
-						<div>{fg.name}</div>
-						<div>
-							<Clock value={fg.startTime} />
-						</div>
-						<div>
-							<Clock value={fg.tot} />
-						</div>
-						<div>
-							<Clock value={fg.landingTime - fg.startTime} />
-						</div>
-					</>
-				)}
-			</For>
+				<For each={getFlightGroups(state.blueFaction?.packages ?? [])}>
+					{(fg) => <FlightGroupItem flightGroup={fg} />}
+				</For>
+			</List>
 		</div>
 	);
 };

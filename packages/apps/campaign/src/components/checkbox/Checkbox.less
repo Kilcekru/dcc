@@ -1,0 +1,14 @@
+.checkbox {
+	cursor: pointer;
+	display: flex;
+	&__control {
+		width: 1em;
+		height: 1em;
+		border: solid 1px var(--body);
+		margin-right: 5px;
+
+		&[data-checked] {
+			background-color: var(--body);
+		}
+	}
+}

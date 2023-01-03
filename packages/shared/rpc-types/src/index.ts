@@ -31,6 +31,12 @@ export type CampaignObjective = {
 	coalition: CampaignCoalition;
 };
 
+export type CampaignSam = {
+	position: { x: number; y: number };
+	units: Array<CampaignUnit>;
+	range: number;
+};
+
 export type CampaignFaction = Faction & {
 	airdromes: Array<string>;
 	inventory: {
@@ -38,6 +44,7 @@ export type CampaignFaction = Faction & {
 		vehicles: Array<CampaignUnit>;
 	};
 	packages: Array<CampaignPackage>;
+	sams: Array<CampaignSam>;
 };
 
 export type CampaignAircraftState = "idle" | "en route" | "on station" | "combat" | "rtb" | "maintenance";

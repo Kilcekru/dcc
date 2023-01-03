@@ -30,8 +30,9 @@ importers:
     specifiers:
       '@kilcekru/dcc-lib-rpc': workspace:*
       '@types/leaflet': 1.9.0
-      '@zag-js/pressable': 0.3.5
-      '@zag-js/solid': 0.2.3
+      '@zag-js/checkbox': 0.2.7
+      '@zag-js/pressable': 0.3.6
+      '@zag-js/solid': 0.2.4
       esri-leaflet: 3.0.9
       fast-astar: 1.0.6
       leaflet: 1.9.3
@@ -39,8 +40,9 @@ importers:
       solid-js: 1.6.2
     dependencies:
       '@kilcekru/dcc-lib-rpc': link:../../libs/rpc
-      '@zag-js/pressable': 0.3.5
-      '@zag-js/solid': 0.2.3_solid-js@1.6.2
+      '@zag-js/checkbox': 0.2.7
+      '@zag-js/pressable': 0.3.6
+      '@zag-js/solid': 0.2.4_solid-js@1.6.2
       esri-leaflet: 3.0.9_leaflet@1.9.3
       fast-astar: 1.0.6
       leaflet: 1.9.3
@@ -801,45 +803,53 @@ packages:
       eslint-visitor-keys: 3.3.0
     dev: true
 
-  /@zag-js/anatomy/0.1.2:
-    resolution: {integrity: sha512-sj+KuCdPG+wAkAeyROXbN9FbVLTrDZk3N/Am1lL+TQKmZH28NRezt0Wf9arVHCJ+mDnZhW173CoxZ8B5cKT8Kw==}
+  /@zag-js/anatomy/0.1.3:
+    resolution: {integrity: sha512-jiXEJ9aMmLs/0lGTOjrji7ug8QKwM0EpLfzStzTJ7TOSCLaASyKqGsL6J9pRDl6Zo2n/DgjdQY5gjGMNNhtHow==}
     dev: false
 
-  /@zag-js/core/0.2.3:
-    resolution: {integrity: sha512-+YjI1cPnvd3DEuWEO/MWg88OrV6Wh5uO1c0Azb6+9QOrlKfBTEGPJUy5KWd2greyTw9oXyUJX3CsEw8YbRVTIw==}
+  /@zag-js/checkbox/0.2.7:
+    resolution: {integrity: sha512-SP4i3r1CB/zB3vuErimhAq1X8VDaBBAKNccc8nW4XZgdHbDughgD8wTxJsEDt3QxuBRSppIMd7fIaiYffowHsA==}
     dependencies:
-      '@zag-js/store': 0.2.1
+      '@zag-js/anatomy': 0.1.3
+      '@zag-js/core': 0.2.4
+      '@zag-js/types': 0.3.2
+    dev: false
+
+  /@zag-js/core/0.2.4:
+    resolution: {integrity: sha512-T+4xCjCShGjMb+3gmLga/auZ6ID1cdkJC4XwsCAFomJRxnyh6/at6OGLi1Ln0L/+DdXBvksLku/DwwKe4UkB7g==}
+    dependencies:
+      '@zag-js/store': 0.2.2
       klona: 2.0.5
     dev: false
 
-  /@zag-js/pressable/0.3.5:
-    resolution: {integrity: sha512-uYTKfWOCNWlxy6b3hF876HBS9OjxrkR/EQhXh7hcsTVefdsC3jl+t7La6KWTr0dzQzq6vDeH81EjOFflIhBlZA==}
+  /@zag-js/pressable/0.3.6:
+    resolution: {integrity: sha512-Zw/iRN0XTHopY8BZnUBJG3QNlaVmFB3hxIXZCfhdIObiEBSBIuqnpaRINBKDBYiBAl0aHeZ0vM5Rbl7+yxFxEg==}
     dependencies:
-      '@zag-js/anatomy': 0.1.2
-      '@zag-js/core': 0.2.3
-      '@zag-js/types': 0.3.1
+      '@zag-js/anatomy': 0.1.3
+      '@zag-js/core': 0.2.4
+      '@zag-js/types': 0.3.2
     dev: false
 
-  /@zag-js/solid/0.2.3_solid-js@1.6.2:
-    resolution: {integrity: sha512-3LNcYoLa3v0ayGr0Pgt49OmYrm7uTyl/dO6zNKiITN0XMYGGKWc/dAGunGlDpj7lW9i8AlYH760muQPnLTkl0g==}
+  /@zag-js/solid/0.2.4_solid-js@1.6.2:
+    resolution: {integrity: sha512-FP49mNBwKc65O5ZbTgPF6H7ujvVUbc9DHf3PPw0w/nIbTJTUxTEVL1sDsw4Dptdt7puwG6a/pU7c/xCKIIxw/Q==}
     peerDependencies:
       solid-js: '>=1.1.3'
     dependencies:
-      '@zag-js/core': 0.2.3
-      '@zag-js/store': 0.2.1
-      '@zag-js/types': 0.3.1
+      '@zag-js/core': 0.2.4
+      '@zag-js/store': 0.2.2
+      '@zag-js/types': 0.3.2
       hyphenate-style-name: 1.0.4
       solid-js: 1.6.2
     dev: false
 
-  /@zag-js/store/0.2.1:
-    resolution: {integrity: sha512-QYmAyh9hXRSmqKirD/nyTohSOI86fenSdtF177W88Jyv0SfaGSv4Z+o+kU6g62c+XIQVEP/W9LL3ZH075lQI9A==}
+  /@zag-js/store/0.2.2:
+    resolution: {integrity: sha512-epHzWquai5l4SDkTuyWmbJUz8VUFmdx0BAUuonbz6lMv24e+HODRegHMgtLjTgF6KHg6+30X07k9gCxOsrrZsQ==}
     dependencies:
       proxy-compare: 2.3.0
     dev: false
 
-  /@zag-js/types/0.3.1:
-    resolution: {integrity: sha512-mSGkt+mqmvE+E6RAR1py74Pbzb5q2HjhijkpsUojHsDa+DIX9KJ2XTKGt9Dv3qxqwY81/pQdBQFNLDNKMAeYdQ==}
+  /@zag-js/types/0.3.2:
+    resolution: {integrity: sha512-ADOFgW8vccD4h94nBGJZdzM5GVKK/lAssL7HH+hTo+tiWczOEbPT20p2/YSBz5Xy7QpEIdQB6bZ373f0h1FaSQ==}
     dependencies:
       csstype: 3.1.1
     dev: false
@@ -3729,15 +3739,15 @@ packages:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
 
-  /tiny-binary-search/1.0.3:
-    resolution: {integrity: sha512-STSHX/L5nI9WTLv6wrzJbAPbO7OIISX83KFBh2GVbX1Uz/vgZOU/ANn/8iV6t35yMTpoPzzO+3OQid3mifE0CA==}
-    dev: false
-
   /through2/0.6.5:
     resolution: {integrity: sha512-RkK/CCESdTKQZHdmKICijdKKsCRVHs5KsLZ6pACAmF/1GPUQhonHSXWNERctxEp7RmvjdNbZTL5z9V7nSCXKcg==}
     dependencies:
       readable-stream: 1.0.34
       xtend: 4.0.2
+
+  /tiny-binary-search/1.0.3:
+    resolution: {integrity: sha512-STSHX/L5nI9WTLv6wrzJbAPbO7OIISX83KFBh2GVbX1Uz/vgZOU/ANn/8iV6t35yMTpoPzzO+3OQid3mifE0CA==}
+    dev: false
 
   /tmp/0.2.1:
     resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}

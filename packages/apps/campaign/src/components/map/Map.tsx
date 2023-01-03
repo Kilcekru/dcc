@@ -153,6 +153,21 @@ export const Map = () => {
 		});
 	};
 
+	const createSamSymbols = () => {
+		state.redFaction?.sams.forEach((sam) => {
+			const mapPosition = positionToMapPosition(sam.position);
+			createSymbol(mapPosition, true, false, "airDefenceMissle");
+
+			const map = leaftletMap();
+
+			if (map == null) {
+				return;
+			}
+
+			L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
+		});
+	};
+
 	createEffect(() => {
 		const map = leaftletMap();
 		if (map == null) {
@@ -166,6 +181,7 @@ export const Map = () => {
 
 		createAirdromeSymbols();
 		createObjectiveSymbols();
+		createSamSymbols();
 	});
 
 	// Package Markers

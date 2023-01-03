@@ -73,3 +73,21 @@ export type Aircraft = {
 	era: Era;
 	carrierCapable: boolean;
 };
+
+export type StrikeTargetType = "Vehicle" | "AAA" | "Artillery" | "SAM" | "Structure";
+
+export type UnitPosition = Position & {
+	heading: number;
+};
+
+export type StrikeTarget = {
+	name: string;
+	position: Position;
+	spans?: [Position, Position];
+	blueGroup?: Omit<StrikeTarget, "bluGroup">;
+	objective?: string;
+	type?: StrikeTargetType;
+	structureType?: string;
+	structureCategory?: string;
+	unitPositions: Array<UnitPosition>;
+};
