@@ -2,10 +2,11 @@ import "./Home.less";
 
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignAircraft, CampaignState } from "@kilcekru/dcc-shared-rpc-types";
-import { createEffect, onCleanup, useContext } from "solid-js";
+import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
+import Modal from "../../components/modal/Modal";
 import { TimerClock } from "../../components/TimerClock";
 import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
 import { Sidebar } from "./components";
@@ -16,6 +17,7 @@ export const Home = () => {
 		useContext(CampaignContext);
 	const redPackagesTick = usePackagesTick("red");
 	const bluePackagesTick = usePackagesTick("blue");
+	const [showModal, setShowModal] = createSignal(false);
 	let inter: number;
 
 	const onSave = () => {
@@ -100,12 +102,24 @@ export const Home = () => {
 		}
 	};
 
+	const missionModal = () => {
+		const fgs = getFlightGroups(state.blueFaction?.packages);
+
+		fgs.forEach((fg) => {
+			if (Math.floor(fg.startTime) === Math.floor(state.timer)) {
+				// pause?.();
+				setShowModal(false);
+			}
+		});
+	};
+
 	const campaignRound = () => {
 		cleanupPackages?.();
 		updateAircraftState?.();
 		casAttack();
 		bluePackagesTick();
 		redPackagesTick();
+		missionModal();
 	};
 
 	const interval = () => {
@@ -152,6 +166,7 @@ export const Home = () => {
 				<TimerClock />
 				<Map />
 			</div>
+			<Modal isOpen={showModal()} />
 		</div>
 	);
 };

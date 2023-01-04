@@ -31,6 +31,7 @@ importers:
       '@kilcekru/dcc-lib-rpc': workspace:*
       '@types/leaflet': 1.9.0
       '@zag-js/checkbox': 0.2.7
+      '@zag-js/dialog': 0.2.6
       '@zag-js/pressable': 0.3.6
       '@zag-js/solid': 0.2.4
       esri-leaflet: 3.0.9
@@ -41,6 +42,7 @@ importers:
     dependencies:
       '@kilcekru/dcc-lib-rpc': link:../../libs/rpc
       '@zag-js/checkbox': 0.2.7
+      '@zag-js/dialog': 0.2.6
       '@zag-js/pressable': 0.3.6
       '@zag-js/solid': 0.2.4_solid-js@1.6.2
       esri-leaflet: 3.0.9_leaflet@1.9.3
@@ -807,6 +809,10 @@ packages:
     resolution: {integrity: sha512-jiXEJ9aMmLs/0lGTOjrji7ug8QKwM0EpLfzStzTJ7TOSCLaASyKqGsL6J9pRDl6Zo2n/DgjdQY5gjGMNNhtHow==}
     dev: false
 
+  /@zag-js/aria-hidden/0.2.1:
+    resolution: {integrity: sha512-VLknguBEnbzb3H+k7odTdmfnGEidzmXF4Lw0lHUMVtj64tZf95iUT4H8/NgjE9Ee5LgfKd3vbou/IQyKy59sAw==}
+    dev: false
+
   /@zag-js/checkbox/0.2.7:
     resolution: {integrity: sha512-SP4i3r1CB/zB3vuErimhAq1X8VDaBBAKNccc8nW4XZgdHbDughgD8wTxJsEDt3QxuBRSppIMd7fIaiYffowHsA==}
     dependencies:
@@ -822,12 +828,38 @@ packages:
       klona: 2.0.5
     dev: false
 
+  /@zag-js/dialog/0.2.6:
+    resolution: {integrity: sha512-ayKDJorrwFa5C2uZWcI5vXagDwhisKckDhxlE/JosWZA4HX6X8ml+TeB3fzMmmdKUbbPwuBDUcyR7aw1ycNpPg==}
+    dependencies:
+      '@zag-js/anatomy': 0.1.3
+      '@zag-js/aria-hidden': 0.2.1
+      '@zag-js/core': 0.2.4
+      '@zag-js/dismissable': 0.2.1
+      '@zag-js/remove-scroll': 0.2.1
+      '@zag-js/types': 0.3.2
+      focus-trap: 7.2.0
+    dev: false
+
+  /@zag-js/dismissable/0.2.1:
+    resolution: {integrity: sha512-TrwxZKrux369iVJm/Gmsa8RG7GLSdJI+8qJxrFTStQu5MvBKRj6JZ5uQez1wieCnSgXwZHx9izqdcN2yYBBB8w==}
+    dependencies:
+      '@zag-js/interact-outside': 0.2.1
+    dev: false
+
+  /@zag-js/interact-outside/0.2.1:
+    resolution: {integrity: sha512-ZR8sm0yuqbJ9yU5+y0fJTuH412cWZ3gBkqZl0mpolRIKwqUKttUIXDy5Xinb5JpDn/Dj7VES1aexhxRMPJzOdA==}
+    dev: false
+
   /@zag-js/pressable/0.3.6:
     resolution: {integrity: sha512-Zw/iRN0XTHopY8BZnUBJG3QNlaVmFB3hxIXZCfhdIObiEBSBIuqnpaRINBKDBYiBAl0aHeZ0vM5Rbl7+yxFxEg==}
     dependencies:
       '@zag-js/anatomy': 0.1.3
       '@zag-js/core': 0.2.4
       '@zag-js/types': 0.3.2
+    dev: false
+
+  /@zag-js/remove-scroll/0.2.1:
+    resolution: {integrity: sha512-rfVer38ZvE5+1MoCF88+44zGILRTLIriVOh663IlH2cSKBAQcS5z/6BT7y342/5h30Tz96QTVaCNytjammdl1g==}
     dev: false
 
   /@zag-js/solid/0.2.4_solid-js@1.6.2:
@@ -2068,6 +2100,12 @@ packages:
   /flatted/3.2.7:
     resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
     dev: true
+
+  /focus-trap/7.2.0:
+    resolution: {integrity: sha512-v4wY6HDDYvzkBy4735kW5BUEuw6Yz9ABqMYLuTNbzAFPcBOGiGHwwcNVMvUz4G0kgSYh13wa/7TG3XwTeT4O/A==}
+    dependencies:
+      tabbable: 6.0.1
+    dev: false
 
   /fraction.js/4.2.0:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
@@ -3734,6 +3772,10 @@ packages:
   /supports-preserve-symlinks-flag/1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  /tabbable/6.0.1:
+    resolution: {integrity: sha512-SYJSIgeyXW7EuX1ytdneO5e8jip42oHWg9xl/o3oTYhmXusZVgiA+VlPvjIN+kHii9v90AmzTZEBcsEvuAY+TA==}
+    dev: false
 
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}

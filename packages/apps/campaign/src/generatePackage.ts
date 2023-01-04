@@ -46,7 +46,7 @@ export const useCas = (coalition: CampaignCoalition) => {
 		const speed = 170;
 		const durationEnRoute = getDurationEnRoute(airdrome.position, selectedObjective.position, speed);
 
-		const startTime = state.timer + Minutes(random(20, 35));
+		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 		const endTakeOffTime = startTime + Minutes(5);
 		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
 		const endCASTime = endEnRouteTime + 1 + Minutes(30);
@@ -130,7 +130,7 @@ const useCap = (coalition: CampaignCoalition) => {
 		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position), 20000);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
 
-		const startTime = state.timer + Minutes(random(20, 35));
+		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 		const endTakeOffTime = startTime + Minutes(5);
 
 		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
@@ -214,7 +214,7 @@ const useAwacs = (coalition: CampaignCoalition) => {
 		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position) + 180, 20000);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
 
-		const startTime = state.timer + Minutes(random(20, 35));
+		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 		const endTakeOffTime = startTime + Minutes(5);
 
 		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;

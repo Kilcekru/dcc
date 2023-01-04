@@ -90,6 +90,7 @@ type CampaignStore = [
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
+		pause?: () => void;
 		cleanupPackages?: () => void;
 		addPackage?: (props: {
 			coalition: CampaignCoalition;
@@ -145,6 +146,9 @@ export function CampaignProvider(props: {
 			},
 			togglePause() {
 				setState("paused", (v) => !v);
+			},
+			pause() {
+				setState("paused", () => true);
 			},
 			cleanupPackages() {
 				setState(

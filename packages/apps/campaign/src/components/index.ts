@@ -4,3 +4,4 @@ export * from "./checkbox";
 export * from "./Clock";
 export * from "./list";
 export * from "./map";
+export * from "./modal";
