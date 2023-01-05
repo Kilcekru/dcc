@@ -1,3 +1,4 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { Campaign, CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 
 import { Persistance } from "../../persistance/persistance";
@@ -20,7 +21,19 @@ const load: Campaign["load"] = async () => {
 	return persistanceState.data;
 };
 
+const getAirdromes: Campaign["getAirdromes"] = async () => {
+	return DcsJs.getAirdromes();
+};
+
+const generateCampaignMission: Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
+	DcsJs.generateCampaignMission(campaign);
+
+	return { success: true };
+};
+
 export const campaign: Campaign = {
+	generateCampaignMission,
+	getAirdromes,
 	save,
 	load,
 };

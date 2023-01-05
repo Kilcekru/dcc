@@ -6,10 +6,10 @@ import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
-import Modal from "../../components/modal/Modal";
 import { TimerClock } from "../../components/TimerClock";
 import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
 import { Sidebar } from "./components";
+import { StartMissionModal } from "./components/start-mission-modal";
 import { usePackagesTick } from "./packages";
 
 export const Home = () => {
@@ -166,7 +166,7 @@ export const Home = () => {
 				<TimerClock />
 				<Map />
 			</div>
-			<Modal isOpen={showModal()} />
+			<StartMissionModal isOpen={showModal()} onClose={() => setShowModal(false)} />
 		</div>
 	);
 };

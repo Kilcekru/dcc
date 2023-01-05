@@ -12,7 +12,8 @@
 		"chokidar": "^3.5.3",
 		"electron-squirrel-startup": "^1.0.0",
 		"fs-extra": "^11.1.0",
-		"regedit": "^5.1.1"
+		"regedit": "^5.1.1",
+		"@foxdelta2/dcsjs": "^0.2.1"
 	},
 	"devDependencies": {
 		"@kilcekru/dcc-shared-rpc-types": "workspace:*",

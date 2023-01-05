@@ -1,3 +1,4 @@
+import { rpc } from "@kilcekru/dcc-lib-rpc";
 import {
 	CampaignAircraft,
 	CampaignCoalition,
@@ -12,6 +13,10 @@ import { CampaignContext } from "../../components";
 import { airdromes, factionList, Objectives } from "../../data";
 import { Objective } from "../../types";
 import { distanceToPosition, firstItem, random } from "../../utils";
+
+const getAirdromes = async () => {
+	return rpc.campaign.getAirdromes();
+};
 
 export const generateVehicleInventory = (faction: Faction) => {
 	const vehicleName = firstItem(faction.vehicles);
@@ -34,7 +39,10 @@ export const generateVehicleInventory = (faction: Faction) => {
 
 	return vehicles;
 };
-export const generateAircraftInventory = (coalition: CampaignCoalition, faction: Faction) => {
+export const generateAircraftInventory = async (coalition: CampaignCoalition, faction: Faction) => {
+	const dcsAirdromes = await getAirdromes();
+
+	console.log({ dcsAirdromes }); // eslint-disable-line no-console
 	const airdrome = airdromes.find((drome) => drome.name === (coalition === "blue" ? "Kobuleti" : "Mozdok"));
 
 	const capCount = 8;
@@ -99,7 +107,7 @@ export const generateAircraftInventory = (coalition: CampaignCoalition, faction:
 export const useGenerateCampaign = () => {
 	const [, { activate }] = useContext(CampaignContext);
 
-	return (blueFactionName: string, redFactionName: string) => {
+	return async (blueFactionName: string, redFactionName: string) => {
 		const blueBaseFaction = factionList.find((f) => f.name === blueFactionName);
 		const kobuleti = airdromes.find((drome) => drome.name === "Kobuleti");
 		const sukhumi = airdromes.find((drome) => drome.name === "Sukhumi-Babushara");
@@ -130,7 +138,7 @@ export const useGenerateCampaign = () => {
 			...blueBaseFaction,
 			airdromes: ["Kobuleti"],
 			inventory: {
-				aircrafts: generateAircraftInventory("blue", blueBaseFaction),
+				aircrafts: await generateAircraftInventory("blue", blueBaseFaction),
 				vehicles: generateVehicleInventory(blueBaseFaction),
 			},
 			packages: [],
@@ -147,7 +155,7 @@ export const useGenerateCampaign = () => {
 			airdromes: ["Sukhumi-Babushara", "Mozdok"],
 
 			inventory: {
-				aircrafts: generateAircraftInventory("red", redBaseFaction),
+				aircrafts: await generateAircraftInventory("red", redBaseFaction),
 				vehicles: generateVehicleInventory(redBaseFaction),
 			},
 			packages: [],

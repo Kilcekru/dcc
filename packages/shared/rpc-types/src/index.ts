@@ -1,3 +1,4 @@
+import type { Campaign as DcsJsCampaign, GetAirdromes } from "@foxdelta2/dcsjs";
 export interface Misc {
 	getVersions: () => Promise<{ electron: string; node: string; chrome: string }>;
 }
@@ -100,6 +101,8 @@ export type CampaignState = {
 	objectives: Array<CampaignObjective>;
 };
 export interface Campaign {
+	getAirdromes: () => Promise<GetAirdromes>;
+	generateCampaignMission: (campaign: DcsJsCampaign) => Promise<{ success: boolean }>;
 	save: (campaign: CampaignState) => Promise<{ success: boolean }>;
 	load: () => Promise<Partial<CampaignState>>;
 }

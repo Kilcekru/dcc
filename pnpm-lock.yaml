@@ -63,6 +63,7 @@ importers:
 
   packages/chief/core:
     specifiers:
+      '@foxdelta2/dcsjs': ^0.2.1
       '@kilcekru/dcc-shared-rpc-types': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.11.10
@@ -72,6 +73,7 @@ importers:
       fs-extra: ^11.1.0
       regedit: ^5.1.1
     dependencies:
+      '@foxdelta2/dcsjs': 0.2.1
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
       fs-extra: 11.1.0
@@ -97,7 +99,10 @@ importers:
       '@kilcekru/dcc-shared-rpc-types': link:../../shared/rpc-types
 
   packages/shared/rpc-types:
-    specifiers: {}
+    specifiers:
+      '@foxdelta2/dcsjs': ^0.2.1
+    dependencies:
+      '@foxdelta2/dcsjs': 0.2.1
 
   utils/build:
     specifiers:
@@ -485,6 +490,15 @@ packages:
       - supports-color
     dev: true
 
+  /@foxdelta2/dcsjs/0.2.1:
+    resolution: {integrity: sha512-xdibMmtCPjWPbVXybAaNlabjvAzxao2Lb0i5tFWvX/ARKSq3rt6AkQf4eRa79ve9R2qEpqFLTfPzamerZHjnUQ==}
+    dependencies:
+      '@kilcekru/lua-table': 1.0.0
+      adm-zip: 0.5.10
+      fs-extra: 10.1.0
+      lodash: 4.17.21
+    dev: false
+
   /@humanwhocodes/config-array/0.11.7:
     resolution: {integrity: sha512-kBbPWzN8oVMLb0hOUYXhmxggL/1cJE6ydvjDIGi9EnAGUyA7cLVKQg+d/Dsm+KZwx2czGHrCmMVLiyg8s5JPKw==}
     engines: {node: '>=10.10.0'}
@@ -541,6 +555,11 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
+    dev: false
+
+  /@kilcekru/lua-table/1.0.0:
+    resolution: {integrity: sha512-ySHuhJasnwaExu2iAzp9vbmmJJyjPL8wf1qexeE70DDwjqDkMimnpEjfwMhw4/XAS/jhxdHOmPlrR7iZnQz1vA==}
+    engines: {pnpm: '>=7.15.0'}
     dev: false
 
   /@kilcekru/ts-basics/3.1.1_typescript@4.9.3:
@@ -899,6 +918,11 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
+
+  /adm-zip/0.5.10:
+    resolution: {integrity: sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==}
+    engines: {node: '>=6.0'}
+    dev: false
 
   /ajv/6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -2116,6 +2140,15 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
+  /fs-extra/10.1.0:
+    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: false
+
   /fs-extra/11.1.0:
     resolution: {integrity: sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==}
     engines: {node: '>=14.14'}
@@ -2688,7 +2721,7 @@ packages:
     dev: false
 
   /jsonfile/4.0.0:
-    resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
+    resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
       graceful-fs: 4.2.10
     dev: true
@@ -2818,7 +2851,6 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-    dev: true
 
   /loose-envify/1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
