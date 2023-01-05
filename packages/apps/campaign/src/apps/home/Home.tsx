@@ -1,24 +1,25 @@
 import "./Home.less";
 
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { CampaignAircraft, CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
 import { TimerClock } from "../../components/TimerClock";
-import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
-import { Sidebar } from "./components";
-import { StartMissionModal } from "./components/start-mission-modal";
+import { getFlightGroups } from "../../utils";
+import { useCombat } from "./combat";
+import { Sidebar, StartMissionModal } from "./components";
 import { usePackagesTick } from "./packages";
 
 export const Home = () => {
-	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState, destroyUnit, updateActiveAircrafts }] =
-		useContext(CampaignContext);
+	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState, pause }] = useContext(CampaignContext);
 	const redPackagesTick = usePackagesTick("red");
 	const bluePackagesTick = usePackagesTick("blue");
+	const combat = useCombat();
 	const [showModal, setShowModal] = createSignal(false);
 	let inter: number;
+	const modalShown: Record<number, boolean> = {};
 
 	const onSave = () => {
 		rpc.campaign
@@ -55,60 +56,14 @@ export const Home = () => {
 		campaignRound();
 	};
 
-	const casAttack = () => {
-		const fgs = getFlightGroups(state.blueFaction?.packages);
-
-		const onStationCASfgs = fgs.filter((fg) => fg.task === "CAS" && getActiveWaypoint(fg, state.timer)?.name === "CAS");
-
-		const updatedAircraft: Array<CampaignAircraft> = [];
-
-		onStationCASfgs.forEach((fg) => {
-			fg.aircraftIds.forEach((id) => {
-				const aircraft = getAircraftFromId(state.blueFaction?.inventory.aircrafts, id);
-
-				if (aircraft == null) {
-					throw "aircraft not found";
-				}
-
-				// Init arrival
-				if (aircraft.weaponReadyTimer == null) {
-					updatedAircraft.push({ ...aircraft, weaponReadyTimer: state.timer + Minutes(3) });
-				} else if (aircraft.weaponReadyTimer <= state.timer) {
-					const fgObjective = state.objectives.find((obj) => fg.objective?.name === obj.name);
-
-					if (fgObjective == null) {
-						throw "objective not found";
-					}
-
-					const aliveUnits = fgObjective.units.find((unit) => unit.alive === true);
-
-					if (aliveUnits != null) {
-						// Is the attack successful
-						if (random(1, 100) <= 50) {
-							destroyUnit?.("redFaction", fgObjective.name, aliveUnits.id);
-							console.log(`CAS: ${aircraft.id} destroyed ${aliveUnits.id} in objective ${fgObjective.name}`); // eslint-disable-line no-console
-						} else {
-							console.log(`CAS: ${aircraft.id} missed ${aliveUnits.id} in objective ${fgObjective.name}`); // eslint-disable-line no-console
-						}
-
-						updatedAircraft.push({ ...aircraft, weaponReadyTimer: state.timer + Minutes(3) });
-					}
-				}
-			});
-		});
-
-		if (updatedAircraft.length > 0) {
-			updateActiveAircrafts?.("blueFaction", updatedAircraft);
-		}
-	};
-
 	const missionModal = () => {
 		const fgs = getFlightGroups(state.blueFaction?.packages);
 
 		fgs.forEach((fg) => {
-			if (Math.floor(fg.startTime) === Math.floor(state.timer)) {
-				// pause?.();
-				setShowModal(false);
+			if (Math.floor(fg.startTime) === Math.floor(state.timer) && modalShown[state.timer] == null) {
+				modalShown[state.timer] = true;
+				pause?.();
+				setShowModal(true);
 			}
 		});
 	};
@@ -116,10 +71,10 @@ export const Home = () => {
 	const campaignRound = () => {
 		cleanupPackages?.();
 		updateAircraftState?.();
-		casAttack();
 		bluePackagesTick();
 		redPackagesTick();
 		missionModal();
+		combat();
 	};
 
 	const interval = () => {
@@ -165,8 +120,8 @@ export const Home = () => {
 				<Button onPress={onNextRound}>Next Round</Button>
 				<TimerClock />
 				<Map />
+				<StartMissionModal isOpen={showModal()} onClose={() => setShowModal(false)} />
 			</div>
-			<StartMissionModal isOpen={showModal()} onClose={() => setShowModal(false)} />
 		</div>
 	);
 };

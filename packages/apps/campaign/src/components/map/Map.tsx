@@ -27,6 +27,7 @@ export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	const objectiveMarkers: Record<string, L.Marker> = {};
 	const flightGroupMarkers: Record<string, L.Marker> = {};
+	const samCircles: Record<string, L.Circle> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state] = useContext(CampaignContext);
 
@@ -156,15 +157,23 @@ export const Map = () => {
 	const createSamSymbols = () => {
 		state.redFaction?.sams.forEach((sam) => {
 			const mapPosition = positionToMapPosition(sam.position);
-			createSymbol(mapPosition, true, false, "airDefenceMissle");
-
 			const map = leaftletMap();
 
 			if (map == null) {
 				return;
 			}
 
-			L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
+			if (samCircles[sam.id] == null) {
+				createSymbol(mapPosition, true, false, "airDefenceMissle");
+
+				const circle = L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
+
+				if (circle == null) {
+					return;
+				}
+
+				samCircles[sam.id] = circle;
+			}
 		});
 	};
 

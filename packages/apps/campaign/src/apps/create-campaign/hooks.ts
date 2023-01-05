@@ -161,6 +161,7 @@ export const useGenerateCampaign = () => {
 			packages: [],
 			sams: [
 				{
+					id: "sam-01",
 					position: { x: -245830.27997983, y: 637190.53205482 },
 					range: 45000,
 					units: [],

@@ -33,6 +33,7 @@ export type CampaignObjective = {
 };
 
 export type CampaignSam = {
+	id: string;
 	position: { x: number; y: number };
 	units: Array<CampaignUnit>;
 	range: number;

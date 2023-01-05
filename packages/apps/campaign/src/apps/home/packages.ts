@@ -2,8 +2,8 @@ import { CampaignCoalition } from "@kilcekru/dcc-shared-rpc-types";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { useGeneratePackage } from "../../generatePackage";
 import { useFaction } from "../../hooks";
+import { useGeneratePackage } from "./generatePackage";
 
 const useCasPackagesTick = (coalition: CampaignCoalition) => {
 	const [, { addPackage }] = useContext(CampaignContext);
@@ -18,6 +18,10 @@ const useCasPackagesTick = (coalition: CampaignCoalition) => {
 
 		if (runningCASPackagesCount < 1) {
 			const pkg = generatePackage.cas();
+
+			if (pkg == null) {
+				return;
+			}
 
 			addPackage?.(pkg);
 		}
