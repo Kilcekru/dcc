@@ -47,7 +47,7 @@ const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: number) => {
 		return {
 			...pkg,
 			flightGroups: pkg.flightGroups.map((fg) => {
-				const position = calcFlightGroupPosition(fg, timer);
+				const position = calcFlightGroupPosition(fg, timer, 170);
 
 				if (position == null) {
 					return fg;
@@ -81,7 +81,7 @@ const updateAircraftState = (faction: DcsJs.CampaignFaction, timer: number) => {
 				return aircraft;
 			}
 
-			const position = calcFlightGroupPosition(fg, timer);
+			const position = calcFlightGroupPosition(fg, timer, 170);
 
 			if (position == null) {
 				return aircraft;
@@ -142,6 +142,7 @@ type CampaignStore = [
 			aircrafts: Array<DcsJs.CampaignAircraft>
 		) => void;
 		destroyUnit?: (factionString: "blueFaction" | "redFaction", objectiveName: string, unitId: string) => void;
+		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 	}
 ];
 
@@ -151,6 +152,7 @@ const initState: CampaignState = {
 	timer: 0,
 	multiplier: 1,
 	paused: false,
+	selectedFlightGroup: undefined,
 	blueFaction: undefined,
 	redFaction: undefined,
 	objectives: [],
@@ -314,6 +316,9 @@ export function CampaignProvider(props: {
 						});
 					})
 				);
+			},
+			selectFlightGroup(flightGroup) {
+				setState("selectedFlightGroup", () => flightGroup);
 			},
 		},
 	];

@@ -13,7 +13,7 @@ import { Sidebar, StartMissionModal } from "./components";
 import { usePackagesTick } from "./packages";
 
 export const Home = () => {
-	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState, pause }] = useContext(CampaignContext);
+	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState }] = useContext(CampaignContext);
 	const redPackagesTick = usePackagesTick("red");
 	const bluePackagesTick = usePackagesTick("blue");
 	const combat = useCombat();
@@ -62,8 +62,8 @@ export const Home = () => {
 		fgs.forEach((fg) => {
 			if (Math.floor(fg.startTime) === Math.floor(state.timer) && modalShown[state.timer] == null) {
 				modalShown[state.timer] = true;
-				pause?.();
-				setShowModal(true);
+				// pause?.();
+				// setShowModal(true);
 			}
 		});
 	};

@@ -17,6 +17,7 @@ export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> &
 	timer: number;
 	multiplier: number;
 	paused: boolean;
+	selectedFlightGroup: DcsJs.CampaignFlightGroup | undefined;
 	blueFaction: DcsJs.CampaignFaction | undefined;
 	redFaction: DcsJs.CampaignFaction | undefined;
 };

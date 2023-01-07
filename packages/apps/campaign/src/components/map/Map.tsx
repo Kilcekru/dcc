@@ -20,6 +20,7 @@ const sidcUnitCode = {
 	attack: "MFA---",
 	aew: "MFRW--",
 	fighter: "MFF---",
+	waypoint: "OXRW--",
 };
 
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
@@ -31,6 +32,7 @@ export const Map = () => {
 	const samCircles: Record<string, L.Circle> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state] = useContext(CampaignContext);
+	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 
 	const kobuleti = createMemo(() => {
 		const position = airdromes.find((drome) => drome.name === "Kobuleti")?.position;
@@ -58,6 +60,18 @@ export const Map = () => {
 		});
 
 		return L.marker(mapPosition, { icon }).addTo(map);
+	};
+
+	const removeSymbol = (marker: L.Marker | undefined) => {
+		const map = leaftletMap();
+
+		if (map == null || marker == null) {
+			return;
+		}
+
+		if (map.hasLayer(marker)) {
+			map.removeLayer(marker);
+		}
 	};
 
 	createEffect(() => {
@@ -117,7 +131,7 @@ export const Map = () => {
 			}
 
 			if (objective.coalition === "neutral" && objectiveMarkers[objective.name] != null) {
-				objectiveMarkers[objective.name]?.remove();
+				removeSymbol(objectiveMarkers[objective.name]);
 			}
 		});
 	};
@@ -175,6 +189,25 @@ export const Map = () => {
 			}
 		});
 	};
+
+	// Selected Flight Group
+	createEffect(() => {
+		selectedFlightGroupMarkers.forEach((marker) => removeSymbol(marker));
+
+		if (state.selectedFlightGroup == null) {
+			return;
+		}
+
+		state.selectedFlightGroup.waypoints.forEach((waypoint) => {
+			const marker = createSymbol(positionToMapPosition(waypoint.position), false, true, "waypoint");
+
+			if (marker == null) {
+				return;
+			}
+
+			selectedFlightGroupMarkers.push(marker);
+		});
+	});
 
 	createEffect(() => {
 		const map = leaftletMap();

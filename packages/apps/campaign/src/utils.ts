@@ -163,17 +163,39 @@ export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) 
 	return fg.waypoints.find((wp) => wp.time <= timer && wp.endTime >= timer);
 };
 
-export const calcFlightGroupPosition = (fg: DcsJs.CampaignFlightGroup, timer: number) => {
+export const calcFlightGroupPosition = (fg: DcsJs.CampaignFlightGroup, timer: number, speed: number) => {
 	const activeWaypoint = getActiveWaypoint(fg, timer);
 
-	return activeWaypoint?.name === "En Route" || activeWaypoint?.name === "Landing"
-		? positionAfterDurationToPosition(
+	if (activeWaypoint?.racetrack == null) {
+		return activeWaypoint?.name === "En Route" || activeWaypoint?.name === "Landing"
+			? positionAfterDurationToPosition(
+					activeWaypoint.position,
+					activeWaypoint.endPosition,
+					timer - activeWaypoint.time,
+					speed
+			  )
+			: activeWaypoint?.position;
+	} else {
+		const timeOnStation = timer - activeWaypoint.time;
+		const distancesAlreadyFlown = Math.floor(timeOnStation / activeWaypoint.racetrack.duration);
+		const timeOnTrack = Math.floor(timeOnStation - distancesAlreadyFlown * activeWaypoint.racetrack.duration);
+
+		if (distancesAlreadyFlown % 2 === 0) {
+			return positionAfterDurationToPosition(
 				activeWaypoint.position,
-				activeWaypoint.endPosition,
-				timer - activeWaypoint.time,
-				170
-		  )
-		: activeWaypoint?.position;
+				activeWaypoint.racetrack.position,
+				timeOnTrack,
+				speed
+			);
+		} else {
+			return positionAfterDurationToPosition(
+				activeWaypoint.racetrack.position,
+				activeWaypoint.position,
+				timeOnTrack,
+				speed
+			);
+		}
+	}
 };
 
 export const firstItem = <T>(arr: Array<T> | undefined) => {

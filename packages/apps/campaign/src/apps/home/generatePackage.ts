@@ -6,10 +6,12 @@ import { airdromes } from "../../data";
 import { useCalcOppositeHeading, useFaction } from "../../hooks";
 import {
 	calcPackageEndTime,
+	distanceToPosition,
 	firstItem,
 	getDurationEnRoute,
 	getUsableAircrafts,
 	getUsableAircraftsByType,
+	headingToPosition,
 	Minutes,
 	positionFromHeading,
 	random,
@@ -39,12 +41,16 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 		}
 
 		const speed = 170;
+		const headingObjectiveToAirdrome = headingToPosition(selectedObjective.position, airdrome.position);
+		const racetrackStart = positionFromHeading(selectedObjective.position, headingObjectiveToAirdrome - 90, 7500);
+		const racetrackEnd = positionFromHeading(selectedObjective.position, headingObjectiveToAirdrome + 90, 7500);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, selectedObjective.position, speed);
+		const casDuration = Minutes(30);
 
 		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 		const endTakeOffTime = startTime + Minutes(5);
 		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
-		const endCASTime = endEnRouteTime + 1 + Minutes(30);
+		const endCASTime = endEnRouteTime + 1 + casDuration;
 		const endLandingTime = endCASTime + 1 + durationEnRoute;
 
 		const flightGroup: DcsJs.CampaignFlightGroup = {
@@ -68,22 +74,29 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 				{
 					name: "En Route",
 					position: airdrome.position,
-					endPosition: selectedObjective.position,
+					endPosition: racetrackStart,
 					speed,
 					time: endTakeOffTime + 1,
 					endTime: endEnRouteTime,
 				},
 				{
 					name: "CAS",
-					position: selectedObjective.position,
-					endPosition: selectedObjective.position,
+					position: racetrackStart,
+					endPosition: racetrackEnd,
 					speed,
+					duration: casDuration,
 					time: endEnRouteTime + 1,
 					endTime: endCASTime,
+					racetrack: {
+						position: racetrackEnd,
+						heading: headingToPosition(racetrackStart, racetrackEnd),
+						distance: 15000,
+						duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
+					},
 				},
 				{
 					name: "Landing",
-					position: selectedObjective.position,
+					position: racetrackEnd,
 					endPosition: airdrome.position,
 					speed,
 					time: endCASTime + 1,
@@ -126,12 +139,15 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 
 		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position), 20000);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
-
+		const headingObjectiveToAirdrome = headingToPosition(endPosition, airdrome.position);
+		const racetrackStart = positionFromHeading(endPosition, headingObjectiveToAirdrome - 90, 20000);
+		const racetrackEnd = positionFromHeading(endPosition, headingObjectiveToAirdrome + 90, 20000);
+		const duration = Minutes(60);
 		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 		const endTakeOffTime = startTime + Minutes(5);
 
 		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
-		const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
+		const endOnStationTime = endEnRouteTime + 1 + duration;
 		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
 
 		const flightGroup: DcsJs.CampaignFlightGroup = {
@@ -155,22 +171,29 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 				{
 					name: "En Route",
 					position: airdrome.position,
-					endPosition: endPosition,
+					endPosition: racetrackStart,
 					speed,
 					time: endTakeOffTime + 1,
 					endTime: endEnRouteTime,
 				},
 				{
 					name: "On Station",
-					position: endPosition,
-					endPosition: endPosition,
+					position: racetrackStart,
+					endPosition: racetrackEnd,
 					speed,
+					duration,
 					time: endEnRouteTime + 1,
 					endTime: endOnStationTime,
+					racetrack: {
+						position: racetrackEnd,
+						heading: headingToPosition(racetrackStart, racetrackEnd),
+						distance: 40000,
+						duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
+					},
 				},
 				{
 					name: "Landing",
-					position: endPosition,
+					position: racetrackEnd,
 					endPosition: airdrome.position,
 					speed,
 					time: endOnStationTime + 1,
@@ -212,12 +235,15 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 
 		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position) + 180, 20000);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
-
+		const headingObjectiveToAirdrome = headingToPosition(endPosition, airdrome.position);
+		const racetrackStart = positionFromHeading(endPosition, headingObjectiveToAirdrome - 90, 40_000);
+		const racetrackEnd = positionFromHeading(endPosition, headingObjectiveToAirdrome + 90, 40_000);
+		const duration = Minutes(60);
 		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 		const endTakeOffTime = startTime + Minutes(5);
 
 		const endEnRouteTime = endTakeOffTime + 1 + durationEnRoute;
-		const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
+		const endOnStationTime = endEnRouteTime + 1 + duration;
 		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
 
 		const flightGroup: DcsJs.CampaignFlightGroup = {
@@ -241,22 +267,29 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 				{
 					name: "En Route",
 					position: airdrome.position,
-					endPosition: endPosition,
+					endPosition: racetrackStart,
 					speed,
 					time: endTakeOffTime + 1,
 					endTime: endEnRouteTime,
 				},
 				{
 					name: "On Station",
-					position: endPosition,
-					endPosition: endPosition,
+					position: racetrackStart,
+					endPosition: racetrackEnd,
 					speed,
 					time: endEnRouteTime + 1,
 					endTime: endOnStationTime,
+					duration,
+					racetrack: {
+						position: racetrackEnd,
+						heading: headingToPosition(racetrackStart, racetrackEnd),
+						distance: distanceToPosition(racetrackStart, racetrackEnd),
+						duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
+					},
 				},
 				{
 					name: "Landing",
-					position: endPosition,
+					position: racetrackEnd,
 					endPosition: airdrome.position,
 					speed,
 					time: endOnStationTime + 1,
