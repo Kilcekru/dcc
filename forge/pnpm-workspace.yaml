@@ -1,1 +1,3 @@
+# this is needed, because forge is its own root and not part of the workspace above
 packages:
+  - .
