@@ -12,7 +12,11 @@ export function startRpc() {
 		}
 	}
 
-	ipcMain.handle("rpc", async (event, args: unknown) => {
+	ipcMain.handle("rpc", async (event, rpcArgs: unknown) => {
+		if (typeof rpcArgs !== "string") {
+			throw new Error("Invalid RPC call: Payload not stringified");
+		}
+		const args = JSON.parse(rpcArgs) as unknown;
 		if (
 			!isPlainObject(args) ||
 			typeof args.namespace !== "string" ||
@@ -26,6 +30,6 @@ export function startRpc() {
 		if (fn == undefined) {
 			throw new Error("Invalid RPC call: unknown function");
 		}
-		return await fn(...fnArgs);
+		return JSON.stringify(await fn(...fnArgs));
 	});
 }
