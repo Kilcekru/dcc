@@ -26,7 +26,7 @@ const getAirdromes: Campaign["getAirdromes"] = async () => {
 };
 
 const generateCampaignMission: Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
-	DcsJs.generateCampaignMission(campaign);
+	await DcsJs.generateCampaignMission(campaign);
 
 	return { success: true };
 };

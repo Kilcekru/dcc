@@ -1,11 +1,11 @@
 import "./FlightGroupItem.less";
 
-import { CampaignFlightGroup } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { createSignal, Show } from "solid-js";
 
 import { Checkbox, Clock, ListItem } from "../../../../components";
 
-export const FlightGroupItem = (props: { flightGroup: CampaignFlightGroup }) => {
+export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup }) => {
 	const [expanded, setExpanded] = createSignal(false);
 	return (
 		<ListItem onPress={() => setExpanded((e) => !e)} class="flight-group-item">

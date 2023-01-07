@@ -1,4 +1,4 @@
-import { CampaignCoalition, CampaignFlightGroup } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { createUniqueId, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
@@ -17,7 +17,7 @@ import {
 } from "../../utils";
 import { useTargetSelection } from "./targetSelection";
 
-export const useCas = (coalition: CampaignCoalition) => {
+export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
 	const targetSelection = useTargetSelection();
@@ -25,11 +25,11 @@ export const useCas = (coalition: CampaignCoalition) => {
 	return () => {
 		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAS");
 
-		const airdromeName = firstItem(faction?.airdromes);
+		const airdromeName = firstItem(faction?.airdromeNames);
 		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
 		if (airdromeName == null || airdrome == null) {
-			throw "airdrome not found";
+			throw `airdrome not found: ${airdromeName ?? ""}`;
 		}
 
 		const selectedObjective = targetSelection.casTarget(coalition, airdrome.position);
@@ -47,8 +47,9 @@ export const useCas = (coalition: CampaignCoalition) => {
 		const endCASTime = endEnRouteTime + 1 + Minutes(30);
 		const endLandingTime = endCASTime + 1 + durationEnRoute;
 
-		const flightGroup: CampaignFlightGroup = {
+		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
+			airdromeName,
 			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
 			name: randomCallSign(),
 			task: "CAS",
@@ -90,6 +91,7 @@ export const useCas = (coalition: CampaignCoalition) => {
 				},
 			],
 			objective: selectedObjective,
+			position: airdrome.position,
 		};
 
 		const flightGroups = [flightGroup];
@@ -105,7 +107,7 @@ export const useCas = (coalition: CampaignCoalition) => {
 	};
 };
 
-const useCap = (coalition: CampaignCoalition) => {
+const useCap = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
 	const calcOppositeHeading = useCalcOppositeHeading(coalition);
@@ -115,11 +117,11 @@ const useCap = (coalition: CampaignCoalition) => {
 
 		const speed = 170;
 
-		const airdromeName = firstItem(faction?.airdromes);
+		const airdromeName = firstItem(faction?.airdromeNames);
 		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
 		if (airdromeName == null || airdrome == null) {
-			throw "airdrome not found";
+			throw `airdrome not found: ${airdromeName ?? ""}`;
 		}
 
 		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position), 20000);
@@ -132,9 +134,10 @@ const useCap = (coalition: CampaignCoalition) => {
 		const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
 		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
 
-		const flightGroup: CampaignFlightGroup = {
+		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
 			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
+			airdromeName,
 			name: randomCallSign(),
 			task: "CAP",
 			startTime,
@@ -174,6 +177,7 @@ const useCap = (coalition: CampaignCoalition) => {
 					endTime: endLandingTime,
 				},
 			],
+			position: airdrome.position,
 		};
 
 		const flightGroups = [flightGroup];
@@ -189,7 +193,7 @@ const useCap = (coalition: CampaignCoalition) => {
 	};
 };
 
-const useAwacs = (coalition: CampaignCoalition) => {
+const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
 	const calcOppositeHeading = useCalcOppositeHeading(coalition);
@@ -199,11 +203,11 @@ const useAwacs = (coalition: CampaignCoalition) => {
 
 		const speed = 170;
 
-		const airdromeName = firstItem(faction?.airdromes);
+		const airdromeName = firstItem(faction?.airdromeNames);
 		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
 		if (airdromeName == null || airdrome == null) {
-			throw "airdrome not found";
+			throw `airdrome not found: ${airdromeName ?? ""}`;
 		}
 
 		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position) + 180, 20000);
@@ -216,8 +220,9 @@ const useAwacs = (coalition: CampaignCoalition) => {
 		const endOnStationTime = endEnRouteTime + 1 + Minutes(60);
 		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
 
-		const flightGroup: CampaignFlightGroup = {
+		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
+			airdromeName,
 			aircraftIds: usableAircrafts?.slice(0, 1).map((aircraft) => aircraft.id) ?? [],
 			name: randomCallSign(),
 			task: "AWACS",
@@ -258,6 +263,7 @@ const useAwacs = (coalition: CampaignCoalition) => {
 					endTime: endLandingTime,
 				},
 			],
+			position: airdrome.position,
 		};
 
 		const flightGroups = [flightGroup];
@@ -273,7 +279,7 @@ const useAwacs = (coalition: CampaignCoalition) => {
 	};
 };
 
-export const useGeneratePackage = (coalition: CampaignCoalition) => {
+export const useGeneratePackage = (coalition: DcsJs.CampaignCoalition) => {
 	const awacs = useAwacs(coalition);
 	const cas = useCas(coalition);
 	const cap = useCap(coalition);

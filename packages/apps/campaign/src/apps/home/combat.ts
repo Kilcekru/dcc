@@ -1,11 +1,11 @@
-import { CampaignAircraft, CampaignCoalition } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { useFaction } from "../../hooks";
 import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
 
-const useCasA2G = (coalition: CampaignCoalition) => {
+const useCasA2G = (coalition: DcsJs.CampaignCoalition) => {
 	const [state, { destroyUnit, updateActiveAircrafts }] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
 
@@ -14,7 +14,7 @@ const useCasA2G = (coalition: CampaignCoalition) => {
 
 		const onStationCASfgs = fgs.filter((fg) => fg.task === "CAS" && getActiveWaypoint(fg, state.timer)?.name === "CAS");
 
-		const updatedAircraft: Array<CampaignAircraft> = [];
+		const updatedAircraft: Array<DcsJs.CampaignAircraft> = [];
 
 		onStationCASfgs.forEach((fg) => {
 			fg.aircraftIds.forEach((id) => {

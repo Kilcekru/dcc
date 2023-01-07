@@ -1,14 +1,14 @@
 import "./Map.less";
 import "leaflet/dist/leaflet.css";
 
-import { CampaignCoalition, CampaignFlightGroup, CampaignPackage } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import L from "leaflet";
 import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { airdromes } from "../../data";
 import { MapPosition } from "../../types";
-import { calcFlightGroupPosition, positionToMapPosition } from "../../utils";
+import { positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
 
 const sidcUnitCode = {
@@ -75,7 +75,7 @@ export const Map = () => {
 			return;
 		}
 
-		state.blueFaction.airdromes.forEach((airdromeName) => {
+		state.blueFaction.airdromeNames.forEach((airdromeName) => {
 			const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
 			if (airdrome == null) {
@@ -87,7 +87,7 @@ export const Map = () => {
 			createSymbol(mapPosition, false, false, "airport")?.bindPopup(airdromeName);
 		});
 
-		state.redFaction?.airdromes.forEach((airdromeName) => {
+		state.redFaction?.airdromeNames.forEach((airdromeName) => {
 			const airdrome = airdromes.find((drome) => drome.name === airdromeName);
 
 			if (airdrome == null) {
@@ -122,15 +122,13 @@ export const Map = () => {
 		});
 	};
 
-	const createAircraftSymbols = (coalition: CampaignCoalition, packages: Array<CampaignPackage>) => {
+	const createAircraftSymbols = (coalition: DcsJs.CampaignCoalition, packages: Array<DcsJs.CampaignPackage>) => {
 		const flightGroups = packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
-		}, [] as Array<CampaignFlightGroup>);
+		}, [] as Array<DcsJs.CampaignFlightGroup>);
 
 		flightGroups?.forEach((fg) => {
-			const position = calcFlightGroupPosition(fg, state.timer);
-
-			if (position == null) {
+			if (fg.position == null) {
 				return;
 			}
 
@@ -138,7 +136,7 @@ export const Map = () => {
 
 			if (flightGroupMarkers[fg.id] == null) {
 				const marker = createSymbol(
-					positionToMapPosition(position),
+					positionToMapPosition(fg.position),
 					coalition === "red",
 					true,
 					code as SidcUnitCodeKey
@@ -150,7 +148,7 @@ export const Map = () => {
 
 				flightGroupMarkers[fg.id] = marker;
 			} else {
-				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(position));
+				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(fg.position));
 			}
 		});
 	};

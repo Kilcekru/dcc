@@ -29,7 +29,7 @@ export const Modal = (props: { isOpen?: boolean; children: JSX.Element; onClose:
 						{props.children}
 						<Close
 							onPress={() => {
-								api().close();
+								// api().close();
 								props.onClose();
 							}}
 						/>

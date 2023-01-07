@@ -9,18 +9,19 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"solid-js": "1.6.2",
 		"@kilcekru/dcc-lib-rpc": "workspace:*",
-		"leaflet": "1.9.3",
-		"esri-leaflet": "3.0.9",
-		"fast-astar": "1.0.6",
-		"milsymbol": "2.0.0",
 		"@zag-js/checkbox": "0.2.7",
 		"@zag-js/dialog": "0.2.6",
 		"@zag-js/pressable": "0.3.6",
-		"@zag-js/solid": "0.2.4"
+		"@zag-js/solid": "0.2.4",
+		"esri-leaflet": "3.0.9",
+		"fast-astar": "1.0.6",
+		"leaflet": "1.9.3",
+		"milsymbol": "2.0.0",
+		"solid-js": "1.6.2"
 	},
 	"devDependencies": {
+		"@foxdelta2/dcsjs": "0.2.15",
 		"@types/leaflet": "1.9.0"
 	}
 }

@@ -1,11 +1,12 @@
-import { CampaignCoalition } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { useFaction } from "../../hooks";
+import { coalitionToFactionString } from "../../utils";
 import { useGeneratePackage } from "./generatePackage";
 
-const useCasPackagesTick = (coalition: CampaignCoalition) => {
+const useCasPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const [, { addPackage }] = useContext(CampaignContext);
 	const generatePackage = useGeneratePackage(coalition);
 	const faction = useFaction(coalition);
@@ -28,7 +29,7 @@ const useCasPackagesTick = (coalition: CampaignCoalition) => {
 	};
 };
 
-const useCapPackagesTick = (coalition: CampaignCoalition) => {
+const useCapPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const [, { addPackage }] = useContext(CampaignContext);
 	const generatePackage = useGeneratePackage(coalition);
 	const faction = useFaction(coalition);
@@ -47,7 +48,7 @@ const useCapPackagesTick = (coalition: CampaignCoalition) => {
 	};
 };
 
-const useAwacsPackagesTick = (coalition: CampaignCoalition) => {
+const useAwacsPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const [, { addPackage }] = useContext(CampaignContext);
 	const generatePackage = useGeneratePackage(coalition);
 	const faction = useFaction(coalition);
@@ -67,12 +68,14 @@ const useAwacsPackagesTick = (coalition: CampaignCoalition) => {
 	};
 };
 
-export const usePackagesTick = (coalition: CampaignCoalition) => {
+export const usePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
+	const [, { updatePackagesState }] = useContext(CampaignContext);
 	const cas = useCasPackagesTick(coalition);
 	const cap = useCapPackagesTick(coalition);
 	const awacs = useAwacsPackagesTick(coalition);
 
 	return () => {
+		updatePackagesState?.(coalitionToFactionString(coalition));
 		cas();
 		cap();
 		awacs();

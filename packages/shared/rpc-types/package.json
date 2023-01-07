@@ -8,8 +8,7 @@
 		"validate:lint": "eslint src",
 		"validate:ts": "tsc --noEmit"
 	},
-	"dependencies": {
-		"@foxdelta2/dcsjs": "^0.2.1"
-	},
-	"devDependencies": {}
+	"devDependencies": {
+		"@foxdelta2/dcsjs": "0.2.15"
+	}
 }

@@ -1,5 +1,4 @@
 {
 	"extends": "../../../utils/config/tsconfig.ui.json",
-	"include": ["src"],
-	"files": ["src/types/fast-astar.d.ts"]
+	"include": ["src"]
 }

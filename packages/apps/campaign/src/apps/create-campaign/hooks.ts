@@ -1,12 +1,6 @@
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import {
-	CampaignAircraft,
-	CampaignCoalition,
-	CampaignFaction,
-	CampaignObjective,
-	CampaignUnit,
-	Faction,
-} from "@kilcekru/dcc-shared-rpc-types";
+import { Faction } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
@@ -25,7 +19,7 @@ export const generateVehicleInventory = (faction: Faction) => {
 		throw "vehicle not found";
 	}
 
-	const vehicle: CampaignUnit = {
+	const vehicle: DcsJs.CampaignUnit = {
 		id: "",
 		name: vehicleName,
 		displayName: vehicleName,
@@ -34,12 +28,12 @@ export const generateVehicleInventory = (faction: Faction) => {
 		state: "idle",
 	};
 
-	const vehicles: Array<CampaignUnit> = [];
+	const vehicles: Array<DcsJs.CampaignUnit> = [];
 	Array.from({ length: 40 }, () => vehicles.push({ ...vehicle, id: createUniqueId() }));
 
 	return vehicles;
 };
-export const generateAircraftInventory = async (coalition: CampaignCoalition, faction: Faction) => {
+export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoalition, faction: Faction) => {
 	const dcsAirdromes = await getAirdromes();
 
 	console.log({ dcsAirdromes }); // eslint-disable-line no-console
@@ -57,14 +51,14 @@ export const generateAircraftInventory = async (coalition: CampaignCoalition, fa
 		throw "airdrome not found";
 	}
 
-	const aircrafts: Array<CampaignAircraft> = [];
+	const aircrafts: Array<DcsJs.CampaignAircraft> = [];
 
 	faction.cap.forEach((acType) => {
 		const count = Math.min(2, capCount * faction.cap.length);
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
-				aircraftType: acType,
+				aircraftType: acType as DcsJs.AircraftType,
 				position: airdrome.position,
 				state: "idle",
 				id: createUniqueId(),
@@ -78,7 +72,7 @@ export const generateAircraftInventory = async (coalition: CampaignCoalition, fa
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
-				aircraftType: acType,
+				aircraftType: acType as DcsJs.AircraftType,
 				position: airdrome.position,
 				state: "idle",
 				id: createUniqueId(),
@@ -92,7 +86,7 @@ export const generateAircraftInventory = async (coalition: CampaignCoalition, fa
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
-				aircraftType: acType,
+				aircraftType: acType as DcsJs.AircraftType,
 				position: airdrome.position,
 				state: "idle",
 				id: createUniqueId(),
@@ -134,9 +128,10 @@ export const useGenerateCampaign = () => {
 			[undefined, 10000000] as [Objective | undefined, number]
 		)[0];
 
-		const blueFaction: CampaignFaction = {
+		const blueFaction: DcsJs.CampaignFaction = {
 			...blueBaseFaction,
-			airdromes: ["Kobuleti"],
+			countryName: blueBaseFaction.countryName as DcsJs.CountryName,
+			airdromeNames: ["Kobuleti"],
 			inventory: {
 				aircrafts: await generateAircraftInventory("blue", blueBaseFaction),
 				vehicles: generateVehicleInventory(blueBaseFaction),
@@ -150,9 +145,10 @@ export const useGenerateCampaign = () => {
 		if (redBaseFaction == null) {
 			throw "unknown faction: " + blueFactionName;
 		}
-		const redFaction: CampaignFaction = {
+		const redFaction: DcsJs.CampaignFaction = {
 			...redBaseFaction,
-			airdromes: ["Sukhumi-Babushara", "Mozdok"],
+			countryName: redBaseFaction.countryName as DcsJs.CountryName,
+			airdromeNames: ["Sukhumi-Babushara", "Mozdok"],
 
 			inventory: {
 				aircrafts: await generateAircraftInventory("red", redBaseFaction),
@@ -208,7 +204,7 @@ export const useGenerateCampaign = () => {
 				position: obj.position,
 				units: units.map((unit) => ({ ...unit, state: "on objective" })),
 				coalition: isBlue ? "blue" : "red",
-			} as CampaignObjective;
+			} as DcsJs.CampaignObjective;
 		});
 
 		activate?.(blueFaction, redFaction, objectives);

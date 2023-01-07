@@ -1,11 +1,4 @@
-import {
-	CampaignAircraft,
-	CampaignAircraftState,
-	CampaignCoalition,
-	CampaignFlightGroup,
-	CampaignObjective,
-	CampaignPackage,
-} from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { CallSigns, Objectives } from "./data";
 import { MapPosition, Objective, Position, Task } from "./types";
@@ -166,11 +159,11 @@ export const positionAfterDurationToPosition = (
 	return positionFromHeading(sourcePosition, heading, distanceTraveled);
 };
 
-export const getActiveWaypoint = (fg: CampaignFlightGroup, timer: number) => {
+export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) => {
 	return fg.waypoints.find((wp) => wp.time <= timer && wp.endTime >= timer);
 };
 
-export const calcFlightGroupPosition = (fg: CampaignFlightGroup, timer: number) => {
+export const calcFlightGroupPosition = (fg: DcsJs.CampaignFlightGroup, timer: number) => {
 	const activeWaypoint = getActiveWaypoint(fg, timer);
 
 	return activeWaypoint?.name === "En Route" || activeWaypoint?.name === "Landing"
@@ -191,7 +184,7 @@ export const lastItem = <T>(arr: Array<T>) => {
 	return arr[arr.length - 1];
 };
 
-export const calcPackageEndTime = (fgs: Array<CampaignFlightGroup>) => {
+export const calcPackageEndTime = (fgs: Array<DcsJs.CampaignFlightGroup>) => {
 	return fgs.reduce((prev, fg) => {
 		if (fg.landingTime > prev) {
 			return fg.landingTime;
@@ -201,22 +194,22 @@ export const calcPackageEndTime = (fgs: Array<CampaignFlightGroup>) => {
 	}, 0);
 };
 
-export const getFlightGroups = (packages: Array<CampaignPackage> | undefined) => {
+export const getFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
 	return (
 		packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups];
-		}, [] as Array<CampaignFlightGroup>) ?? []
+		}, [] as Array<DcsJs.CampaignFlightGroup>) ?? []
 	);
 };
 
-export const getUsableAircrafts = (activeAircrafts: Array<CampaignAircraft> | undefined, task: Task) => {
+export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined, task: Task) => {
 	return activeAircrafts?.filter(
 		(aircraft) => aircraft.state === "idle" && aircraft.availableTasks.some((aircraftTask) => aircraftTask === task)
 	);
 };
 
 export const getUsableAircraftsByType = (
-	activeAircrafts: Array<CampaignAircraft> | undefined,
+	activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined,
 	aircraftTypes: Array<string> | undefined
 ) => {
 	return activeAircrafts?.filter(
@@ -224,7 +217,10 @@ export const getUsableAircraftsByType = (
 	);
 };
 
-export const getAircraftStateFromFlightGroup = (fg: CampaignFlightGroup, timer: number): CampaignAircraftState => {
+export const getAircraftStateFromFlightGroup = (
+	fg: DcsJs.CampaignFlightGroup,
+	timer: number
+): DcsJs.CampaignAircraftState => {
 	const activeWaypoint = getActiveWaypoint(fg, timer);
 
 	switch (activeWaypoint?.name) {
@@ -239,11 +235,14 @@ export const getAircraftStateFromFlightGroup = (fg: CampaignFlightGroup, timer: 
 	}
 };
 
-export const getAircraftFromId = (activeAircrafts: Array<CampaignAircraft> | undefined, id: string) => {
+export const getAircraftFromId = (activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined, id: string) => {
 	return activeAircrafts?.find((ac) => ac.id === id);
 };
 
-export const filterObjectiveCoalition = (objectives: Array<CampaignObjective>, coalition: CampaignCoalition) => {
+export const filterObjectiveCoalition = (
+	objectives: Array<DcsJs.CampaignObjective>,
+	coalition: DcsJs.CampaignCoalition
+) => {
 	return objectives.filter((obj) => obj.coalition === coalition);
 };
 
@@ -252,12 +251,20 @@ export const getDurationEnRoute = (startPosition: Position, endPosition: Positio
 	return distanceToObjective / speed;
 };
 
-export const oppositeCoalition = (coalition: CampaignCoalition | undefined): CampaignCoalition => {
+export const oppositeCoalition = (coalition: DcsJs.CampaignCoalition | undefined): DcsJs.CampaignCoalition => {
 	if (coalition === "blue") {
 		return "red";
 	} else if (coalition === "red") {
 		return "blue";
 	} else {
 		return "neutral";
+	}
+};
+
+export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | undefined) => {
+	if (coalition === "blue") {
+		return "blueFaction";
+	} else {
+		return "redFaction";
 	}
 };

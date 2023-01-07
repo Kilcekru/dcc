@@ -1,4 +1,4 @@
-import { CampaignCoalition } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
@@ -8,7 +8,7 @@ import { findInside, oppositeCoalition, randomItem } from "../../utils";
 export const useTargetSelection = () => {
 	const [state] = useContext(CampaignContext);
 
-	const casTarget = (coalition: CampaignCoalition, startPosition: Position) => {
+	const casTarget = (coalition: DcsJs.CampaignCoalition, startPosition: Position) => {
 		const oppCoalition = oppositeCoalition(coalition);
 
 		const oppObjectives = state.objectives.filter((obj) => obj.coalition === oppCoalition);
