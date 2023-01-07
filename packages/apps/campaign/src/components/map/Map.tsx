@@ -1,4 +1,5 @@
 import "./Map.less";
+import "leaflet/dist/leaflet.css";
 
 import { CampaignCoalition, CampaignFlightGroup, CampaignPackage } from "@kilcekru/dcc-shared-rpc-types";
 import L from "leaflet";

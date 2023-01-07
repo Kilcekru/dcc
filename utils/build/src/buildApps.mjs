@@ -11,35 +11,39 @@ import { log, paths } from "./utils.mjs";
 export async function buildApps({ env, watch }) {
 	const apps = await findApps();
 
-	const entryPoints = Object.fromEntries(
-		apps.map((app) => [`${app}/index`, Path.join(paths.apps, app, "src/index.tsx")])
-	);
+	const promises = [];
 
-	await Promise.all([
-		esbuild.build({
-			entryPoints,
-			outdir: Path.join(paths.target, "apps"),
-			bundle: true,
-			minify: env === "pro",
-			define: {
-				BUILD_ENV: JSON.stringify(env !== "pro"),
-			},
-			loader: {
-				".svg": "dataurl",
-			},
-			plugins: [solidPlugin(), cssExtraPlugin()],
-			watch: watch && {
-				onRebuild: (err) => {
-					if (err) {
-						log("err", `Rebuild apps failed (${err.message})`);
-					} else {
-						log("info", "Rebuilt apps");
-					}
+	for (const app of apps) {
+		promises.push(
+			esbuild.build({
+				entryPoints: {
+					index: Path.join(paths.apps, app, "src/index.tsx"),
 				},
-			},
-		}),
-		buildIndex({ apps, watch }),
-	]);
+				outdir: Path.join(paths.target, "apps", app),
+				bundle: true,
+				minify: env === "pro",
+				define: {
+					BUILD_ENV: JSON.stringify(env !== "pro"),
+				},
+				loader: {
+					".svg": "dataurl",
+					".png": "file",
+				},
+				plugins: [solidPlugin(), cssExtraPlugin()],
+				watch: watch && {
+					onRebuild: (err) => {
+						if (err) {
+							log("err", `Rebuild apps failed (${err.message})`);
+						} else {
+							log("info", "Rebuilt apps");
+						}
+					},
+				},
+			})
+		);
+	}
+	promises.push(buildIndex({ apps, watch }));
+	await Promise.all(promises);
 }
 
 async function findApps() {
