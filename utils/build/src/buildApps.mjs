@@ -1,8 +1,8 @@
 import * as Path from "node:path";
 
+import { cssExtraPlugin } from "@kilcekru/esbuild-plugin-css-extra";
 import chokidar from "chokidar";
 import esbuild from "esbuild";
-import postCss from "esbuild-plugin-postcss2";
 import { solidPlugin } from "esbuild-plugin-solid";
 import FS from "fs-extra";
 
@@ -27,7 +27,7 @@ export async function buildApps({ env, watch }) {
 			loader: {
 				".svg": "dataurl",
 			},
-			plugins: [solidPlugin(), postCss.default()],
+			plugins: [solidPlugin(), cssExtraPlugin()],
 			watch: watch && {
 				onRebuild: (err) => {
 					if (err) {
