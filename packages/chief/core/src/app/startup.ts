@@ -2,12 +2,12 @@ import * as Path from "node:path";
 
 import { BrowserWindow } from "electron";
 
-import { appState } from "../persistance";
+import { dccState, userConfig } from "../persistance";
 import { getAppPath } from "../utils";
 import { getWindowBounds, registerBoundsEvents } from "./bounds";
 
 export async function startupApp() {
-	await appState.load();
+	await Promise.all([dccState.load(), userConfig.load()]);
 
 	const mainWindow = new BrowserWindow({
 		...getWindowBounds(),
@@ -16,7 +16,7 @@ export async function startupApp() {
 			preload: Path.join(__dirname, "preload.js"),
 		},
 	});
-	if (appState.data.win?.maximized) {
+	if (dccState.data.win?.maximized) {
 		mainWindow.maximize();
 	} else {
 		mainWindow.show();

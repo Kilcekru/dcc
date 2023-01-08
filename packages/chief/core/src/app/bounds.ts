@@ -1,17 +1,17 @@
 import { BrowserWindow, Rectangle, screen } from "electron";
 
-import { appState } from "../persistance";
+import { dccState } from "../persistance";
 
 async function saveBounds(win: BrowserWindow) {
-	appState.data.win ??= {};
-	appState.data.win.bounds = win.getBounds();
-	await appState.save();
+	dccState.data.win ??= {};
+	dccState.data.win.bounds = win.getBounds();
+	await dccState.save();
 }
 
 async function saveMaximized(win: BrowserWindow) {
-	appState.data.win ??= {};
-	appState.data.win.maximized = win.isMaximized() ? true : undefined;
-	await appState.save();
+	dccState.data.win ??= {};
+	dccState.data.win.maximized = win.isMaximized() ? true : undefined;
+	await dccState.save();
 }
 
 export function registerBoundsEvents(win: BrowserWindow) {
@@ -22,7 +22,7 @@ export function registerBoundsEvents(win: BrowserWindow) {
 }
 
 export function getWindowBounds(): Partial<Rectangle> {
-	const saved = appState.data.win?.bounds;
+	const saved = dccState.data.win?.bounds;
 	if (saved == undefined) {
 		return {
 			width: 1200,

@@ -1,6 +1,16 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-export interface Misc {
-	getVersions: () => Promise<{ electron: string; node: string; chrome: string }>;
+
+import { DcsPaths } from "./misc";
+
+export * from "./misc";
+
+export interface Launcher {
+	findDcsPaths: () => Promise<Partial<DcsPaths>>;
+	findDcsSavedGamesPath: (installPath: string) => Promise<string | undefined>;
+	validateDcsInstallPath: (path: string) => Promise<boolean>;
+	validateDcsSavedGamesPath: (path: string) => Promise<boolean>;
+	setDcsPaths: (paths: DcsPaths) => Promise<void>;
+	setDcsNotAvailable: () => Promise<void>;
 }
 
 export type Faction = {

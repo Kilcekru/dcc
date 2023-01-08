@@ -1,8 +1,8 @@
 import { Misc } from "@kilcekru/dcc-shared-rpc-types";
 
-import { executeRpc } from "../utils";
+import { rpc } from "../utils";
 
 export const misc: Misc = {
-	getVersions: (...args: Parameters<Misc["getVersions"]>) =>
-		executeRpc("misc", "getVersions", args) as ReturnType<Misc["getVersions"]>,
+	getVersions: rpc<Misc["getVersions"]>("misc", "getVersions"),
+	getUserConfig: rpc<Misc["getUserConfig"]>("misc", "getUserConfig"),
 };
