@@ -1,4 +1,5 @@
 import * as Path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { cssExtraPlugin } from "@kilcekru/esbuild-plugin-css-extra";
 import chokidar from "chokidar";
@@ -17,9 +18,9 @@ export async function buildApps({ env, watch }) {
 		promises.push(
 			esbuild.build({
 				entryPoints: {
-					index: Path.join(paths.apps, app, "src/index.tsx"),
+					index: Path.join(paths.apps, app.name, "src/index.tsx"),
 				},
-				outdir: Path.join(paths.target, "apps", app),
+				outdir: Path.join(paths.target, "apps", app.name),
 				bundle: true,
 				minify: env === "pro",
 				define: {
@@ -29,6 +30,7 @@ export async function buildApps({ env, watch }) {
 					".svg": "dataurl",
 					".png": "file",
 				},
+				assetNames: "[name]",
 				plugins: [solidPlugin(), cssExtraPlugin()],
 				watch: watch && {
 					onRebuild: (err) => {
@@ -41,6 +43,7 @@ export async function buildApps({ env, watch }) {
 				},
 			})
 		);
+		promises.push(copyAssets({ app }));
 	}
 	promises.push(buildIndex({ apps, watch }));
 	await Promise.all(promises);
@@ -54,7 +57,16 @@ async function findApps() {
 		if (entry.isDirectory()) {
 			try {
 				await FS.access(Path.join(paths.apps, entry.name, "src/index.tsx"));
-				apps.push(entry.name);
+				let appConfig;
+				try {
+					appConfig = (await import(pathToFileURL(Path.join(paths.apps, entry.name, "build.config.js")))).default;
+				} catch (err) {
+					// ignore
+				}
+				apps.push({
+					name: entry.name,
+					config: appConfig,
+				});
 			} catch {
 				log("warn", `Invalid app '${entry.name}'`);
 			}
@@ -81,9 +93,19 @@ async function copyIndex({ apps }) {
 	const index = await FS.readFile(paths.indexHtml, "utf-8");
 
 	const promises = apps.map(async (app) => {
-		const content = index.replaceAll("<!-- INJECT-TITLE -->", app.charAt(0).toUpperCase() + app.slice(1));
-		await FS.outputFile(Path.join(paths.target, "apps", app, "index.html"), content);
+		const content = index.replaceAll("<!-- INJECT-TITLE -->", app.name.charAt(0).toUpperCase() + app.name.slice(1));
+		await FS.outputFile(Path.join(paths.target, "apps", app.name, "index.html"), content);
 	});
 
+	await Promise.all(promises);
+}
+
+async function copyAssets({ app }) {
+	const promises = [];
+	for (const [target, source] of Object.entries(app.config?.assets ?? {})) {
+		const src = Path.isAbsolute(source) ? source : Path.join(paths.apps, app.name, source);
+		const dest = Path.join(paths.target, "apps", app.name, target);
+		promises.push(FS.copy(src, dest));
+	}
 	await Promise.all(promises);
 }
