@@ -199,13 +199,23 @@ export const Map = () => {
 		}
 
 		state.selectedFlightGroup.waypoints.forEach((waypoint) => {
-			const marker = createSymbol(positionToMapPosition(waypoint.position), false, true, "waypoint");
+			const marker = createSymbol(positionToMapPosition(waypoint.position), false, false, "waypoint");
 
 			if (marker == null) {
 				return;
 			}
 
 			selectedFlightGroupMarkers.push(marker);
+
+			if (waypoint.racetrack != null) {
+				const marker = createSymbol(positionToMapPosition(waypoint.racetrack.position), false, true, "waypoint");
+
+				if (marker == null) {
+					return;
+				}
+
+				selectedFlightGroupMarkers.push(marker);
+			}
 		});
 	});
 

@@ -166,15 +166,17 @@ export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) 
 export const calcFlightGroupPosition = (fg: DcsJs.CampaignFlightGroup, timer: number, speed: number) => {
 	const activeWaypoint = getActiveWaypoint(fg, timer);
 
+	if (activeWaypoint == null) {
+		return;
+	}
+
 	if (activeWaypoint?.racetrack == null) {
-		return activeWaypoint?.name === "En Route" || activeWaypoint?.name === "Landing"
-			? positionAfterDurationToPosition(
-					activeWaypoint.position,
-					activeWaypoint.endPosition,
-					timer - activeWaypoint.time,
-					speed
-			  )
-			: activeWaypoint?.position;
+		return positionAfterDurationToPosition(
+			activeWaypoint.position,
+			activeWaypoint.endPosition,
+			timer - activeWaypoint.time,
+			speed
+		);
 	} else {
 		const timeOnStation = timer - activeWaypoint.time;
 		const distancesAlreadyFlown = Math.floor(timeOnStation / activeWaypoint.racetrack.duration);

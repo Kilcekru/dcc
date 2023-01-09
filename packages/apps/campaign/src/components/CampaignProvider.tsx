@@ -149,7 +149,7 @@ type CampaignStore = [
 const initState: CampaignState = {
 	active: false,
 	campaignTime: new Date("2022-06-01").getTime(),
-	timer: 0,
+	timer: 32400,
 	multiplier: 1,
 	paused: false,
 	selectedFlightGroup: undefined,

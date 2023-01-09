@@ -1,5 +1,6 @@
 import "./Home.less";
 
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
@@ -13,7 +14,7 @@ import { Sidebar, StartMissionModal } from "./components";
 import { usePackagesTick } from "./packages";
 
 export const Home = () => {
-	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState }] = useContext(CampaignContext);
+	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState, pause }] = useContext(CampaignContext);
 	const redPackagesTick = usePackagesTick("red");
 	const bluePackagesTick = usePackagesTick("blue");
 	const combat = useCombat();
@@ -54,6 +55,20 @@ export const Home = () => {
 
 	const onNextRound = () => {
 		campaignRound();
+	};
+
+	const onGenerateMission = () => {
+		pause?.();
+
+		const unwrapped = unwrap(state);
+
+		if (unwrapped.blueFaction == null || unwrapped.redFaction == null) {
+			throw "faction not found";
+		}
+
+		const campaign: DcsJs.Campaign = unwrapped as DcsJs.Campaign;
+
+		void rpc.campaign.generateCampaignMission(campaign);
 	};
 
 	const missionModal = () => {
@@ -118,6 +133,7 @@ export const Home = () => {
 				<Button onPress={onClearPackages}>Clear Packages</Button>
 				<Button onPress={onLog}>Log State</Button>
 				<Button onPress={onNextRound}>Next Round</Button>
+				<Button onPress={onGenerateMission}>Generate Mission</Button>
 				<TimerClock />
 				<Map />
 				<StartMissionModal isOpen={showModal()} onClose={() => setShowModal(false)} />
