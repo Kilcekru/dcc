@@ -292,3 +292,25 @@ export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | un
 		return "redFaction";
 	}
 };
+
+export const extractPosition = <T extends Position>(obj: T): Position => {
+	return {
+		x: obj.x,
+		y: obj.y,
+	};
+};
+
+export const findNearest = <T extends { position: Position }>(arr: Array<T>, targetPosition: Position) => {
+	return arr.reduce(
+		([prevObj, prevDistance], obj) => {
+			const distance = distanceToPosition(targetPosition, obj.position);
+
+			if (distance < prevDistance) {
+				return [obj, distance] as [T | undefined, number];
+			} else {
+				return [prevObj, prevDistance] as [T | undefined, number];
+			}
+		},
+		[undefined, 10000000] as [T | undefined, number]
+	)[0];
+};

@@ -1,5 +1,3 @@
-import { AircraftType } from "./aircraftType";
-
 export type ObjectiveType = "Town" | "Terrain" | "Airport";
 export type Position = {
 	x: number;
@@ -55,39 +53,8 @@ export type Task =
 
 export type Era = "WW2" | "Korea" | "Early CW" | "Late CW" | "Modern";
 
-export type Aircraft = {
-	chaff: number;
-	display_name: string;
-	flare: number;
-	max_fuel: number;
-	max_height: number;
-	max_speed: number;
-	name: AircraftType;
-	loadouts: Array<Loadout>;
-	availableTasks: Array<Task>;
-	controllable: boolean;
-	maxWaypoints?: number;
-	isHelicopter: boolean;
-	cruiseAltitude: number;
-	cruiseSpeed: number;
-	era: Era;
-	carrierCapable: boolean;
-};
-
 export type StrikeTargetType = "Vehicle" | "AAA" | "Artillery" | "SAM" | "Structure";
 
 export type UnitPosition = Position & {
 	heading: number;
-};
-
-export type StrikeTarget = {
-	name: string;
-	position: Position;
-	spans?: [Position, Position];
-	blueGroup?: Omit<StrikeTarget, "bluGroup">;
-	objective?: string;
-	type?: StrikeTargetType;
-	structureType?: string;
-	structureCategory?: string;
-	unitPositions: Array<UnitPosition>;
 };

@@ -21,6 +21,7 @@ const sidcUnitCode = {
 	aew: "MFRW--",
 	fighter: "MFF---",
 	waypoint: "OXRW--",
+	militaryBase: "IB----",
 };
 
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
@@ -133,6 +134,24 @@ export const Map = () => {
 			if (objective.coalition === "neutral" && objectiveMarkers[objective.name] != null) {
 				removeSymbol(objectiveMarkers[objective.name]);
 			}
+
+			objective.structures.forEach((structure) => {
+				const mapPosition = positionToMapPosition(structure.position);
+
+				if (objective.coalition !== "neutral") {
+					const marker = createSymbol(mapPosition, objective.coalition === "red", false, "militaryBase")?.bindPopup(
+						structure.name
+					);
+
+					if (marker != null) {
+						objectiveMarkers[structure.id] = marker;
+					}
+				}
+
+				if (objective.coalition === "neutral" && objectiveMarkers[structure.id] != null) {
+					removeSymbol(objectiveMarkers[structure.id]);
+				}
+			});
 		});
 	};
 

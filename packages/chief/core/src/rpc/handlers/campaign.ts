@@ -25,6 +25,14 @@ const getAirdromes: Campaign["getAirdromes"] = async () => {
 	return DcsJs.getAirdromes();
 };
 
+const getObjectives: Campaign["getObjectives"] = async () => {
+	return DcsJs.getObjectives();
+};
+
+const getStrikeTargets: Campaign["getStrikeTargets"] = async () => {
+	return DcsJs.getStrikeTargets();
+};
+
 const generateCampaignMission: Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
 	await DcsJs.generateCampaignMission(campaign);
 
@@ -34,6 +42,8 @@ const generateCampaignMission: Campaign["generateCampaignMission"] = async (camp
 export const campaign: Campaign = {
 	generateCampaignMission,
 	getAirdromes,
+	getObjectives,
+	getStrikeTargets,
 	save,
 	load,
 };

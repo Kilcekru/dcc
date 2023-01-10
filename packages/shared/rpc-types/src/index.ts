@@ -17,6 +17,8 @@ export type Faction = {
 	cap: Array<string>;
 	cas: Array<string>;
 	awacs: Array<string>;
+	dead: Array<string>;
+	strike: Array<string>;
 	vehicles: Array<string>;
 	countryName: string;
 	name: string;
@@ -34,6 +36,8 @@ export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> &
 
 export interface Campaign {
 	getAirdromes: () => Promise<DcsJs.GetAirdromes>;
+	getObjectives: () => Promise<DcsJs.GetObjectives>;
+	getStrikeTargets: () => Promise<DcsJs.GetStrikeTargets>;
 	generateCampaignMission: (campaign: DcsJs.Campaign) => Promise<{ success: boolean }>;
 	save: (campaign: CampaignState) => Promise<{ success: boolean }>;
 	load: () => Promise<Partial<CampaignState>>;

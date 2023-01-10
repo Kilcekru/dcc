@@ -43,6 +43,10 @@ const useCapPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 		if (runningCAPPackagesCount < 1) {
 			const pkg = generatePackage.cap();
 
+			if (pkg == null) {
+				return;
+			}
+
 			addPackage?.(pkg);
 		}
 	};
@@ -63,6 +67,58 @@ const useAwacsPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 		if (runningAWACSPackagesCount < 1) {
 			const pkg = generatePackage.awacs();
 
+			if (pkg == null) {
+				return;
+			}
+
+			addPackage?.(pkg);
+		}
+	};
+};
+
+const useDeadPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
+	const [, { addPackage }] = useContext(CampaignContext);
+	const generatePackage = useGeneratePackage(coalition);
+	const faction = useFaction(coalition);
+
+	return () => {
+		const runningDEADPackages = faction?.packages.filter((pkg) => {
+			return pkg.task === "DEAD";
+		});
+
+		const runningDEADPackagesCount = runningDEADPackages?.length ?? 0;
+
+		if (runningDEADPackagesCount < 1) {
+			const pkg = generatePackage.dead();
+
+			if (pkg == null) {
+				return;
+			}
+
+			addPackage?.(pkg);
+		}
+	};
+};
+
+const useStrikePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
+	const [, { addPackage }] = useContext(CampaignContext);
+	const generatePackage = useGeneratePackage(coalition);
+	const faction = useFaction(coalition);
+
+	return () => {
+		const runningStrikePackages = faction?.packages.filter((pkg) => {
+			return pkg.task === "Pinpoint Strike";
+		});
+
+		const runningStrikePackagesCount = runningStrikePackages?.length ?? 0;
+
+		if (runningStrikePackagesCount < 2) {
+			const pkg = generatePackage.strike();
+
+			if (pkg == null) {
+				return;
+			}
+
 			addPackage?.(pkg);
 		}
 	};
@@ -73,11 +129,15 @@ export const usePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const cas = useCasPackagesTick(coalition);
 	const cap = useCapPackagesTick(coalition);
 	const awacs = useAwacsPackagesTick(coalition);
+	const dead = useDeadPackagesTick(coalition);
+	const strike = useStrikePackagesTick(coalition);
 
 	return () => {
 		updatePackagesState?.(coalitionToFactionString(coalition));
 		cas();
 		cap();
 		awacs();
+		dead();
+		strike();
 	};
 };
