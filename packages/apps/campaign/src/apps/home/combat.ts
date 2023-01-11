@@ -3,7 +3,14 @@ import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { useFaction } from "../../hooks";
-import { getActiveWaypoint, getAircraftFromId, getFlightGroups, Minutes, random } from "../../utils";
+import {
+	distanceToPosition,
+	getActiveWaypoint,
+	getAircraftFromId,
+	getFlightGroups,
+	Minutes,
+	random,
+} from "../../utils";
 
 const useCasA2G = (coalition: DcsJs.CampaignCoalition) => {
 	const [state, { destroyUnit, updateActiveAircrafts }] = useContext(CampaignContext);
@@ -57,12 +64,63 @@ const useCasA2G = (coalition: DcsJs.CampaignCoalition) => {
 	};
 };
 
+const useDead = (coalition: DcsJs.CampaignCoalition) => {
+	const [state, { destroySam, updateActiveAircrafts }] = useContext(CampaignContext);
+	const faction = useFaction(coalition);
+
+	return () => {
+		const fgs = getFlightGroups(faction?.packages);
+
+		const updatedAircraft: Array<DcsJs.CampaignAircraft> = [];
+
+		const deadFgs = fgs.filter((fg) => fg.task === "DEAD");
+
+		deadFgs.forEach((fg) => {
+			const objective = fg.objective;
+
+			if (
+				objective != null &&
+				distanceToPosition(fg.position, objective.position) < 90_000 &&
+				fg.startTime + Minutes(3) < state.timer
+			) {
+				fg.aircraftIds.forEach((id) => {
+					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, id);
+
+					if (aircraft == null) {
+						throw "aircraft not found";
+					}
+
+					if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
+						// Is the attack successful
+						if (random(1, 100) <= 50) {
+							destroySam?.(coalition === "blue" ? "redFaction" : "blueFaction", objective.name);
+							console.log(`DEAD: ${aircraft.id} destroyed SAM in objective ${objective.name}`); // eslint-disable-line no-console
+						} else {
+							console.log(`DEAD: ${aircraft.id} missed SAM in objective ${objective.name}`); // eslint-disable-line no-console
+						}
+
+						updatedAircraft.push({ ...aircraft, weaponReadyTimer: state.timer + Minutes(60) });
+					}
+				});
+			}
+		});
+
+		if (updatedAircraft.length > 0) {
+			updateActiveAircrafts?.(coalition === "blue" ? "blueFaction" : "redFaction", updatedAircraft);
+		}
+	};
+};
+
 export const useCombat = () => {
 	const blueCasA2G = useCasA2G("blue");
 	const redCasA2G = useCasA2G("red");
+	const blueDead = useDead("blue");
+	const redDead = useDead("red");
 
 	return () => {
 		blueCasA2G();
 		redCasA2G();
+		blueDead();
+		redDead();
 	};
 };

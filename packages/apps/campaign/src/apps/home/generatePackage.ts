@@ -13,6 +13,7 @@ import {
 	getUsableAircraftsByType,
 	headingToPosition,
 	Minutes,
+	oppositeCoalition,
 	positionFromHeading,
 	random,
 	randomCallSign,
@@ -106,7 +107,7 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 
 		return {
 			coalition,
-			task: "CAS",
+			task: "CAS" as DcsJs.Task,
 			startTime,
 			endTime: calcPackageEndTime(flightGroups),
 			airdrome: airdromeName,
@@ -197,7 +198,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 
 		return {
 			coalition,
-			task: "CAP",
+			task: "CAP" as DcsJs.Task,
 			startTime,
 			endTime: calcPackageEndTime(flightGroups),
 			airdrome: airdromeName,
@@ -288,7 +289,7 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 
 		return {
 			coalition,
-			task: "AWACS",
+			task: "AWACS" as DcsJs.Task,
 			startTime,
 			endTime: calcPackageEndTime(flightGroups),
 			airdrome: airdromeName,
@@ -364,6 +365,13 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 					endTime: endLandingTime,
 				},
 			],
+			objective: {
+				name: selectedObjective.id,
+				coalition: oppositeCoalition(coalition),
+				position: selectedObjective.position,
+				structures: [],
+				units: [],
+			},
 			position: airdrome.position,
 		};
 
@@ -371,7 +379,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 
 		return {
 			coalition,
-			task: "DEAD",
+			task: "DEAD" as DcsJs.Task,
 			startTime,
 			endTime: calcPackageEndTime(flightGroups),
 			airdrome: airdromeName,
@@ -455,7 +463,7 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 
 		return {
 			coalition,
-			task: "Pinpoint Strike",
+			task: "Pinpoint Strike" as DcsJs.Task,
 			startTime,
 			endTime: calcPackageEndTime(flightGroups),
 			airdrome: airdromeName,

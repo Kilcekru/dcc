@@ -128,7 +128,7 @@ type CampaignStore = [
 		cleanupPackages?: () => void;
 		addPackage?: (props: {
 			coalition: DcsJs.CampaignCoalition;
-			task: string;
+			task: DcsJs.Task;
 			startTime: number;
 			endTime: number;
 			airdrome: string;
@@ -141,6 +141,7 @@ type CampaignStore = [
 			factionString: "blueFaction" | "redFaction",
 			aircrafts: Array<DcsJs.CampaignAircraft>
 		) => void;
+		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		destroyUnit?: (factionString: "blueFaction" | "redFaction", objectiveName: string, unitId: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 	}
@@ -314,6 +315,17 @@ export function CampaignProvider(props: {
 								return obj;
 							}
 						});
+					})
+				);
+			},
+			destroySam(factionString, samId) {
+				setState(factionString, "sams", (sams) =>
+					sams.map((sam) => {
+						if (sam.id === samId) {
+							return { ...sam, operational: false };
+						} else {
+							return sam;
+						}
 					})
 				);
 			},

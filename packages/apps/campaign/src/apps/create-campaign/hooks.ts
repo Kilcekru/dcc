@@ -215,6 +215,7 @@ export const useGenerateCampaign = () => {
 				position: sam.position,
 				range: 45000,
 				units: [],
+				operational: true,
 			})),
 		};
 

@@ -30,7 +30,7 @@ export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	const objectiveMarkers: Record<string, L.Marker> = {};
 	const flightGroupMarkers: Record<string, L.Marker> = {};
-	const samCircles: Record<string, L.Circle> = {};
+	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
@@ -63,7 +63,7 @@ export const Map = () => {
 		return L.marker(mapPosition, { icon }).addTo(map);
 	};
 
-	const removeSymbol = (marker: L.Marker | undefined) => {
+	const removeSymbol = (marker: L.Marker | L.Circle | undefined) => {
 		const map = leaftletMap();
 
 		if (map == null || marker == null) {
@@ -188,23 +188,30 @@ export const Map = () => {
 
 	const createSamSymbols = () => {
 		state.redFaction?.sams.forEach((sam) => {
-			const mapPosition = positionToMapPosition(sam.position);
-			const map = leaftletMap();
+			if (sam.operational) {
+				const mapPosition = positionToMapPosition(sam.position);
+				const map = leaftletMap();
 
-			if (map == null) {
-				return;
-			}
-
-			if (samCircles[sam.id] == null) {
-				createSymbol(mapPosition, true, false, "airDefenceMissle");
-
-				const circle = L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
-
-				if (circle == null) {
+				if (map == null) {
 					return;
 				}
 
-				samCircles[sam.id] = circle;
+				if (samCircles[sam.id] == null) {
+					const marker = createSymbol(mapPosition, true, false, "airDefenceMissle");
+
+					const circle = L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
+
+					if (circle == null || marker == null) {
+						return;
+					}
+
+					samCircles[sam.id] = { circle, marker };
+				}
+			} else {
+				const samCircle = samCircles[sam.id];
+
+				removeSymbol(samCircle?.circle);
+				removeSymbol(samCircle?.marker);
 			}
 		});
 	};
