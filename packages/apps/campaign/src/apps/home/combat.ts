@@ -4,12 +4,16 @@ import { useContext } from "solid-js";
 import { CampaignContext } from "../../components";
 import { useFaction } from "../../hooks";
 import {
+	coalitionToFactionString,
 	distanceToPosition,
+	findInside,
 	getActiveWaypoint,
 	getAircraftFromId,
 	getFlightGroups,
 	Minutes,
+	oppositeCoalition,
 	random,
+	randomItem,
 } from "../../utils";
 
 const useCasA2G = (coalition: DcsJs.CampaignCoalition) => {
@@ -111,16 +115,101 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 	};
 };
 
+const useStrike = (coalition: DcsJs.CampaignCoalition) => {
+	const [state, { destroyStructure, updateActiveAircrafts }] = useContext(CampaignContext);
+	const faction = useFaction(coalition);
+
+	return () => {
+		const fgs = getFlightGroups(faction?.packages);
+
+		const updatedAircraft: Array<DcsJs.CampaignAircraft> = [];
+
+		const strikeFgs = fgs.filter((fg) => fg.task === "Pinpoint Strike");
+
+		strikeFgs.forEach((fg) => {
+			const objective = fg.objective;
+
+			if (
+				objective != null &&
+				distanceToPosition(fg.position, objective.position) < 5_000 &&
+				fg.startTime + Minutes(3) < state.timer
+			) {
+				fg.aircraftIds.forEach((id) => {
+					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, id);
+
+					if (aircraft == null) {
+						throw "aircraft not found";
+					}
+
+					if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
+						// Is the attack successful
+						if (random(1, 100) <= 75) {
+							destroyStructure?.(objective.name);
+							console.log(`Strike: ${aircraft.id} destroyed structures in objective ${objective.name}`); // eslint-disable-line no-console
+						} else {
+							console.log(`Strike: ${aircraft.id} missed structures in objective ${objective.name}`); // eslint-disable-line no-console
+						}
+
+						updatedAircraft.push({ ...aircraft, weaponReadyTimer: state.timer + Minutes(60) });
+					}
+				});
+			}
+		});
+
+		if (updatedAircraft.length > 0) {
+			updateActiveAircrafts?.(coalition === "blue" ? "blueFaction" : "redFaction", updatedAircraft);
+		}
+	};
+};
+
+const useSAM = (coalition: DcsJs.CampaignCoalition) => {
+	const [state, { destroyAircraft }] = useContext(CampaignContext);
+	const faction = useFaction(coalition);
+	const oppFaction = useFaction(oppositeCoalition(coalition));
+
+	return () => {
+		const sams = faction?.sams.filter((sam) => sam.operational === true && sam.weaponReadyTimer <= state.timer);
+
+		sams?.forEach((sam) => {
+			const validAircrafts = oppFaction?.inventory.aircrafts.filter(
+				(ac) => ac.alive === true && ac.state !== "idle" && ac.state !== "maintenance"
+			);
+			const aircraftsInRange = findInside(validAircrafts, sam.position, (ac) => ac.position, sam.range);
+
+			const target = randomItem(aircraftsInRange);
+
+			if (target == null) {
+				return;
+			}
+
+			if (random(1, 100) <= 50) {
+				destroyAircraft?.(coalitionToFactionString(oppositeCoalition(coalition)), target.id);
+				console.log(`SAM: ${sam.id} destroyed aircraft ${target.id}`); // eslint-disable-line no-console
+			} else {
+				console.log(`SAM: ${sam.id} missed aircraft ${target.id}`); // eslint-disable-line no-console
+			}
+		});
+	};
+};
+
 export const useCombat = () => {
 	const blueCasA2G = useCasA2G("blue");
 	const redCasA2G = useCasA2G("red");
 	const blueDead = useDead("blue");
 	const redDead = useDead("red");
+	const blueStrike = useStrike("blue");
+	const redStrike = useStrike("red");
+	const blueSAM = useSAM("blue");
+	const redSAM = useSAM("red");
 
 	return () => {
 		blueCasA2G();
 		redCasA2G();
 		blueDead();
 		redDead();
+		blueStrike();
+		redStrike();
+		blueSAM();
+		redSAM();
 	};
 };

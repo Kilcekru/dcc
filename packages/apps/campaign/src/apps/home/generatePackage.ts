@@ -83,6 +83,7 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 					duration: casDuration,
 					time: endEnRouteTime + 1,
 					endTime: endCASTime,
+					taskStart: true,
 					racetrack: {
 						position: racetrackEnd,
 						name: "Track-race end",
@@ -175,6 +176,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 					duration,
 					time: endEnRouteTime + 1,
 					endTime: endOnStationTime,
+					taskStart: true,
 					racetrack: {
 						position: racetrackEnd,
 						name: "Track-race end",
@@ -192,6 +194,13 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 				},
 			],
 			position: airdrome.position,
+			objective: {
+				coalition: oppositeCoalition(coalition),
+				name: "CAP",
+				position: endPosition,
+				structures: [],
+				units: [],
+			},
 		};
 
 		const flightGroups = [flightGroup];
@@ -266,6 +275,7 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 					time: endEnRouteTime + 1,
 					endTime: endOnStationTime,
 					duration,
+					taskStart: true,
 					racetrack: {
 						position: racetrackEnd,
 						name: "Track-race end",

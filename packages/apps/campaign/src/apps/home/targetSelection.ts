@@ -16,17 +16,17 @@ export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 		const objectivesWithAliveUnits = oppObjectives.filter(
 			(obj) => obj.units.filter((unit) => unit.alive === true).length > 0
 		);
-		const objectivesInRange = findInside(objectivesWithAliveUnits, startPosition, (obj) => obj?.position, 60000);
+		const objectivesInRange = findInside(objectivesWithAliveUnits, startPosition, (obj) => obj?.position, 60_000);
 
 		return randomItem(objectivesInRange);
 	};
 
 	const deadTarget = (startPosition: Position) => {
-		const oppSams = oppFaction?.sams;
+		const oppSams = oppFaction?.sams.filter((sam) => sam.operational === true);
 
-		const inRange = findInside(oppSams, startPosition, (sam) => sam.position, 100000);
+		const inRange = findInside(oppSams, startPosition, (sam) => sam.position, 100_000);
 
-		return findNearest(inRange, startPosition);
+		return findNearest(inRange, startPosition, (sam) => sam.position);
 	};
 
 	const strikeTarget = (startPosition: Position) => {
@@ -35,7 +35,7 @@ export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 			(obj) => obj.structures.filter((structure) => structure.alive === true).length > 0
 		);
 
-		const objectivesInRange = findInside(objectivesWithAliveStructures, startPosition, (obj) => obj?.position, 100000);
+		const objectivesInRange = findInside(objectivesWithAliveStructures, startPosition, (obj) => obj?.position, 100_000);
 
 		return randomItem(objectivesInRange);
 	};

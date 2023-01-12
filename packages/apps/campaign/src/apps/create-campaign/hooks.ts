@@ -59,6 +59,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["CAP"],
+				alive: true,
 			});
 		});
 	});
@@ -73,6 +74,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["CAS"],
+				alive: true,
 			});
 		});
 	});
@@ -87,6 +89,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["AWACS"],
+				alive: true,
 			});
 		});
 	});
@@ -101,6 +104,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["Pinpoint Strike"],
+				alive: true,
 			});
 		});
 	});
@@ -115,6 +119,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["DEAD"],
+				alive: true,
 			});
 		});
 	});
@@ -154,7 +159,7 @@ export const useGenerateCampaign = () => {
 			throw "airdrome not found";
 		}
 
-		const nearestObjective = findNearest(objectives, extractPosition(kobuleti));
+		const nearestObjective = findNearest(objectives, extractPosition(kobuleti), (objective) => objective.position);
 
 		const blueFaction: DcsJs.CampaignFaction = {
 			...blueBaseFaction,
@@ -185,7 +190,7 @@ export const useGenerateCampaign = () => {
 		const redAirdromes = redAirdromeNames.map((name) => airdromes[name]);
 
 		const selectedSams = redAirdromes.reduce((prev, airdrome) => {
-			const nearestSam = findNearest(sams, extractPosition(airdrome));
+			const nearestSam = findNearest(sams, extractPosition(airdrome), (sam) => sam.position);
 
 			if (nearestSam == null) {
 				return prev;
@@ -194,7 +199,7 @@ export const useGenerateCampaign = () => {
 			}
 		}, [] as Array<DcsJs.StrikeTarget>);
 
-		const selectedFrontlineSam = findNearest(sams, extractPosition(kobuleti));
+		const selectedFrontlineSam = findNearest(sams, extractPosition(kobuleti), (sam) => sam.position);
 
 		if (selectedFrontlineSam != null) {
 			selectedSams.push(selectedFrontlineSam);
@@ -216,6 +221,8 @@ export const useGenerateCampaign = () => {
 				range: 45000,
 				units: [],
 				operational: true,
+				fireInterval: 60,
+				weaponReadyTimer: 0,
 			})),
 		};
 

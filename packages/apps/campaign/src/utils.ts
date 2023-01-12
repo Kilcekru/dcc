@@ -110,6 +110,26 @@ export const findInside = <T>(
 	);
 };
 
+export const findNearest = <T>(
+	values: Array<T> | undefined,
+	sourcePosition: Position,
+	positionSelector: (value: T) => Position
+) => {
+	return values?.reduce(
+		([prevObj, prevDistance], v) => {
+			const position = positionSelector(v);
+			const distance = distanceToPosition(sourcePosition, position);
+
+			if (distance < prevDistance) {
+				return [v, distance] as [T, number];
+			} else {
+				return [prevObj, prevDistance] as [T, number];
+			}
+		},
+		[undefined, 10000000] as [T, number]
+	)[0];
+};
+
 export const objectiveNamesToObjectives = (names: Array<string> | undefined) => {
 	if (names == null) {
 		return [];
@@ -250,7 +270,7 @@ export const getAircraftStateFromFlightGroup = (
 	switch (activeWaypoint?.name) {
 		case "En Route":
 			return "en route";
-		case "CAS":
+		case "Track-race start":
 			return "on station";
 		case "Landing":
 			return "rtb";
@@ -298,19 +318,4 @@ export const extractPosition = <T extends Position>(obj: T): Position => {
 		x: obj.x,
 		y: obj.y,
 	};
-};
-
-export const findNearest = <T extends { position: Position }>(arr: Array<T>, targetPosition: Position) => {
-	return arr.reduce(
-		([prevObj, prevDistance], obj) => {
-			const distance = distanceToPosition(targetPosition, obj.position);
-
-			if (distance < prevDistance) {
-				return [obj, distance] as [T | undefined, number];
-			} else {
-				return [prevObj, prevDistance] as [T | undefined, number];
-			}
-		},
-		[undefined, 10000000] as [T | undefined, number]
-	)[0];
 };

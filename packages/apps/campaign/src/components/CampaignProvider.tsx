@@ -143,6 +143,8 @@ type CampaignStore = [
 		) => void;
 		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		destroyUnit?: (factionString: "blueFaction" | "redFaction", objectiveName: string, unitId: string) => void;
+		destroyStructure?: (objectiveName: string) => void;
+		destroyAircraft?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 	}
 ];
@@ -325,6 +327,37 @@ export function CampaignProvider(props: {
 							return { ...sam, operational: false };
 						} else {
 							return sam;
+						}
+					})
+				);
+			},
+			destroyStructure(objectiveName) {
+				setState(
+					produce((s) => {
+						s.objectives = s?.objectives.map((obj) => {
+							if (obj.name === objectiveName) {
+								return {
+									...obj,
+									structures: obj.structures.map((str) => ({ ...str, alive: false, destroyedTime: s.timer })),
+								};
+							} else {
+								return obj;
+							}
+						});
+					})
+				);
+			},
+			destroyAircraft(factionString, id) {
+				setState(factionString, "inventory", "aircrafts", (acs) =>
+					acs.map((ac) => {
+						if (ac.id === id) {
+							return {
+								...ac,
+								alive: false,
+								destroyedTime: state.timer,
+							};
+						} else {
+							return ac;
 						}
 					})
 				);
