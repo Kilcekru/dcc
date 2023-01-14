@@ -334,10 +334,17 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 		}
 
 		const speed = 170;
+		const ingressPosition = positionFromHeading(
+			selectedObjective.position,
+			headingToPosition(selectedObjective.position, airdrome.position),
+			100000
+		);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, selectedObjective.position, speed);
+		const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
 
 		const startTime = Math.floor(state.timer) + Minutes(random(40, 50));
 		const endEnRouteTime = startTime + durationEnRoute;
+		const endIngressTime = endEnRouteTime + durationIngress;
 		const endLandingTime = endEnRouteTime + 1 + durationEnRoute;
 
 		const flightGroup: DcsJs.CampaignFlightGroup = {
@@ -357,6 +364,15 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 					time: startTime,
 					endTime: endEnRouteTime,
 					speed,
+				},
+				{
+					name: "Ingress",
+					position: selectedObjective.position,
+					endPosition: airdrome.position,
+					speed,
+					time: endEnRouteTime + 1,
+					endTime: endIngressTime,
+					taskStart: true,
 				},
 				{
 					name: "DEAD",
@@ -424,10 +440,17 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 		}
 
 		const speed = 170;
-		const durationEnRoute = getDurationEnRoute(airdrome.position, selectedObjective.position, speed);
+		const ingressPosition = positionFromHeading(
+			selectedObjective.position,
+			headingToPosition(selectedObjective.position, airdrome.position),
+			15000
+		);
+		const durationEnRoute = getDurationEnRoute(airdrome.position, ingressPosition, speed);
+		const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
 
 		const startTime = Math.floor(state.timer) + Minutes(random(30, 60));
 		const endEnRouteTime = startTime + durationEnRoute;
+		const endIngressTime = endEnRouteTime + durationIngress;
 		const endLandingTime = endEnRouteTime + 1 + durationEnRoute;
 
 		const flightGroup: DcsJs.CampaignFlightGroup = {
@@ -449,19 +472,28 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 					speed,
 				},
 				{
-					name: "Pinpoint Strike",
+					name: "Ingress",
 					position: selectedObjective.position,
 					endPosition: airdrome.position,
 					speed,
 					time: endEnRouteTime + 1,
-					endTime: endEnRouteTime + 1,
+					endTime: endIngressTime,
+					taskStart: true,
+				},
+				{
+					name: "Strike",
+					position: selectedObjective.position,
+					endPosition: airdrome.position,
+					speed,
+					time: endIngressTime + 1,
+					endTime: endIngressTime + 1,
 				},
 				{
 					name: "Landing",
 					position: airdrome.position,
 					endPosition: airdrome.position,
 					speed,
-					time: endEnRouteTime + 2,
+					time: endIngressTime + 2,
 					endTime: endLandingTime,
 				},
 			],
