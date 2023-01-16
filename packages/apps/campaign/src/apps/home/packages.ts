@@ -105,7 +105,7 @@ const useStrikePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const generatePackage = useGeneratePackage(coalition);
 	const faction = useFaction(coalition);
 
-	return () => {
+	return async () => {
 		const runningStrikePackages = faction?.packages.filter((pkg) => {
 			return pkg.task === "Pinpoint Strike";
 		});
@@ -113,7 +113,7 @@ const useStrikePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 		const runningStrikePackagesCount = runningStrikePackages?.length ?? 0;
 
 		if (runningStrikePackagesCount < 2) {
-			const pkg = generatePackage.strike();
+			const pkg = await generatePackage.strike();
 
 			if (pkg == null) {
 				return;
@@ -138,6 +138,6 @@ export const usePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 		cap();
 		awacs();
 		dead();
-		strike();
+		void strike();
 	};
 };

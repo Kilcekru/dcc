@@ -30,6 +30,16 @@ export const distanceToPosition = (position1: Position, position2: Position) => 
 	return Math.sqrt(Math.pow(position2.x - position1.x, 2) + Math.pow(position2.y - position1.y, 2));
 };
 
+export const addHeading = (heading: number, value: number) => {
+	let sum = heading + value;
+
+	while (sum < 0) {
+		sum += 360;
+	}
+
+	return sum % 360;
+};
+
 export const earthRadius = 6378137;
 export const MINLAT = -90;
 export const MAXLAT = 90;

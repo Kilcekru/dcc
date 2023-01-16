@@ -1,4 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
@@ -37,12 +38,35 @@ export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 
 		const objectivesInRange = findInside(objectivesWithAliveStructures, startPosition, (obj) => obj?.position, 100_000);
 
-		return randomItem(objectivesInRange);
+		const objective = randomItem(objectivesInRange);
+
+		if (objective == null) {
+			return;
+		}
+
+		const target = randomItem(objective?.structures);
+
+		return target;
+	};
+
+	const nearestOppositeAirdrome = async (position: Position) => {
+		const oppAirdromeNames = oppFaction?.airdromeNames;
+
+		if (oppAirdromeNames == null) {
+			return;
+		}
+
+		const airdromes = await rpc.campaign.getAirdromes();
+
+		const oppAirdromes = oppAirdromeNames.map((name) => airdromes[name]);
+
+		return findNearest(oppAirdromes, position, (ad) => ({ x: ad.x, y: ad.y }));
 	};
 
 	return {
 		casTarget,
 		deadTarget,
+		nearestOppositeAirdrome,
 		strikeTarget,
 	};
 };
