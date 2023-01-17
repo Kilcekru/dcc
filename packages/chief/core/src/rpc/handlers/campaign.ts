@@ -33,6 +33,14 @@ const getStrikeTargets: Campaign["getStrikeTargets"] = async () => {
 	return DcsJs.getStrikeTargets();
 };
 
+const getSamTemplates: Campaign["getSamTemplates"] = async () => {
+	return DcsJs.getSamTemplates();
+};
+
+const getVehicles: Campaign["getVehicles"] = async () => {
+	return DcsJs.getVehicles();
+};
+
 const generateCampaignMission: Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
 	await DcsJs.generateCampaignMission(campaign);
 
@@ -44,6 +52,8 @@ export const campaign: Campaign = {
 	getAirdromes,
 	getObjectives,
 	getStrikeTargets,
+	getSamTemplates,
+	getVehicles,
 	save,
 	load,
 };

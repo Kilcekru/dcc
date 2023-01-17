@@ -21,6 +21,7 @@ export const generateVehicleInventory = (faction: Faction) => {
 		alive: true,
 		category: "Armor",
 		state: "idle",
+		vehicleTypes: ["Armored"],
 	};
 
 	const vehicles: Array<DcsJs.CampaignUnit> = [];
@@ -139,6 +140,97 @@ const getAirdromes = async () => {
 	return await rpc.campaign.getAirdromes();
 };
 
+const getVehicles = async () => {
+	return await rpc.campaign.getVehicles();
+};
+
+const getSamTemplates = async () => {
+	return await rpc.campaign.getSamTemplates();
+};
+
+const sams = async (coalition: DcsJs.CampaignCoalition): Promise<Array<DcsJs.CampaignSam>> => {
+	if (coalition === "blue" || coalition === "neutral") {
+		return [];
+	}
+
+	const airdromes = await getAirdromes();
+	const strikeTargets = await getStrikeTargets();
+	const samTemplates = await getSamTemplates();
+	const vehicles = await getVehicles();
+	const kobuleti = airdromes["Kobuleti"];
+	const sukhumi = airdromes["Sukhumi-Babushara"];
+	const mozdok = airdromes["Mozdok"];
+	const samTemplate = samTemplates["SA-2"];
+	const templateVehicles =
+		samTemplate?.reduce((prev, name) => {
+			const vehicle = vehicles[name];
+
+			if (vehicle == null) {
+				return prev;
+			}
+
+			const unit: DcsJs.CampaignUnit = {
+				alive: true,
+				id: createUniqueId(),
+				state: "on objective",
+				displayName: vehicle.display_name,
+				category: vehicle.category,
+				name: vehicle.name,
+				vehicleTypes: vehicle.vehicleTypes,
+			};
+
+			return [...prev, unit];
+		}, [] as Array<DcsJs.CampaignUnit>) ?? [];
+
+	const redAirdromeNames = [sukhumi.name, mozdok.name];
+	const redAirdromes = redAirdromeNames.map((name) => airdromes[name]);
+
+	const sams =
+		strikeTargets == null
+			? []
+			: Object.values(strikeTargets).reduce((prev, targets) => {
+					return [...prev, ...targets.filter((target) => target.type === "SAM")];
+			  }, [] as Array<DcsJs.StrikeTarget>);
+
+	const selectedSams = redAirdromes.reduce((prev, airdrome) => {
+		const nearestSam = findNearest(sams, extractPosition(airdrome), (sam) => sam.position);
+
+		if (nearestSam == null) {
+			return prev;
+		} else {
+			return [...prev, nearestSam];
+		}
+	}, [] as Array<DcsJs.StrikeTarget>);
+
+	const selectedFrontlineSam = findNearest(sams, extractPosition(kobuleti), (sam) => sam.position);
+
+	if (selectedFrontlineSam != null) {
+		selectedSams.push(selectedFrontlineSam);
+	}
+
+	return selectedSams.map((sam) => {
+		const objectiveTarget = Object.entries(strikeTargets).find(([, targets]) =>
+			targets.some((target) => target.name === sam.name)
+		);
+
+		if (objectiveTarget == null) {
+			throw "no objective target found";
+		}
+
+		return {
+			id: createUniqueId(),
+			position: sam.position,
+			range: 45000,
+			units: templateVehicles,
+			operational: true,
+			fireInterval: 60,
+			weaponReadyTimer: 0,
+			name: sam.name,
+			objectiveName: objectiveTarget[0],
+		};
+	});
+};
+
 export const useGenerateCampaign = () => {
 	const [, { activate }] = useContext(CampaignContext);
 
@@ -175,35 +267,11 @@ export const useGenerateCampaign = () => {
 
 		const redBaseFaction = factionList.find((f) => f.name === redFactionName);
 
-		const sams =
-			strikeTargets == null
-				? []
-				: Object.values(strikeTargets).reduce((prev, targets) => {
-						return [...prev, ...targets.filter((target) => target.type === "SAM")];
-				  }, [] as Array<DcsJs.StrikeTarget>);
-
 		if (redBaseFaction == null) {
 			throw "unknown faction: " + blueFactionName;
 		}
 
 		const redAirdromeNames = [sukhumi.name, mozdok.name];
-		const redAirdromes = redAirdromeNames.map((name) => airdromes[name]);
-
-		const selectedSams = redAirdromes.reduce((prev, airdrome) => {
-			const nearestSam = findNearest(sams, extractPosition(airdrome), (sam) => sam.position);
-
-			if (nearestSam == null) {
-				return prev;
-			} else {
-				return [...prev, nearestSam];
-			}
-		}, [] as Array<DcsJs.StrikeTarget>);
-
-		const selectedFrontlineSam = findNearest(sams, extractPosition(kobuleti), (sam) => sam.position);
-
-		if (selectedFrontlineSam != null) {
-			selectedSams.push(selectedFrontlineSam);
-		}
 
 		const redFaction: DcsJs.CampaignFaction = {
 			...redBaseFaction,
@@ -215,15 +283,7 @@ export const useGenerateCampaign = () => {
 				vehicles: generateVehicleInventory(redBaseFaction),
 			},
 			packages: [],
-			sams: selectedSams.map((sam) => ({
-				id: createUniqueId(),
-				position: sam.position,
-				range: 45000,
-				units: [],
-				operational: true,
-				fireInterval: 60,
-				weaponReadyTimer: 0,
-			})),
+			sams: await sams("red"),
 		};
 
 		const campaignObjectives = objectives.map((obj) => {

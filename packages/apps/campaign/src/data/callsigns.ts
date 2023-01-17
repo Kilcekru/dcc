@@ -1,1 +1,22 @@
-export const CallSigns = ["Enfield", "Springfield", "Uzi", "Colt", "Dodge", "Ford", "Chevy", "Pontiac"];
+export const CallSigns = [
+	"Enfield",
+	"Springfield",
+	"Uzi",
+	"Colt",
+	"Dodge",
+	"Ford",
+	"Chevy",
+	"Pontiac",
+	"Viper",
+	"Venom",
+	"Lobo",
+	"Cowboy",
+	"Python",
+	"Rattler",
+	"Panther",
+	"Wolf",
+	"Weasel",
+	"Wild",
+	"Ninja",
+	"Jedi",
+];

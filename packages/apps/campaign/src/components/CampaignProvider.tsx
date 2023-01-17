@@ -10,7 +10,7 @@ const cleanupPackages = (faction: DcsJs.CampaignFaction, timer: number) => {
 
 	const usedAircraftIds = finishedPackages.reduce((prev, pkg) => {
 		const fgAircraftIds = pkg.flightGroups.reduce((prev, fg) => {
-			return [...prev, ...fg.aircraftIds];
+			return [...prev, ...fg.units.map((unit) => unit.aircraftId)];
 		}, [] as Array<string>);
 
 		return [...prev, ...fgAircraftIds];
@@ -39,7 +39,7 @@ const cleanupPackages = (faction: DcsJs.CampaignFaction, timer: number) => {
 const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
 	const flightGroups = getFlightGroups(faction.packages);
 
-	return flightGroups.find((fg) => fg.aircraftIds.some((id) => id === aircraftId));
+	return flightGroups.find((fg) => fg.units.some((unit) => unit.aircraftId === aircraftId));
 };
 
 const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: number) => {
@@ -98,8 +98,8 @@ const updateAircraftState = (faction: DcsJs.CampaignFaction, timer: number) => {
 			...prev,
 			...pkg.flightGroups.reduce((prev, fg) => {
 				const states: Record<string, string> = {};
-				fg.aircraftIds.forEach((id) => {
-					states[id] = getAircraftStateFromFlightGroup(fg, timer);
+				fg.units.forEach((unit) => {
+					states[unit.aircraftId] = getAircraftStateFromFlightGroup(fg, timer);
 				});
 				return { ...prev, ...states };
 			}, {}),

@@ -28,8 +28,8 @@ const useCasA2G = (coalition: DcsJs.CampaignCoalition) => {
 		const updatedAircraft: Array<DcsJs.CampaignAircraft> = [];
 
 		onStationCASfgs.forEach((fg) => {
-			fg.aircraftIds.forEach((id) => {
-				const aircraft = getAircraftFromId(faction?.inventory.aircrafts, id);
+			fg.units.forEach((unit) => {
+				const aircraft = getAircraftFromId(faction?.inventory.aircrafts, unit.aircraftId);
 
 				if (aircraft == null) {
 					throw "aircraft not found";
@@ -87,8 +87,8 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 				distanceToPosition(fg.position, objective.position) < 90_000 &&
 				fg.startTime + Minutes(3) < state.timer
 			) {
-				fg.aircraftIds.forEach((id) => {
-					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, id);
+				fg.units.forEach((unit) => {
+					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, unit.aircraftId);
 
 					if (aircraft == null) {
 						throw "aircraft not found";
@@ -134,8 +134,8 @@ const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 				distanceToPosition(fg.position, objective.position) < 5_000 &&
 				fg.startTime + Minutes(3) < state.timer
 			) {
-				fg.aircraftIds.forEach((id) => {
-					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, id);
+				fg.units.forEach((unit) => {
+					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, unit.aircraftId);
 
 					if (aircraft == null) {
 						throw "aircraft not found";

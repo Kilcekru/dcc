@@ -38,6 +38,8 @@ export interface Campaign {
 	getAirdromes: () => Promise<DcsJs.GetAirdromes>;
 	getObjectives: () => Promise<DcsJs.GetObjectives>;
 	getStrikeTargets: () => Promise<DcsJs.GetStrikeTargets>;
+	getSamTemplates: () => Promise<DcsJs.getSamTemplates>;
+	getVehicles: () => Promise<DcsJs.GetVehicles>;
 	generateCampaignMission: (campaign: DcsJs.Campaign) => Promise<{ success: boolean }>;
 	save: (campaign: CampaignState) => Promise<{ success: boolean }>;
 	load: () => Promise<Partial<CampaignState>>;

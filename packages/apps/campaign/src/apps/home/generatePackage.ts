@@ -11,6 +11,7 @@ import {
 	distanceToPosition,
 	firstItem,
 	getDurationEnRoute,
+	getFlightGroups,
 	getUsableAircrafts,
 	getUsableAircraftsByType,
 	headingToPosition,
@@ -27,12 +28,43 @@ const landingNavPoint = (engressPosition: Position, airdromePosition: Position) 
 	return positionFromHeading(airdromePosition, addHeading(heading, 180), 25000);
 };
 
+const callSignNumber = (
+	faction: DcsJs.CampaignFaction,
+	base: string,
+	number: number
+): { flightGroup: string; unit: string } => {
+	const tmp = `${base}-${number}`;
+
+	const fgs = getFlightGroups(faction.packages);
+
+	const callSignFg = fgs.find((fg) => fg.name === tmp);
+
+	if (callSignFg == null) {
+		return {
+			flightGroup: tmp,
+			unit: `${base}${number}`,
+		};
+	}
+
+	return callSignNumber(faction, base, number + 1);
+};
+
+const callSign = (faction: DcsJs.CampaignFaction) => {
+	const base = randomCallSign();
+
+	return callSignNumber(faction, base, 1);
+};
+
 export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
 	const targetSelection = useTargetSelection(coalition);
 
 	return () => {
+		if (faction == null) {
+			return;
+		}
+
 		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAS");
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -64,11 +96,18 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 		const endCASTime = endEnRouteTime + 1 + casDuration;
 		const endLandingTime = endCASTime + 1 + durationEnRoute;
 
+		const cs = callSign(faction);
+
 		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
 			airdromeName,
-			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
-			name: randomCallSign(),
+			units:
+				usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+					aircraftId: aircraft.id,
+					callSign: `${cs.unit}${i + 1}`,
+					name: `${cs.flightGroup}-${i + 1}`,
+				})) ?? [],
+			name: cs.flightGroup,
 			task: "CAS",
 			startTime,
 			tot: endEnRouteTime + 1,
@@ -130,6 +169,10 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 	const calcOppositeHeading = useCalcOppositeHeading(coalition);
 
 	return () => {
+		if (faction == null) {
+			return;
+		}
+
 		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAP");
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -157,11 +200,18 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 		const endOnStationTime = endEnRouteTime + 1 + duration;
 		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
 
+		const cs = callSign(faction);
+
 		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
-			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
 			airdromeName,
-			name: randomCallSign(),
+			units:
+				usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+					aircraftId: aircraft.id,
+					callSign: `${cs.unit}${i + 1}`,
+					name: `${cs.flightGroup}-${i + 1}`,
+				})) ?? [],
+			name: cs.flightGroup,
 			task: "CAP",
 			startTime,
 			tot: endEnRouteTime + 1,
@@ -229,6 +279,10 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 	const calcOppositeHeading = useCalcOppositeHeading(coalition);
 
 	return () => {
+		if (faction == null) {
+			return;
+		}
+
 		const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.awacs);
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -256,11 +310,18 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 		const endOnStationTime = endEnRouteTime + 1 + duration;
 		const endLandingTime = endOnStationTime + 1 + durationEnRoute;
 
+		const cs = callSign(faction);
+
 		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
 			airdromeName,
-			aircraftIds: usableAircrafts?.slice(0, 1).map((aircraft) => aircraft.id) ?? [],
-			name: randomCallSign(),
+			units:
+				usableAircrafts?.slice(0, 1).map((aircraft, i) => ({
+					aircraftId: aircraft.id,
+					callSign: `${cs.unit}${i + 1}`,
+					name: `${cs.flightGroup}-${i + 1}`,
+				})) ?? [],
+			name: cs.flightGroup,
 			task: "AWACS",
 			startTime,
 			tot: endEnRouteTime + 1,
@@ -321,6 +382,10 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 	const targetSelection = useTargetSelection(coalition);
 
 	return () => {
+		if (faction == null) {
+			return;
+		}
+
 		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "DEAD");
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -354,11 +419,18 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 		const endIngressTime = endEnRouteTime + durationIngress;
 		const endLandingTime = endEnRouteTime + 1 + durationEnRoute;
 
+		const cs = callSign(faction);
+
 		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
 			airdromeName,
-			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
-			name: randomCallSign(),
+			units:
+				usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+					aircraftId: aircraft.id,
+					callSign: `${cs.unit}${i + 1}`,
+					name: `${cs.flightGroup}-${i + 1}`,
+				})) ?? [],
+			name: cs.flightGroup,
 			task: "DEAD",
 			startTime,
 			tot: endEnRouteTime + 1,
@@ -427,6 +499,10 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 	const targetSelection = useTargetSelection(coalition);
 
 	return async () => {
+		if (faction == null) {
+			return;
+		}
+
 		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "Pinpoint Strike");
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -473,11 +549,18 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 		const endLandingNavTime = endEngressTime + durationLandingNav;
 		const endLandingTime = endEnRouteTime + 1 + durationEnRoute;
 
+		const cs = callSign(faction);
+
 		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
 			airdromeName,
-			aircraftIds: usableAircrafts?.slice(0, 2).map((aircraft) => aircraft.id) ?? [],
-			name: randomCallSign(),
+			units:
+				usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+					aircraftId: aircraft.id,
+					callSign: `${cs.unit}${i + 1}`,
+					name: `${cs.flightGroup}-${i + 1}`,
+				})) ?? [],
+			name: cs.flightGroup,
 			task: "Pinpoint Strike",
 			startTime,
 			tot: endEnRouteTime + 1,
