@@ -132,12 +132,12 @@ export const usePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const dead = useDeadPackagesTick(coalition);
 	const strike = useStrikePackagesTick(coalition);
 
-	return () => {
+	return async () => {
 		updatePackagesState?.(coalitionToFactionString(coalition));
 		cas();
 		cap();
 		awacs();
 		dead();
-		void strike();
+		await strike();
 	};
 };

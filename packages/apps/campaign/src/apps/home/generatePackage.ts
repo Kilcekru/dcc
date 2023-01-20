@@ -65,7 +65,7 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 			return;
 		}
 
-		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAS");
+		const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction.cas);
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
 			return;
@@ -106,6 +106,7 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 					aircraftId: aircraft.id,
 					callSign: `${cs.unit}${i + 1}`,
 					name: `${cs.flightGroup}-${i + 1}`,
+					client: false,
 				})) ?? [],
 			name: cs.flightGroup,
 			task: "CAS",
@@ -120,6 +121,7 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 					time: startTime,
 					endTime: endEnRouteTime,
 					speed,
+					onGround: true,
 				},
 				{
 					name: "Track-race start",
@@ -144,6 +146,7 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 					speed,
 					time: endCASTime + 1,
 					endTime: endLandingTime,
+					onGround: true,
 				},
 			],
 			objective: selectedObjective,
@@ -173,7 +176,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 			return;
 		}
 
-		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "CAP");
+		const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction.cap);
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
 			return;
@@ -210,6 +213,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 					aircraftId: aircraft.id,
 					callSign: `${cs.unit}${i + 1}`,
 					name: `${cs.flightGroup}-${i + 1}`,
+					client: false,
 				})) ?? [],
 			name: cs.flightGroup,
 			task: "CAP",
@@ -224,6 +228,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 					time: startTime,
 					endTime: endEnRouteTime,
 					speed,
+					onGround: true,
 				},
 				{
 					name: "Track-race start",
@@ -248,6 +253,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 					speed,
 					time: endOnStationTime + 1,
 					endTime: endLandingTime,
+					onGround: true,
 				},
 			],
 			position: airdrome.position,
@@ -320,6 +326,7 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 					aircraftId: aircraft.id,
 					callSign: `${cs.unit}${i + 1}`,
 					name: `${cs.flightGroup}-${i + 1}`,
+					client: false,
 				})) ?? [],
 			name: cs.flightGroup,
 			task: "AWACS",
@@ -334,6 +341,7 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 					time: startTime,
 					endTime: endEnRouteTime,
 					speed,
+					onGround: true,
 				},
 				{
 					name: "Track-race start",
@@ -358,6 +366,7 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 					speed,
 					time: endOnStationTime + 1,
 					endTime: endLandingTime,
+					onGround: true,
 				},
 			],
 			position: airdrome.position,
@@ -386,7 +395,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 			return;
 		}
 
-		const usableAircrafts = getUsableAircrafts(faction?.inventory.aircrafts, "DEAD");
+		const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.dead);
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
 			return;
@@ -414,7 +423,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 		const durationEnRoute = getDurationEnRoute(airdrome.position, selectedObjective.position, speed);
 		const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
 
-		const startTime = Math.floor(state.timer) + Minutes(random(40, 50));
+		const startTime = Math.floor(state.timer) + Minutes(random(15, 25));
 		const endEnRouteTime = startTime + durationEnRoute;
 		const endIngressTime = endEnRouteTime + durationIngress;
 		const endLandingTime = endEnRouteTime + 1 + durationEnRoute;
@@ -429,6 +438,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 					aircraftId: aircraft.id,
 					callSign: `${cs.unit}${i + 1}`,
 					name: `${cs.flightGroup}-${i + 1}`,
+					client: false,
 				})) ?? [],
 			name: cs.flightGroup,
 			task: "DEAD",
@@ -443,6 +453,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 					time: startTime,
 					endTime: endEnRouteTime,
 					speed,
+					onGround: true,
 				},
 				{
 					name: "Ingress",
@@ -468,6 +479,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 					speed,
 					time: endEnRouteTime + 2,
 					endTime: endLandingTime,
+					onGround: true,
 				},
 			],
 			objective: {
@@ -559,6 +571,7 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 					aircraftId: aircraft.id,
 					callSign: `${cs.unit}${i + 1}`,
 					name: `${cs.flightGroup}-${i + 1}`,
+					client: false,
 				})) ?? [],
 			name: cs.flightGroup,
 			task: "Pinpoint Strike",
@@ -573,6 +586,7 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 					time: startTime,
 					endTime: endEnRouteTime,
 					speed,
+					onGround: true,
 				},
 				{
 					name: "Ingress",

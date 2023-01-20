@@ -30,6 +30,7 @@ export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	const objectiveMarkers: Record<string, L.Marker> = {};
 	const flightGroupMarkers: Record<string, L.Marker> = {};
+	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state] = useContext(CampaignContext);
@@ -63,7 +64,7 @@ export const Map = () => {
 		return L.marker(mapPosition, { icon }).addTo(map);
 	};
 
-	const removeSymbol = (marker: L.Marker | L.Circle | undefined) => {
+	const removeSymbol = (marker: L.Marker | L.Circle | L.Polyline | undefined) => {
 		const map = leaftletMap();
 
 		if (map == null || marker == null) {
@@ -220,6 +221,11 @@ export const Map = () => {
 	createEffect(() => {
 		selectedFlightGroupMarkers.forEach((marker) => removeSymbol(marker));
 
+		if (flightGroupLine != null) {
+			removeSymbol(flightGroupLine);
+			flightGroupLine = undefined;
+		}
+
 		if (state.selectedFlightGroup == null) {
 			return;
 		}
@@ -243,6 +249,22 @@ export const Map = () => {
 				selectedFlightGroupMarkers.push(marker);
 			}
 		});
+
+		const linePoints = state.selectedFlightGroup.waypoints.reduce((prev, waypoint) => {
+			if (waypoint.racetrack == null) {
+				return [...prev, positionToMapPosition(waypoint.position)];
+			} else {
+				return [...prev, positionToMapPosition(waypoint.position), positionToMapPosition(waypoint.racetrack.position)];
+			}
+		}, [] as Array<MapPosition>);
+
+		const map = leaftletMap();
+
+		if (map == null) {
+			return;
+		}
+
+		flightGroupLine = L.polyline(linePoints, { color: "#80e0ff" }).addTo(map);
 	});
 
 	createEffect(() => {

@@ -329,3 +329,15 @@ export const extractPosition = <T extends Position>(obj: T): Position => {
 		y: obj.y,
 	};
 };
+
+export const onboardNumber = () => {
+	const num = random(1, 999);
+
+	if (num > 99) {
+		return `${num}`;
+	} else if (num > 9) {
+		return `0${num}`;
+	} else {
+		return `00${num}`;
+	}
+};

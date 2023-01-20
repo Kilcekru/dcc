@@ -3,7 +3,14 @@ import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-import { calcFlightGroupPosition, getAircraftStateFromFlightGroup, getFlightGroups, Minutes } from "../utils";
+import { MissionState } from "../types";
+import {
+	calcFlightGroupPosition,
+	getAircraftFromId,
+	getAircraftStateFromFlightGroup,
+	getFlightGroups,
+	Minutes,
+} from "../utils";
 
 const cleanupPackages = (faction: DcsJs.CampaignFaction, timer: number) => {
 	const finishedPackages = faction.packages.filter((pkg) => pkg.endTime <= timer);
@@ -43,7 +50,24 @@ const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: 
 };
 
 const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: number) => {
-	return faction.packages.map((pkg) => {
+	const cleanedFlightGroups = faction.packages.map((pkg) => {
+		return {
+			...pkg,
+			flightGroups: pkg.flightGroups.filter((fg) => {
+				const aliveAircrafts = fg.units.filter((unit) => {
+					const ac = getAircraftFromId(faction.inventory.aircrafts, unit.aircraftId);
+
+					return ac?.alive === true;
+				});
+
+				aliveAircrafts.length > 0;
+			}),
+		};
+	});
+
+	const cleanedPackages = cleanedFlightGroups.filter((pkg) => pkg.flightGroups.length > 0);
+
+	return cleanedPackages.map((pkg) => {
 		return {
 			...pkg,
 			flightGroups: pkg.flightGroups.map((fg) => {
@@ -112,6 +136,22 @@ const updateAircraftState = (faction: DcsJs.CampaignFaction, timer: number) => {
 	}));
 };
 
+const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraftNames: Array<string>) => {
+	const fgs = getFlightGroups(faction.packages);
+
+	const ids: Array<string> = [];
+
+	fgs.forEach((fg) => {
+		fg.units.forEach((unit) => {
+			if (killedAircraftNames.some((name) => name === unit.name)) {
+				ids.push(unit.aircraftId);
+			}
+		});
+	});
+
+	return ids;
+};
+
 type CampaignStore = [
 	CampaignState,
 	{
@@ -146,6 +186,8 @@ type CampaignStore = [
 		destroyStructure?: (objectiveName: string) => void;
 		destroyAircraft?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
+		setClient?: (flightGroupId: string, count: number) => void;
+		submitMissionState?: (state: MissionState) => void;
 	}
 ];
 
@@ -324,7 +366,21 @@ export function CampaignProvider(props: {
 				setState(factionString, "sams", (sams) =>
 					sams.map((sam) => {
 						if (sam.id === samId) {
-							return { ...sam, operational: false };
+							return {
+								...sam,
+								operational: false,
+								units: sam.units.map((unit) => {
+									if (unit.vehicleTypes.some((vt) => vt === "Track Radar" || vt === "Search Radar")) {
+										return {
+											...unit,
+											alive: false,
+											destroyedTime: state.timer,
+										};
+									} else {
+										return unit;
+									}
+								}),
+							};
 						} else {
 							return sam;
 						}
@@ -364,6 +420,99 @@ export function CampaignProvider(props: {
 			},
 			selectFlightGroup(flightGroup) {
 				setState("selectedFlightGroup", () => flightGroup);
+			},
+			setClient(flightGroupId, count) {
+				setState(
+					produce((s) => {
+						if (s.blueFaction == null) {
+							return;
+						}
+
+						s.blueFaction.packages = s.blueFaction.packages.map((pkg) => {
+							const hasFg = pkg.flightGroups.some((fg) => fg.id === flightGroupId);
+
+							if (hasFg) {
+								return {
+									...pkg,
+									flightGroups: pkg.flightGroups.map((fg) => {
+										if (fg.id === flightGroupId) {
+											return {
+												...fg,
+												units: fg.units.map((unit, i) => {
+													if (i < count) {
+														return { ...unit, client: true };
+													} else {
+														return unit;
+													}
+												}),
+											};
+										} else {
+											return fg;
+										}
+									}),
+								};
+							} else {
+								return pkg;
+							}
+						});
+					})
+				);
+			},
+			submitMissionState(state) {
+				setState(
+					produce((s) => {
+						s.timer = state.time;
+
+						if (s.blueFaction != null) {
+							const killedAircrafts = killedAircraftIds(s.blueFaction, state.killed_aircrafts);
+
+							s.blueFaction.inventory.aircrafts = s.blueFaction.inventory.aircrafts.map((ac) => {
+								if (killedAircrafts.some((id) => ac.id === id)) {
+									return {
+										...ac,
+										alive: false,
+										destroyedTime: s.timer,
+									};
+								} else {
+									return ac;
+								}
+							});
+						}
+
+						if (s.redFaction != null) {
+							const killedAircrafts = killedAircraftIds(s.redFaction, state.killed_aircrafts);
+
+							s.redFaction.inventory.aircrafts = s.redFaction.inventory.aircrafts.map((ac) => {
+								if (killedAircrafts.some((id) => ac.id === id)) {
+									return {
+										...ac,
+										alive: false,
+										destroyedTime: s.timer,
+									};
+								} else {
+									return ac;
+								}
+							});
+						}
+
+						s.objectives = s.objectives.map((obj) => {
+							return {
+								...obj,
+								units: obj.units.map((unit) => {
+									if (state.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
+										return {
+											...unit,
+											alive: false,
+											destroyedTime: s.timer,
+										};
+									} else {
+										return unit;
+									}
+								}),
+							};
+						});
+					})
+				);
 			},
 		},
 	];

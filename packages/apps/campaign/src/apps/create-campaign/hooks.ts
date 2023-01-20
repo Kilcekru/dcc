@@ -5,7 +5,7 @@ import { createUniqueId, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { factionList } from "../../data";
-import { extractPosition, findNearest, firstItem, random } from "../../utils";
+import { extractPosition, findNearest, firstItem, onboardNumber, random } from "../../utils";
 
 export const generateVehicleInventory = (faction: Faction) => {
 	const vehicleName = firstItem(faction.vehicles);
@@ -25,7 +25,10 @@ export const generateVehicleInventory = (faction: Faction) => {
 	};
 
 	const vehicles: Array<DcsJs.CampaignUnit> = [];
-	Array.from({ length: 40 }, () => vehicles.push({ ...vehicle, id: createUniqueId() }));
+	Array.from({ length: 40 }, () => {
+		const id = createUniqueId();
+		vehicles.push({ ...vehicle, id, displayName: `${vehicle.name}|${id}` });
+	});
 
 	return vehicles;
 };
@@ -61,6 +64,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				id: createUniqueId(),
 				availableTasks: ["CAP"],
 				alive: true,
+				onboardNumber: onboardNumber(),
 			});
 		});
 	});
@@ -76,6 +80,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				id: createUniqueId(),
 				availableTasks: ["CAS"],
 				alive: true,
+				onboardNumber: onboardNumber(),
 			});
 		});
 	});
@@ -91,6 +96,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				id: createUniqueId(),
 				availableTasks: ["AWACS"],
 				alive: true,
+				onboardNumber: onboardNumber(),
 			});
 		});
 	});
@@ -106,6 +112,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				id: createUniqueId(),
 				availableTasks: ["Pinpoint Strike"],
 				alive: true,
+				onboardNumber: onboardNumber(),
 			});
 		});
 	});
@@ -121,6 +128,7 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 				id: createUniqueId(),
 				availableTasks: ["DEAD"],
 				alive: true,
+				onboardNumber: onboardNumber(),
 			});
 		});
 	});

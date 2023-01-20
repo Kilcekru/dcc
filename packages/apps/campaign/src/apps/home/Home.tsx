@@ -10,7 +10,7 @@ import { Button, CampaignContext, Map } from "../../components";
 import { TimerClock } from "../../components/TimerClock";
 import { getFlightGroups } from "../../utils";
 import { useCombat } from "./combat";
-import { Sidebar, StartMissionModal } from "./components";
+import { MissionModal, Sidebar, StartMissionModal } from "./components";
 import { usePackagesTick } from "./packages";
 
 export const Home = () => {
@@ -18,7 +18,8 @@ export const Home = () => {
 	const redPackagesTick = usePackagesTick("red");
 	const bluePackagesTick = usePackagesTick("blue");
 	const combat = useCombat();
-	const [showModal, setShowModal] = createSignal(false);
+	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
+	const [showMissionModal, setShowMissionModal] = createSignal(false);
 	let inter: number;
 	const modalShown: Record<number, boolean> = {};
 
@@ -53,11 +54,11 @@ export const Home = () => {
 		clearPackages?.("redFaction");
 	};
 
-	const onNextRound = () => {
-		campaignRound();
+	const onNextRound = async () => {
+		await campaignRound();
 	};
 
-	const onGenerateMission = () => {
+	const onGenerateMission = async () => {
 		pause?.();
 
 		const unwrapped = unwrap(state);
@@ -68,7 +69,9 @@ export const Home = () => {
 
 		const campaign: DcsJs.Campaign = unwrapped as DcsJs.Campaign;
 
-		void rpc.campaign.generateCampaignMission(campaign);
+		await rpc.campaign.generateCampaignMission(campaign);
+
+		setShowMissionModal(true);
 	};
 
 	const missionModal = () => {
@@ -83,27 +86,27 @@ export const Home = () => {
 		});
 	};
 
-	const campaignRound = () => {
+	const campaignRound = async () => {
 		cleanupPackages?.();
 		updateAircraftState?.();
-		bluePackagesTick();
-		redPackagesTick();
+		await bluePackagesTick();
+		await redPackagesTick();
 		missionModal();
 		combat();
 	};
 
-	const interval = () => {
+	const interval = async () => {
 		if (state.multiplier === 1) {
 			tick?.(1 / 60);
 
-			campaignRound();
+			await campaignRound();
 		} else {
 			const multi = state.multiplier / 60;
 
-			Array.from({ length: multi }, () => {
+			Array.from({ length: multi }, async () => {
 				tick?.(1);
 
-				campaignRound();
+				await campaignRound();
 			});
 		}
 	};
@@ -136,7 +139,8 @@ export const Home = () => {
 				<Button onPress={onGenerateMission}>Generate Mission</Button>
 				<TimerClock />
 				<Map />
-				<StartMissionModal isOpen={showModal()} onClose={() => setShowModal(false)} />
+				<MissionModal isOpen={showMissionModal()} onClose={() => setShowMissionModal(false)} />
+				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />
 			</div>
 		</div>
 	);

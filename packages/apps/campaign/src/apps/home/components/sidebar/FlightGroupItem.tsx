@@ -6,12 +6,16 @@ import { createSignal, Show, useContext } from "solid-js";
 import { CampaignContext, Checkbox, Clock, ListItem } from "../../../../components";
 
 export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup }) => {
-	const [, { selectFlightGroup }] = useContext(CampaignContext);
+	const [, { selectFlightGroup, setClient }] = useContext(CampaignContext);
 	const [expanded, setExpanded] = createSignal(false);
 
 	const onPress = () => {
-		setExpanded((e) => !e);
+		setExpanded(true);
 		selectFlightGroup?.(props.flightGroup);
+	};
+
+	const onChange = (checked: boolean) => {
+		setClient?.(props.flightGroup.id, checked ? 1 : 0);
 	};
 
 	return (
@@ -31,7 +35,7 @@ export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup 
 			</div>
 			<Show when={expanded()}>
 				<div>
-					<Checkbox>Client</Checkbox>
+					<Checkbox onChange={onChange}>Clients</Checkbox>
 				</div>
 			</Show>
 		</ListItem>
