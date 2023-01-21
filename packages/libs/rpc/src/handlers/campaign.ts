@@ -9,6 +9,7 @@ export const campaign: Campaign = {
 	getStrikeTargets: rpc<Campaign["getStrikeTargets"]>("campaign", "getStrikeTargets"),
 	getSamTemplates: rpc<Campaign["getSamTemplates"]>("campaign", "getSamTemplates"),
 	getVehicles: rpc<Campaign["getVehicles"]>("campaign", "getVehicles"),
+	getDataStore: rpc<Campaign["getDataStore"]>("campaign", "getDataStore"),
 	save: rpc<Campaign["save"]>("campaign", "save"),
 	load: rpc<Campaign["load"]>("campaign", "load"),
 };

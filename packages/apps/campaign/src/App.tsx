@@ -4,6 +4,7 @@ import { createSignal, onMount, Show, useContext } from "solid-js";
 
 import { CreateCampaign, Home } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
+import { DataProvider } from "./components/DataProvider";
 import { isEmpty } from "./utils";
 
 const App = () => {
@@ -45,9 +46,11 @@ const AppWithContext = () => {
 
 	return (
 		<Show when={campaignState !== undefined} fallback={<div>Loading...</div>}>
-			<CampaignProvider campaignState={campaignState()}>
-				<App />
-			</CampaignProvider>
+			<DataProvider>
+				<CampaignProvider campaignState={campaignState()}>
+					<App />
+				</CampaignProvider>
+			</DataProvider>
 		</Show>
 	);
 };

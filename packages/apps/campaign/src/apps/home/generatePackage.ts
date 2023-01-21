@@ -2,13 +2,15 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import { createUniqueId, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
+import { DataContext } from "../../components/DataProvider";
 import { airdromes } from "../../data";
-import { useCalcOppositeHeading, useFaction } from "../../hooks";
+import { useCalcNearestOppositeAirdrome, useFaction } from "../../hooks";
 import { Position } from "../../types";
 import {
 	addHeading,
 	calcPackageEndTime,
 	distanceToPosition,
+	findNearest,
 	firstItem,
 	getDurationEnRoute,
 	getFlightGroups,
@@ -16,6 +18,7 @@ import {
 	getUsableAircraftsByType,
 	headingToPosition,
 	Minutes,
+	objectToPosition,
 	oppositeCoalition,
 	positionFromHeading,
 	random,
@@ -169,33 +172,96 @@ export const useCas = (coalition: DcsJs.CampaignCoalition) => {
 const useCap = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
-	const calcOppositeHeading = useCalcOppositeHeading(coalition);
+	const oppFaction = useFaction(oppositeCoalition(coalition));
+	const calcNearestOppositeAirdrome = useCalcNearestOppositeAirdrome(coalition);
+	const dataStore = useContext(DataContext);
 
-	return () => {
-		if (faction == null) {
+	return (objectiveName: string) => {
+		if (faction == null || oppFaction == null) {
 			return;
 		}
 
 		const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction.cap);
+		const airdromes = dataStore.airdromes;
 
 		if (usableAircrafts == null || usableAircrafts.length === 0) {
 			return;
 		}
 
-		const speed = 170;
-
-		const airdromeName = firstItem(faction?.airdromeNames);
-		const airdrome = airdromes.find((drome) => drome.name === airdromeName);
-
-		if (airdromeName == null || airdrome == null) {
-			throw `airdrome not found: ${airdromeName ?? ""}`;
+		if (airdromes == null) {
+			return;
 		}
 
-		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position), 20000);
-		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
-		const headingObjectiveToAirdrome = headingToPosition(endPosition, airdrome.position);
-		const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20000);
-		const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20000);
+		const speed = 170;
+
+		const [objectivePosition, airdrome] =
+			objectiveName === "Frontline"
+				? (() => {
+						const oppAirdromes = oppFaction.airdromeNames.map((name) => {
+							return airdromes[name];
+						});
+
+						const nearestObjective = oppAirdromes.reduce(
+							(prev, airdrome) => {
+								const obj = findNearest(
+									state.objectives.filter((obj) => obj.coalition === coalition),
+									airdrome,
+									(obj) => obj.position
+								);
+
+								if (obj == null) {
+									return prev;
+								}
+
+								const distance = distanceToPosition(airdrome, obj.position);
+
+								if (distance < prev[1]) {
+									return [obj, distance] as [DcsJs.CampaignObjective, number];
+								} else {
+									return prev;
+								}
+							},
+							[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number]
+						)[0];
+
+						if (nearestObjective == null) {
+							return [undefined, undefined];
+						} else {
+							const airdromes = faction.airdromeNames.map((name) => {
+								if (dataStore.airdromes == null) {
+									throw "undefined airdromes";
+								}
+								return dataStore.airdromes?.[name];
+							});
+
+							const airdrome = findNearest(airdromes, nearestObjective.position, (ad) => ad);
+
+							return [nearestObjective.position, airdrome];
+						}
+				  })()
+				: [
+						objectToPosition(airdromes[objectiveName as DcsJs.AirdromeName]),
+						airdromes[objectiveName as DcsJs.AirdromeName],
+				  ];
+
+		if (objectiveName == null || airdrome == null || objectivePosition == null) {
+			throw `airdrome not found: ${objectiveName ?? ""}`;
+		}
+
+		const oppAirdrome = calcNearestOppositeAirdrome(objectivePosition);
+		const oppHeading = headingToPosition(objectivePosition, oppAirdrome);
+
+		const heading = objectiveName === "Frontline" ? addHeading(oppHeading, 180) : oppHeading;
+
+		const endPosition = positionFromHeading(
+			objectivePosition,
+			heading,
+			objectiveName === "Frontline" ? 10_000 : 30_000
+		);
+		const durationEnRoute = getDurationEnRoute(airdrome, endPosition, speed);
+		const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
+		const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
+		const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
 		const duration = Minutes(60);
 		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 
@@ -207,7 +273,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 
 		const flightGroup: DcsJs.CampaignFlightGroup = {
 			id: createUniqueId(),
-			airdromeName,
+			airdromeName: airdrome.name,
 			units:
 				usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 					aircraftId: aircraft.id,
@@ -223,7 +289,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 			waypoints: [
 				{
 					name: "Take Off",
-					position: airdrome.position,
+					position: objectToPosition(airdrome),
 					endPosition: racetrackStart,
 					time: startTime,
 					endTime: endEnRouteTime,
@@ -233,7 +299,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 				{
 					name: "Track-race start",
 					position: racetrackStart,
-					endPosition: airdrome.position,
+					endPosition: racetrackEnd,
 					speed,
 					duration,
 					time: endEnRouteTime + 1,
@@ -248,18 +314,18 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 				},
 				{
 					name: "Landing",
-					position: airdrome.position,
-					endPosition: airdrome.position,
+					position: objectToPosition(airdrome),
+					endPosition: objectToPosition(airdrome),
 					speed,
 					time: endOnStationTime + 1,
 					endTime: endLandingTime,
 					onGround: true,
 				},
 			],
-			position: airdrome.position,
+			position: objectToPosition(airdrome),
 			objective: {
 				coalition: oppositeCoalition(coalition),
-				name: "CAP",
+				name: objectiveName,
 				position: endPosition,
 				structures: [],
 				units: [],
@@ -273,7 +339,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 			task: "CAP" as DcsJs.Task,
 			startTime,
 			endTime: calcPackageEndTime(flightGroups),
-			airdrome: airdromeName,
+			airdrome: airdrome.name,
 			flightGroups,
 		};
 	};
@@ -282,7 +348,7 @@ const useCap = (coalition: DcsJs.CampaignCoalition) => {
 const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const faction = useFaction(coalition);
-	const calcOppositeHeading = useCalcOppositeHeading(coalition);
+	const calcNearestOppositeAirdrome = useCalcNearestOppositeAirdrome(coalition);
 
 	return () => {
 		if (faction == null) {
@@ -304,11 +370,16 @@ const useAwacs = (coalition: DcsJs.CampaignCoalition) => {
 			throw `airdrome not found: ${airdromeName ?? ""}`;
 		}
 
-		const endPosition = positionFromHeading(airdrome.position, calcOppositeHeading(airdrome.position) + 180, 20000);
+		const oppAirdrome = calcNearestOppositeAirdrome(airdrome.position);
+		const endPosition = positionFromHeading(
+			airdrome.position,
+			headingToPosition(oppAirdrome, airdrome.position),
+			20000
+		);
 		const durationEnRoute = getDurationEnRoute(airdrome.position, endPosition, speed);
-		const headingObjectiveToAirdrome = headingToPosition(endPosition, airdrome.position);
-		const racetrackStart = positionFromHeading(endPosition, headingObjectiveToAirdrome - 90, 40_000);
-		const racetrackEnd = positionFromHeading(endPosition, headingObjectiveToAirdrome + 90, 40_000);
+		const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
+		const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 40_000);
+		const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 40_000);
 		const duration = Minutes(60);
 		const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 
@@ -510,7 +581,7 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 	const faction = useFaction(coalition);
 	const targetSelection = useTargetSelection(coalition);
 
-	return async () => {
+	return () => {
 		if (faction == null) {
 			return;
 		}
@@ -541,7 +612,7 @@ export const useStrike = (coalition: DcsJs.CampaignCoalition) => {
 			15000
 		);
 
-		const oppAirdrome = await targetSelection.nearestOppositeAirdrome(target.position);
+		const oppAirdrome = targetSelection.nearestOppositeAirdrome(target.position);
 		const engressHeading =
 			oppAirdrome == null
 				? headingToPosition(target.position, airdrome.position)

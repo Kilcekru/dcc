@@ -24,6 +24,14 @@ export type Faction = {
 	name: string;
 };
 
+export type DataStore = {
+	airdromes: DcsJs.GetAirdromes | undefined;
+	objectives: DcsJs.GetObjectives | undefined;
+	strikeTargets: DcsJs.GetStrikeTargets | undefined;
+	samTemplates: DcsJs.getSamTemplates | undefined;
+	vehicles: DcsJs.GetVehicles | undefined;
+};
+
 export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> & {
 	active: boolean;
 	timer: number;
@@ -40,6 +48,7 @@ export interface Campaign {
 	getStrikeTargets: () => Promise<DcsJs.GetStrikeTargets>;
 	getSamTemplates: () => Promise<DcsJs.getSamTemplates>;
 	getVehicles: () => Promise<DcsJs.GetVehicles>;
+	getDataStore: () => Promise<DataStore>;
 	generateCampaignMission: (campaign: DcsJs.Campaign) => Promise<{ success: boolean }>;
 	save: (campaign: CampaignState) => Promise<{ success: boolean }>;
 	load: () => Promise<Partial<CampaignState>>;

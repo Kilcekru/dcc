@@ -35,13 +35,35 @@ const useCapPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const faction = useFaction(coalition);
 
 	return () => {
+		faction?.airdromeNames.forEach((airdromeName) => {
+			const runningCAPPackages = faction?.packages.filter((pkg) => {
+				return (
+					pkg.task === "CAP" &&
+					pkg.flightGroups.some((fg) => {
+						return fg.objective?.name === airdromeName;
+					})
+				);
+			});
+			const runningCAPPackagesCount = runningCAPPackages?.length ?? 0;
+
+			if (runningCAPPackagesCount < 1) {
+				const pkg = generatePackage.cap(airdromeName);
+
+				if (pkg == null) {
+					return;
+				}
+
+				addPackage?.(pkg);
+			}
+		});
+
 		const runningCAPPackages = faction?.packages.filter((pkg) => {
-			return pkg.task === "CAP";
+			return pkg.task === "CAP" && pkg.flightGroups.some((fg) => fg.objective?.name === "Frontline");
 		});
 		const runningCAPPackagesCount = runningCAPPackages?.length ?? 0;
 
 		if (runningCAPPackagesCount < 1) {
-			const pkg = generatePackage.cap();
+			const pkg = generatePackage.cap("Frontline");
 
 			if (pkg == null) {
 				return;
@@ -105,7 +127,7 @@ const useStrikePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const generatePackage = useGeneratePackage(coalition);
 	const faction = useFaction(coalition);
 
-	return async () => {
+	return () => {
 		const runningStrikePackages = faction?.packages.filter((pkg) => {
 			return pkg.task === "Pinpoint Strike";
 		});
@@ -113,7 +135,7 @@ const useStrikePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 		const runningStrikePackagesCount = runningStrikePackages?.length ?? 0;
 
 		if (runningStrikePackagesCount < 2) {
-			const pkg = await generatePackage.strike();
+			const pkg = generatePackage.strike();
 
 			if (pkg == null) {
 				return;
@@ -132,12 +154,12 @@ export const usePackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const dead = useDeadPackagesTick(coalition);
 	const strike = useStrikePackagesTick(coalition);
 
-	return async () => {
+	return () => {
 		updatePackagesState?.(coalitionToFactionString(coalition));
 		cas();
 		cap();
 		awacs();
 		dead();
-		await strike();
+		strike();
 	};
 };

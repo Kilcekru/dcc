@@ -1,8 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
+import { DataContext } from "../../components/DataProvider";
 import { useFaction } from "../../hooks";
 import { Position } from "../../types";
 import { distanceToPosition, findInside, findNearest, oppositeCoalition, randomItem } from "../../utils";
@@ -11,6 +11,7 @@ export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = useFaction(oppCoalition);
+	const dataStore = useContext(DataContext);
 
 	const casTarget = (startPosition: Position) => {
 		const oppObjectives = state.objectives.filter((obj) => obj.coalition === oppCoalition);
@@ -52,14 +53,18 @@ export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 		return target;
 	};
 
-	const nearestOppositeAirdrome = async (position: Position) => {
+	const nearestOppositeAirdrome = (position: Position) => {
 		const oppAirdromeNames = oppFaction?.airdromeNames;
 
 		if (oppAirdromeNames == null) {
 			return;
 		}
 
-		const airdromes = await rpc.campaign.getAirdromes();
+		const airdromes = dataStore.airdromes;
+
+		if (airdromes == null) {
+			throw "airdromes not found";
+		}
 
 		const oppAirdromes = oppAirdromeNames.map((name) => airdromes[name]);
 

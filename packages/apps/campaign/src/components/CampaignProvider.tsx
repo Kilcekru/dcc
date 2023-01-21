@@ -60,7 +60,7 @@ const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: number) => {
 					return ac?.alive === true;
 				});
 
-				aliveAircrafts.length > 0;
+				return aliveAircrafts.length > 0;
 			}),
 		};
 	});
@@ -150,6 +150,62 @@ const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraftNames: 
 	});
 
 	return ids;
+};
+
+const updateFactionState = (
+	faction: DcsJs.CampaignFaction,
+	s: CampaignState,
+	missionState: MissionState
+): DcsJs.CampaignFaction => {
+	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
+
+	return {
+		...faction,
+		inventory: {
+			aircrafts: faction.inventory.aircrafts.map((ac) => {
+				if (killedAircrafts.some((id) => ac.id === id)) {
+					return {
+						...ac,
+						alive: false,
+						destroyedTime: s.timer,
+					};
+				} else {
+					return ac;
+				}
+			}),
+			vehicles: faction.inventory.vehicles.map((vehicle) => {
+				if (missionState.killed_ground_units.some((unitName) => unitName === vehicle.displayName)) {
+					return {
+						...vehicle,
+						alive: false,
+						destroyedTime: s.timer,
+					};
+				} else {
+					return vehicle;
+				}
+			}),
+		},
+		sams: faction.sams.map((sam) => {
+			const units = sam.units.map((unit) => {
+				if (missionState.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
+					return {
+						...unit,
+						alive: false,
+						destroyedTime: s.timer,
+					};
+				} else {
+					return unit;
+				}
+			});
+
+			return {
+				...sam,
+				units,
+				operational:
+					units.filter((unit) => unit.alive && unit.vehicleTypes.some((vt) => vt === "Track Radar")).length > 0,
+			};
+		}),
+	};
 };
 
 type CampaignStore = [
@@ -464,35 +520,11 @@ export function CampaignProvider(props: {
 						s.timer = state.time;
 
 						if (s.blueFaction != null) {
-							const killedAircrafts = killedAircraftIds(s.blueFaction, state.killed_aircrafts);
-
-							s.blueFaction.inventory.aircrafts = s.blueFaction.inventory.aircrafts.map((ac) => {
-								if (killedAircrafts.some((id) => ac.id === id)) {
-									return {
-										...ac,
-										alive: false,
-										destroyedTime: s.timer,
-									};
-								} else {
-									return ac;
-								}
-							});
+							s.blueFaction = updateFactionState(s.blueFaction, s, state);
 						}
 
 						if (s.redFaction != null) {
-							const killedAircrafts = killedAircraftIds(s.redFaction, state.killed_aircrafts);
-
-							s.redFaction.inventory.aircrafts = s.redFaction.inventory.aircrafts.map((ac) => {
-								if (killedAircrafts.some((id) => ac.id === id)) {
-									return {
-										...ac,
-										alive: false,
-										destroyedTime: s.timer,
-									};
-								} else {
-									return ac;
-								}
-							});
+							s.redFaction = updateFactionState(s.redFaction, s, state);
 						}
 
 						s.objectives = s.objectives.map((obj) => {

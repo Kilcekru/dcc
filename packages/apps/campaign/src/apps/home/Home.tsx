@@ -54,8 +54,8 @@ export const Home = () => {
 		clearPackages?.("redFaction");
 	};
 
-	const onNextRound = async () => {
-		await campaignRound();
+	const onNextRound = () => {
+		campaignRound();
 	};
 
 	const onGenerateMission = async () => {
@@ -86,27 +86,27 @@ export const Home = () => {
 		});
 	};
 
-	const campaignRound = async () => {
+	const campaignRound = () => {
 		cleanupPackages?.();
 		updateAircraftState?.();
-		await bluePackagesTick();
-		await redPackagesTick();
+		bluePackagesTick();
+		redPackagesTick();
 		missionModal();
 		combat();
 	};
 
-	const interval = async () => {
+	const interval = () => {
 		if (state.multiplier === 1) {
 			tick?.(1 / 60);
 
-			await campaignRound();
+			campaignRound();
 		} else {
 			const multi = state.multiplier / 60;
 
 			Array.from({ length: multi }, async () => {
 				tick?.(1);
 
-				await campaignRound();
+				campaignRound();
 			});
 		}
 	};
