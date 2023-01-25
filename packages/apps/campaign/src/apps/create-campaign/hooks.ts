@@ -1,11 +1,13 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { Faction } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore, Faction } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
+import { DataContext } from "../../components/DataProvider";
 import { factionList } from "../../data";
-import { extractPosition, findNearest, firstItem, onboardNumber, random } from "../../utils";
+import { Scenario, scenarioList } from "../../data/scenarios";
+import { findNearest, firstItem, objectToPosition, onboardNumber, random } from "../../utils";
 
 export const generateVehicleInventory = (faction: Faction) => {
 	const vehicleName = firstItem(faction.vehicles);
@@ -37,11 +39,11 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 
 	const airdrome = airdromes[coalition === "blue" ? "Kobuleti" : "Mozdok"];
 
-	const capCount = 8;
+	const capCount = 12;
 	const casCount = 4;
-	const awacsCount = 2;
+	const awacsCount = 3;
 	const strikeCount = 6;
-	const deadCount = 2;
+	const deadCount = 4;
 
 	if (faction == null) {
 		throw "faction not found";
@@ -53,13 +55,13 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 
 	const aircrafts: Array<DcsJs.CampaignAircraft> = [];
 
-	faction.cap.forEach((acType) => {
-		const count = Math.min(2, capCount * faction.cap.length);
+	faction.aircraftTypes.cap.forEach((acType) => {
+		const count = Math.max(2, capCount * faction.aircraftTypes.cap.length);
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: extractPosition(airdrome),
+				position: objectToPosition(airdrome),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["CAP"],
@@ -69,13 +71,13 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 		});
 	});
 
-	faction.cas.forEach((acType) => {
-		const count = Math.min(2, casCount * faction.cap.length);
+	faction.aircraftTypes.cas.forEach((acType) => {
+		const count = Math.max(2, casCount * faction.aircraftTypes.cap.length);
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: extractPosition(airdrome),
+				position: objectToPosition(airdrome),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["CAS"],
@@ -85,13 +87,13 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 		});
 	});
 
-	faction.awacs.forEach((acType) => {
-		const count = Math.min(2, awacsCount * faction.cap.length);
+	faction.aircraftTypes.awacs.forEach((acType) => {
+		const count = Math.max(2, awacsCount * faction.aircraftTypes.cap.length);
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: extractPosition(airdrome),
+				position: objectToPosition(airdrome),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["AWACS"],
@@ -101,13 +103,13 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 		});
 	});
 
-	faction.strike.forEach((acType) => {
-		const count = Math.min(2, strikeCount * faction.strike.length);
+	faction.aircraftTypes.strike.forEach((acType) => {
+		const count = Math.max(2, strikeCount * faction.aircraftTypes.strike.length);
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: extractPosition(airdrome),
+				position: objectToPosition(airdrome),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["Pinpoint Strike"],
@@ -117,13 +119,13 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 		});
 	});
 
-	faction.dead.forEach((acType) => {
-		const count = Math.min(2, deadCount * faction.strike.length);
+	faction.aircraftTypes.dead.forEach((acType) => {
+		const count = Math.max(2, deadCount * faction.aircraftTypes.strike.length);
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: extractPosition(airdrome),
+				position: objectToPosition(airdrome),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["DEAD"],
@@ -136,42 +138,23 @@ export const generateAircraftInventory = async (coalition: DcsJs.CampaignCoaliti
 	return aircrafts;
 };
 
-const getObjectives = async () => {
-	return await rpc.campaign.getObjectives();
-};
-
-const getStrikeTargets = async () => {
-	return await rpc.campaign.getStrikeTargets();
-};
-
 const getAirdromes = async () => {
 	return await rpc.campaign.getAirdromes();
 };
 
-const getVehicles = async () => {
-	return await rpc.campaign.getVehicles();
-};
-
-const getSamTemplates = async () => {
-	return await rpc.campaign.getSamTemplates();
-};
-
-const sams = async (coalition: DcsJs.CampaignCoalition): Promise<Array<DcsJs.CampaignSam>> => {
+const sams = (
+	coalition: DcsJs.CampaignCoalition,
+	dataStore: DataStore,
+	scenario: Scenario
+): Array<DcsJs.CampaignSam> => {
 	if (coalition === "blue" || coalition === "neutral") {
 		return [];
 	}
 
-	const airdromes = await getAirdromes();
-	const strikeTargets = await getStrikeTargets();
-	const samTemplates = await getSamTemplates();
-	const vehicles = await getVehicles();
-	const kobuleti = airdromes["Kobuleti"];
-	const sukhumi = airdromes["Sukhumi-Babushara"];
-	const mozdok = airdromes["Mozdok"];
-	const samTemplate = samTemplates["SA-2"];
+	const samTemplate = dataStore.samTemplates?.["SA-2"];
 	const templateVehicles =
 		samTemplate?.reduce((prev, name) => {
-			const vehicle = vehicles[name];
+			const vehicle = dataStore.vehicles?.[name];
 
 			if (vehicle == null) {
 				return prev;
@@ -190,8 +173,24 @@ const sams = async (coalition: DcsJs.CampaignCoalition): Promise<Array<DcsJs.Cam
 			return [...prev, unit];
 		}, [] as Array<DcsJs.CampaignUnit>) ?? [];
 
-	const redAirdromeNames = [sukhumi.name, mozdok.name];
-	const redAirdromes = redAirdromeNames.map((name) => airdromes[name]);
+	if (dataStore.airdromes == null) {
+		throw "Unknown strike targets";
+	}
+
+	const strikeTargets = dataStore.strikeTargets;
+
+	if (strikeTargets == null) {
+		throw "Unknown strike targets";
+	}
+
+	const airdromes = dataStore.airdromes;
+
+	if (airdromes == null) {
+		throw "Unknown airdromes";
+	}
+
+	const blueAirdromes = scenario.blue.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
+	const redAirdromes = scenario.red.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
 
 	const sams =
 		strikeTargets == null
@@ -201,7 +200,7 @@ const sams = async (coalition: DcsJs.CampaignCoalition): Promise<Array<DcsJs.Cam
 			  }, [] as Array<DcsJs.StrikeTarget>);
 
 	const selectedSams = redAirdromes.reduce((prev, airdrome) => {
-		const nearestSam = findNearest(sams, extractPosition(airdrome), (sam) => sam.position);
+		const nearestSam = findNearest(sams, objectToPosition(airdrome), (sam) => sam.position);
 
 		if (nearestSam == null) {
 			return prev;
@@ -210,7 +209,13 @@ const sams = async (coalition: DcsJs.CampaignCoalition): Promise<Array<DcsJs.Cam
 		}
 	}, [] as Array<DcsJs.StrikeTarget>);
 
-	const selectedFrontlineSam = findNearest(sams, extractPosition(kobuleti), (sam) => sam.position);
+	const firstBlueAirdrome = firstItem(blueAirdromes);
+
+	if (firstBlueAirdrome == null) {
+		throw "Unknown blue airdrome";
+	}
+
+	const selectedFrontlineSam = findNearest(sams, objectToPosition(firstBlueAirdrome), (sam) => sam.position);
 
 	if (selectedFrontlineSam != null) {
 		selectedSams.push(selectedFrontlineSam);
@@ -241,30 +246,37 @@ const sams = async (coalition: DcsJs.CampaignCoalition): Promise<Array<DcsJs.Cam
 
 export const useGenerateCampaign = () => {
 	const [, { activate }] = useContext(CampaignContext);
+	const dataStore = useContext(DataContext);
 
 	return async (blueFactionName: string, redFactionName: string) => {
-		const objectives = await getObjectives();
-		const strikeTargets = await getStrikeTargets();
-		const airdromes = await getAirdromes();
+		const scenario = firstItem(scenarioList);
 		const blueBaseFaction = factionList.find((f) => f.name === blueFactionName);
-		const kobuleti = airdromes["Kobuleti"];
-		const sukhumi = airdromes["Sukhumi-Babushara"];
-		const mozdok = airdromes["Mozdok"];
+
+		if (scenario == null) {
+			throw "unknown scenario";
+		}
 
 		if (blueBaseFaction == null) {
 			throw "unknown faction: " + blueFactionName;
 		}
 
-		if (kobuleti == null || sukhumi == null || mozdok == null) {
-			throw "airdrome not found";
+		const firstBlueAirdrome =
+			dataStore.airdromes?.[(firstItem(scenario.blue.airdromeNames) ?? "") as DcsJs.AirdromeName];
+
+		if (firstBlueAirdrome == null) {
+			throw "unknown airdrome";
 		}
 
-		const nearestObjective = findNearest(objectives, extractPosition(kobuleti), (objective) => objective.position);
+		const nearestObjective = findNearest(
+			dataStore.objectives,
+			objectToPosition(firstBlueAirdrome),
+			(objective) => objective.position
+		);
 
 		const blueFaction: DcsJs.CampaignFaction = {
 			...blueBaseFaction,
 			countryName: blueBaseFaction.countryName as DcsJs.CountryName,
-			airdromeNames: ["Kobuleti"],
+			airdromeNames: scenario.blue.airdromeNames as DcsJs.AirdromeName[],
 			inventory: {
 				aircrafts: await generateAircraftInventory("blue", blueBaseFaction),
 				vehicles: generateVehicleInventory(blueBaseFaction),
@@ -279,22 +291,20 @@ export const useGenerateCampaign = () => {
 			throw "unknown faction: " + blueFactionName;
 		}
 
-		const redAirdromeNames = [sukhumi.name, mozdok.name];
-
 		const redFaction: DcsJs.CampaignFaction = {
 			...redBaseFaction,
 			countryName: redBaseFaction.countryName as DcsJs.CountryName,
-			airdromeNames: redAirdromeNames,
+			airdromeNames: scenario.red.airdromeNames as DcsJs.AirdromeName[],
 
 			inventory: {
 				aircrafts: await generateAircraftInventory("red", redBaseFaction),
 				vehicles: generateVehicleInventory(redBaseFaction),
 			},
 			packages: [],
-			sams: await sams("red"),
+			sams: sams("red", dataStore, scenario),
 		};
 
-		const campaignObjectives = objectives.map((obj) => {
+		const campaignObjectives = dataStore.objectives?.map((obj) => {
 			const isBlue = nearestObjective?.name === obj.name;
 
 			const units = isBlue
@@ -329,7 +339,7 @@ export const useGenerateCampaign = () => {
 				});
 			}
 
-			const structures = strikeTargets[obj.name]?.filter((target) => target.type === "Structure");
+			const structures = dataStore.strikeTargets?.[obj.name]?.filter((target) => target.type === "Structure");
 
 			return {
 				name: obj.name,
@@ -346,6 +356,13 @@ export const useGenerateCampaign = () => {
 			} as DcsJs.CampaignObjective;
 		});
 
-		activate?.(blueFaction, redFaction, campaignObjectives);
+		if (campaignObjectives == null) {
+			throw "Unknown campaign objectives";
+		}
+
+		activate?.(blueFaction, redFaction, campaignObjectives, [
+			...scenario.blue.farpNames.map((name) => ({ coalition: "blue" as DcsJs.CampaignCoalition, name })),
+			...scenario.red.farpNames.map((name) => ({ coalition: "red" as DcsJs.CampaignCoalition, name })),
+		]);
 	};
 };

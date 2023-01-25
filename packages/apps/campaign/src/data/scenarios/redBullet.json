@@ -1,0 +1,13 @@
+{
+	"map": "Caucasus",
+	"name": "Red Bullet",
+	"date": "2022-06-01",
+	"blue": {
+		"airdromeNames": ["Kobuleti"],
+		"farpNames": ["Poti"]
+	},
+	"red": {
+		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
+		"farpNames": []
+	}
+}

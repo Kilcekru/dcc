@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
-import { CallSigns, Objectives } from "./data";
-import { MapPosition, Objective, Position, Task } from "./types";
+import { CallSigns } from "./data";
+import { MapPosition, Position, Task } from "./types";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
@@ -118,11 +118,13 @@ export const findInside = <T>(
 	return (
 		values?.filter((v) => {
 			const position = positionSelector(v);
-			return (
+			/* return (
 				(position.x - sourcePosition.x) * (position.x - sourcePosition.x) +
 					(position.y - sourcePosition.y) * (position.y - sourcePosition.y) <=
 				radius * radius
-			);
+			); */
+
+			return distanceToPosition(sourcePosition, position) <= radius;
 		}) ?? []
 	);
 };
@@ -145,22 +147,6 @@ export const findNearest = <T>(
 		},
 		[undefined, 10000000] as [T, number]
 	)[0];
-};
-
-export const objectiveNamesToObjectives = (names: Array<string> | undefined) => {
-	if (names == null) {
-		return [];
-	}
-
-	return names.reduce((prev, name) => {
-		const obj = Objectives.find((obj) => obj.name === name);
-
-		if (obj == null) {
-			return prev;
-		} else {
-			return [...prev, obj];
-		}
-	}, [] as Array<Objective>);
 };
 
 export const degreesToRadians = (degrees: number) => {
@@ -281,18 +267,22 @@ export const getUsableAircraftsByType = (
 export const getAircraftStateFromFlightGroup = (
 	fg: DcsJs.CampaignFlightGroup,
 	timer: number
-): DcsJs.CampaignAircraftState => {
-	const activeWaypoint = getActiveWaypoint(fg, timer);
+): DcsJs.CampaignAircraftState | undefined => {
+	if (fg.startTime < timer) {
+		const activeWaypoint = getActiveWaypoint(fg, timer);
 
-	switch (activeWaypoint?.name) {
-		case "En Route":
-			return "en route";
-		case "Track-race start":
-			return "on station";
-		case "Landing":
-			return "rtb";
-		default:
-			return "idle";
+		switch (activeWaypoint?.name) {
+			case "En Route":
+				return "en route";
+			case "Track-race start":
+				return "on station";
+			case "Landing":
+				return "rtb";
+			default:
+				return "idle";
+		}
+	} else {
+		return undefined;
 	}
 };
 
@@ -328,13 +318,6 @@ export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | un
 	} else {
 		return "redFaction";
 	}
-};
-
-export const extractPosition = <T extends Position>(obj: T): Position => {
-	return {
-		x: obj.x,
-		y: obj.y,
-	};
 };
 
 export const onboardNumber = () => {

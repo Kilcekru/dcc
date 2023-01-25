@@ -6,10 +6,10 @@ import L from "leaflet";
 import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
-import { airdromes } from "../../data";
 import { MapPosition } from "../../types";
-import { positionToMapPosition } from "../../utils";
+import { getFlightGroups, positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
+import { DataContext } from "../DataProvider";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -29,15 +29,16 @@ type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	const objectiveMarkers: Record<string, L.Marker> = {};
-	const flightGroupMarkers: Record<string, L.Marker> = {};
+	const flightGroupMarkers: Record<string, L.Marker | undefined> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
+	const dataStore = useContext(DataContext);
 
 	const kobuleti = createMemo(() => {
-		const position = airdromes.find((drome) => drome.name === "Kobuleti")?.position;
+		const position = dataStore.airdromes?.["Kobuleti"];
 
 		if (position == null) {
 			return;
@@ -92,25 +93,25 @@ export const Map = () => {
 		}
 
 		state.blueFaction.airdromeNames.forEach((airdromeName) => {
-			const airdrome = airdromes.find((drome) => drome.name === airdromeName);
+			const airdrome = dataStore.airdromes?.[airdromeName];
 
 			if (airdrome == null) {
 				return;
 			}
 
-			const mapPosition = positionToMapPosition(airdrome.position);
+			const mapPosition = positionToMapPosition(airdrome);
 
 			createSymbol(mapPosition, false, false, "airport")?.bindPopup(airdromeName);
 		});
 
 		state.redFaction?.airdromeNames.forEach((airdromeName) => {
-			const airdrome = airdromes.find((drome) => drome.name === airdromeName);
+			const airdrome = dataStore.airdromes?.[airdromeName];
 
 			if (airdrome == null) {
 				return;
 			}
 
-			const mapPosition = positionToMapPosition(airdrome.position);
+			const mapPosition = positionToMapPosition(airdrome);
 
 			createSymbol(mapPosition, true, false, "airport")?.bindPopup(airdromeName);
 		});
@@ -139,9 +140,9 @@ export const Map = () => {
 			objective.structures.forEach((structure) => {
 				const mapPosition = positionToMapPosition(structure.position);
 
-				if (objective.coalition !== "neutral") {
+				if (objective.coalition !== "neutral" && structure.alive) {
 					const marker = createSymbol(mapPosition, objective.coalition === "red", false, "militaryBase")?.bindPopup(
-						structure.name
+						structure.alive ? structure.name : `${structure.name}[DESTROYED]`
 					);
 
 					if (marker != null) {
@@ -166,6 +167,8 @@ export const Map = () => {
 				return;
 			}
 
+			const str = `${coalition === "red" ? "[R]" : "[B]"}${fg.name} - ${fg.task}`;
+
 			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
 
 			if (flightGroupMarkers[fg.id] == null) {
@@ -174,7 +177,7 @@ export const Map = () => {
 					coalition === "red",
 					true,
 					code as SidcUnitCodeKey
-				)?.bindPopup(fg.name + " - " + fg.task);
+				)?.bindPopup(str);
 
 				if (marker == null) {
 					return;
@@ -295,6 +298,17 @@ export const Map = () => {
 		if (redPackages != null) {
 			createAircraftSymbols("red", redPackages);
 		}
+
+		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];
+
+		Object.entries(flightGroupMarkers).forEach(([id, marker]) => {
+			if (marker == null || fgs.some((fg) => fg.id === id)) {
+				return;
+			} else {
+				removeSymbol(marker);
+				flightGroupMarkers[id] = undefined;
+			}
+		});
 	});
 
 	return <div class="map" ref={(el) => (mapDiv = el)} />;

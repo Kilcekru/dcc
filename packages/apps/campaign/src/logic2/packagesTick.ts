@@ -1,9 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useContext } from "solid-js";
 
-import { CampaignContext } from "../../components";
-import { useFaction } from "../../hooks";
-import { coalitionToFactionString } from "../../utils";
+import { CampaignContext } from "../components";
+import { useFaction } from "../hooks";
+import { coalitionToFactionString } from "../utils";
 import { useGeneratePackage } from "./generatePackage";
 
 const useCasPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
@@ -35,7 +35,7 @@ const useCapPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 	const faction = useFaction(coalition);
 
 	return () => {
-		faction?.airdromeNames.forEach((airdromeName) => {
+		const airdromeName = faction?.airdromeNames.find((airdromeName) => {
 			const runningCAPPackages = faction?.packages.filter((pkg) => {
 				return (
 					pkg.task === "CAP" &&
@@ -46,8 +46,25 @@ const useCapPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 			});
 			const runningCAPPackagesCount = runningCAPPackages?.length ?? 0;
 
-			if (runningCAPPackagesCount < 1) {
-				const pkg = generatePackage.cap(airdromeName);
+			return runningCAPPackagesCount < 1;
+		});
+
+		if (airdromeName != null) {
+			const pkg = generatePackage.cap(airdromeName);
+
+			if (pkg == null) {
+				return;
+			}
+
+			addPackage?.(pkg);
+		} else {
+			const runningFrontlineCAPPackages = faction?.packages.filter((pkg) => {
+				return pkg.task === "CAP" && pkg.flightGroups.some((fg) => fg.objective?.name === "Frontline");
+			});
+			const runningFrontlineCAPPackagesCount = runningFrontlineCAPPackages?.length ?? 0;
+
+			if (runningFrontlineCAPPackagesCount < 1) {
+				const pkg = generatePackage.cap("Frontline");
 
 				if (pkg == null) {
 					return;
@@ -55,21 +72,6 @@ const useCapPackagesTick = (coalition: DcsJs.CampaignCoalition) => {
 
 				addPackage?.(pkg);
 			}
-		});
-
-		const runningCAPPackages = faction?.packages.filter((pkg) => {
-			return pkg.task === "CAP" && pkg.flightGroups.some((fg) => fg.objective?.name === "Frontline");
-		});
-		const runningCAPPackagesCount = runningCAPPackages?.length ?? 0;
-
-		if (runningCAPPackagesCount < 1) {
-			const pkg = generatePackage.cap("Frontline");
-
-			if (pkg == null) {
-				return;
-			}
-
-			addPackage?.(pkg);
 		}
 	};
 };

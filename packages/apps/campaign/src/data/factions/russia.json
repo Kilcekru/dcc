@@ -1,10 +1,16 @@
 {
 	"countryName": "Russia",
 	"name": "Russia 2005",
-	"cap": ["MiG-29S"],
-	"cas": ["Su-25T"],
-	"awacs": ["A-50"],
-	"vehicles": ["BMP-2"],
-	"dead": ["Su-25T"],
-	"strike": ["Su-25T"]
+	"aircraftTypes": {
+		"cap": ["MiG-29S"],
+		"cas": ["Su-25T"],
+		"awacs": ["A-50"],
+
+		"dead": ["Su-25T"],
+		"strike": ["Su-25T"],
+		"lightAttack": [],
+		"heliHunt": []
+	},
+	"infantries": ["Infantry AK"],
+	"vehicles": ["BMP-2"]
 }

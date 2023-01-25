@@ -1,12 +1,13 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useContext } from "solid-js";
 
-import { CampaignContext } from "../../components";
-import { useFaction } from "../../hooks";
+import { CampaignContext } from "../components";
+import { useFaction } from "../hooks";
 import {
 	coalitionToFactionString,
 	distanceToPosition,
 	findInside,
+	firstItem,
 	getActiveWaypoint,
 	getAircraftFromId,
 	getFlightGroups,
@@ -14,7 +15,7 @@ import {
 	oppositeCoalition,
 	random,
 	randomItem,
-} from "../../utils";
+} from "../utils";
 
 const useCasA2G = (coalition: DcsJs.CampaignCoalition) => {
 	const [state, { destroyUnit, updateActiveAircrafts }] = useContext(CampaignContext);
@@ -85,7 +86,7 @@ const useDead = (coalition: DcsJs.CampaignCoalition) => {
 			if (
 				objective != null &&
 				distanceToPosition(fg.position, objective.position) < 90_000 &&
-				fg.startTime + Minutes(3) < state.timer
+				fg.startTime + Minutes(1) < state.timer
 			) {
 				fg.units.forEach((unit) => {
 					const aircraft = getAircraftFromId(faction?.inventory.aircrafts, unit.aircraftId);
@@ -192,6 +193,115 @@ const useSAM = (coalition: DcsJs.CampaignCoalition) => {
 	};
 };
 
+const useAir2AirRound = () => {
+	const [state, { destroyAircraft }] = useContext(CampaignContext);
+
+	const calcAir2AirRound = (blueUnits: Array<DcsJs.CampaignAircraft>, redUnits: Array<DcsJs.CampaignAircraft>) => {
+		let afterRoundBlueUnits: Array<DcsJs.CampaignAircraft> = blueUnits;
+		let afterRoundRedUnits: Array<DcsJs.CampaignAircraft> = redUnits;
+
+		blueUnits
+			.filter((u) => u.alive)
+			.forEach((bUnit) => {
+				const rUnit = firstItem(afterRoundRedUnits.filter((u) => u.alive));
+
+				if (rUnit) {
+					if (random(1, 100) <= 50) {
+						destroyAircraft?.(coalitionToFactionString("red"), rUnit.id);
+						console.log(`Aircraft: ${bUnit.id} destroyed aircraft ${rUnit.id}`); // eslint-disable-line no-console
+						afterRoundRedUnits = afterRoundRedUnits.map((u) => {
+							if (rUnit.id === u.id) {
+								return {
+									...u,
+									alive: false,
+									destroyedTime: state.timer,
+								};
+							} else {
+								return u;
+							}
+						});
+					} else {
+						console.log(`Aircraft: ${bUnit.id} missed aircraft ${rUnit.id}`); // eslint-disable-line no-console
+					}
+				}
+			});
+
+		redUnits
+			.filter((u) => u.alive)
+			.forEach((rUnit) => {
+				const bUnit = firstItem(afterRoundBlueUnits.filter((u) => u.alive));
+
+				if (bUnit) {
+					if (random(1, 100) <= 50) {
+						destroyAircraft?.(coalitionToFactionString("blue"), bUnit.id);
+						console.log(`Aircraft: ${rUnit.id} destroyed aircraft ${bUnit.id}`); // eslint-disable-line no-console
+						afterRoundBlueUnits = afterRoundBlueUnits.map((u) => {
+							if (bUnit.id === u.id) {
+								return {
+									...u,
+									alive: false,
+									destroyedTime: state.timer,
+								};
+							} else {
+								return u;
+							}
+						});
+					} else {
+						console.log(`Aircraft: ${rUnit.id} missed aircraft ${bUnit.id}`); // eslint-disable-line no-console
+					}
+				}
+			});
+
+		if (afterRoundBlueUnits.filter((u) => u.alive).length > 0 && afterRoundRedUnits.filter((u) => u.alive).length > 0) {
+			calcAir2AirRound(afterRoundBlueUnits, afterRoundRedUnits);
+		}
+
+		return;
+	};
+
+	return calcAir2AirRound;
+};
+const useAir2Air = () => {
+	const blueFaction = useFaction("blue");
+	const redFaction = useFaction("red");
+	const round = useAir2AirRound();
+
+	return () => {
+		const blueFgs = getFlightGroups(blueFaction?.packages);
+		const redFgs = getFlightGroups(redFaction?.packages);
+
+		blueFgs.forEach((fg) => {
+			const redFgsInRange = findInside(redFgs, fg.position, (rfg) => rfg.position, 40_000);
+
+			const blueAircrafts = fg.units.reduce((prev, unit) => {
+				const ac = getAircraftFromId(blueFaction?.inventory.aircrafts, unit.aircraftId);
+
+				if (ac != null) {
+					return [...prev, ac];
+				} else {
+					return prev;
+				}
+			}, [] as Array<DcsJs.CampaignAircraft>);
+
+			const redAircrafts = redFgsInRange.reduce((prev, fg) => {
+				const acs = fg.units.reduce((prev, unit) => {
+					const ac = getAircraftFromId(redFaction?.inventory.aircrafts, unit.aircraftId);
+
+					if (ac != null) {
+						return [...prev, ac];
+					} else {
+						return prev;
+					}
+				}, [] as Array<DcsJs.CampaignAircraft>);
+
+				return [...prev, ...acs];
+			}, [] as Array<DcsJs.CampaignAircraft>);
+
+			round(blueAircrafts, redAircrafts);
+		});
+	};
+};
+
 export const useCombat = () => {
 	const blueCasA2G = useCasA2G("blue");
 	const redCasA2G = useCasA2G("red");
@@ -201,6 +311,7 @@ export const useCombat = () => {
 	const redStrike = useStrike("red");
 	const blueSAM = useSAM("blue");
 	const redSAM = useSAM("red");
+	const air2Air = useAir2Air();
 
 	return () => {
 		blueCasA2G();
@@ -211,5 +322,6 @@ export const useCombat = () => {
 		redStrike();
 		blueSAM();
 		redSAM();
+		air2Air();
 	};
 };

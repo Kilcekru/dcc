@@ -1,11 +1,11 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useContext } from "solid-js";
 
-import { CampaignContext } from "../../components";
-import { DataContext } from "../../components/DataProvider";
-import { useFaction } from "../../hooks";
-import { Position } from "../../types";
-import { distanceToPosition, findInside, findNearest, oppositeCoalition, randomItem } from "../../utils";
+import { CampaignContext } from "../components";
+import { DataContext } from "../components/DataProvider";
+import { useFaction } from "../hooks";
+import { Position } from "../types";
+import { distanceToPosition, findInside, findNearest, oppositeCoalition, randomItem } from "../utils";
 
 export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 	const [state] = useContext(CampaignContext);
@@ -18,7 +18,7 @@ export const useTargetSelection = (coalition: DcsJs.CampaignCoalition) => {
 		const objectivesWithAliveUnits = oppObjectives.filter(
 			(obj) => obj.units.filter((unit) => unit.alive === true).length > 0
 		);
-		const objectivesInRange = findInside(objectivesWithAliveUnits, startPosition, (obj) => obj?.position, 60_000);
+		const objectivesInRange = findInside(objectivesWithAliveUnits, startPosition, (obj) => obj?.position, 130_000);
 
 		const objectivesOutsideSamRange = objectivesInRange.filter((objective) => !isInSamRange(objective.position));
 

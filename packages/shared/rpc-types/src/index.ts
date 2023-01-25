@@ -14,12 +14,17 @@ export interface Launcher {
 }
 
 export type Faction = {
-	cap: Array<string>;
-	cas: Array<string>;
-	awacs: Array<string>;
-	dead: Array<string>;
-	strike: Array<string>;
+	aircraftTypes: {
+		cap: Array<string>;
+		cas: Array<string>;
+		awacs: Array<string>;
+		dead: Array<string>;
+		strike: Array<string>;
+		lightAttack: Array<string>;
+		heliHunt: Array<string>;
+	};
 	vehicles: Array<string>;
+	infantries: Array<string>;
 	countryName: string;
 	name: string;
 };

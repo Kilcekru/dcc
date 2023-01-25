@@ -3,210 +3,9 @@ import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
+import { cleanupPackages, updateAircraftState, updateFactionState, updatePackagesState } from "../logic2";
 import { MissionState } from "../types";
-import {
-	calcFlightGroupPosition,
-	getAircraftFromId,
-	getAircraftStateFromFlightGroup,
-	getFlightGroups,
-	Minutes,
-} from "../utils";
-
-const cleanupPackages = (faction: DcsJs.CampaignFaction, timer: number) => {
-	const finishedPackages = faction.packages.filter((pkg) => pkg.endTime <= timer);
-
-	const usedAircraftIds = finishedPackages.reduce((prev, pkg) => {
-		const fgAircraftIds = pkg.flightGroups.reduce((prev, fg) => {
-			return [...prev, ...fg.units.map((unit) => unit.aircraftId)];
-		}, [] as Array<string>);
-
-		return [...prev, ...fgAircraftIds];
-	}, [] as Array<string>);
-
-	const updatedAircrafts = faction.inventory.aircrafts.map((aircraft) => {
-		if (usedAircraftIds.some((id) => aircraft.id === id)) {
-			return {
-				...aircraft,
-				state: "maintenance",
-				maintenanceEndTime: timer + Minutes(60),
-			} as DcsJs.CampaignAircraft;
-		} else {
-			return aircraft;
-		}
-	});
-
-	const updatedPackages = faction.packages.filter((pkg) => pkg.endTime > timer);
-
-	return {
-		aircrafts: updatedAircrafts,
-		packages: updatedPackages,
-	};
-};
-
-const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
-	const flightGroups = getFlightGroups(faction.packages);
-
-	return flightGroups.find((fg) => fg.units.some((unit) => unit.aircraftId === aircraftId));
-};
-
-const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: number) => {
-	const cleanedFlightGroups = faction.packages.map((pkg) => {
-		return {
-			...pkg,
-			flightGroups: pkg.flightGroups.filter((fg) => {
-				const aliveAircrafts = fg.units.filter((unit) => {
-					const ac = getAircraftFromId(faction.inventory.aircrafts, unit.aircraftId);
-
-					return ac?.alive === true;
-				});
-
-				return aliveAircrafts.length > 0;
-			}),
-		};
-	});
-
-	const cleanedPackages = cleanedFlightGroups.filter((pkg) => pkg.flightGroups.length > 0);
-
-	return cleanedPackages.map((pkg) => {
-		return {
-			...pkg,
-			flightGroups: pkg.flightGroups.map((fg) => {
-				const position = calcFlightGroupPosition(fg, timer, 170);
-
-				if (position == null) {
-					return fg;
-				}
-
-				return {
-					...fg,
-					position,
-				};
-			}),
-		};
-	});
-};
-
-const updateAircraftState = (faction: DcsJs.CampaignFaction, timer: number) => {
-	const aircrafts = faction.inventory.aircrafts.map((aircraft) => {
-		if (
-			aircraft.state === "maintenance" &&
-			aircraft.maintenanceEndTime != null &&
-			aircraft.maintenanceEndTime <= timer
-		) {
-			return {
-				...aircraft,
-				state: "idle",
-				maintenanceEndTime: undefined,
-			} as DcsJs.CampaignAircraft;
-		} else if (aircraft.state === "en route" || aircraft.state === "rtb") {
-			const fg = findFlightGroupForAircraft(faction, aircraft.id);
-
-			if (fg == null) {
-				return aircraft;
-			}
-
-			const position = calcFlightGroupPosition(fg, timer, 170);
-
-			if (position == null) {
-				return aircraft;
-			}
-
-			return { ...aircraft, position };
-		} else {
-			return aircraft;
-		}
-	});
-
-	const aircraftState: Record<string, DcsJs.CampaignAircraftState> = faction.packages.reduce((prev, pkg) => {
-		return {
-			...prev,
-			...pkg.flightGroups.reduce((prev, fg) => {
-				const states: Record<string, string> = {};
-				fg.units.forEach((unit) => {
-					states[unit.aircraftId] = getAircraftStateFromFlightGroup(fg, timer);
-				});
-				return { ...prev, ...states };
-			}, {}),
-		};
-	}, {});
-
-	return aircrafts.map((aircraft) => ({
-		...aircraft,
-		state: aircraftState[aircraft.id] ?? aircraft.state,
-	}));
-};
-
-const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraftNames: Array<string>) => {
-	const fgs = getFlightGroups(faction.packages);
-
-	const ids: Array<string> = [];
-
-	fgs.forEach((fg) => {
-		fg.units.forEach((unit) => {
-			if (killedAircraftNames.some((name) => name === unit.name)) {
-				ids.push(unit.aircraftId);
-			}
-		});
-	});
-
-	return ids;
-};
-
-const updateFactionState = (
-	faction: DcsJs.CampaignFaction,
-	s: CampaignState,
-	missionState: MissionState
-): DcsJs.CampaignFaction => {
-	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
-
-	return {
-		...faction,
-		inventory: {
-			aircrafts: faction.inventory.aircrafts.map((ac) => {
-				if (killedAircrafts.some((id) => ac.id === id)) {
-					return {
-						...ac,
-						alive: false,
-						destroyedTime: s.timer,
-					};
-				} else {
-					return ac;
-				}
-			}),
-			vehicles: faction.inventory.vehicles.map((vehicle) => {
-				if (missionState.killed_ground_units.some((unitName) => unitName === vehicle.displayName)) {
-					return {
-						...vehicle,
-						alive: false,
-						destroyedTime: s.timer,
-					};
-				} else {
-					return vehicle;
-				}
-			}),
-		},
-		sams: faction.sams.map((sam) => {
-			const units = sam.units.map((unit) => {
-				if (missionState.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
-					return {
-						...unit,
-						alive: false,
-						destroyedTime: s.timer,
-					};
-				} else {
-					return unit;
-				}
-			});
-
-			return {
-				...sam,
-				units,
-				operational:
-					units.filter((unit) => unit.alive && unit.vehicleTypes.some((vt) => vt === "Track Radar")).length > 0,
-			};
-		}),
-	};
-};
+import { random } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
@@ -214,7 +13,8 @@ type CampaignStore = [
 		activate?: (
 			blueFaction: DcsJs.CampaignFaction,
 			redFaction: DcsJs.CampaignFaction,
-			objectives: Array<DcsJs.CampaignObjective>
+			objectives: Array<DcsJs.CampaignObjective>,
+			farps: Array<DcsJs.CampaignFarp>
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
@@ -244,6 +44,8 @@ type CampaignStore = [
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: MissionState) => void;
+		updateFrontline?: () => void;
+		saveCampaignRound?: (updatedState: CampaignState) => void;
 	}
 ];
 
@@ -257,6 +59,7 @@ const initState: CampaignState = {
 	blueFaction: undefined,
 	redFaction: undefined,
 	objectives: [],
+	farps: [],
 };
 
 export const CampaignContext = createContext<CampaignStore>([initState, {}]);
@@ -270,13 +73,14 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(blueFaction, redFaction, objectives) {
+			activate(blueFaction, redFaction, objectives, farps) {
 				setState(
 					produce((s) => {
 						s.active = true;
 						s.blueFaction = blueFaction;
 						s.redFaction = redFaction;
 						s.objectives = objectives;
+						s.farps = farps;
 					})
 				);
 			},
@@ -353,6 +157,20 @@ export function CampaignProvider(props: {
 								flightGroups,
 							});
 
+							const aircraftIds = flightGroups.reduce((prev, fg) => {
+								return [...prev, ...fg.units.map((unit) => unit.aircraftId)];
+							}, [] as Array<string>);
+
+							faction["inventory"]["aircrafts"] = faction["inventory"]["aircrafts"].map((ac) => {
+								if (aircraftIds.some((id) => ac.id === id)) {
+									return {
+										...ac,
+										state: "en route",
+									};
+								} else {
+									return ac;
+								}
+							});
 							if (coalition === "blue") {
 								s.blueFaction = faction;
 							} else if (coalition === "red") {
@@ -530,6 +348,17 @@ export function CampaignProvider(props: {
 						s.objectives = s.objectives.map((obj) => {
 							return {
 								...obj,
+								structures: obj.structures.map((structure) => {
+									if (state.killed_ground_units.some((unitName) => unitName === structure.name)) {
+										return {
+											...structure,
+											alive: false,
+											destroyedTime: s.timer,
+										};
+									} else {
+										return structure;
+									}
+								}),
 								units: obj.units.map((unit) => {
 									if (state.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
 										return {
@@ -545,6 +374,57 @@ export function CampaignProvider(props: {
 						});
 					})
 				);
+			},
+			updateFrontline() {
+				setState(
+					produce((s) => {
+						if (s.objectives.some((obj) => obj.coalition === "neutral")) {
+							const faction = s.blueFaction;
+							if (faction == null || s.blueFaction == null) {
+								return;
+							}
+
+							let vehicles = faction.inventory.vehicles;
+							s.objectives = s.objectives.map((obj) => {
+								if (obj.coalition === "neutral") {
+									const units = vehicles
+										.filter((vehicle) => vehicle.alive && vehicle.state === "idle")
+										.slice(0, random(4, 8));
+
+									vehicles = vehicles.map((vehicle) => {
+										if (units.some((unit) => unit.id === vehicle.id)) {
+											return {
+												...vehicle,
+												state: "on objective",
+											};
+										} else {
+											return vehicle;
+										}
+									});
+
+									return {
+										...obj,
+										coalition: "blue",
+										units,
+									};
+								} else {
+									return obj;
+								}
+							});
+
+							s.blueFaction.inventory.vehicles = vehicles;
+						}
+					})
+				);
+			},
+			saveCampaignRound(updatedState) {
+				setState(() => updatedState);
+				/* setState(
+					produce((s) => {
+						console.log("saveCampaignRound", { store: s.blueFaction, update: updatedState.blueFaction });
+						s.blueFaction = updatedState.blueFaction;
+					})
+				); */
 			},
 		},
 	];

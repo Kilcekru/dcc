@@ -1,27 +1,23 @@
 import "./Home.less";
 
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
+import { DataContext } from "../../components/DataProvider";
 import { TimerClock } from "../../components/TimerClock";
-import { getFlightGroups } from "../../utils";
-import { useCombat } from "./combat";
-import { MissionModal, Sidebar, StartMissionModal } from "./components";
-import { usePackagesTick } from "./packages";
+import { campaignRound } from "../../logic";
+import { Header, MissionModal, Sidebar, StartMissionModal } from "./components";
 
 export const Home = () => {
-	const [state, { tick, cleanupPackages, clearPackages, updateAircraftState, pause }] = useContext(CampaignContext);
-	const redPackagesTick = usePackagesTick("red");
-	const bluePackagesTick = usePackagesTick("blue");
-	const combat = useCombat();
+	const [state, { tick, clearPackages, saveCampaignRound }] = useContext(CampaignContext);
+	const [tickDuration, setTickDuration] = createSignal(0);
+	const dataStore = useContext(DataContext);
 	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
 	const [showMissionModal, setShowMissionModal] = createSignal(false);
 	let inter: number;
-	const modalShown: Record<number, boolean> = {};
 
 	const onSave = () => {
 		rpc.campaign
@@ -55,26 +51,14 @@ export const Home = () => {
 	};
 
 	const onNextRound = () => {
-		campaignRound();
+		const start = performance.now();
+		const update = campaignRound(unwrap(state), dataStore);
+
+		saveCampaignRound?.(update);
+		setTickDuration(performance.now() - start);
 	};
 
-	const onGenerateMission = async () => {
-		pause?.();
-
-		const unwrapped = unwrap(state);
-
-		if (unwrapped.blueFaction == null || unwrapped.redFaction == null) {
-			throw "faction not found";
-		}
-
-		const campaign: DcsJs.Campaign = unwrapped as DcsJs.Campaign;
-
-		await rpc.campaign.generateCampaignMission(campaign);
-
-		setShowMissionModal(true);
-	};
-
-	const missionModal = () => {
+	/* const missionModal = () => {
 		const fgs = getFlightGroups(state.blueFaction?.packages);
 
 		fgs.forEach((fg) => {
@@ -84,34 +68,39 @@ export const Home = () => {
 				// setShowModal(true);
 			}
 		});
-	};
+	}; */
 
-	const campaignRound = () => {
+	/* const campaignRound = () => {
 		cleanupPackages?.();
 		updateAircraftState?.();
 		bluePackagesTick();
 		redPackagesTick();
 		missionModal();
 		combat();
-	};
+		updateFrontline?.();
+	}; */
 
 	const interval = () => {
+		const start = performance.now();
 		if (state.multiplier === 1) {
-			tick?.(1 / 60);
+			tick?.(1 / 10);
 
-			campaignRound();
+			const update = campaignRound(unwrap(state), dataStore);
+			saveCampaignRound?.(update);
 		} else {
-			const multi = state.multiplier / 60;
+			const multi = state.multiplier / 10;
 
-			Array.from({ length: multi }, async () => {
+			Array.from({ length: multi }, () => {
 				tick?.(1);
 
-				campaignRound();
+				const update = campaignRound(unwrap(state), dataStore);
+				saveCampaignRound?.(update);
 			});
 		}
+		setTickDuration(performance.now() - start);
 	};
 
-	const startInterval = () => (inter = window.setInterval(interval, 16));
+	const startInterval = () => (inter = window.setInterval(interval, 100));
 	const stopInterval = () => window.clearInterval(inter);
 
 	createEffect(() => {
@@ -126,17 +115,15 @@ export const Home = () => {
 
 	return (
 		<div class="home">
+			<Header showMissionModal={() => setShowMissionModal(true)} />
 			<Sidebar />
 			<div>
-				<h1>
-					{state.blueFaction?.name} vs {state.redFaction?.name}
-				</h1>
 				<Button onPress={onSave}>Save</Button>
 				<Button onPress={onReset}>Reset</Button>
 				<Button onPress={onClearPackages}>Clear Packages</Button>
 				<Button onPress={onLog}>Log State</Button>
 				<Button onPress={onNextRound}>Next Round</Button>
-				<Button onPress={onGenerateMission}>Generate Mission</Button>
+				<div>Tick: {tickDuration()}</div>
 				<TimerClock />
 				<Map />
 				<MissionModal isOpen={showMissionModal()} onClose={() => setShowMissionModal(false)} />

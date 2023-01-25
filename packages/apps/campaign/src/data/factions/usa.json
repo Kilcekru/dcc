@@ -1,10 +1,16 @@
 {
 	"countryName": "USA",
 	"name": "USA 2005",
-	"cap": ["F-16C_50"],
-	"cas": ["A-10C_2"],
-	"awacs": ["E-3A"],
+	"aircraftTypes": {
+		"cap": ["F-16C_50"],
+		"cas": ["A-10C_2"],
+		"awacs": ["E-3A"],
+
+		"dead": ["F-16C_50"],
+		"strike": ["F-16C_50"],
+		"lightAttack": [],
+		"heliHunt": []
+	},
 	"vehicles": ["M-2 Bradley"],
-	"dead": ["F-16C_50"],
-	"strike": ["F-16C_50"]
+	"infantries": ["Soldier M4"]
 }
