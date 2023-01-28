@@ -1,27 +1,20 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-import { cleanupPackages, updateAircraftState, updateFactionState, updatePackagesState } from "../logic2";
+import { campaignRound, createCampaign, updateFactionState } from "../logic";
 import { MissionState } from "../types";
-import { random } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
 	{
-		activate?: (
-			blueFaction: DcsJs.CampaignFaction,
-			redFaction: DcsJs.CampaignFaction,
-			objectives: Array<DcsJs.CampaignObjective>,
-			farps: Array<DcsJs.CampaignFarp>
-		) => void;
+		activate?: (dataStore: DataStore, blueFactionName: string, redFactionName: string) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
 		pause?: () => void;
 		resume?: () => void;
-		cleanupPackages?: () => void;
 		addPackage?: (props: {
 			coalition: DcsJs.CampaignCoalition;
 			task: DcsJs.Task;
@@ -38,14 +31,12 @@ type CampaignStore = [
 			aircrafts: Array<DcsJs.CampaignAircraft>
 		) => void;
 		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
-		destroyUnit?: (factionString: "blueFaction" | "redFaction", objectiveName: string, unitId: string) => void;
 		destroyStructure?: (objectiveName: string) => void;
 		destroyAircraft?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: MissionState) => void;
-		updateFrontline?: () => void;
-		saveCampaignRound?: (updatedState: CampaignState) => void;
+		saveCampaignRound?: (dataStore: DataStore) => void;
 	}
 ];
 
@@ -73,16 +64,8 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(blueFaction, redFaction, objectives, farps) {
-				setState(
-					produce((s) => {
-						s.active = true;
-						s.blueFaction = blueFaction;
-						s.redFaction = redFaction;
-						s.objectives = objectives;
-						s.farps = farps;
-					})
-				);
+			activate(dataStore, blueFactionName, redFactionName) {
+				setState(produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName)));
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
@@ -99,51 +82,6 @@ export function CampaignProvider(props: {
 			resume() {
 				setState("paused", () => false);
 			},
-			cleanupPackages() {
-				setState(
-					produce((s) => {
-						if (s.blueFaction != null) {
-							const update = cleanupPackages(s.blueFaction, s.timer);
-
-							s.blueFaction.inventory.aircrafts = update.aircrafts;
-							s.blueFaction.packages = update.packages;
-						}
-
-						if (s.redFaction != null) {
-							const update = cleanupPackages(s.redFaction, s.timer);
-
-							s.redFaction.inventory.aircrafts = update.aircrafts;
-							s.redFaction.packages = update.packages;
-						}
-					})
-				);
-			},
-			updatePackagesState(factionString) {
-				setState(
-					produce((s) => {
-						if (factionString === "blueFaction" && s.blueFaction != null) {
-							s.blueFaction.packages = updatePackagesState(s.blueFaction, s.timer);
-						}
-
-						if (factionString === "redFaction" && s.redFaction != null) {
-							s.redFaction.packages = updatePackagesState(s.redFaction, s.timer);
-						}
-					})
-				);
-			},
-			updateAircraftState() {
-				setState(
-					produce((s) => {
-						if (s.blueFaction != null) {
-							s.blueFaction.inventory.aircrafts = updateAircraftState(s.blueFaction, s.timer);
-						}
-
-						if (s.redFaction != null) {
-							s.redFaction.inventory.aircrafts = updateAircraftState(s.redFaction, s.timer);
-						}
-					})
-				);
-			},
 			addPackage({ coalition, task, startTime, endTime, flightGroups }) {
 				setState(
 					produce((s) => {
@@ -158,7 +96,7 @@ export function CampaignProvider(props: {
 							});
 
 							const aircraftIds = flightGroups.reduce((prev, fg) => {
-								return [...prev, ...fg.units.map((unit) => unit.aircraftId)];
+								return [...prev, ...fg.units.map((unit) => unit.id)];
 							}, [] as Array<string>);
 
 							faction["inventory"]["aircrafts"] = faction["inventory"]["aircrafts"].map((ac) => {
@@ -193,46 +131,6 @@ export function CampaignProvider(props: {
 						} else {
 							return updatedAircraft;
 						}
-					})
-				);
-			},
-			destroyUnit(factionString, objectiveName, unitId) {
-				setState(factionString, "inventory", "vehicles", (vehicles) =>
-					vehicles.map((vehicle) => {
-						if (vehicle.id === unitId) {
-							return { ...vehicle, alive: false, destroyedTime: state.timer };
-						} else {
-							return vehicle;
-						}
-					})
-				);
-				setState(
-					produce((s) => {
-						s.objectives = s?.objectives.map((obj) => {
-							if (obj.name === objectiveName) {
-								const units = obj.units.map((unit) => {
-									if (unit.id === unitId) {
-										return {
-											...unit,
-											alive: false,
-											destroyedTime: s.timer,
-										};
-									} else {
-										return unit;
-									}
-								});
-
-								const objectiveIsNeutral = units.filter((u) => u.alive === true).length === 0;
-
-								return {
-									...obj,
-									coalition: objectiveIsNeutral ? "neutral" : obj.coalition,
-									units,
-								};
-							} else {
-								return obj;
-							}
-						});
 					})
 				);
 			},
@@ -359,72 +257,13 @@ export function CampaignProvider(props: {
 										return structure;
 									}
 								}),
-								units: obj.units.map((unit) => {
-									if (state.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
-										return {
-											...unit,
-											alive: false,
-											destroyedTime: s.timer,
-										};
-									} else {
-										return unit;
-									}
-								}),
 							};
 						});
 					})
 				);
 			},
-			updateFrontline() {
-				setState(
-					produce((s) => {
-						if (s.objectives.some((obj) => obj.coalition === "neutral")) {
-							const faction = s.blueFaction;
-							if (faction == null || s.blueFaction == null) {
-								return;
-							}
-
-							let vehicles = faction.inventory.vehicles;
-							s.objectives = s.objectives.map((obj) => {
-								if (obj.coalition === "neutral") {
-									const units = vehicles
-										.filter((vehicle) => vehicle.alive && vehicle.state === "idle")
-										.slice(0, random(4, 8));
-
-									vehicles = vehicles.map((vehicle) => {
-										if (units.some((unit) => unit.id === vehicle.id)) {
-											return {
-												...vehicle,
-												state: "on objective",
-											};
-										} else {
-											return vehicle;
-										}
-									});
-
-									return {
-										...obj,
-										coalition: "blue",
-										units,
-									};
-								} else {
-									return obj;
-								}
-							});
-
-							s.blueFaction.inventory.vehicles = vehicles;
-						}
-					})
-				);
-			},
-			saveCampaignRound(updatedState) {
-				setState(() => updatedState);
-				/* setState(
-					produce((s) => {
-						console.log("saveCampaignRound", { store: s.blueFaction, update: updatedState.blueFaction });
-						s.blueFaction = updatedState.blueFaction;
-					})
-				); */
+			saveCampaignRound(dataStore) {
+				setState(produce((s) => campaignRound(s, dataStore)));
 			},
 		},
 	];

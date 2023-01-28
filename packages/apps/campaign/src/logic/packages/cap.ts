@@ -128,7 +128,7 @@ export const generateCapPackage = (
 		airdromeName: airdrome.name,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
-				aircraftId: aircraft.id,
+				id: aircraft.id,
 				callSign: `${cs.unit}${i + 1}`,
 				name: `${cs.flightGroup}-${i + 1}`,
 				client: false,
@@ -172,7 +172,7 @@ export const generateCapPackage = (
 			name: objectiveName,
 			position: endPosition,
 			structures: [],
-			units: [],
+			unitIds: [],
 		},
 	};
 

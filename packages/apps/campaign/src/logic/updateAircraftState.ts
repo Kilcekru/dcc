@@ -1,70 +1,50 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { calcFlightGroupPosition, getAircraftStateFromFlightGroup, getFlightGroups } from "../utils";
+import { getAircraftStateFromFlightGroup, getFlightGroups, Minutes } from "../utils";
 import { RunningCampaignState } from "./types";
 
 const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
 	const flightGroups = getFlightGroups(faction.packages);
 
-	return flightGroups.find((fg) => fg.units.some((unit) => unit.aircraftId === aircraftId));
+	return flightGroups.find((fg) => fg.units.some((unit) => unit.id === aircraftId));
 };
 
 const updateFactionAircraftState = (faction: DcsJs.CampaignFaction, timer: number) => {
-	const aircrafts = faction.inventory.aircrafts.map((aircraft) => {
+	faction.inventory.aircrafts.forEach((aircraft) => {
+		// Is maintenance finished?
 		if (
 			aircraft.state === "maintenance" &&
 			aircraft.maintenanceEndTime != null &&
 			aircraft.maintenanceEndTime <= timer
 		) {
-			return {
-				...aircraft,
-				state: "idle",
-				maintenanceEndTime: undefined,
-			} as DcsJs.CampaignAircraft;
-		} else if (aircraft.state === "en route" || aircraft.state === "rtb") {
+			aircraft.state = "idle";
+			aircraft.maintenanceEndTime = undefined;
+		} else if (aircraft.state === "maintenance") {
+			return;
+		} else {
 			const fg = findFlightGroupForAircraft(faction, aircraft.id);
 
 			if (fg == null) {
-				return aircraft;
+				if (aircraft.state !== "idle") {
+					aircraft.state = "maintenance";
+					aircraft.maintenanceEndTime = timer + Minutes(60);
+				}
+
+				return;
 			}
 
-			const position = calcFlightGroupPosition(fg, timer, 170);
+			const newState = getAircraftStateFromFlightGroup(fg, timer);
 
-			if (position == null) {
-				return aircraft;
+			if (newState == null || aircraft.state === newState) {
+				return;
 			}
 
-			return { ...aircraft, position };
-		} else {
-			return aircraft;
+			aircraft.state = newState;
 		}
 	});
-
-	const aircraftState: Record<string, DcsJs.CampaignAircraftState | undefined> = faction.packages.reduce(
-		(prev, pkg) => {
-			return {
-				...prev,
-				...pkg.flightGroups.reduce((prev, fg) => {
-					const states: Record<string, string | undefined> = {};
-					fg.units.forEach((unit) => {
-						states[unit.aircraftId] = getAircraftStateFromFlightGroup(fg, timer);
-					});
-					return { ...prev, ...states };
-				}, {}),
-			};
-		},
-		{}
-	);
-
-	return aircrafts.map((aircraft) => ({
-		...aircraft,
-		state: aircraftState[aircraft.id] ?? aircraft.state,
-	}));
 };
 
 export const updateAircraftState = (state: RunningCampaignState) => {
-	state.blueFaction.inventory.aircrafts = updateFactionAircraftState(state.blueFaction, state.timer);
-	state.redFaction.inventory.aircrafts = updateFactionAircraftState(state.redFaction, state.timer);
-
-	return state;
+	updateFactionAircraftState(state.blueFaction, state.timer);
+	updateFactionAircraftState(state.redFaction, state.timer);
 };

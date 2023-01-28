@@ -260,7 +260,8 @@ export const getUsableAircraftsByType = (
 	aircraftTypes: Array<string> | undefined
 ) => {
 	return activeAircrafts?.filter(
-		(aircraft) => aircraft.state === "idle" && aircraftTypes?.some((acType) => aircraft.aircraftType === acType)
+		(aircraft) =>
+			aircraft.state === "idle" && aircraft.alive && aircraftTypes?.some((acType) => aircraft.aircraftType === acType)
 	);
 };
 
@@ -330,4 +331,8 @@ export const onboardNumber = () => {
 	} else {
 		return `00${num}`;
 	}
+};
+
+export const getUsableGroundUnits = (activeGroundUnits: Record<string, DcsJs.CampaignUnit>) => {
+	return Object.values(activeGroundUnits).filter((unit) => unit.state === "idle" && unit.alive);
 };

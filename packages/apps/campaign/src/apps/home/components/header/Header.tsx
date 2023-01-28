@@ -5,6 +5,7 @@ import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext } from "../../../../components";
 import styles from "./Header.module.less";
+import { TimerClock } from "./TimerClock";
 
 export const Header = (props: { showMissionModal: () => void }) => {
 	const [state, { pause }] = useContext(CampaignContext);
@@ -30,7 +31,12 @@ export const Header = (props: { showMissionModal: () => void }) => {
 			<h1>
 				{state.blueFaction?.name} vs {state.redFaction?.name}
 			</h1>
-			<Button onPress={onGenerateMission}>Generate Mission</Button>
+			<div>
+				<TimerClock />
+			</div>
+			<Button onPress={onGenerateMission} large>
+				Take Off
+			</Button>
 		</div>
 	);
 };

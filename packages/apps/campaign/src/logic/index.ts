@@ -1,9 +1,12 @@
 import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
+import { cleanupFlightGroups } from "./cleanupFlightGroups";
 import { cleanupPackages } from "./cleanupPackages";
-import { packagesTick } from "./packagesTick";
+import { combatRound } from "./combat";
+import { packagesRound } from "./packages";
 import { RunningCampaignState } from "./types";
 import { updateAircraftState } from "./updateAircraftState";
+import { updateFrontline } from "./updateFrontline";
 
 /**
  *
@@ -15,9 +18,15 @@ export const campaignRound = (state: CampaignState, dataStore: DataStore) => {
 		return state;
 	}
 
-	state = cleanupPackages(state as RunningCampaignState);
-	state = updateAircraftState(state as RunningCampaignState);
-	state = packagesTick(state as RunningCampaignState, dataStore);
+	cleanupPackages(state as RunningCampaignState);
+	updateAircraftState(state as RunningCampaignState);
+	packagesRound(state as RunningCampaignState, dataStore);
+	combatRound(state as RunningCampaignState);
+	cleanupFlightGroups(state as RunningCampaignState);
+	updateFrontline(state as RunningCampaignState);
 
 	return state;
 };
+
+export * from "./contextHelper";
+export * from "./createCampaign";

@@ -4,7 +4,6 @@ import { createUniqueId } from "solid-js";
 
 import {
 	calcPackageEndTime,
-	distanceToPosition,
 	firstItem,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
@@ -15,24 +14,24 @@ import {
 	positionFromHeading,
 	random,
 } from "../../utils";
-import { getCasTarget } from "../targetSelection";
+import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, speed } from "../utils";
+import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
 
-export const generateCasPackage = (
+export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: DataStore
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
-	const oppFaction = getCoalitionFaction(coalition, state);
+	const oppFaction = getCoalitionFaction(oppCoalition, state);
 
-	if (dataStore?.airdromes == null) {
+	if (faction == null || dataStore.airdromes == null) {
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction.inventory.aircrafts, faction.aircraftTypes.cas);
+	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.dead);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -46,22 +45,26 @@ export const generateCasPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const selectedObjective = getCasTarget(airdrome, state.objectives, oppCoalition, oppFaction);
+	const selectedObjective = getDeadTarget(airdrome, oppFaction);
 
 	if (selectedObjective == null) {
 		return;
 	}
 
-	const headingObjectiveToAirdrome = headingToPosition(selectedObjective.position, airdrome);
-	const racetrackStart = positionFromHeading(selectedObjective.position, headingObjectiveToAirdrome - 90, 7500);
-	const racetrackEnd = positionFromHeading(selectedObjective.position, headingObjectiveToAirdrome + 90, 7500);
+	const speed = 170;
+	const ingressPosition = positionFromHeading(
+		selectedObjective.position,
+		headingToPosition(selectedObjective.position, airdrome),
+		100000
+	);
 	const durationEnRoute = getDurationEnRoute(airdrome, selectedObjective.position, speed);
-	const casDuration = Minutes(30);
+	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
 
-	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
+	const startTime = Math.floor(state.timer) + Minutes(random(15, 25));
 	const endEnRouteTime = startTime + durationEnRoute;
-	const endCASTime = endEnRouteTime + 1 + casDuration;
-	const [, landingWaypoints, landingTime] = calcLandingWaypoints(
+	const endIngressTime = endEnRouteTime + durationIngress;
+
+	const [landingNavPosition, landingWaypoints, landingTime] = calcLandingWaypoints(
 		selectedObjective.position,
 		airdrome,
 		endEnRouteTime + 1
@@ -74,52 +77,59 @@ export const generateCasPackage = (
 		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
-				aircraftId: aircraft.id,
+				id: aircraft.id,
 				callSign: `${cs.unit}${i + 1}`,
 				name: `${cs.flightGroup}-${i + 1}`,
 				client: false,
 			})) ?? [],
 		name: cs.flightGroup,
-		task: "CAS",
+		task: "DEAD",
 		startTime,
 		tot: endEnRouteTime + 1,
-		landingTime,
+		landingTime: landingTime,
 		waypoints: [
 			{
 				name: "Take Off",
 				position: objectToPosition(airdrome),
-				endPosition: racetrackStart,
+				endPosition: ingressPosition,
 				time: startTime,
 				endTime: endEnRouteTime,
 				speed,
 				onGround: true,
 			},
 			{
-				name: "Track-race start",
-				position: racetrackStart,
+				name: "Ingress",
+				position: selectedObjective.position,
 				endPosition: objectToPosition(airdrome),
 				speed,
-				duration: casDuration,
 				time: endEnRouteTime + 1,
-				endTime: endCASTime,
+				endTime: endIngressTime,
 				taskStart: true,
-				racetrack: {
-					position: racetrackEnd,
-					name: "Track-race end",
-					distance: distanceToPosition(racetrackStart, racetrackEnd),
-					duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
-				},
+			},
+			{
+				name: "DEAD",
+				position: selectedObjective.position,
+				endPosition: landingNavPosition,
+				time: endEnRouteTime + 1,
+				endTime: endEnRouteTime + 1,
+				speed,
 			},
 			...landingWaypoints,
 		],
-		objective: selectedObjective,
+		objective: {
+			name: selectedObjective.id,
+			coalition: oppositeCoalition(coalition),
+			position: selectedObjective.position,
+			structures: [],
+			unitIds: [],
+		},
 		position: objectToPosition(airdrome),
 	};
 
 	const flightGroups = [flightGroup];
 
 	return {
-		task: "CAS" as DcsJs.Task,
+		task: "DEAD" as DcsJs.Task,
 		startTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,

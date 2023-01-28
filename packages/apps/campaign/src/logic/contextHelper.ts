@@ -15,7 +15,7 @@ export const cleanupPackages = (faction: DcsJs.CampaignFaction, timer: number) =
 
 	const usedAircraftIds = finishedPackages.reduce((prev, pkg) => {
 		const fgAircraftIds = pkg.flightGroups.reduce((prev, fg) => {
-			return [...prev, ...fg.units.map((unit) => unit.aircraftId)];
+			return [...prev, ...fg.units.map((unit) => unit.id)];
 		}, [] as Array<string>);
 
 		return [...prev, ...fgAircraftIds];
@@ -44,7 +44,7 @@ export const cleanupPackages = (faction: DcsJs.CampaignFaction, timer: number) =
 export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
 	const flightGroups = getFlightGroups(faction.packages);
 
-	return flightGroups.find((fg) => fg.units.some((unit) => unit.aircraftId === aircraftId));
+	return flightGroups.find((fg) => fg.units.some((unit) => unit.id === aircraftId));
 };
 
 export const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: number) => {
@@ -53,7 +53,7 @@ export const updatePackagesState = (faction: DcsJs.CampaignFaction, timer: numbe
 			...pkg,
 			flightGroups: pkg.flightGroups.filter((fg) => {
 				const aliveAircrafts = fg.units.filter((unit) => {
-					const ac = getAircraftFromId(faction.inventory.aircrafts, unit.aircraftId);
+					const ac = getAircraftFromId(faction.inventory.aircrafts, unit.id);
 
 					return ac?.alive === true;
 				});
@@ -122,7 +122,7 @@ export const updateAircraftState = (faction: DcsJs.CampaignFaction, timer: numbe
 				...pkg.flightGroups.reduce((prev, fg) => {
 					const states: Record<string, string | undefined> = {};
 					fg.units.forEach((unit) => {
-						states[unit.aircraftId] = getAircraftStateFromFlightGroup(fg, timer);
+						states[unit.id] = getAircraftStateFromFlightGroup(fg, timer);
 					});
 					return { ...prev, ...states };
 				}, {}),
@@ -145,7 +145,7 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 	fgs.forEach((fg) => {
 		fg.units.forEach((unit) => {
 			if (killedAircraftNames.some((name) => name === unit.name)) {
-				ids.push(unit.aircraftId);
+				ids.push(unit.id);
 			}
 		});
 	});
@@ -160,51 +160,55 @@ export const updateFactionState = (
 ): DcsJs.CampaignFaction => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 
-	return {
-		...faction,
-		inventory: {
-			aircrafts: faction.inventory.aircrafts.map((ac) => {
-				if (killedAircrafts.some((id) => ac.id === id)) {
-					return {
-						...ac,
-						alive: false,
-						destroyedTime: s.timer,
-					};
-				} else {
-					return ac;
-				}
-			}),
-			vehicles: faction.inventory.vehicles.map((vehicle) => {
-				if (missionState.killed_ground_units.some((unitName) => unitName === vehicle.displayName)) {
-					return {
-						...vehicle,
-						alive: false,
-						destroyedTime: s.timer,
-					};
-				} else {
-					return vehicle;
-				}
-			}),
-		},
-		sams: faction.sams.map((sam) => {
-			const units = sam.units.map((unit) => {
-				if (missionState.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
-					return {
-						...unit,
-						alive: false,
-						destroyedTime: s.timer,
-					};
-				} else {
-					return unit;
-				}
-			});
-
+	faction.inventory.aircrafts = faction.inventory.aircrafts.map((ac) => {
+		if (killedAircrafts.some((id) => ac.id === id)) {
 			return {
-				...sam,
-				units,
-				operational:
-					units.filter((unit) => unit.alive && unit.vehicleTypes.some((vt) => vt === "Track Radar")).length > 0,
+				...ac,
+				alive: false,
+				destroyedTime: s.timer,
 			};
-		}),
-	};
+		} else {
+			return ac;
+		}
+	});
+
+	missionState.killed_ground_units.forEach((killedUnitName) => {
+		const inventoryValue = Object.values(faction.inventory.groundUnits).find((u) => u.displayName === killedUnitName);
+
+		if (inventoryValue == null) {
+			return;
+		}
+
+		const inventoryUnit = faction.inventory.groundUnits[inventoryValue.id];
+
+		if (inventoryUnit == null) {
+			return;
+		}
+
+		inventoryUnit.alive = false;
+		inventoryUnit.destroyedTime = s.timer;
+	});
+
+	faction.sams = faction.sams.map((sam) => {
+		const units = sam.units.map((unit) => {
+			if (missionState.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
+				return {
+					...unit,
+					alive: false,
+					destroyedTime: s.timer,
+				};
+			} else {
+				return unit;
+			}
+		});
+
+		return {
+			...sam,
+			units,
+			operational:
+				units.filter((unit) => unit.alive && unit.vehicleTypes.some((vt) => vt === "Track Radar")).length > 0,
+		};
+	});
+
+	return faction;
 };

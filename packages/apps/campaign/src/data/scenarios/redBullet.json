@@ -4,10 +4,12 @@
 	"date": "2022-06-01",
 	"blue": {
 		"airdromeNames": ["Kobuleti"],
-		"farpNames": ["Poti"]
+		"farpNames": ["Poti"],
+		"objectiveNames": ["Poti", "Siriachkoni", "Ketilari"]
 	},
 	"red": {
 		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
-		"farpNames": []
+		"farpNames": [],
+		"objectiveNames": []
 	}
 }

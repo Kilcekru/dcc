@@ -1,0 +1,33 @@
+.button {
+	background-color: var(--action);
+	color: var(--body);
+	padding: 10px;
+	cursor: pointer;
+	font-size: 16px;
+	border-top-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	text-transform: uppercase;
+	border: none;
+
+	&:hover {
+		box-shadow: var(--shadow);
+	}
+
+	&:active,
+	&:focus-visible {
+		outline: unset;
+	}
+}
+
+.button--large {
+	padding: 15px;
+	font-size: 18px;
+}
+
+.button--unstyled {
+	background-color: unset;
+
+	&:hover {
+		box-shadow: unset;
+	}
+}

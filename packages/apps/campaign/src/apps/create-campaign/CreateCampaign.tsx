@@ -1,6 +1,7 @@
-import { createSignal, Match, Switch } from "solid-js";
+import { createSignal, Match, Switch, useContext } from "solid-js";
 
-import { useGenerateCampaign } from "./hooks";
+import { CampaignContext } from "../../components";
+import { DataContext } from "../../components/DataProvider";
 import { Factions, Start } from "./screens";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -9,8 +10,8 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Start");
-
-	const generateCampaign = useGenerateCampaign();
+	const [, { activate }] = useContext(CampaignContext);
+	const dataStore = useContext(DataContext);
 
 	return (
 		<div>
@@ -19,7 +20,7 @@ export const CreateCampaign = () => {
 					<Start next={() => setCurrentScreen("Factions")} />
 				</Match>
 				<Match when={currentScreen() === "Factions"}>
-					<Factions next={(blueId, redId) => generateCampaign(blueId, redId)} />
+					<Factions next={(blueId, redId) => activate?.(dataStore, blueId, redId)} />
 				</Match>
 			</Switch>
 		</div>

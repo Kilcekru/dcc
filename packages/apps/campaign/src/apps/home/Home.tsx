@@ -1,5 +1,3 @@
-import "./Home.less";
-
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
@@ -7,9 +5,8 @@ import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
-import { TimerClock } from "../../components/TimerClock";
-import { campaignRound } from "../../logic";
 import { Header, MissionModal, Sidebar, StartMissionModal } from "./components";
+import styles from "./Home.module.less";
 
 export const Home = () => {
 	const [state, { tick, clearPackages, saveCampaignRound }] = useContext(CampaignContext);
@@ -52,49 +49,24 @@ export const Home = () => {
 
 	const onNextRound = () => {
 		const start = performance.now();
-		const update = campaignRound(unwrap(state), dataStore);
 
-		saveCampaignRound?.(update);
+		saveCampaignRound?.(dataStore);
 		setTickDuration(performance.now() - start);
 	};
-
-	/* const missionModal = () => {
-		const fgs = getFlightGroups(state.blueFaction?.packages);
-
-		fgs.forEach((fg) => {
-			if (Math.floor(fg.startTime) === Math.floor(state.timer) && modalShown[state.timer] == null) {
-				modalShown[state.timer] = true;
-				// pause?.();
-				// setShowModal(true);
-			}
-		});
-	}; */
-
-	/* const campaignRound = () => {
-		cleanupPackages?.();
-		updateAircraftState?.();
-		bluePackagesTick();
-		redPackagesTick();
-		missionModal();
-		combat();
-		updateFrontline?.();
-	}; */
 
 	const interval = () => {
 		const start = performance.now();
 		if (state.multiplier === 1) {
 			tick?.(1 / 10);
 
-			const update = campaignRound(unwrap(state), dataStore);
-			saveCampaignRound?.(update);
+			saveCampaignRound?.(dataStore);
 		} else {
 			const multi = state.multiplier / 10;
 
 			Array.from({ length: multi }, () => {
 				tick?.(1);
 
-				const update = campaignRound(unwrap(state), dataStore);
-				saveCampaignRound?.(update);
+				saveCampaignRound?.(dataStore);
 			});
 		}
 		setTickDuration(performance.now() - start);
@@ -114,7 +86,7 @@ export const Home = () => {
 	onCleanup(() => stopInterval());
 
 	return (
-		<div class="home">
+		<div class={styles.home}>
 			<Header showMissionModal={() => setShowMissionModal(true)} />
 			<Sidebar />
 			<div>
@@ -124,7 +96,7 @@ export const Home = () => {
 				<Button onPress={onLog}>Log State</Button>
 				<Button onPress={onNextRound}>Next Round</Button>
 				<div>Tick: {tickDuration()}</div>
-				<TimerClock />
+
 				<Map />
 				<MissionModal isOpen={showMissionModal()} onClose={() => setShowMissionModal(false)} />
 				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />

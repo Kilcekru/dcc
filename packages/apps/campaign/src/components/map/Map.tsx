@@ -7,7 +7,7 @@ import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { MapPosition } from "../../types";
-import { getFlightGroups, positionToMapPosition } from "../../utils";
+import { firstItem, getFlightGroups, positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
 import { DataContext } from "../DataProvider";
 
@@ -16,6 +16,7 @@ const sidcUnitCode = {
 	airDefence: "UCD---",
 	airDefenceMissle: "UCDM--",
 	armour: "UCA---",
+	infantry: "UCI---",
 	armamentProduction: "IMG---",
 	attack: "MFA---",
 	aew: "MFRW--",
@@ -120,13 +121,34 @@ export const Map = () => {
 	const createObjectiveSymbols = () => {
 		state.objectives.forEach((objective) => {
 			const mapPosition = positionToMapPosition(objective.position);
+			const faction = objective.coalition === "blue" ? state.blueFaction : state.redFaction;
 
-			const str = objective.units.reduce((prev, unit) => {
+			if (faction == null) {
+				return;
+			}
+
+			const units = objective.unitIds.reduce((prev, id) => {
+				const inventoryUnit = faction.inventory.groundUnits[id];
+
+				if (inventoryUnit == null) {
+					return prev;
+				} else {
+					return [...prev, inventoryUnit];
+				}
+			}, [] as Array<DcsJs.CampaignUnit>);
+
+			const str = units.reduce((prev, unit) => {
 				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
 			}, objective.name + "<br />");
 
 			if (objective.coalition !== "neutral") {
-				const marker = createSymbol(mapPosition, objective.coalition === "red", false, "armour")?.bindPopup(str);
+				const isArmour = firstItem(units)?.vehicleTypes.some((vt) => vt === "Armored");
+				const marker = createSymbol(
+					mapPosition,
+					objective.coalition === "red",
+					false,
+					isArmour ? "armour" : "infantry"
+				)?.bindPopup(str);
 
 				if (marker != null) {
 					objectiveMarkers[objective.name] = marker;
