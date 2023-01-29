@@ -172,7 +172,8 @@ export const generateCapPackage = (
 			name: objectiveName,
 			position: endPosition,
 			structures: [],
-			unitIds: [],
+			deploymentReadyTimer: 0,
+			incomingGroundGroups: {},
 		},
 	};
 

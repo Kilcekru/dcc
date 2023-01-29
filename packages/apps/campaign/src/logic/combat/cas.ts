@@ -38,7 +38,13 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 							return;
 						}
 
-						const aliveUnitId = fgObjective.unitIds.find((id) => {
+						const groundGroup = oppFaction.groundGroups.find((group) => group.objective.name === fgObjective.name);
+
+						if (groundGroup == null) {
+							return;
+						}
+
+						const aliveUnitId = groundGroup.unitIds.find((id) => {
 							const inventoryUnit = oppFaction.inventory.groundUnits[id];
 
 							return inventoryUnit?.alive;

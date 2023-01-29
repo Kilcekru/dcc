@@ -46,23 +46,23 @@ export const generateCasPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const selectedObjective = getCasTarget(airdrome, state.objectives, oppCoalition, oppFaction);
+	const groundGroupTarget = getCasTarget(airdrome, oppFaction);
 
-	if (selectedObjective == null) {
+	if (groundGroupTarget == null) {
 		return;
 	}
 
-	const headingObjectiveToAirdrome = headingToPosition(selectedObjective.position, airdrome);
-	const racetrackStart = positionFromHeading(selectedObjective.position, headingObjectiveToAirdrome - 90, 7500);
-	const racetrackEnd = positionFromHeading(selectedObjective.position, headingObjectiveToAirdrome + 90, 7500);
-	const durationEnRoute = getDurationEnRoute(airdrome, selectedObjective.position, speed);
+	const headingObjectiveToAirdrome = headingToPosition(groundGroupTarget.position, airdrome);
+	const racetrackStart = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome - 90, 7500);
+	const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);
+	const durationEnRoute = getDurationEnRoute(airdrome, groundGroupTarget.position, speed);
 	const casDuration = Minutes(30);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endCASTime = endEnRouteTime + 1 + casDuration;
 	const [, landingWaypoints, landingTime] = calcLandingWaypoints(
-		selectedObjective.position,
+		groundGroupTarget.position,
 		airdrome,
 		endEnRouteTime + 1
 	);
@@ -112,7 +112,7 @@ export const generateCasPackage = (
 			},
 			...landingWaypoints,
 		],
-		objective: selectedObjective,
+		objective: groundGroupTarget.objective,
 		position: objectToPosition(airdrome),
 	};
 

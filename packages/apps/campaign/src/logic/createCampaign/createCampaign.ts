@@ -47,6 +47,7 @@ export const createCampaign = (
 		},
 		packages: [],
 		sams: generateSams("blue", dataStore, scenario),
+		groundGroups: [],
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -66,6 +67,7 @@ export const createCampaign = (
 		},
 		packages: [],
 		sams: generateSams("red", dataStore, scenario),
+		groundGroups: [],
 	};
 
 	state.objectives =
@@ -93,6 +95,18 @@ export const createCampaign = (
 
 			const isFrontlineObjective = structures == null || structures.length < 1;
 
+			const objective = {
+				name: dataObjective.name,
+				position: dataObjective.position,
+				structures: structures?.map((structure) => ({
+					id: createUniqueId(),
+					name: structure.name,
+					position: structure.position,
+					alive: true,
+				})),
+				coalition: isBlue ? "blue" : "red",
+			} as DcsJs.CampaignObjective;
+
 			if (isFrontlineObjective) {
 				units.forEach((unit) => {
 					const inventoryUnit = inventory.groundUnits[unit.id];
@@ -104,20 +118,16 @@ export const createCampaign = (
 
 					inventoryUnit.state = "on objective";
 				});
-			}
 
-			const objective = {
-				name: dataObjective.name,
-				position: dataObjective.position,
-				unitIds: isFrontlineObjective ? units.map((unit) => unit.id) : [],
-				structures: structures?.map((structure) => ({
+				faction.groundGroups.push({
 					id: createUniqueId(),
-					name: structure.name,
-					position: structure.position,
-					alive: true,
-				})),
-				coalition: isBlue ? "blue" : "red",
-			} as DcsJs.CampaignObjective;
+					objective,
+					position: objective.position,
+					state: "on objective",
+					unitIds: units.map((u) => u.id),
+					startTime: state.timer,
+				});
+			}
 
 			return [...prev, objective];
 		}, [] as Array<DcsJs.CampaignObjective>) ?? [];

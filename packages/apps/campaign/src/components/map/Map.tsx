@@ -31,6 +31,7 @@ export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	const objectiveMarkers: Record<string, L.Marker> = {};
 	const flightGroupMarkers: Record<string, L.Marker | undefined> = {};
+	const groundGroupMarkers: Record<string, L.Marker | undefined> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
@@ -120,39 +121,10 @@ export const Map = () => {
 
 	const createObjectiveSymbols = () => {
 		state.objectives.forEach((objective) => {
-			const mapPosition = positionToMapPosition(objective.position);
 			const faction = objective.coalition === "blue" ? state.blueFaction : state.redFaction;
 
 			if (faction == null) {
 				return;
-			}
-
-			const units = objective.unitIds.reduce((prev, id) => {
-				const inventoryUnit = faction.inventory.groundUnits[id];
-
-				if (inventoryUnit == null) {
-					return prev;
-				} else {
-					return [...prev, inventoryUnit];
-				}
-			}, [] as Array<DcsJs.CampaignUnit>);
-
-			const str = units.reduce((prev, unit) => {
-				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
-			}, objective.name + "<br />");
-
-			if (objective.coalition !== "neutral") {
-				const isArmour = firstItem(units)?.vehicleTypes.some((vt) => vt === "Armored");
-				const marker = createSymbol(
-					mapPosition,
-					objective.coalition === "red",
-					false,
-					isArmour ? "armour" : "infantry"
-				)?.bindPopup(str);
-
-				if (marker != null) {
-					objectiveMarkers[objective.name] = marker;
-				}
 			}
 
 			if (objective.coalition === "neutral" && objectiveMarkers[objective.name] != null) {
@@ -208,6 +180,49 @@ export const Map = () => {
 				flightGroupMarkers[fg.id] = marker;
 			} else {
 				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(fg.position));
+			}
+		});
+	};
+
+	const createGroundGroupSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+		faction.groundGroups.forEach((gg) => {
+			if (gg.position == null) {
+				return;
+			}
+
+			const str = gg.unitIds.reduce((prev, unitId) => {
+				const unit = faction.inventory.groundUnits[unitId];
+
+				if (unit == null) {
+					return prev;
+				}
+
+				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
+			}, "");
+
+			const firstUnit = faction.inventory.groundUnits[firstItem(gg.unitIds) ?? ""];
+
+			if (firstUnit == null) {
+				return;
+			}
+
+			const isArmour = firstUnit.vehicleTypes.some((vt) => vt === "Armored");
+
+			if (groundGroupMarkers[gg.id] == null) {
+				const marker = createSymbol(
+					positionToMapPosition(gg.position),
+					coalition === "red",
+					false,
+					isArmour ? "armour" : "infantry"
+				)?.bindPopup(str);
+
+				if (marker == null) {
+					return;
+				}
+
+				groundGroupMarkers[gg.id] = marker;
+			} else {
+				groundGroupMarkers[gg.id]?.setLatLng(positionToMapPosition(gg.position));
 			}
 		});
 	};
@@ -313,12 +328,14 @@ export const Map = () => {
 		const bluePackages = state.blueFaction?.packages;
 		const redPackages = state.redFaction?.packages;
 
-		if (bluePackages != null) {
+		if (bluePackages != null && state.blueFaction != null) {
 			createAircraftSymbols("blue", bluePackages);
+			createGroundGroupSymbols("blue", state.blueFaction);
 		}
 
-		if (redPackages != null) {
+		if (redPackages != null && state.redFaction != null) {
 			createAircraftSymbols("red", redPackages);
+			createGroundGroupSymbols("red", state.redFaction);
 		}
 
 		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];

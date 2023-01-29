@@ -9,27 +9,22 @@ const isInSamRange = (position: Position, oppFaction: DcsJs.CampaignFaction) => 
 		.some((sam) => distanceToPosition(position, sam.position) <= sam.range);
 };
 
-export const getCasTarget = (
-	startPosition: Position,
-	objectives: Array<DcsJs.CampaignObjective>,
-	oppCoalition: DcsJs.CampaignCoalition,
-	oppFaction: DcsJs.CampaignFaction
-) => {
-	const oppObjectives = objectives.filter((obj) => obj.coalition === oppCoalition);
-	const objectivesWithAliveUnits = oppObjectives.filter((obj) =>
-		obj.unitIds.some((id) => {
+export const getCasTarget = (startPosition: Position, oppFaction: DcsJs.CampaignFaction) => {
+	const objectivesGroundGroups = oppFaction.groundGroups.filter((gg) => gg.state === "on objective");
+	const groundGroupsInRange = findInside(objectivesGroundGroups, startPosition, (obj) => obj?.position, 130_000);
+
+	const aliveGroundGroups = groundGroupsInRange.filter((gg) => {
+		return gg.unitIds.some((id) => {
 			const inventoryUnit = oppFaction.inventory.groundUnits[id];
 
 			return inventoryUnit?.alive;
-		})
-	);
-	const objectivesInRange = findInside(objectivesWithAliveUnits, startPosition, (obj) => obj?.position, 130_000);
-
-	const objectivesOutsideSamRange = objectivesInRange.filter(
+		});
+	});
+	const groundGroupsOutsideSamRange = aliveGroundGroups.filter(
 		(objective) => !isInSamRange(objective.position, oppFaction)
 	);
 
-	return randomItem(objectivesOutsideSamRange);
+	return randomItem(groundGroupsOutsideSamRange);
 };
 
 export const getDeadTarget = (startPosition: Position, oppFaction: DcsJs.CampaignFaction) => {

@@ -115,3 +115,15 @@ export const calcNearestOppositeAirdrome = (
 
 	return airdrome;
 };
+
+export const unitIdsToGroundUnit = (faction: DcsJs.CampaignFaction, ids: Array<string>) => {
+	return ids.reduce((prev, id) => {
+		const unit = faction.inventory.groundUnits[id];
+
+		if (unit == null) {
+			return prev;
+		} else {
+			return [...prev, unit];
+		}
+	}, [] as Array<DcsJs.CampaignUnit>);
+};

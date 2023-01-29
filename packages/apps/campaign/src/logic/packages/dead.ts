@@ -121,7 +121,8 @@ export const generateDeadPackage = (
 			coalition: oppositeCoalition(coalition),
 			position: selectedObjective.position,
 			structures: [],
-			unitIds: [],
+			deploymentReadyTimer: 0,
+			incomingGroundGroups: {},
 		},
 		position: objectToPosition(airdrome),
 	};

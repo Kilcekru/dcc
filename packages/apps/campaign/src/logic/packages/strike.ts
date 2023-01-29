@@ -136,7 +136,8 @@ export const generateStrikePackage = (
 			name: target.name,
 			position: target.position,
 			structures: [target],
-			unitIds: [],
+			deploymentReadyTimer: 0,
+			incomingGroundGroups: {},
 		},
 		position: objectToPosition(airdrome),
 	};
