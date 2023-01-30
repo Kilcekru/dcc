@@ -27,7 +27,7 @@ const updateFactionAircraftState = (faction: DcsJs.CampaignFaction, timer: numbe
 			if (fg == null) {
 				if (aircraft.state !== "idle") {
 					aircraft.state = "maintenance";
-					aircraft.maintenanceEndTime = timer + Minutes(60);
+					aircraft.maintenanceEndTime = timer + Minutes(40);
 				}
 
 				return;

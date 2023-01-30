@@ -89,14 +89,15 @@ export const Home = () => {
 		<div class={styles.home}>
 			<Header showMissionModal={() => setShowMissionModal(true)} />
 			<Sidebar />
-			<div>
-				<Button onPress={onSave}>Save</Button>
-				<Button onPress={onReset}>Reset</Button>
-				<Button onPress={onClearPackages}>Clear Packages</Button>
-				<Button onPress={onLog}>Log State</Button>
-				<Button onPress={onNextRound}>Next Round</Button>
-				<div>Tick: {tickDuration()}</div>
-
+			<div class={styles.content}>
+				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
+					<Button onPress={onSave}>Save</Button>
+					<Button onPress={onReset}>Reset</Button>
+					<Button onPress={onClearPackages}>Clear Packages</Button>
+					<Button onPress={onLog}>Log State</Button>
+					<Button onPress={onNextRound}>Next Round</Button>
+					<div>Tick: {tickDuration()}</div>
+				</div>
 				<Map />
 				<MissionModal isOpen={showMissionModal()} onClose={() => setShowMissionModal(false)} />
 				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />

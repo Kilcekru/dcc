@@ -21,7 +21,7 @@ const sidcUnitCode = {
 	attack: "MFA---",
 	aew: "MFRW--",
 	fighter: "MFF---",
-	waypoint: "OXRW--",
+	waypoint: "MGPI--",
 	militaryBase: "IB----",
 };
 
@@ -49,15 +49,25 @@ export const Map = () => {
 		return positionToMapPosition(position);
 	});
 
-	const createSymbol = (mapPosition: MapPosition, hostile: boolean, air: boolean, unitCode: SidcUnitCodeKey) => {
+	const createSymbol = (
+		mapPosition: MapPosition,
+		hostile: boolean,
+		air: boolean,
+		unitCode: SidcUnitCodeKey,
+		specialPrefix?: string
+	) => {
 		const map = leaftletMap();
 
 		if (map == null) {
 			return;
 		}
-		const symbol = new Symbol(`S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`, {
-			size: 20,
-		});
+		const symbol = specialPrefix
+			? new Symbol(`G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`, {
+					size: 20,
+			  })
+			: new Symbol(`S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`, {
+					size: 20,
+			  });
 
 		const icon = L.icon({
 			iconUrl: symbol.toDataURL(),
@@ -271,7 +281,7 @@ export const Map = () => {
 		}
 
 		state.selectedFlightGroup.waypoints.forEach((waypoint) => {
-			const marker = createSymbol(positionToMapPosition(waypoint.position), false, false, "waypoint");
+			const marker = createSymbol(positionToMapPosition(waypoint.position), false, false, "waypoint", "123");
 
 			if (marker == null) {
 				return;
@@ -280,7 +290,13 @@ export const Map = () => {
 			selectedFlightGroupMarkers.push(marker);
 
 			if (waypoint.racetrack != null) {
-				const marker = createSymbol(positionToMapPosition(waypoint.racetrack.position), false, true, "waypoint");
+				const marker = createSymbol(
+					positionToMapPosition(waypoint.racetrack.position),
+					false,
+					false,
+					"waypoint",
+					"123"
+				);
 
 				if (marker == null) {
 					return;
@@ -304,7 +320,7 @@ export const Map = () => {
 			return;
 		}
 
-		flightGroupLine = L.polyline(linePoints, { color: "#80e0ff" }).addTo(map);
+		flightGroupLine = L.polyline(linePoints, { color: "#2a2a2a" }).addTo(map);
 	});
 
 	createEffect(() => {
@@ -325,18 +341,17 @@ export const Map = () => {
 
 	// Package Markers
 	createEffect(() => {
-		const bluePackages = state.blueFaction?.packages;
-		const redPackages = state.redFaction?.packages;
-
-		if (bluePackages != null && state.blueFaction != null) {
-			createAircraftSymbols("blue", bluePackages);
-			createGroundGroupSymbols("blue", state.blueFaction);
+		if (state.blueFaction == null || state.redFaction == null) {
+			return;
 		}
 
-		if (redPackages != null && state.redFaction != null) {
-			createAircraftSymbols("red", redPackages);
-			createGroundGroupSymbols("red", state.redFaction);
-		}
+		const bluePackages = state.blueFaction.packages;
+		const redPackages = state.redFaction.packages;
+
+		createAircraftSymbols("blue", bluePackages);
+		createGroundGroupSymbols("blue", state.blueFaction);
+		createAircraftSymbols("red", redPackages);
+		createGroundGroupSymbols("red", state.redFaction);
 
 		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];
 
@@ -346,6 +361,17 @@ export const Map = () => {
 			} else {
 				removeSymbol(marker);
 				flightGroupMarkers[id] = undefined;
+			}
+		});
+
+		const ggs = [...state.blueFaction.groundGroups, ...state.redFaction.groundGroups];
+
+		Object.entries(groundGroupMarkers).forEach(([id, marker]) => {
+			if (marker == null || ggs.some((fg) => fg.id === id)) {
+				return;
+			} else {
+				removeSymbol(marker);
+				groundGroupMarkers[id] = undefined;
 			}
 		});
 	});

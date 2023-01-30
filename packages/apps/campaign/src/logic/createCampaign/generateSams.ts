@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore, Faction } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data/scenarios";
@@ -7,6 +7,7 @@ import { findNearest, firstItem, objectToPosition } from "../../utils";
 
 export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
+	faction: Faction,
 	dataStore: DataStore,
 	scenario: Scenario
 ): Array<DcsJs.CampaignSam> => {
@@ -14,9 +15,14 @@ export const generateSams = (
 		return [];
 	}
 
-	const samTemplate = dataStore.samTemplates?.["SA-2"];
+	const samTemplate = dataStore.samTemplates?.[(firstItem(faction.template.sams) ?? "SA-2") as DcsJs.SAMType];
+
+	if (samTemplate == null) {
+		return [];
+	}
+
 	const templateVehicles =
-		samTemplate?.reduce((prev, name) => {
+		samTemplate?.units.reduce((prev, name) => {
 			const vehicle = dataStore.vehicles?.[name];
 
 			if (vehicle == null) {
@@ -96,10 +102,10 @@ export const generateSams = (
 		return {
 			id: createUniqueId(),
 			position: sam.position,
-			range: 45000,
+			range: samTemplate.range,
 			units: templateVehicles,
 			operational: true,
-			fireInterval: 60,
+			fireInterval: samTemplate.fireInterval,
 			weaponReadyTimer: 0,
 			name: sam.name,
 			objectiveName: objectiveTarget[0],

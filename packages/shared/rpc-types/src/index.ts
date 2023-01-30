@@ -27,6 +27,9 @@ export type Faction = {
 	infantries: Array<string>;
 	countryName: string;
 	name: string;
+	template: {
+		sams: Array<string>;
+	};
 };
 
 export type DataStore = {

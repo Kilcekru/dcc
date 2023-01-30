@@ -10,8 +10,6 @@ const save: Campaign["save"] = async (campaign) => {
 
 	await persistanceState.save();
 
-	console.log("save", campaign); // eslint-disable-line no-console
-
 	return { success: true };
 };
 

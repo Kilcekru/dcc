@@ -35,17 +35,17 @@ export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 			return [...prev, ...aliveUnits];
 		}, [] as Array<DcsJs.CampaignUnit>);
 
-		if (blueAliveUnits.length === 0 && redAliveUnits.length === 0) {
+		if (blueAliveUnits.length === 0 && redAliveUnits.length === 0 && objective.structures.length === 0) {
 			objective.coalition = "neutral";
 
 			return;
 		}
 
-		if (objective.coalition === "red" && redAliveUnits.length === 0) {
+		if (objective.coalition === "red" && redAliveUnits.length === 0 && blueAliveUnits.length > 0) {
 			objective.coalition = "blue";
 		}
 
-		if (objective.coalition === "blue" && blueAliveUnits.length === 0) {
+		if (objective.coalition === "blue" && blueAliveUnits.length === 0 && redAliveUnits.length > 0) {
 			objective.coalition = "red";
 		}
 	});

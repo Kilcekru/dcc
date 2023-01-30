@@ -24,6 +24,10 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
 
 	faction.packages.forEach((pkg) => {
+		if (pkg.startTime > state.timer) {
+			return;
+		}
+
 		pkg.flightGroups.forEach((fg) => {
 			if (fg.task === "DEAD") {
 				const objective = fg.objective;

@@ -10,10 +10,10 @@ import styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup }) => {
 	const [, { selectFlightGroup, setClient }] = useContext(CampaignContext);
-	const [expanded] = createSignal(false);
+	const [expanded, setExpanded] = createSignal(false);
 
 	const onPress = () => {
-		// setExpanded(true);
+		setExpanded(true);
 		selectFlightGroup?.(props.flightGroup);
 	};
 

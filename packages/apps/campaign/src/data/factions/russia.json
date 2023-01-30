@@ -12,5 +12,8 @@
 		"heliHunt": []
 	},
 	"infantries": ["Infantry AK"],
-	"vehicles": ["BMP-2"]
+	"vehicles": ["BMP-2"],
+	"template": {
+		"sams": ["SA-2"]
+	}
 }

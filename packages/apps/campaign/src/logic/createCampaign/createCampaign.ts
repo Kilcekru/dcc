@@ -46,7 +46,7 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
 		},
 		packages: [],
-		sams: generateSams("blue", dataStore, scenario),
+		sams: generateSams("blue", blueBaseFaction, dataStore, scenario),
 		groundGroups: [],
 	};
 
@@ -66,7 +66,7 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
 		},
 		packages: [],
-		sams: generateSams("red", dataStore, scenario),
+		sams: generateSams("red", redBaseFaction, dataStore, scenario),
 		groundGroups: [],
 	};
 

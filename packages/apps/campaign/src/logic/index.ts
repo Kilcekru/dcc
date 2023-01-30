@@ -1,6 +1,7 @@
 import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
 import { cleanupFlightGroups } from "./cleanupFlightGroups";
+import { cleanupGroundGroups } from "./cleanupGroundGroup";
 import { cleanupPackages } from "./cleanupPackages";
 import { combatRound } from "./combat";
 import { packagesRound } from "./packages";
@@ -23,6 +24,7 @@ export const campaignRound = (state: CampaignState, dataStore: DataStore) => {
 	packagesRound(state as RunningCampaignState, dataStore);
 	combatRound(state as RunningCampaignState);
 	cleanupFlightGroups(state as RunningCampaignState);
+	cleanupGroundGroups(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState);
 
 	return state;

@@ -19,9 +19,7 @@ export const Header = (props: { showMissionModal: () => void }) => {
 			throw "faction not found";
 		}
 
-		const campaign: DcsJs.Campaign = unwrapped as DcsJs.Campaign;
-
-		await rpc.campaign.generateCampaignMission(campaign);
+		await rpc.campaign.generateCampaignMission(JSON.parse(JSON.stringify(unwrapped)) as DcsJs.Campaign);
 
 		props.showMissionModal();
 	};
