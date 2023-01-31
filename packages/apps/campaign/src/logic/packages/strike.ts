@@ -24,6 +24,7 @@ export const generateStrikePackage = (
 	state: RunningCampaignState,
 	dataStore: DataStore
 ): DcsJs.CampaignPackage | undefined => {
+	// console.log("generate strike");
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -33,6 +34,7 @@ export const generateStrikePackage = (
 	}
 
 	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.strike);
+	// console.log("usable aircrafts", usableAircrafts);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -48,6 +50,7 @@ export const generateStrikePackage = (
 
 	const target = getStrikeTarget(airdrome, state.objectives, oppCoalition, oppFaction);
 
+	// console.log("strike target", target);
 	if (target == null) {
 		return;
 	}

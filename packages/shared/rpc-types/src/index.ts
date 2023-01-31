@@ -23,11 +23,13 @@ export type Faction = {
 };
 
 export type DataStore = {
+	aircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.Aircraft>> | undefined;
 	airdromes: DcsJs.GetAirdromes | undefined;
 	objectives: DcsJs.GetObjectives | undefined;
 	strikeTargets: DcsJs.GetStrikeTargets | undefined;
 	samTemplates: DcsJs.getSamTemplates | undefined;
 	vehicles: DcsJs.GetVehicles | undefined;
+	farps: DcsJs.getFarps | undefined;
 };
 
 export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> & {

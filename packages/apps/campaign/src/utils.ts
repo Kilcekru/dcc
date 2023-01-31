@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { CallSigns } from "./data";
+import { Scenario } from "./data/scenarios";
 import { MapPosition, Position, Task } from "./types";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -335,4 +336,8 @@ export const onboardNumber = () => {
 
 export const getUsableGroundUnits = (activeGroundUnits: Record<string, DcsJs.CampaignUnit>) => {
 	return Object.values(activeGroundUnits).filter((unit) => unit.state === "idle" && unit.alive);
+};
+
+export const getScenarioFaction = (coalition: DcsJs.CampaignCoalition, scenario: Scenario) => {
+	return coalition === "blue" ? scenario.blue : scenario.red;
 };

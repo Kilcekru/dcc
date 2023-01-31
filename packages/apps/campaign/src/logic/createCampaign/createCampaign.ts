@@ -42,7 +42,7 @@ export const createCampaign = (
 		countryName: blueBaseFaction.countryName as DcsJs.CountryName,
 		airdromeNames: scenario.blue.airdromeNames as DcsJs.AirdromeName[],
 		inventory: {
-			aircrafts: generateAircraftInventory("blue", blueBaseFaction, dataStore),
+			aircrafts: generateAircraftInventory("blue", blueBaseFaction, scenario, dataStore),
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
 		},
 		packages: [],
@@ -62,7 +62,7 @@ export const createCampaign = (
 		airdromeNames: scenario.red.airdromeNames as DcsJs.AirdromeName[],
 
 		inventory: {
-			aircrafts: generateAircraftInventory("red", redBaseFaction, dataStore),
+			aircrafts: generateAircraftInventory("red", redBaseFaction, scenario, dataStore),
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
 		},
 		packages: [],

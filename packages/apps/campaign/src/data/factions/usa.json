@@ -3,7 +3,7 @@
 	"name": "USA 2005",
 	"aircraftTypes": {
 		"cap": ["F-16C_50"],
-		"cas": ["A-10C_2"],
+		"cas": ["AH-64D_BLK_II", "A-10C_2"],
 		"awacs": ["E-3A"],
 
 		"dead": ["F-16C_50"],

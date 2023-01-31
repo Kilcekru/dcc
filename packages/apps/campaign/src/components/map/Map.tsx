@@ -208,7 +208,7 @@ export const Map = () => {
 				}
 
 				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
-			}, "");
+			}, gg.objective.name + "<br />");
 
 			const firstUnit = faction.inventory.groundUnits[firstItem(gg.unitIds) ?? ""];
 

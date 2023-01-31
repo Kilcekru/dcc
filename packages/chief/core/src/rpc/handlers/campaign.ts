@@ -43,9 +43,11 @@ const getDataStore: Campaign["getDataStore"] = async () => {
 	return {
 		vehicles: DcsJs.getVehicles(),
 		airdromes: DcsJs.getAirdromes(),
+		aircrafts: DcsJs.getAircraft(),
 		objectives: DcsJs.getObjectives(),
 		samTemplates: DcsJs.getSamTemplates(),
 		strikeTargets: DcsJs.getStrikeTargets(),
+		farps: DcsJs.getFarps(),
 	};
 };
 

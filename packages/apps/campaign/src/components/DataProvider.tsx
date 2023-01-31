@@ -9,6 +9,8 @@ const initState: DataStore = {
 	strikeTargets: undefined,
 	samTemplates: undefined,
 	vehicles: undefined,
+	aircrafts: undefined,
+	farps: undefined,
 };
 
 export const DataContext = createContext<DataStore>(initState);

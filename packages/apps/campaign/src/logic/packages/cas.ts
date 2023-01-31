@@ -38,24 +38,33 @@ export const generateCasPackage = (
 		return;
 	}
 
-	const airdromeName = firstItem(faction?.airdromeNames);
+	const firstAircraft = firstItem(usableAircrafts);
 
-	if (airdromeName == null) {
-		throw `airdrome not found: ${airdromeName ?? ""}`;
+	const selectedAircrafts = usableAircrafts.filter((ac) => ac.aircraftType === firstAircraft?.aircraftType);
+
+	if (firstAircraft == null || selectedAircrafts == null || selectedAircrafts.length === 0) {
+		return;
 	}
 
-	const airdrome = dataStore.airdromes[airdromeName];
+	const startPosition =
+		firstAircraft.homeBase.type === "airdrome"
+			? dataStore.airdromes[firstAircraft.homeBase.name as DcsJs.AirdromeName]
+			: firstItem(dataStore.farps?.[firstAircraft.homeBase.name])?.position;
 
-	const groundGroupTarget = getCasTarget(airdrome, oppFaction);
+	if (startPosition == null) {
+		return;
+	}
+
+	const groundGroupTarget = getCasTarget(startPosition, oppFaction);
 
 	if (groundGroupTarget == null) {
 		return;
 	}
 
-	const headingObjectiveToAirdrome = headingToPosition(groundGroupTarget.position, airdrome);
+	const headingObjectiveToAirdrome = headingToPosition(groundGroupTarget.position, startPosition);
 	const racetrackStart = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome - 90, 7500);
 	const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);
-	const durationEnRoute = getDurationEnRoute(airdrome, groundGroupTarget.position, speed);
+	const durationEnRoute = getDurationEnRoute(startPosition, groundGroupTarget.position, speed);
 	const casDuration = Minutes(30);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
@@ -63,7 +72,7 @@ export const generateCasPackage = (
 	const endCASTime = endEnRouteTime + 1 + casDuration;
 	const [, landingWaypoints, landingTime] = calcLandingWaypoints(
 		groundGroupTarget.position,
-		airdrome,
+		startPosition,
 		endEnRouteTime + 1
 	);
 
@@ -71,7 +80,7 @@ export const generateCasPackage = (
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
-		airdromeName,
+		airdromeName: firstAircraft.homeBase.name as DcsJs.AirdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
@@ -87,7 +96,7 @@ export const generateCasPackage = (
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(airdrome),
+				position: objectToPosition(startPosition),
 				endPosition: racetrackStart,
 				time: startTime,
 				endTime: endEnRouteTime,
@@ -97,7 +106,7 @@ export const generateCasPackage = (
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				endPosition: objectToPosition(airdrome),
+				endPosition: objectToPosition(startPosition),
 				speed,
 				duration: casDuration,
 				time: endEnRouteTime + 1,
@@ -113,7 +122,7 @@ export const generateCasPackage = (
 			...landingWaypoints,
 		],
 		objective: groundGroupTarget.objective,
-		position: objectToPosition(airdrome),
+		position: objectToPosition(startPosition),
 	};
 
 	const flightGroups = [flightGroup];

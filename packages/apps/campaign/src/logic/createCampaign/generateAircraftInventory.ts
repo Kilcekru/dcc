@@ -2,11 +2,13 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore, Faction } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { objectToPosition, onboardNumber } from "../../utils";
+import { Scenario } from "../../data/scenarios";
+import { firstItem, getScenarioFaction, onboardNumber } from "../../utils";
 
 export const generateAircraftInventory = (
 	coalition: DcsJs.CampaignCoalition,
 	faction: Faction,
+	scenario: Scenario,
 	dataStore: DataStore
 ) => {
 	const airdromes = dataStore.airdromes;
@@ -32,6 +34,7 @@ export const generateAircraftInventory = (
 	}
 
 	const aircrafts: Array<DcsJs.CampaignAircraft> = [];
+	const farpName = firstItem(getScenarioFaction(coalition, scenario).farpNames);
 
 	faction.aircraftTypes.cap.forEach((acType) => {
 		const count = Math.max(2, capCount * faction.aircraftTypes.cap.length);
@@ -39,23 +42,36 @@ export const generateAircraftInventory = (
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: objectToPosition(airdrome),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["CAP"],
 				alive: true,
 				onboardNumber: onboardNumber(),
+				homeBase: {
+					name: airdrome.name,
+					type: "airdrome",
+				},
 			});
 		});
 	});
 
 	faction.aircraftTypes.cas.forEach((acType) => {
 		const count = Math.max(2, casCount * faction.aircraftTypes.cap.length);
+		const aircraft = dataStore.aircrafts?.[acType as DcsJs.AircraftType];
 
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: objectToPosition(airdrome),
+				homeBase:
+					aircraft?.isHelicopter && farpName != null
+						? {
+								type: "farp",
+								name: farpName,
+						  }
+						: {
+								type: "airdrome",
+								name: airdrome.name,
+						  },
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["CAS"],
@@ -71,7 +87,10 @@ export const generateAircraftInventory = (
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: objectToPosition(airdrome),
+				homeBase: {
+					name: airdrome.name,
+					type: "airdrome",
+				},
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["AWACS"],
@@ -87,7 +106,10 @@ export const generateAircraftInventory = (
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: objectToPosition(airdrome),
+				homeBase: {
+					name: airdrome.name,
+					type: "airdrome",
+				},
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["Pinpoint Strike"],
@@ -103,7 +125,10 @@ export const generateAircraftInventory = (
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType: acType as DcsJs.AircraftType,
-				position: objectToPosition(airdrome),
+				homeBase: {
+					name: airdrome.name,
+					type: "airdrome",
+				},
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["DEAD"],
