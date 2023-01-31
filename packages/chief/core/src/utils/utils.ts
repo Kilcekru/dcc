@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 
-export function getAppPath(name: string) {
+export function getAppPath(name: "campaign" | "launcher") {
 	return Path.join(__dirname, "../apps", name, "index.html");
 }
 

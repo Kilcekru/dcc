@@ -5,4 +5,5 @@ import { rpc } from "../utils";
 export const misc: Misc = {
 	getVersions: rpc<Misc["getVersions"]>("misc", "getVersions"),
 	getUserConfig: rpc<Misc["getUserConfig"]>("misc", "getUserConfig"),
+	loadApp: rpc<Misc["loadApp"]>("misc", "loadApp"),
 };

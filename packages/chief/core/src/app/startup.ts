@@ -6,10 +6,12 @@ import { dccState, userConfig } from "../persistance";
 import { getAppPath } from "../utils";
 import { getWindowBounds, registerBoundsEvents } from "./bounds";
 
+export let mainWindow: BrowserWindow | undefined;
+
 export async function startupApp() {
 	await Promise.all([dccState.load(), userConfig.load()]);
 
-	const mainWindow = new BrowserWindow({
+	mainWindow = new BrowserWindow({
 		...getWindowBounds(),
 		show: false,
 		webPreferences: {
@@ -24,5 +26,15 @@ export async function startupApp() {
 
 	registerBoundsEvents(mainWindow);
 
-	await mainWindow.loadFile(getAppPath("campaign"));
+	if (userConfig.data.setupComplete && userConfig.data.dcs != undefined && userConfig.data.currentApp != undefined) {
+		await mainWindow.loadFile(getAppPath(userConfig.data.currentApp));
+	} else {
+		await mainWindow.loadFile(getAppPath("launcher"));
+	}
+}
+
+export async function loadApp(name: "launcher" | "campaign") {
+	await mainWindow?.loadFile(getAppPath(name));
+	userConfig.data.currentApp = name;
+	await userConfig.save();
 }

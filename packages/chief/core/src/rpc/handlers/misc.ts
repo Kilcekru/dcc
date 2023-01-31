@@ -1,5 +1,6 @@
 import { Misc } from "@kilcekru/dcc-shared-rpc-types";
 
+import { loadApp } from "../../app/startup";
 import { userConfig } from "../../persistance";
 
 const getVersions: Misc["getVersions"] = async () => {
@@ -17,4 +18,5 @@ const getUserConfig: Misc["getUserConfig"] = async () => {
 export const misc: Misc = {
 	getVersions,
 	getUserConfig,
+	loadApp,
 };

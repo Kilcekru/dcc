@@ -1,4 +1,4 @@
-export interface DccWindow extends Window {
+interface DccWindow extends Window {
 	_dcc: {
 		rpc: (namespace: string, fnName: string, args: unknown) => Promise<unknown>;
 	};
