@@ -5,11 +5,14 @@ import { BrowserWindow } from "electron";
 import { dccState, userConfig } from "../persistance";
 import { getAppPath } from "../utils";
 import { getWindowBounds, registerBoundsEvents } from "./bounds";
+import { setApplicationMenu } from "./menu";
 
 export let mainWindow: BrowserWindow | undefined;
 
 export async function startupApp() {
 	await Promise.all([dccState.load(), userConfig.load()]);
+
+	setApplicationMenu();
 
 	mainWindow = new BrowserWindow({
 		...getWindowBounds(),
@@ -33,8 +36,8 @@ export async function startupApp() {
 	}
 }
 
-export async function loadApp(name: "launcher" | "campaign") {
-	await mainWindow?.loadFile(getAppPath(name));
+export async function loadApp(name: "launcher" | "campaign", query?: Record<string, string>) {
+	await mainWindow?.loadFile(getAppPath(name), { query });
 	userConfig.data.currentApp = name;
 	await userConfig.save();
 }

@@ -12,3 +12,8 @@ contextBridge.exposeInMainWorld("_dcc", {
 		return JSON.parse(result) as unknown;
 	},
 });
+
+window.addEventListener("contextmenu", async (e) => {
+	e.preventDefault();
+	await ipcRenderer.invoke("contextMenu", JSON.stringify({ x: e.x, y: e.y }));
+});

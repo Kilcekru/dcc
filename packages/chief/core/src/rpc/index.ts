@@ -1,5 +1,6 @@
-import { ipcMain } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 
+import { openContextMenu } from "../app/menu";
 import { isArray, isPlainObject } from "../utils/utils";
 import { handlers } from "./handlers";
 
@@ -31,5 +32,18 @@ export function startRpc() {
 			throw new Error("Invalid RPC call: unknown function");
 		}
 		return JSON.stringify(await fn(...fnArgs));
+	});
+
+	ipcMain.handle("contextMenu", async (event, args: string) => {
+		const { x, y } = JSON.parse(args) as { x: number; y: number };
+		const window = BrowserWindow.fromWebContents(event.sender);
+		if (window == undefined) {
+			return;
+		}
+		openContextMenu({
+			window,
+			x,
+			y,
+		});
 	});
 }

@@ -1,4 +1,4 @@
 {
-	"extends": "@kilcekru/ts-basics/tsconfig-node-app.json",
+	"extends": "../../../utils/config/tsconfig.ui.json",
 	"include": ["src"]
 }
