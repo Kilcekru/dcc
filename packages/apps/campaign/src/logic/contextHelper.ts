@@ -1,7 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignState, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 
-import { MissionState } from "../types";
 import {
 	calcFlightGroupPosition,
 	getAircraftFromId,
@@ -153,11 +152,7 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 	return ids;
 };
 
-export const updateFactionState = (
-	faction: DcsJs.CampaignFaction,
-	s: CampaignState,
-	missionState: MissionState
-): DcsJs.CampaignFaction => {
+export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignState, missionState: MissionState) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 
 	faction.inventory.aircrafts = faction.inventory.aircrafts.map((ac) => {
@@ -189,26 +184,32 @@ export const updateFactionState = (
 		inventoryUnit.destroyedTime = s.timer;
 	});
 
-	faction.sams = faction.sams.map((sam) => {
-		const units = sam.units.map((unit) => {
-			if (missionState.killed_ground_units.some((unitName) => unitName === unit.displayName)) {
-				return {
-					...unit,
-					alive: false,
-					destroyedTime: s.timer,
-				};
-			} else {
-				return unit;
-			}
-		});
+	missionState.killed_ground_units.forEach((killedUnitName) => {
+		const sam = faction.sams.find((sam) => sam.units.some((unit) => unit.displayName === killedUnitName));
 
-		return {
-			...sam,
-			units,
-			operational:
-				units.filter((unit) => unit.alive && unit.vehicleTypes.some((vt) => vt === "Track Radar")).length > 0,
-		};
+		if (sam == null) {
+			return;
+		}
+
+		const unit = sam.units.find((unit) => unit.displayName === killedUnitName);
+
+		if (unit == null) {
+			return;
+		}
+
+		unit.alive = false;
+		unit.destroyedTime = s.timer;
 	});
 
-	return faction;
+	faction.sams.forEach((sam) => {
+		if (sam.operational) {
+			const trackRadarAlive = sam.units.some((u) => u.alive && u.vehicleTypes.some((vt) => vt === "Track Radar"));
+
+			if (trackRadarAlive) {
+				return;
+			}
+
+			sam.operational = false;
+		}
+	});
 };

@@ -79,7 +79,7 @@ export const generateStrikePackage = (
 		endEngressTime + 1
 	);
 
-	const cs = generateCallSign(state);
+	const cs = generateCallSign(state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),

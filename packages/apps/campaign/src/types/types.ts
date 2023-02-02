@@ -58,10 +58,3 @@ export type StrikeTargetType = "Vehicle" | "AAA" | "Artillery" | "SAM" | "Struct
 export type UnitPosition = Position & {
 	heading: number;
 };
-
-export type MissionState = {
-	killed_aircrafts: Array<string>;
-	killed_ground_units: Array<string | number>;
-	mission_ended: boolean;
-	time: number;
-};

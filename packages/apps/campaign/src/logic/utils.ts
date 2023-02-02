@@ -45,8 +45,12 @@ const calcNumber = (
 	return calcNumber(state, base, number + 1);
 };
 
-export const generateCallSign = (state: RunningCampaignState) => {
-	const base = randomCallSign();
+export const generateCallSign = (
+	state: RunningCampaignState,
+	dataStore: DataStore,
+	type: "aircraft" | "helicopter" | "awacs"
+) => {
+	const base = randomCallSign(dataStore, type);
 
 	return calcNumber(state, base, 1);
 };

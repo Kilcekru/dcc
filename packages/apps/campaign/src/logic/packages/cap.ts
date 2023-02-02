@@ -121,7 +121,7 @@ export const generateCapPackage = (
 	const endOnStationTime = endEnRouteTime + 1 + duration;
 	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endEnRouteTime + 1);
 
-	const cs = generateCallSign(state);
+	const cs = generateCallSign(state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),

@@ -11,6 +11,7 @@ const initState: DataStore = {
 	vehicles: undefined,
 	aircrafts: undefined,
 	farps: undefined,
+	callSigns: undefined,
 };
 
 export const DataContext = createContext<DataStore>(initState);

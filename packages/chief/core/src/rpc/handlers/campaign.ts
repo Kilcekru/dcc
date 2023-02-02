@@ -1,7 +1,9 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { Campaign, CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import { Campaign, CampaignState, MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import fs from "fs-extra";
 
 import { Persistance } from "../../persistance/persistance";
+import { misc } from "./misc";
 
 const persistanceState = new Persistance<CampaignState>({ path: "app/campaign" });
 
@@ -43,18 +45,37 @@ const getDataStore: Campaign["getDataStore"] = async () => {
 	return {
 		vehicles: DcsJs.getVehicles(),
 		airdromes: DcsJs.getAirdromes(),
-		aircrafts: DcsJs.getAircraft(),
+		aircrafts: DcsJs.getAircrafts(),
 		objectives: DcsJs.getObjectives(),
 		samTemplates: DcsJs.getSamTemplates(),
 		strikeTargets: DcsJs.getStrikeTargets(),
 		farps: DcsJs.getFarps(),
+		callSigns: DcsJs.getCallSigns(),
 	};
 };
 
 const generateCampaignMission: Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
-	await DcsJs.generateCampaignMission(campaign);
+	const config = await misc.getUserConfig();
 
-	return { success: true };
+	if (config.dcs?.available) {
+		await DcsJs.generateCampaignMission(campaign, config.dcs.paths.savedGames + "/Missions/dcc_mission.miz");
+
+		return { success: true };
+	}
+
+	return { success: false };
+};
+
+const loadMissionState: Campaign["loadMissionState"] = async () => {
+	const config = await misc.getUserConfig();
+
+	if (config.dcs?.available) {
+		const file = (await fs.readJSON(config.dcs.paths.savedGames + "/Missions/dcc_state.json")) as MissionState;
+
+		return file;
+	} else {
+		return undefined;
+	}
 };
 
 export const campaign: Campaign = {
@@ -67,4 +88,5 @@ export const campaign: Campaign = {
 	getDataStore,
 	save,
 	load,
+	loadMissionState,
 };

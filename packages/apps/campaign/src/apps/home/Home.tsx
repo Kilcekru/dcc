@@ -9,7 +9,7 @@ import { Header, MissionModal, Sidebar, StartMissionModal } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [state, { tick, clearPackages, saveCampaignRound }] = useContext(CampaignContext);
+	const [state, { tick, clearPackages, saveCampaignRound, notifyPackage, pause }] = useContext(CampaignContext);
 	const [tickDuration, setTickDuration] = createSignal(0);
 	const dataStore = useContext(DataContext);
 	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
@@ -54,9 +54,26 @@ export const Home = () => {
 		setTickDuration(performance.now() - start);
 	};
 
+	const clientPackageCheck = () => {
+		state.blueFaction?.packages.forEach((pkg) => {
+			const delay = state.multiplier === 1 ? 5 : state.multiplier / 10;
+			if (pkg.startTime <= state.timer + delay && !pkg.notified) {
+				const hasClient = pkg.flightGroups.some((fg) => {
+					return fg.units.some((unit) => unit.client);
+				});
+
+				if (hasClient) {
+					notifyPackage?.(pkg.id);
+					pause?.();
+				}
+			}
+		});
+	};
+
 	const interval = () => {
 		const start = performance.now();
 		if (state.multiplier === 1) {
+			clientPackageCheck();
 			tick?.(1 / 10);
 
 			saveCampaignRound?.(dataStore);
@@ -64,11 +81,13 @@ export const Home = () => {
 			const multi = state.multiplier / 10;
 
 			Array.from({ length: multi }, () => {
+				clientPackageCheck();
 				tick?.(1);
 
 				saveCampaignRound?.(dataStore);
 			});
 		}
+
 		setTickDuration(performance.now() - start);
 	};
 

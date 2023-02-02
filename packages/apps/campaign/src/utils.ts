@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
-import { CallSigns } from "./data";
-import { Scenario } from "./data/scenarios";
+import { Scenario } from "./data";
 import { MapPosition, Position, Task } from "./types";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -106,8 +106,13 @@ export const randomItem = <T>(arr: Array<T>, filterFn?: (value: T) => boolean): 
 	return filtered[random(0, filtered.length - 1)];
 };
 
-export const randomCallSign = () => {
-	return randomItem(CallSigns) ?? "Enfield";
+export const randomCallSign = (dataStore: DataStore, type: "aircraft" | "helicopter" | "awacs") => {
+	const callSigns = dataStore.callSigns?.[type];
+
+	if (callSigns == null) {
+		return "Enfield";
+	}
+	return randomItem(callSigns) ?? "Enfield";
 };
 
 export const findInside = <T>(
@@ -340,4 +345,8 @@ export const getUsableGroundUnits = (activeGroundUnits: Record<string, DcsJs.Cam
 
 export const getScenarioFaction = (coalition: DcsJs.CampaignCoalition, scenario: Scenario) => {
 	return coalition === "blue" ? scenario.blue : scenario.red;
+};
+
+export const sortAsc = <T>(a: T, b: T, fn: (o: T) => number) => {
+	return fn(a) - fn(b);
 };

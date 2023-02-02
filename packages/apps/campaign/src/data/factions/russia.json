@@ -5,15 +5,15 @@
 		"cap": ["MiG-29S"],
 		"cas": ["Su-25T"],
 		"awacs": ["A-50"],
-
 		"dead": ["Su-25T"],
 		"strike": ["Su-25T"],
 		"lightAttack": [],
 		"heliHunt": []
 	},
-	"infantries": ["Infantry AK"],
-	"vehicles": ["BMP-2"],
 	"template": {
-		"sams": ["SA-2"]
+		"sams": ["SA-2"],
+		"infantries": ["Infantry AK"],
+		"vehicles": ["BMP-2"],
+		"aaa": ["ZSU-23-4 Shilka"]
 	}
 }

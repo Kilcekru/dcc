@@ -5,15 +5,15 @@
 		"cap": ["F-16C_50"],
 		"cas": ["AH-64D_BLK_II", "A-10C_2"],
 		"awacs": ["E-3A"],
-
 		"dead": ["F-16C_50"],
 		"strike": ["F-16C_50"],
 		"lightAttack": [],
 		"heliHunt": []
 	},
-	"vehicles": ["M-2 Bradley"],
-	"infantries": ["Soldier M4"],
 	"template": {
-		"sams": ["Hawk"]
+		"sams": ["Hawk"],
+		"vehicles": ["M-2 Bradley"],
+		"infantries": ["Soldier M4"],
+		"aaa": []
 	}
 }

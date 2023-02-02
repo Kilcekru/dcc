@@ -1,5 +1,5 @@
 {
-	"name": "@kilcekru/dcc-app-campaign",
+	"name": "@kilcekru/dcc-lib-components",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
@@ -9,22 +9,13 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@kilcekru/dcc-lib-components": "workspace:*",
-		"@kilcekru/dcc-lib-rpc": "workspace:*",
 		"@zag-js/checkbox": "0.2.8",
 		"@zag-js/dialog": "0.2.7",
 		"@zag-js/editable": "0.2.8",
 		"@zag-js/pressable": "0.3.7",
 		"@zag-js/solid": "0.2.5",
 		"cnbuilder": "3.1.0",
-		"esri-leaflet": "3.0.9",
-		"fast-astar": "1.0.6",
-		"leaflet": "1.9.3",
-		"milsymbol": "2.0.0",
 		"solid-js": "1.6.2"
 	},
-	"devDependencies": {
-		"@foxdelta2/dcsjs": "0.2.131",
-		"@types/leaflet": "1.9.0"
-	}
+	"devDependencies": {}
 }

@@ -1,10 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
 import { campaignRound, createCampaign, updateFactionState } from "../logic";
-import { MissionState } from "../types";
 
 type CampaignStore = [
 	CampaignState,
@@ -13,6 +12,7 @@ type CampaignStore = [
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
+		notifyPackage?: (id: string) => void;
 		pause?: () => void;
 		resume?: () => void;
 		addPackage?: (props: {
@@ -121,6 +121,19 @@ export function CampaignProvider(props: {
 			clearPackages(factionString) {
 				setState(factionString, "packages", () => []);
 			},
+			notifyPackage(id: string) {
+				setState(
+					produce((s) => {
+						const pkg = s.blueFaction?.packages.find((pkg) => pkg.id === id);
+
+						if (pkg == null) {
+							return;
+						}
+
+						pkg.notified = true;
+					})
+				);
+			},
 			updateActiveAircrafts(factionString, aircrafts) {
 				setState(factionString, "inventory", "aircrafts", (acs) =>
 					acs.map((ac) => {
@@ -200,32 +213,16 @@ export function CampaignProvider(props: {
 							return;
 						}
 
-						s.blueFaction.packages = s.blueFaction.packages.map((pkg) => {
-							const hasFg = pkg.flightGroups.some((fg) => fg.id === flightGroupId);
+						s.blueFaction.packages.forEach((pkg) => {
+							const fg = pkg.flightGroups.find((fg) => fg.id === flightGroupId);
 
-							if (hasFg) {
-								return {
-									...pkg,
-									flightGroups: pkg.flightGroups.map((fg) => {
-										if (fg.id === flightGroupId) {
-											return {
-												...fg,
-												units: fg.units.map((unit, i) => {
-													if (i < count) {
-														return { ...unit, client: true };
-													} else {
-														return unit;
-													}
-												}),
-											};
-										} else {
-											return fg;
-										}
-									}),
-								};
-							} else {
-								return pkg;
+							if (fg == null) {
+								return;
 							}
+
+							fg.units.forEach((unit, i) => {
+								unit.client = i < count;
+							});
 						});
 					})
 				);
@@ -236,11 +233,11 @@ export function CampaignProvider(props: {
 						s.timer = state.time;
 
 						if (s.blueFaction != null) {
-							s.blueFaction = updateFactionState(s.blueFaction, s, state);
+							updateFactionState(s.blueFaction, s, state);
 						}
 
 						if (s.redFaction != null) {
-							s.redFaction = updateFactionState(s.redFaction, s, state);
+							updateFactionState(s.redFaction, s, state);
 						}
 
 						s.objectives = s.objectives.map((obj) => {

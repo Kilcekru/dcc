@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore, Faction } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data/scenarios";
@@ -7,7 +7,7 @@ import { findNearest, firstItem, objectToPosition } from "../../utils";
 
 export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
-	faction: Faction,
+	faction: DcsJs.FactionDefinition,
 	dataStore: DataStore,
 	scenario: Scenario
 ): Array<DcsJs.CampaignSam> => {
@@ -29,11 +29,12 @@ export const generateSams = (
 				return prev;
 			}
 
+			const id = createUniqueId();
 			const unit: DcsJs.CampaignUnit = {
 				alive: true,
-				id: createUniqueId(),
+				id,
 				state: "on objective",
-				displayName: vehicle.display_name,
+				displayName: `${vehicle.name}|${id}`,
 				category: vehicle.category,
 				name: vehicle.name,
 				vehicleTypes: vehicle.vehicleTypes,

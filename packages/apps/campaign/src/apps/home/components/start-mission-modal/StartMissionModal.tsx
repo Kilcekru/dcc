@@ -1,11 +1,12 @@
 import "./StartMissionModal.less";
 
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { Button, CampaignContext, Modal } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 
 export const StartMissionModal = (props: { isOpen?: boolean; onClose: () => void }) => {
 	const [state] = useContext(CampaignContext);
@@ -23,11 +24,11 @@ export const StartMissionModal = (props: { isOpen?: boolean; onClose: () => void
 	};
 
 	return (
-		<Modal isOpen={props.isOpen} onClose={() => props.onClose()}>
+		<Components.Modal isOpen={props.isOpen} onClose={() => props.onClose()}>
 			<div class="start-mission-modal">
 				<div>Start Mission</div>
-				<Button onPress={onGenerate}>Generate</Button>
+				<Components.Button onPress={onGenerate}>Generate</Components.Button>
 			</div>
-		</Modal>
+		</Components.Modal>
 	);
 };

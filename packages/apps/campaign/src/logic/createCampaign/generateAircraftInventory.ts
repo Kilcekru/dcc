@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore, Faction } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data/scenarios";
@@ -7,7 +7,7 @@ import { firstItem, getScenarioFaction, onboardNumber } from "../../utils";
 
 export const generateAircraftInventory = (
 	coalition: DcsJs.CampaignCoalition,
-	faction: Faction,
+	faction: DcsJs.FactionDefinition,
 	scenario: Scenario,
 	dataStore: DataStore
 ) => {

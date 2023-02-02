@@ -12,4 +12,5 @@ export const campaign: Campaign = {
 	getDataStore: rpc<Campaign["getDataStore"]>("campaign", "getDataStore"),
 	save: rpc<Campaign["save"]>("campaign", "save"),
 	load: rpc<Campaign["load"]>("campaign", "load"),
+	loadMissionState: rpc<Campaign["loadMissionState"]>("campaign", "loadMissionState"),
 };

@@ -63,7 +63,7 @@ export const createCampaign = (
 
 		inventory: {
 			aircrafts: generateAircraftInventory("red", redBaseFaction, scenario, dataStore),
-			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
+			groundUnits: generateGroundUnitsInventory(redBaseFaction),
 		},
 		packages: [],
 		sams: generateSams("red", redBaseFaction, dataStore, scenario),
@@ -82,6 +82,7 @@ export const createCampaign = (
 			const inventory = faction.inventory;
 			const unitType = random(1, 100) > 40 ? "vehicle" : "infantry";
 			const units = Object.values(inventory.groundUnits)
+				.filter((unit) => unit.category !== "Air Defence")
 				.filter((unit) => {
 					if (unitType === "infantry") {
 						return unit.category === "Infantry" && unit.state === "idle";

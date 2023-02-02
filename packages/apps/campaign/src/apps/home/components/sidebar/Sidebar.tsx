@@ -4,19 +4,19 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { createSignal, For, Show, useContext } from "solid-js";
 
 import { Button, CampaignContext, List, ListItem } from "../../../../components";
-import { getFlightGroups } from "../../../../utils";
+import { getFlightGroups, sortAsc } from "../../../../utils";
 import { AircraftItem } from "./AircraftItem";
 import { FlightGroupItem } from "./FlightGroupItem";
 
 export const Sidebar = () => {
 	const [state] = useContext(CampaignContext);
-	const [selectedFaction, setSelectedFaction] = createSignal<DcsJs.CampaignCoalition>("blue");
+	const [selectedFaction, setSelectedFaction] = createSignal<DcsJs.CampaignFaction | undefined>(state.blueFaction);
 	const [selectedListType, setSelectedListType] = createSignal<"flightGroups" | "aircrafts">("flightGroups");
 
 	return (
 		<div class="sidebar">
-			<Button onPress={() => setSelectedFaction("blue")}>Blue</Button>
-			<Button onPress={() => setSelectedFaction("red")}>Red</Button>
+			<Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Button>
+			<Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Button>
 			<Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Button>
 			<Button onPress={() => setSelectedListType("aircrafts")}>Aircrafts</Button>
 			<Show when={selectedListType() === "flightGroups"}>
@@ -30,9 +30,7 @@ export const Sidebar = () => {
 					</ListItem>
 
 					<For
-						each={getFlightGroups(
-							selectedFaction() === "blue" ? state.blueFaction?.packages : state.redFaction?.packages ?? []
-						)}
+						each={getFlightGroups(selectedFaction()?.packages ?? []).sort((a, b) => sortAsc(a, b, (o) => o.startTime))}
 					>
 						{(fg) => <FlightGroupItem flightGroup={fg} />}
 					</For>
@@ -48,14 +46,8 @@ export const Sidebar = () => {
 						<div>Duration</div>
 					</ListItem>
 
-					<For
-						each={
-							(selectedFaction() === "blue"
-								? state.blueFaction?.inventory.aircrafts
-								: state.redFaction?.inventory.aircrafts) ?? []
-						}
-					>
-						{(ac) => <AircraftItem aircraft={ac} />}
+					<For each={selectedFaction()?.inventory.aircrafts}>
+						{(ac) => <AircraftItem aircraft={ac} faction={selectedFaction()} />}
 					</For>
 				</List>
 			</Show>

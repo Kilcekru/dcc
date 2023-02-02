@@ -1,4 +1,4 @@
 {
 	"extends": "../../../utils/config/tsconfig.ui.json",
-	"include": ["src", "../../libs/components/src/button"]
+	"include": ["src"]
 }

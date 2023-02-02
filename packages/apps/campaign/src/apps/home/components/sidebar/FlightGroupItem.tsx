@@ -1,11 +1,11 @@
 import "./FlightGroupItem.less";
 
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { createSignal, Show, useContext } from "solid-js";
 
 import { CampaignContext, Clock, ListItem, NumberField } from "../../../../components";
-import { Card } from "../../../../components/card/Card";
 import styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup }) => {
@@ -36,7 +36,7 @@ export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup 
 
 	return (
 		<ListItem class={styles.item}>
-			<Card class={styles.card}>
+			<Components.Card class={styles.card}>
 				<div class={styles.grid} onClick={onPress}>
 					<div>{props.flightGroup.name}</div>
 					<div>
@@ -50,13 +50,16 @@ export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup 
 					</div>
 				</div>
 				<div class={cnb(styles.task, taskClass())}>{props.flightGroup.task}</div>
+				<Show when={props.flightGroup.units.some((unit) => unit.client)}>
+					<div class={styles["client-batch"]}>CLIENT</div>
+				</Show>
 				<Show when={expanded()}>
 					<div>
 						Clients{" "}
 						<NumberField value={props.flightGroup.units.filter((unit) => unit.client).length} onChange={onChange} />
 					</div>
 				</Show>
-			</Card>
+			</Components.Card>
 		</ListItem>
 	);
 };

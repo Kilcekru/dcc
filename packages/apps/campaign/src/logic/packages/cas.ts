@@ -46,6 +46,8 @@ export const generateCasPackage = (
 		return;
 	}
 
+	const isHelicopter = dataStore.aircrafts?.[firstAircraft.aircraftType]?.isHelicopter;
+
 	const startPosition =
 		firstAircraft.homeBase.type === "airdrome"
 			? dataStore.airdromes[firstAircraft.homeBase.name as DcsJs.AirdromeName]
@@ -76,7 +78,7 @@ export const generateCasPackage = (
 		endEnRouteTime + 1
 	);
 
-	const cs = generateCallSign(state);
+	const cs = generateCallSign(state, dataStore, isHelicopter ? "helicopter" : "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),

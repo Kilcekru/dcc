@@ -1,9 +1,8 @@
+import * as Components from "@kilcekru/dcc-lib-components";
 import { useContext } from "solid-js";
 
-import { Button } from "../../../../components/button";
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { Clock } from "../../../../components/Clock";
-import * as Icons from "../../../../components/icons";
 import styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
@@ -18,12 +17,12 @@ export const TimerClock = () => {
 		<div>
 			<Clock value={state.timer} />
 
-			<Button onPress={() => togglePause?.()} unstyled class={styles.icon}>
-				{state.paused ? <Icons.Play /> : <Icons.Pause />}
-			</Button>
-			<Button onPress={() => onPressMultiplier(1)}>1</Button>
-			<Button onPress={() => onPressMultiplier(60)}>60</Button>
-			<Button onPress={() => onPressMultiplier(600)}>600</Button>
+			<Components.Button onPress={() => togglePause?.()} unstyled class={styles.icon}>
+				{state.paused ? <Components.Icons.Play /> : <Components.Icons.Pause />}
+			</Components.Button>
+			<Components.Button onPress={() => onPressMultiplier(1)}>1</Components.Button>
+			<Components.Button onPress={() => onPressMultiplier(60)}>60</Components.Button>
+			<Components.Button onPress={() => onPressMultiplier(600)}>600</Components.Button>
 		</div>
 	);
 };
