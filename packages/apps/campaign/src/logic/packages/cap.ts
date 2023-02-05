@@ -47,6 +47,8 @@ export const generateCapPackage = (
 	}
 
 	if (airdromes == null) {
+		// eslint-disable-next-line no-console
+		console.error("no airdromes found");
 		return;
 	}
 
@@ -60,7 +62,7 @@ export const generateCapPackage = (
 					const nearestObjective = oppAirdromes.reduce(
 						(prev, airdrome) => {
 							const obj = findNearest(
-								state.objectives.filter((obj) => obj.coalition === coalition),
+								Object.values(state.objectives).filter((obj) => obj.coalition === coalition),
 								airdrome,
 								(obj) => obj.position
 							);
@@ -81,6 +83,8 @@ export const generateCapPackage = (
 					)[0];
 
 					if (nearestObjective == null) {
+						// eslint-disable-next-line no-console
+						console.error("no nearest objective found");
 						return [undefined, undefined];
 					} else {
 						const airdromes = faction.airdromeNames.map((name) => {
@@ -115,11 +119,11 @@ export const generateCapPackage = (
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
 	const duration = Minutes(60);
-	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
+	const startTime = Math.floor(state.timer) + Minutes(random(10, 20));
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endEnRouteTime + 1);
+	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
 
 	const cs = generateCallSign(state, dataStore, "aircraft");
 
@@ -172,7 +176,8 @@ export const generateCapPackage = (
 			name: objectiveName,
 			position: endPosition,
 			structures: [],
-			deploymentReadyTimer: 0,
+			deploymentDelay: 0,
+			deploymentTimer: 0,
 			incomingGroundGroups: {},
 		},
 	};
@@ -182,6 +187,7 @@ export const generateCapPackage = (
 	return {
 		task: "CAP" as DcsJs.Task,
 		startTime,
+		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
 		id: createUniqueId(),

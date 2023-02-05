@@ -262,10 +262,10 @@ export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.CampaignAircraft
 };
 
 export const getUsableAircraftsByType = (
-	activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined,
+	activeAircrafts: Record<string, DcsJs.CampaignAircraft> | undefined,
 	aircraftTypes: Array<string> | undefined
 ) => {
-	return activeAircrafts?.filter(
+	return Object.values(activeAircrafts ?? []).filter(
 		(aircraft) =>
 			aircraft.state === "idle" && aircraft.alive && aircraftTypes?.some((acType) => aircraft.aircraftType === acType)
 	);
@@ -291,10 +291,6 @@ export const getAircraftStateFromFlightGroup = (
 	} else {
 		return undefined;
 	}
-};
-
-export const getAircraftFromId = (activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined, id: string) => {
-	return activeAircrafts?.find((ac) => ac.id === id);
 };
 
 export const filterObjectiveCoalition = (

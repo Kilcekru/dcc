@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { distanceToPosition, firstItem, getAircraftFromId, random } from "../../utils";
+import { distanceToPosition, firstItem, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -69,19 +69,19 @@ export const a2a = (state: RunningCampaignState) => {
 
 	blueFaction.packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
-			if (fg.startTime <= state.timer) {
+			if (fg.startTime > state.timer) {
 				return;
 			}
 
 			redFaction.packages.forEach((pkg) => {
 				const oppFg = pkg.flightGroups.find((oppFg) => distanceToPosition(fg.position, oppFg.position) <= 40_000);
 
-				if (oppFg == null || oppFg.startTime <= state.timer) {
+				if (oppFg == null || oppFg.startTime > state.timer) {
 					return;
 				}
 
 				const blueAircrafts = fg.units.reduce((prev, unit) => {
-					const ac = getAircraftFromId(blueFaction.inventory.aircrafts, unit.id);
+					const ac = blueFaction.inventory.aircrafts[unit.id];
 
 					if (ac != null) {
 						return [...prev, ac];
@@ -91,7 +91,7 @@ export const a2a = (state: RunningCampaignState) => {
 				}, [] as Array<DcsJs.CampaignAircraft>);
 
 				const redAircrafts = oppFg.units.reduce((prev, unit) => {
-					const ac = getAircraftFromId(redFaction.inventory.aircrafts, unit.id);
+					const ac = redFaction.inventory.aircrafts[unit.id];
 
 					if (ac != null) {
 						return [...prev, ac];
@@ -105,7 +105,7 @@ export const a2a = (state: RunningCampaignState) => {
 				afterBattleBlueAircrafts
 					.filter((ac) => !ac.alive)
 					.forEach((aircraft) => {
-						const fAircraft = blueFaction.inventory.aircrafts.find((ac) => ac.id === aircraft.id);
+						const fAircraft = blueFaction.inventory.aircrafts[aircraft.id];
 
 						if (fAircraft == null) {
 							return;
@@ -118,7 +118,7 @@ export const a2a = (state: RunningCampaignState) => {
 				afterBattleRedAircrafts
 					.filter((ac) => !ac.alive)
 					.forEach((aircraft) => {
-						const fAircraft = redFaction.inventory.aircrafts.find((ac) => ac.id === aircraft.id);
+						const fAircraft = redFaction.inventory.aircrafts[aircraft.id];
 
 						if (fAircraft == null) {
 							return;

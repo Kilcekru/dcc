@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { distanceToPosition, getAircraftFromId, Minutes, oppositeCoalition, random } from "../../utils";
+import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -38,31 +38,23 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 
 				if (distanceToPosition(fg.position, objective.position) < 90_000 && fg.startTime + Minutes(1) < state.timer) {
 					fg.units.forEach((unit) => {
-						const aircraft = getAircraftFromId(faction.inventory.aircrafts, unit.id);
+						const aircraft = faction.inventory.aircrafts[unit.id];
 
 						if (aircraft == null) {
 							return;
 						}
 
-						fg.units.forEach((unit) => {
-							const aircraft = getAircraftFromId(faction?.inventory.aircrafts, unit.id);
-
-							if (aircraft == null) {
-								throw "aircraft not found";
+						if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
+							// Is the attack successful
+							if (random(1, 100) <= 50) {
+								destroySam(oppFaction, objective.name, state.timer);
+								console.log(`DEAD: ${aircraft.id} destroyed SAM in objective ${objective.name}`); // eslint-disable-line no-console
+							} else {
+								console.log(`DEAD: ${aircraft.id} missed SAM in objective ${objective.name}`); // eslint-disable-line no-console
 							}
 
-							if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
-								// Is the attack successful
-								if (random(1, 100) <= 50) {
-									destroySam(oppFaction, objective.name, state.timer);
-									console.log(`DEAD: ${aircraft.id} destroyed SAM in objective ${objective.name}`); // eslint-disable-line no-console
-								} else {
-									console.log(`DEAD: ${aircraft.id} missed SAM in objective ${objective.name}`); // eslint-disable-line no-console
-								}
-
-								aircraft.weaponReadyTimer = state.timer + Minutes(60);
-							}
-						});
+							aircraft.weaponReadyTimer = state.timer + Minutes(60);
+						}
 					});
 				}
 			}

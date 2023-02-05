@@ -8,11 +8,13 @@ export type Scenario = {
 		airdromeNames: Array<string>;
 		farpNames: Array<string>;
 		objectiveNames: Array<string>;
+		samNames: Array<string>;
 	};
 	red: {
 		airdromeNames: Array<string>;
 		farpNames: Array<string>;
 		objectiveNames: Array<string>;
+		samNames: Array<string>;
 	};
 };
 

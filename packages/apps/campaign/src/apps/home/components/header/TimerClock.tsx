@@ -1,18 +1,27 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import { useContext } from "solid-js";
+import { createEffect, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { Clock } from "../../../../components/Clock";
 import styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
-	const [state, { setMultiplier, togglePause, resume }] = useContext(CampaignContext);
+	const [state, { setMultiplier, togglePause, resume, pause }] = useContext(CampaignContext);
 
 	const onPressMultiplier = (multiplier: number) => {
-		setMultiplier?.(multiplier);
-		resume?.();
+		if (state.winner == null) {
+			setMultiplier?.(multiplier);
+			resume?.();
+		}
 	};
 
+	createEffect(() => {
+		if (state.winner == null) {
+			return;
+		}
+
+		pause?.();
+	});
 	return (
 		<div>
 			<Clock value={state.timer} />

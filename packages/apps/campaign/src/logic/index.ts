@@ -4,7 +4,9 @@ import { cleanupFlightGroups } from "./cleanupFlightGroups";
 import { cleanupGroundGroups } from "./cleanupGroundGroup";
 import { cleanupPackages } from "./cleanupPackages";
 import { combatRound } from "./combat";
+import { gameOver } from "./gameOver";
 import { packagesRound } from "./packages";
+import { reinforcement } from "./reinforcement";
 import { RunningCampaignState } from "./types";
 import { updateAircraftState } from "./updateAircraftState";
 import { updateFrontline } from "./updateFrontline";
@@ -25,7 +27,9 @@ export const campaignRound = (state: CampaignState, dataStore: DataStore) => {
 	combatRound(state as RunningCampaignState);
 	cleanupFlightGroups(state as RunningCampaignState);
 	cleanupGroundGroups(state as RunningCampaignState);
-	updateFrontline(state as RunningCampaignState);
+	updateFrontline(state as RunningCampaignState, dataStore);
+	reinforcement(state as RunningCampaignState);
+	gameOver(state as RunningCampaignState);
 
 	return state;
 };

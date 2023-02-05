@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { distanceToPosition, getAircraftFromId, Minutes, oppositeCoalition, random } from "../../utils";
+import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -23,7 +23,7 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 		pkg.flightGroups.forEach((fg) => {
 			if (fg.task === "CAS" && fg.objective != null && distanceToPosition(fg.position, fg.objective.position) < 3_000) {
 				fg.units.forEach((unit) => {
-					const aircraft = getAircraftFromId(faction.inventory.aircrafts, unit.id);
+					const aircraft = faction.inventory.aircrafts[unit.id];
 
 					if (aircraft == null) {
 						return;
@@ -32,9 +32,17 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 					if (aircraft.weaponReadyTimer == null) {
 						aircraft.weaponReadyTimer = state.timer + Minutes(3);
 					} else if (aircraft.weaponReadyTimer <= state.timer) {
-						const fgObjective = state.objectives.find((obj) => fg.objective?.name === obj.name);
+						if (fg.objective == null) {
+							// eslint-disable-next-line no-console
+							console.error("combat cas: flight group doesn't have a objective: " + fg.name);
+							return;
+						}
+
+						const fgObjective = state.objectives[fg.objective.name];
 
 						if (fgObjective == null) {
+							// eslint-disable-next-line no-console
+							console.error("combat cas: objective not found: " + fg.objective.name);
 							return;
 						}
 

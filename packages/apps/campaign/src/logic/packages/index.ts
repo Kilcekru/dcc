@@ -1,7 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
-import { calcFlightGroupPosition } from "../../utils";
+import { calcFlightGroupPosition, Minutes, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { generateAwacsPackage } from "./awacs";
@@ -113,9 +113,23 @@ const awacsPackages = (
 	const taskPackages = getRunningPackagesByTask(packages, "AWACS");
 
 	if (taskPackages.length < 1) {
-		const pkg = generateAwacsPackage(coalition, state, dataStore);
+		const pkg = generateAwacsPackage(coalition, state, dataStore, Math.floor(state.timer) + Minutes(random(10, 15)));
 
 		packages = addPackage(packages, pkg);
+	} else if (taskPackages.length === 1) {
+		const taskEndTime = taskPackages.reduce((prev, pkg) => {
+			if (pkg.taskEndTime < prev) {
+				return pkg.taskEndTime;
+			} else {
+				return prev;
+			}
+		}, 10000000);
+
+		if (taskEndTime < Math.floor(state.timer) + Minutes(30)) {
+			const pkg = generateAwacsPackage(coalition, state, dataStore, taskEndTime - Minutes(2));
+
+			packages = addPackage(packages, pkg);
+		}
 	}
 
 	return packages;
@@ -146,7 +160,7 @@ const strikePackages = (
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "Pinpoint Strike");
 
-	if (taskPackages.length < 1) {
+	if (taskPackages.length < 2) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);

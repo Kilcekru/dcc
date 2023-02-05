@@ -5,11 +5,13 @@
 	"blue": {
 		"airdromeNames": ["Kobuleti"],
 		"farpNames": ["Poti"],
-		"objectiveNames": ["Poti", "Siriachkoni", "Ketilari"]
+		"objectiveNames": ["Poti", "Siriachkoni", "Ketilari", "Nasakirali", "Nagomari", "Maharadze", "Konchkati"],
+		"samNames": ["Nasakirali"]
 	},
 	"red": {
 		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
 		"farpNames": [],
-		"objectiveNames": []
+		"objectiveNames": [],
+		"samNames": ["Ochkhomuri", "Sukhumi-Babushara", "Nalchik"]
 	}
 }

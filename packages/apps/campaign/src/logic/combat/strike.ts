@@ -1,20 +1,31 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { distanceToPosition, getAircraftFromId, Minutes, random } from "../../utils";
+import { distanceToPosition, Minutes, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
-const destroyStructure = (objectives: Array<DcsJs.CampaignObjective>, name: string, timer: number) => {
-	const objective = objectives.find((obj) => obj.name === name);
+const destroyStructure = (state: RunningCampaignState, structure: DcsJs.CampaignStructure) => {
+	const objective = state.objectives[structure.objectiveName];
 
 	if (objective == null) {
+		// eslint-disable-next-line no-console
+		console.error("destroy structure: objective not found", name);
 		return;
 	}
 
-	objective.structures.forEach((str) => {
-		str.alive = false;
-		str.destroyedTime = timer;
-	});
+	const objStructure = objective.structures.find((str) => str.id === structure.id);
+
+	if (objStructure == null) {
+		// eslint-disable-next-line no-console
+		console.error("destroy structure: structure not found", structure.id);
+		return;
+	}
+
+	objStructure.alive = false;
+	objStructure.destroyedTime = state.timer;
+
+	structure.alive = false;
+	structure.destroyedTime = state.timer;
 };
 
 export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
@@ -23,39 +34,37 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 	faction.packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
 			if (fg.task === "Pinpoint Strike") {
-				const objective = fg.objective;
+				const fgObjective = fg.objective;
 
-				if (objective == null) {
+				if (fgObjective == null) {
 					return;
 				}
 
-				if (distanceToPosition(fg.position, objective.position) < 5_000 && fg.startTime + Minutes(1) < state.timer) {
+				if (distanceToPosition(fg.position, fgObjective.position) < 5_000 && fg.startTime + Minutes(1) < state.timer) {
 					fg.units.forEach((unit) => {
-						const aircraft = getAircraftFromId(faction.inventory.aircrafts, unit.id);
+						const aircraft = faction.inventory.aircrafts[unit.id];
 
 						if (aircraft == null) {
 							return;
 						}
 
-						fg.units.forEach((unit) => {
-							const aircraft = getAircraftFromId(faction?.inventory.aircrafts, unit.id);
+						if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
+							const structure = fgObjective.structures.find((str) => str.alive === true);
 
-							if (aircraft == null) {
-								throw "aircraft not found";
+							if (structure == null) {
+								return;
 							}
 
-							if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
-								// Is the attack successful
-								if (random(1, 100) <= 75) {
-									destroyStructure(state.objectives, objective.name, state.timer);
-									console.log(`Strike: ${aircraft.id} destroyed structures in objective ${objective.name}`); // eslint-disable-line no-console
-								} else {
-									console.log(`Strike: ${aircraft.id} missed structures in objective ${objective.name}`); // eslint-disable-line no-console
-								}
-
-								aircraft.weaponReadyTimer = state.timer + Minutes(60);
+							// Is the attack successful
+							if (random(1, 100) <= 75) {
+								destroyStructure(state, structure);
+								console.log(`Strike: ${aircraft.id} destroyed structure ${structure.name}`); // eslint-disable-line no-console
+							} else {
+								console.log(`Strike: ${aircraft.id} missed structure ${structure.name}`); // eslint-disable-line no-console
 							}
-						});
+
+							aircraft.weaponReadyTimer = state.timer + Minutes(60);
+						}
 					});
 				}
 			}

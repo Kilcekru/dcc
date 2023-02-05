@@ -13,7 +13,6 @@ import {
 	Minutes,
 	objectToPosition,
 	positionFromHeading,
-	random,
 } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
@@ -21,7 +20,8 @@ import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, ge
 export const generateAwacsPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore
+	dataStore: DataStore,
+	startTime: number
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -51,12 +51,11 @@ export const generateAwacsPackage = (
 	const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 40_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 40_000);
-	const duration = Minutes(60);
-	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
+	const duration = Minutes(120);
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endEnRouteTime + 1);
+	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
 
 	const cs = generateCallSign(state, dataStore, "awacs");
 
@@ -111,6 +110,7 @@ export const generateAwacsPackage = (
 	return {
 		task: "AWACS" as DcsJs.Task,
 		startTime,
+		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
 		id: createUniqueId(),

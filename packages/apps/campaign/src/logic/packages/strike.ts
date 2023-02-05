@@ -48,26 +48,30 @@ export const generateStrikePackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const target = getStrikeTarget(airdrome, state.objectives, oppCoalition, oppFaction);
+	const targetObjective = getStrikeTarget(airdrome, state.objectives, oppCoalition, oppFaction);
 
 	// console.log("strike target", target);
-	if (target == null) {
+	if (targetObjective == null) {
 		return;
 	}
 
 	const speed = 170;
-	const ingressPosition = positionFromHeading(target.position, headingToPosition(target.position, airdrome), 15000);
+	const ingressPosition = positionFromHeading(
+		targetObjective.position,
+		headingToPosition(targetObjective.position, airdrome),
+		15000
+	);
 
-	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, target.position);
+	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetObjective.position);
 	const engressHeading =
 		oppAirdrome == null
-			? headingToPosition(target.position, airdrome)
-			: headingToPosition(target.position, { x: oppAirdrome.x, y: oppAirdrome.y });
-	const engressPosition = positionFromHeading(target.position, addHeading(engressHeading, 180), 20000);
+			? headingToPosition(targetObjective.position, airdrome)
+			: headingToPosition(targetObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+	const engressPosition = positionFromHeading(targetObjective.position, addHeading(engressHeading, 180), 20000);
 
 	const durationEnRoute = getDurationEnRoute(airdrome, ingressPosition, speed);
-	const durationIngress = getDurationEnRoute(ingressPosition, target.position, speed);
-	const durationEngress = getDurationEnRoute(target.position, engressPosition, speed);
+	const durationIngress = getDurationEnRoute(ingressPosition, targetObjective.position, speed);
+	const durationEngress = getDurationEnRoute(targetObjective.position, engressPosition, speed);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(30, 60));
 	const endEnRouteTime = startTime + durationEnRoute;
@@ -109,7 +113,7 @@ export const generateStrikePackage = (
 			{
 				name: "Ingress",
 				position: ingressPosition,
-				endPosition: target.position,
+				endPosition: targetObjective.position,
 				speed,
 				time: endEnRouteTime + 1,
 				endTime: endIngressTime,
@@ -117,7 +121,7 @@ export const generateStrikePackage = (
 			},
 			{
 				name: "Strike",
-				position: target.position,
+				position: targetObjective.position,
 				endPosition: engressPosition,
 				speed,
 				time: endIngressTime + 1,
@@ -134,14 +138,7 @@ export const generateStrikePackage = (
 			},
 			...landingWaypoints,
 		],
-		objective: {
-			coalition,
-			name: target.name,
-			position: target.position,
-			structures: [target],
-			deploymentReadyTimer: 0,
-			incomingGroundGroups: {},
-		},
+		objective: targetObjective,
 		position: objectToPosition(airdrome),
 	};
 
@@ -150,6 +147,7 @@ export const generateStrikePackage = (
 	return {
 		task: "Pinpoint Strike" as DcsJs.Task,
 		startTime,
+		taskEndTime: endIngressTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
 		id: createUniqueId(),

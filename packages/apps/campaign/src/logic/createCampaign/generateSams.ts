@@ -3,7 +3,7 @@ import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data/scenarios";
-import { findNearest, firstItem, objectToPosition } from "../../utils";
+import { firstItem, randomItem } from "../../utils";
 
 export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
@@ -11,7 +11,7 @@ export const generateSams = (
 	dataStore: DataStore,
 	scenario: Scenario
 ): Array<DcsJs.CampaignSam> => {
-	if (coalition === "blue" || coalition === "neutral") {
+	if (coalition === "neutral") {
 		return [];
 	}
 
@@ -59,7 +59,27 @@ export const generateSams = (
 		throw "Unknown airdromes";
 	}
 
-	const blueAirdromes = scenario.blue.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
+	const selectedTargets: DcsJs.StrikeTarget[] = [];
+
+	scenario[coalition].samNames.forEach((name) => {
+		const targets = strikeTargets[name];
+
+		if (targets == null) {
+			return;
+		}
+
+		const samTargets = targets.filter((target) => target.type === "SAM");
+
+		const selectedTarget = randomItem(samTargets);
+
+		if (selectedTarget == null) {
+			return;
+		}
+
+		selectedTargets.push(selectedTarget);
+	});
+
+	/* const blueAirdromes = scenario.blue.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
 	const redAirdromes = scenario.red.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
 
 	const sams =
@@ -89,9 +109,9 @@ export const generateSams = (
 
 	if (selectedFrontlineSam != null) {
 		selectedSams.push(selectedFrontlineSam);
-	}
+	} */
 
-	return selectedSams.map((sam) => {
+	return selectedTargets.map((sam) => {
 		const objectiveTarget = Object.entries(strikeTargets).find(([, targets]) =>
 			targets.some((target) => target.name === sam.name)
 		);

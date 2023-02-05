@@ -1,14 +1,13 @@
-import "./ListItem.less";
-
 import * as pressable from "@zag-js/pressable";
 import { normalizeProps, useMachine } from "@zag-js/solid";
+import { cnb } from "cnbuilder";
 import { createMemo, createUniqueId, JSX, Match, Switch } from "solid-js";
 
-import { optionalClass } from "../../utils";
+import style from "./ListItem.module.less";
 
 const Item = (props: { children: JSX.Element; class?: string } & JSX.HTMLAttributes<HTMLLIElement>) => {
 	return (
-		<li {...props} class={optionalClass("list-item", props.class)}>
+		<li {...props} class={cnb(props.class)}>
 			{props.children}
 		</li>
 	);
@@ -27,7 +26,7 @@ const PressableItem = (props: { children: JSX.Element; class?: string; onPress: 
 	const api = createMemo(() => pressable.connect(state, send, normalizeProps));
 
 	return (
-		<Item {...api().pressableProps} class={optionalClass("list-item--pressable", props.class)}>
+		<Item {...api().pressableProps} class={cnb(style["list-item--pressable"], props.class)}>
 			{props.children}
 		</Item>
 	);

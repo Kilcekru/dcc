@@ -29,7 +29,7 @@ type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 
 export const Map = () => {
 	let mapDiv: HTMLDivElement;
-	const objectiveMarkers: Record<string, L.Marker> = {};
+	const objectiveMarkers: Record<string, L.Marker | undefined> = {};
 	const flightGroupMarkers: Record<string, L.Marker | undefined> = {};
 	const groundGroupMarkers: Record<string, L.Marker | undefined> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
@@ -130,32 +130,46 @@ export const Map = () => {
 	};
 
 	const createObjectiveSymbols = () => {
-		state.objectives.forEach((objective) => {
+		Object.values(state.objectives).forEach((objective) => {
 			const faction = objective.coalition === "blue" ? state.blueFaction : state.redFaction;
 
 			if (faction == null) {
 				return;
 			}
 
-			if (objective.coalition === "neutral" && objectiveMarkers[objective.name] != null) {
-				removeSymbol(objectiveMarkers[objective.name]);
-			}
+			const highestGroupId = objective.structures.reduce((prev, structure) => {
+				return structure.groupId > prev ? structure.groupId : prev;
+			}, 0);
 
-			objective.structures.forEach((structure) => {
-				const mapPosition = positionToMapPosition(structure.position);
+			Array.from({ length: highestGroupId }).forEach((_, i) => {
+				const structures = objective.structures.filter((str) => str.groupId === i + 1);
 
-				if (objective.coalition !== "neutral" && structure.alive) {
-					const marker = createSymbol(mapPosition, objective.coalition === "red", false, "militaryBase")?.bindPopup(
-						structure.alive ? structure.name : `${structure.name}[DESTROYED]`
-					);
+				const structure = firstItem(structures);
 
-					if (marker != null) {
-						objectiveMarkers[structure.id] = marker;
+				if (structure == null) {
+					return;
+				}
+
+				if (structures.filter((str) => str.alive).length === 0) {
+					if (objectiveMarkers[structure.id] != null) {
+						removeSymbol(objectiveMarkers[structure.id]);
+						objectiveMarkers[structure.id] = undefined;
 					}
 				}
 
-				if (objective.coalition === "neutral" && objectiveMarkers[structure.id] != null) {
-					removeSymbol(objectiveMarkers[structure.id]);
+				const str = structures.reduce((prev, struct) => {
+					return prev + struct.name + (struct.alive ? "" : "[DESTROYED]") + "<br />";
+				}, objective.name + "<br />");
+
+				const marker = createSymbol(
+					positionToMapPosition(structure.position),
+					objective.coalition === "red",
+					false,
+					"militaryBase"
+				)?.bindPopup(str);
+
+				if (marker != null) {
+					objectiveMarkers[structure.id] = marker;
 				}
 			});
 		});
@@ -238,6 +252,42 @@ export const Map = () => {
 	};
 
 	const createSamSymbols = () => {
+		state.blueFaction?.sams.forEach((sam) => {
+			if (sam.operational) {
+				const mapPosition = positionToMapPosition(sam.position);
+				const map = leaftletMap();
+
+				if (map == null) {
+					return;
+				}
+
+				if (samCircles[sam.id] == null) {
+					const str = sam.units.reduce((prev, unit) => {
+						if (unit == null) {
+							return prev;
+						}
+
+						return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
+					}, sam.name + "<br />");
+
+					const marker = createSymbol(mapPosition, true, false, "airDefenceMissle")?.bindPopup(str);
+
+					const circle = L.circle(mapPosition, { radius: sam.range, color: "#80e0ff" }).addTo(map);
+
+					if (circle == null || marker == null) {
+						return;
+					}
+
+					samCircles[sam.id] = { circle, marker };
+				}
+			} else {
+				const samCircle = samCircles[sam.id];
+
+				removeSymbol(samCircle?.circle);
+				removeSymbol(samCircle?.marker);
+			}
+		});
+
 		state.redFaction?.sams.forEach((sam) => {
 			if (sam.operational) {
 				const mapPosition = positionToMapPosition(sam.position);
@@ -248,7 +298,15 @@ export const Map = () => {
 				}
 
 				if (samCircles[sam.id] == null) {
-					const marker = createSymbol(mapPosition, true, false, "airDefenceMissle");
+					const str = sam.units.reduce((prev, unit) => {
+						if (unit == null) {
+							return prev;
+						}
+
+						return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
+					}, sam.name + "<br />");
+
+					const marker = createSymbol(mapPosition, true, false, "airDefenceMissle")?.bindPopup(str);
 
 					const circle = L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
 

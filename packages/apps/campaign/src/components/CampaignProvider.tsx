@@ -1,6 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
-import { createContext, createEffect, createUniqueId, JSX } from "solid-js";
+import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
 import { campaignRound, createCampaign, updateFactionState } from "../logic";
@@ -15,24 +15,12 @@ type CampaignStore = [
 		notifyPackage?: (id: string) => void;
 		pause?: () => void;
 		resume?: () => void;
-		addPackage?: (props: {
-			coalition: DcsJs.CampaignCoalition;
-			task: DcsJs.Task;
-			startTime: number;
-			endTime: number;
-			airdrome: string;
-			flightGroups: Array<DcsJs.CampaignFlightGroup>;
-		}) => void;
+
 		clearPackages?: (factionString: "blueFaction" | "redFaction") => void;
 		updatePackagesState?: (factionString: "blueFaction" | "redFaction") => void;
 		updateAircraftState?: () => void;
-		updateActiveAircrafts?: (
-			factionString: "blueFaction" | "redFaction",
-			aircrafts: Array<DcsJs.CampaignAircraft>
-		) => void;
 		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		destroyStructure?: (objectiveName: string) => void;
-		destroyAircraft?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: MissionState) => void;
@@ -44,12 +32,13 @@ const initState: CampaignState = {
 	active: false,
 	campaignTime: new Date("2022-06-01").getTime(),
 	timer: 32400,
+	lastTickTimer: 32400,
 	multiplier: 1,
 	paused: false,
 	selectedFlightGroup: undefined,
 	blueFaction: undefined,
 	redFaction: undefined,
-	objectives: [],
+	objectives: {},
 	farps: [],
 };
 
@@ -71,10 +60,17 @@ export function CampaignProvider(props: {
 				setState("multiplier", multiplier);
 			},
 			tick(multiplier) {
+				setState("lastTickTimer", () => state.timer);
 				setState("timer", (prev) => prev + multiplier);
 			},
 			togglePause() {
-				setState("paused", (v) => !v);
+				setState("paused", (v) => {
+					if (state.winner == null) {
+						return !v;
+					}
+
+					return false;
+				});
 			},
 			pause() {
 				setState("paused", () => true);
@@ -82,42 +78,7 @@ export function CampaignProvider(props: {
 			resume() {
 				setState("paused", () => false);
 			},
-			addPackage({ coalition, task, startTime, endTime, flightGroups }) {
-				setState(
-					produce((s) => {
-						const faction = coalition === "blue" ? s.blueFaction : coalition === "red" ? s.redFaction : undefined;
-						if (faction != null) {
-							faction.packages.push({
-								endTime,
-								id: createUniqueId(),
-								startTime,
-								task,
-								flightGroups,
-							});
 
-							const aircraftIds = flightGroups.reduce((prev, fg) => {
-								return [...prev, ...fg.units.map((unit) => unit.id)];
-							}, [] as Array<string>);
-
-							faction["inventory"]["aircrafts"] = faction["inventory"]["aircrafts"].map((ac) => {
-								if (aircraftIds.some((id) => ac.id === id)) {
-									return {
-										...ac,
-										state: "en route",
-									};
-								} else {
-									return ac;
-								}
-							});
-							if (coalition === "blue") {
-								s.blueFaction = faction;
-							} else if (coalition === "red") {
-								s.redFaction = faction;
-							}
-						}
-					})
-				);
-			},
 			clearPackages(factionString) {
 				setState(factionString, "packages", () => []);
 			},
@@ -131,19 +92,6 @@ export function CampaignProvider(props: {
 						}
 
 						pkg.notified = true;
-					})
-				);
-			},
-			updateActiveAircrafts(factionString, aircrafts) {
-				setState(factionString, "inventory", "aircrafts", (acs) =>
-					acs.map((ac) => {
-						const updatedAircraft = aircrafts.find((a) => a.id === ac.id);
-
-						if (updatedAircraft == null) {
-							return ac;
-						} else {
-							return updatedAircraft;
-						}
 					})
 				);
 			},
@@ -168,37 +116,6 @@ export function CampaignProvider(props: {
 							};
 						} else {
 							return sam;
-						}
-					})
-				);
-			},
-			destroyStructure(objectiveName) {
-				setState(
-					produce((s) => {
-						s.objectives = s?.objectives.map((obj) => {
-							if (obj.name === objectiveName) {
-								return {
-									...obj,
-									structures: obj.structures.map((str) => ({ ...str, alive: false, destroyedTime: s.timer })),
-								};
-							} else {
-								return obj;
-							}
-						});
-					})
-				);
-			},
-			destroyAircraft(factionString, id) {
-				setState(factionString, "inventory", "aircrafts", (acs) =>
-					acs.map((ac) => {
-						if (ac.id === id) {
-							return {
-								...ac,
-								alive: false,
-								destroyedTime: state.timer,
-							};
-						} else {
-							return ac;
 						}
 					})
 				);
@@ -240,21 +157,19 @@ export function CampaignProvider(props: {
 							updateFactionState(s.redFaction, s, state);
 						}
 
-						s.objectives = s.objectives.map((obj) => {
-							return {
-								...obj,
-								structures: obj.structures.map((structure) => {
-									if (state.killed_ground_units.some((unitName) => unitName === structure.name)) {
-										return {
-											...structure,
-											alive: false,
-											destroyedTime: s.timer,
-										};
-									} else {
-										return structure;
-									}
-								}),
-							};
+						Object.values(s.objectives).forEach((objective) => {
+							objective.structures.forEach((structure) => {
+								if (structure.alive === false) {
+									return;
+								}
+
+								const isDestroyed = state.killed_ground_units.some((unitName) => unitName === structure.name);
+
+								if (isDestroyed) {
+									structure.alive = false;
+									structure.destroyedTime = s.timer;
+								}
+							});
 						});
 					})
 				);

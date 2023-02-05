@@ -71,11 +71,11 @@ export const generateCasPackage = (
 
 	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 	const endEnRouteTime = startTime + durationEnRoute;
-	const endCASTime = endEnRouteTime + 1 + casDuration;
+	const endOnStationTime = endEnRouteTime + 1 + casDuration;
 	const [, landingWaypoints, landingTime] = calcLandingWaypoints(
 		groundGroupTarget.position,
 		startPosition,
-		endEnRouteTime + 1
+		endOnStationTime + 1
 	);
 
 	const cs = generateCallSign(state, dataStore, isHelicopter ? "helicopter" : "aircraft");
@@ -112,7 +112,7 @@ export const generateCasPackage = (
 				speed,
 				duration: casDuration,
 				time: endEnRouteTime + 1,
-				endTime: endCASTime,
+				endTime: endOnStationTime,
 				taskStart: true,
 				racetrack: {
 					position: racetrackEnd,
@@ -132,6 +132,7 @@ export const generateCasPackage = (
 	return {
 		task: "CAS" as DcsJs.Task,
 		startTime,
+		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
 		id: createUniqueId(),

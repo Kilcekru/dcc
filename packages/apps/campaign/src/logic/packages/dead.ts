@@ -60,14 +60,14 @@ export const generateDeadPackage = (
 	const durationEnRoute = getDurationEnRoute(airdrome, selectedObjective.position, speed);
 	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
 
-	const startTime = Math.floor(state.timer) + Minutes(random(15, 25));
+	const startTime = Math.floor(state.timer) + Minutes(random(5, 15));
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
 
 	const [landingNavPosition, landingWaypoints, landingTime] = calcLandingWaypoints(
 		selectedObjective.position,
 		airdrome,
-		endEnRouteTime + 1
+		endIngressTime + 1
 	);
 
 	const cs = generateCallSign(state, dataStore, "aircraft");
@@ -121,7 +121,8 @@ export const generateDeadPackage = (
 			coalition: oppositeCoalition(coalition),
 			position: selectedObjective.position,
 			structures: [],
-			deploymentReadyTimer: 0,
+			deploymentDelay: 0,
+			deploymentTimer: 0,
 			incomingGroundGroups: {},
 		},
 		position: objectToPosition(airdrome),
@@ -132,6 +133,7 @@ export const generateDeadPackage = (
 	return {
 		task: "DEAD" as DcsJs.Task,
 		startTime,
+		taskEndTime: endEnRouteTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
 		id: createUniqueId(),

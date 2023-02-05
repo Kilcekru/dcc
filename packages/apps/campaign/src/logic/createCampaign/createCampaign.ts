@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 
 import { factionList } from "../../data";
 import { scenarioList } from "../../data/scenarios";
-import { firstItem, random } from "../../utils";
+import { firstItem, Minutes, random } from "../../utils";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
@@ -37,6 +37,8 @@ export const createCampaign = (
 		throw "unknown airdrome";
 	}
 
+	const blueSams = generateSams("blue", blueBaseFaction, dataStore, scenario);
+
 	state.blueFaction = {
 		...blueBaseFaction,
 		countryName: blueBaseFaction.countryName as DcsJs.CountryName,
@@ -46,8 +48,10 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
 		},
 		packages: [],
-		sams: generateSams("blue", blueBaseFaction, dataStore, scenario),
+		sams: blueSams,
 		groundGroups: [],
+		reinforcementTimer: state.timer,
+		reinforcementDelay: Minutes(30),
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -68,6 +72,8 @@ export const createCampaign = (
 		packages: [],
 		sams: generateSams("red", redBaseFaction, dataStore, scenario),
 		groundGroups: [],
+		reinforcementTimer: state.timer,
+		reinforcementDelay: Minutes(30),
 	};
 
 	state.objectives =
@@ -94,21 +100,30 @@ export const createCampaign = (
 
 			const structures = dataStore.strikeTargets?.[dataObjective.name]?.filter((target) => target.type === "Structure");
 
-			const isFrontlineObjective = structures == null || structures.length < 1;
-
-			const objective = {
+			const objective: DcsJs.CampaignObjective = {
 				name: dataObjective.name,
 				position: dataObjective.position,
-				structures: structures?.map((structure) => ({
-					id: createUniqueId(),
-					name: structure.name,
-					position: structure.position,
-					alive: true,
-				})),
+				structures:
+					structures?.map((structure) => ({
+						id: createUniqueId(),
+						name: structure.name,
+						position: structure.position,
+						unitPositions: structure.unitPositions,
+						groupId: structure.groupId,
+						objectiveName: structure.objectiveName,
+						alive: true,
+					})) ?? [],
 				coalition: isBlue ? "blue" : "red",
-			} as DcsJs.CampaignObjective;
+				deploymentDelay: isBlue ? Minutes(30) : Minutes(60),
+				deploymentTimer: state.timer,
+				incomingGroundGroups: {},
+			};
 
-			if (isFrontlineObjective) {
+			const vehicleTargets = dataStore.strikeTargets?.[dataObjective.name]?.filter(
+				(target) => target.type === "Vehicle"
+			);
+
+			if ((vehicleTargets?.length ?? 0) > 0) {
 				units.forEach((unit) => {
 					const inventoryUnit = inventory.groundUnits[unit.id];
 
@@ -123,6 +138,7 @@ export const createCampaign = (
 				faction.groundGroups.push({
 					id: createUniqueId(),
 					objective,
+					startObjective: objective,
 					position: objective.position,
 					state: "on objective",
 					unitIds: units.map((u) => u.id),
@@ -130,8 +146,9 @@ export const createCampaign = (
 				});
 			}
 
-			return [...prev, objective];
-		}, [] as Array<DcsJs.CampaignObjective>) ?? [];
+			prev[objective.name] = objective;
+			return prev;
+		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
 
 	state.active = true;
 	state.farps = [

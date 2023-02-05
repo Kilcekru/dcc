@@ -5,7 +5,7 @@ import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
-import { Header, MissionModal, Sidebar, StartMissionModal } from "./components";
+import { GameOverModal, Header, MissionModal, Sidebar, StartMissionModal } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
@@ -120,6 +120,7 @@ export const Home = () => {
 				<Map />
 				<MissionModal isOpen={showMissionModal()} onClose={() => setShowMissionModal(false)} />
 				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />
+				<GameOverModal />
 			</div>
 		</div>
 	);

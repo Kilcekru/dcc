@@ -3,21 +3,25 @@ import "./FlightGroupItem.less";
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
-import { createSignal, Show, useContext } from "solid-js";
+import { createEffect, createSignal, Show, useContext } from "solid-js";
 
-import { CampaignContext, Clock, ListItem, NumberField } from "../../../../components";
+import { CampaignContext, Clock } from "../../../../components";
 import styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup }) => {
 	const [, { selectFlightGroup, setClient }] = useContext(CampaignContext);
 	const [expanded, setExpanded] = createSignal(false);
+	const [clientCount, setClientCount] = createSignal(0);
 
+	createEffect(() => {
+		setClientCount(props.flightGroup.units.filter((unit) => unit.client).length);
+	});
 	const onPress = () => {
 		setExpanded(true);
 		selectFlightGroup?.(props.flightGroup);
 	};
 
-	const onChange = (value: number) => {
+	const updateClients = (value: number) => {
 		setClient?.(props.flightGroup.id, value);
 	};
 
@@ -35,9 +39,9 @@ export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup 
 	};
 
 	return (
-		<ListItem class={styles.item}>
-			<Components.Card class={styles.card}>
-				<div class={styles.grid} onClick={onPress}>
+		<Components.ListItem class={styles.item}>
+			<Components.Card class={styles.card} onPress={onPress}>
+				<div class={styles.grid}>
 					<div>{props.flightGroup.name}</div>
 					<div>
 						<Clock value={props.flightGroup.startTime} />
@@ -55,11 +59,15 @@ export const FlightGroupItem = (props: { flightGroup: DcsJs.CampaignFlightGroup 
 				</Show>
 				<Show when={expanded()}>
 					<div>
-						Clients{" "}
-						<NumberField value={props.flightGroup.units.filter((unit) => unit.client).length} onChange={onChange} />
+						<Show when={clientCount() === 0}>
+							<Components.Button onPress={() => updateClients(1)}>Join</Components.Button>
+						</Show>
+						<Show when={clientCount() > 0}>
+							<Components.Button onPress={() => updateClients(0)}>Leave</Components.Button>
+						</Show>
 					</div>
 				</Show>
 			</Components.Card>
-		</ListItem>
+		</Components.ListItem>
 	);
 };

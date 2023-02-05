@@ -138,5 +138,11 @@ export const generateAircraftInventory = (
 		});
 	});
 
-	return aircrafts;
+	const aircraftRecord: Record<string, DcsJs.CampaignAircraft> = {};
+
+	aircrafts.forEach((ac) => {
+		aircraftRecord[ac.id] = ac;
+	});
+
+	return aircraftRecord;
 };

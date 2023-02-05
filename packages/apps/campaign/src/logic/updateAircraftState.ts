@@ -10,7 +10,13 @@ const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: 
 };
 
 const updateFactionAircraftState = (faction: DcsJs.CampaignFaction, timer: number) => {
-	faction.inventory.aircrafts.forEach((aircraft) => {
+	Object.values(faction.inventory.aircrafts).forEach(({ id }) => {
+		const aircraft = faction.inventory.aircrafts[id];
+
+		if (aircraft == null) {
+			return;
+		}
+
 		// Is maintenance finished?
 		if (
 			aircraft.state === "maintenance" &&

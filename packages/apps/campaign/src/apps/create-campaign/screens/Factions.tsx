@@ -1,6 +1,6 @@
+import * as Components from "@kilcekru/dcc-lib-components";
 import { createSignal, For, Match, Switch } from "solid-js";
 
-import { List, ListItem } from "../../../components";
 import { factionList } from "../../../data";
 
 export const Factions = (props: { next: (blueId: string, redId: string) => void }) => {
@@ -11,29 +11,29 @@ export const Factions = (props: { next: (blueId: string, redId: string) => void 
 			<Match when={blueFactionName() == null}>
 				<div>
 					<h2>Select your Faction(blue)</h2>
-					<List>
+					<Components.List>
 						<For each={factionList} fallback={<div>Loading...</div>}>
 							{(faction) => (
-								<ListItem onPress={() => setBlueFactionName(faction.name)}>
+								<Components.ListItem onPress={() => setBlueFactionName(faction.name)}>
 									<h3>{faction.name}</h3>
-								</ListItem>
+								</Components.ListItem>
 							)}
 						</For>
-					</List>
+					</Components.List>
 				</div>
 			</Match>
 			<Match when={blueFactionName() != null}>
 				<div>
 					<h2>Select the enemy Faction(red)</h2>
-					<List>
+					<Components.List>
 						<For each={factionList} fallback={<div>Loading...</div>}>
 							{(faction) => (
-								<ListItem onPress={() => props.next(blueFactionName() ?? "", faction.name)}>
+								<Components.ListItem onPress={() => props.next(blueFactionName() ?? "", faction.name)}>
 									<h3>{faction.name}</h3>
-								</ListItem>
+								</Components.ListItem>
 							)}
 						</For>
-					</List>
+					</Components.List>
 				</div>
 			</Match>
 		</Switch>

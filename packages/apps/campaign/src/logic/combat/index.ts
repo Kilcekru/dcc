@@ -16,3 +16,5 @@ export const combatRound = (state: RunningCampaignState) => {
 	sam("red", state);
 	a2a(state);
 };
+
+export * from "./g2g";

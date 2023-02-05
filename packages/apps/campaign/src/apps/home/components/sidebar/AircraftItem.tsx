@@ -4,7 +4,6 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createEffect, createSignal } from "solid-js";
 
-import { ListItem } from "../../../../components";
 import { getFlightGroups } from "../../../../utils";
 import styles from "./FlightGroupItem.module.less";
 
@@ -20,7 +19,7 @@ export const AircraftItem = (props: {
 		);
 	});
 	return (
-		<ListItem class={styles.item}>
+		<Components.ListItem class={styles.item}>
 			<Components.Card class={styles.card}>
 				<div class={styles.grid}>
 					<div>{props.aircraft.id}</div>
@@ -30,6 +29,6 @@ export const AircraftItem = (props: {
 					<div>{flightGroup()?.name}</div>
 				</div>
 			</Components.Card>
-		</ListItem>
+		</Components.ListItem>
 	);
 };

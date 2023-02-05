@@ -1,7 +1,17 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { findInside, findNearest, getUsableGroundUnits, Minutes, random } from "../utils";
+import {
+	distanceToPosition,
+	findInside,
+	findNearest,
+	getUsableGroundUnits,
+	Minutes,
+	positionAfterDurationToPosition,
+	random,
+} from "../utils";
+import { g2g } from "./combat";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction, unitIdsToGroundUnit } from "./utils";
 
@@ -13,7 +23,7 @@ export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 		return;
 	}
 
-	state.objectives.forEach((objective) => {
+	Object.values(state.objectives).forEach((objective) => {
 		const blueGroundGroups = blueFaction.groundGroups.filter(
 			(gg) => gg.state === "on objective" && gg.objective.name === objective.name
 		);
@@ -51,15 +61,23 @@ export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 	});
 };
 
-export const deployFrontline = (state: RunningCampaignState) => {
-	state.objectives.forEach((objective) => {
-		if (objective.deploymentReadyTimer <= state.timer) {
-			const objectivesInRange = findInside(state.objectives, objective.position, (obj) => obj.position, 12_000);
+export const deployFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
+	Object.values(state.objectives).forEach((objective) => {
+		if (objective.deploymentTimer + objective.deploymentDelay <= state.timer && objective.coalition !== "neutral") {
+			const objectivesInRange = findInside(
+				Object.values(state.objectives),
+				objective.position,
+				(obj) => obj.position,
+				12_000
+			);
 
 			const neutralObjectives = objectivesInRange.filter((obj) => obj.coalition === "neutral");
+			const vehicleObjectives = neutralObjectives.filter((obj) =>
+				dataStore.strikeTargets?.[obj.name]?.some((target) => target.type === "Vehicle")
+			);
 
-			if (neutralObjectives.length > 0) {
-				const targetNeutralObjective = findNearest(neutralObjectives, objective.position, (obj) => obj.position);
+			if (vehicleObjectives.length > 0) {
+				const targetNeutralObjective = findNearest(vehicleObjectives, objective.position, (obj) => obj.position);
 
 				if (targetNeutralObjective == null) {
 					return;
@@ -84,6 +102,7 @@ export const deployFrontline = (state: RunningCampaignState) => {
 					// create ground group
 					faction.groundGroups.push({
 						id,
+						startObjective: objective,
 						objective: targetNeutralObjective,
 						position: objective.position,
 						startTime: state.timer + Minutes(random(15, 25)),
@@ -103,15 +122,57 @@ export const deployFrontline = (state: RunningCampaignState) => {
 					});
 
 					// update objective
-					objective.incomingGroundGroups[objective.coalition] = id;
-					objective.deploymentReadyTimer = state.timer + Minutes(random(40, 60));
+					targetNeutralObjective.incomingGroundGroups[objective.coalition] = id;
+					objective.deploymentTimer = state.timer;
 				}
 			}
 		}
 	});
 };
 
-export const updateFrontline = (state: RunningCampaignState) => {
+const moveFactionGroundGroups = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+	const faction = getCoalitionFaction(coalition, state);
+
+	faction.groundGroups.forEach((gg) => {
+		if (gg.state === "en route") {
+			if (distanceToPosition(gg.position, gg.objective.position) < 2_000) {
+				const objective = state.objectives[gg.objective.name];
+
+				if (objective == null) {
+					// eslint-disable-next-line no-console
+					console.error("ground group objective not found: ", gg.objective.name);
+					return;
+				}
+
+				if (objective.coalition === "neutral") {
+					objective.coalition = coalition;
+					objective.incomingGroundGroups[coalition] = undefined;
+
+					gg.state = "on objective";
+				} else if (objective.coalition === coalition) {
+					// eslint-disable-next-line no-console
+					console.error("ground groups conflict on objective: ", objective.name);
+				} else {
+					g2g(coalition, gg, state);
+				}
+			} else {
+				gg.position = positionAfterDurationToPosition(
+					gg.startObjective.position,
+					gg.objective.position,
+					state.timer - gg.startTime,
+					10
+				);
+			}
+		}
+	});
+};
+export const moveFrontline = (state: RunningCampaignState) => {
+	moveFactionGroundGroups("blue", state);
+	moveFactionGroundGroups("red", state);
+};
+
+export const updateFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
 	updateObjectivesCoalition(state);
-	deployFrontline(state);
+	deployFrontline(state, dataStore);
+	moveFrontline(state);
 };
