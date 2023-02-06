@@ -73,7 +73,7 @@ export const generateStrikePackage = (
 	const durationIngress = getDurationEnRoute(ingressPosition, targetObjective.position, speed);
 	const durationEngress = getDurationEnRoute(targetObjective.position, engressPosition, speed);
 
-	const startTime = Math.floor(state.timer) + Minutes(random(30, 60));
+	const startTime = Math.floor(state.timer) + Minutes(random(15, 30));
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
 	const endEngressTime = endIngressTime + durationEngress;
@@ -119,15 +119,15 @@ export const generateStrikePackage = (
 				endTime: endIngressTime,
 				taskStart: true,
 			},
-			{
-				name: "Strike",
-				position: targetObjective.position,
+			...targetObjective.structures.map((structure, i) => ({
+				name: targetObjective.structures.length > 1 ? `Strike #${i + 1}` : "Strike",
+				position: structure.position,
 				endPosition: engressPosition,
 				speed,
 				time: endIngressTime + 1,
 				endTime: endIngressTime + 1,
 				onGround: true,
-			},
+			})),
 			{
 				name: "Engress",
 				position: engressPosition,

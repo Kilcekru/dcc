@@ -3,7 +3,7 @@ import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-import { campaignRound, createCampaign, updateFactionState } from "../logic";
+import { campaignRound, createCampaign, missionRound, updateFactionState } from "../logic";
 
 type CampaignStore = [
 	CampaignState,
@@ -23,7 +23,7 @@ type CampaignStore = [
 		destroyStructure?: (objectiveName: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
-		submitMissionState?: (state: MissionState) => void;
+		submitMissionState?: (state: MissionState, dataStore: DataStore) => void;
 		saveCampaignRound?: (dataStore: DataStore) => void;
 	}
 ];
@@ -144,7 +144,7 @@ export function CampaignProvider(props: {
 					})
 				);
 			},
-			submitMissionState(state) {
+			submitMissionState(state, dataStore) {
 				setState(
 					produce((s) => {
 						s.timer = state.time;
@@ -171,6 +171,8 @@ export function CampaignProvider(props: {
 								}
 							});
 						});
+
+						missionRound(s, dataStore);
 					})
 				);
 			},

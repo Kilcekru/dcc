@@ -34,5 +34,22 @@ export const campaignRound = (state: CampaignState, dataStore: DataStore) => {
 	return state;
 };
 
+export const missionRound = (state: CampaignState, dataStore: DataStore) => {
+	if (state.blueFaction == null || state.redFaction == null) {
+		return state;
+	}
+
+	cleanupPackages(state as RunningCampaignState);
+	updateAircraftState(state as RunningCampaignState);
+	packagesRound(state as RunningCampaignState, dataStore);
+	cleanupFlightGroups(state as RunningCampaignState);
+	cleanupGroundGroups(state as RunningCampaignState);
+	updateFrontline(state as RunningCampaignState, dataStore);
+	reinforcement(state as RunningCampaignState);
+	gameOver(state as RunningCampaignState);
+
+	return state;
+};
+
 export * from "./contextHelper";
 export * from "./createCampaign";

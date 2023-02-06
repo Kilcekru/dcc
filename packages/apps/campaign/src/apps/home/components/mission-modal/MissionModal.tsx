@@ -5,9 +5,11 @@ import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
+import { DataContext } from "../../../../components/DataProvider";
 
 export const MissionModal = (props: { isOpen?: boolean; onClose: () => void }) => {
 	const [state, { submitMissionState }] = useContext(CampaignContext);
+	const dataStore = useContext(DataContext);
 
 	const onSubmit = async () => {
 		const missionState = await rpc.campaign.loadMissionState();
@@ -20,7 +22,7 @@ export const MissionModal = (props: { isOpen?: boolean; onClose: () => void }) =
 			return;
 		}
 
-		submitMissionState?.(missionState);
+		submitMissionState?.(missionState, dataStore);
 
 		props.onClose();
 	};
