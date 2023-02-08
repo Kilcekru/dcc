@@ -14,6 +14,7 @@
 		"sams": ["Hawk"],
 		"vehicles": ["M-2 Bradley"],
 		"infantries": ["Soldier M4"],
-		"aaa": []
+		"aaa": ["M6 Linebacker"],
+		"manpads": ["Soldier stinger"]
 	}
 }

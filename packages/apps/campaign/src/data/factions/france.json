@@ -14,6 +14,7 @@
 		"sams": ["Hawk"],
 		"vehicles": ["LAV-25"],
 		"infantries": ["Soldier M4"],
-		"aaa": ["Gepard"]
+		"aaa": ["Gepard"],
+		"manpads": ["Soldier stinger"]
 	}
 }

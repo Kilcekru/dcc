@@ -10,19 +10,20 @@
 
 .card {
 	position: relative;
-	padding-top: 40px;
-	padding-bottom: 10px;
+	padding-inline: 0px;
+	padding-top: 20px;
 }
 
 .task {
-	position: absolute;
-	top: 0px;
-	right: 0;
-	padding: 5px;
+	padding-block: 5px;
+	padding-inline: 7px;
 	background-color: var(--cas);
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	width: fit-content;
+	margin-left: 20px;
+	margin-bottom: 10px;
 }
 
 .task--cas {
@@ -46,4 +47,57 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.name {
+	font-weight: 600;
+	font-size: 16px;
+	text-align: left;
+	padding-inline: 20px;
+	margin-bottom: 10px;
+}
+
+.stats {
+	display: flex;
+	gap: 10px;
+	justify-content: space-between;
+	background-color: var(--background-hover);
+	padding: 20px;
+}
+
+.label {
+	font-size: 12px;
+	opacity: 0.8;
+	text-align: left;
+	margin: 0;
+	margin-bottom: 5px;
+}
+
+.aircrafts-wrapper {
+	padding: 20px;
+}
+
+.aircrafts {
+	display: grid;
+	grid-template-columns: 120px 1fr 1fr;
+	column-gap: 20px;
+	row-gap: 5px;
+
+	div {
+		text-align: left;
+	}
+}
+
+.clientAddButton {
+	position: absolute;
+	top: 10px;
+	right: 20px;
+	padding-block: 8px;
+}
+
+.clientRemoveButton {
+	position: absolute;
+	top: 10px;
+	right: 60px;
+	padding-block: 8px;
 }

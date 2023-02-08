@@ -86,11 +86,11 @@ export const createCampaign = (
 			}
 
 			const inventory = faction.inventory;
-			const unitType = random(1, 100) > 40 ? "vehicle" : "infantry";
+			const groupType = random(1, 100) > 40 ? "armor" : "infantry";
 			const units = Object.values(inventory.groundUnits)
 				.filter((unit) => unit.category !== "Air Defence")
 				.filter((unit) => {
-					if (unitType === "infantry") {
+					if (groupType === "infantry") {
 						return unit.category === "Infantry" && unit.state === "idle";
 					} else {
 						return unit.category !== "Infantry" && unit.state === "idle";
@@ -143,6 +143,7 @@ export const createCampaign = (
 					state: "on objective",
 					unitIds: units.map((u) => u.id),
 					startTime: state.timer,
+					groupType,
 				});
 			}
 

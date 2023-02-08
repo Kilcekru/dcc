@@ -87,7 +87,18 @@ export const deployFrontline = (state: RunningCampaignState, dataStore: DataStor
 				if (targetNeutralObjective.incomingGroundGroups[objective.coalition] == null) {
 					const faction = getCoalitionFaction(objective.coalition, state);
 
-					const availableGroundUnits = getUsableGroundUnits(faction.inventory.groundUnits);
+					const groupType = random(1, 100) > 40 ? "armor" : "infantry";
+
+					const availableGroundUnits = getUsableGroundUnits(faction.inventory.groundUnits)
+						.filter((unit) => unit.category !== "Air Defence")
+						.filter((unit) => {
+							if (groupType === "infantry") {
+								return unit.category === "Infantry" && unit.state === "idle";
+							} else {
+								return unit.category !== "Infantry" && unit.state === "idle";
+							}
+						})
+						.slice(0, random(4, 8));
 
 					if (availableGroundUnits.length < 4) {
 						return;
@@ -108,6 +119,7 @@ export const deployFrontline = (state: RunningCampaignState, dataStore: DataStor
 						startTime: state.timer + Minutes(random(15, 25)),
 						state: "en route",
 						unitIds,
+						groupType,
 					});
 
 					// update inventory

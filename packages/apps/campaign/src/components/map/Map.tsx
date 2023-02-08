@@ -15,7 +15,7 @@ const sidcUnitCode = {
 	airport: "IBA---",
 	airDefence: "UCD---",
 	airDefenceMissle: "UCDM--",
-	armour: "UCA---",
+	armor: "UCA---",
 	infantry: "UCI---",
 	armamentProduction: "IMG---",
 	attack: "MFA---",
@@ -224,20 +224,12 @@ export const Map = () => {
 				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
 			}, gg.objective.name + "<br />");
 
-			const firstUnit = faction.inventory.groundUnits[firstItem(gg.unitIds) ?? ""];
-
-			if (firstUnit == null) {
-				return;
-			}
-
-			const isArmour = firstUnit.vehicleTypes.some((vt) => vt === "Armored");
-
 			if (groundGroupMarkers[gg.id] == null) {
 				const marker = createSymbol(
 					positionToMapPosition(gg.position),
 					coalition === "red",
 					false,
-					isArmour ? "armour" : "infantry"
+					gg.groupType === "armor" ? "armor" : "infantry"
 				)?.bindPopup(str);
 
 				if (marker == null) {
@@ -247,6 +239,7 @@ export const Map = () => {
 				groundGroupMarkers[gg.id] = marker;
 			} else {
 				groundGroupMarkers[gg.id]?.setLatLng(positionToMapPosition(gg.position));
+				groundGroupMarkers[gg.id]?.setPopupContent(str);
 			}
 		});
 	};

@@ -84,4 +84,14 @@ export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignSt
 			sam.operational = false;
 		}
 	});
+
+	faction.packages.forEach((pkg) => {
+		pkg.flightGroups.forEach((fg) => {
+			fg.units.forEach((unit) => {
+				if (unit.client) {
+					unit.client = false;
+				}
+			});
+		});
+	});
 };

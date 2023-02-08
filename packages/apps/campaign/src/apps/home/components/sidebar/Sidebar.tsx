@@ -24,7 +24,7 @@ export const Sidebar = () => {
 					<For
 						each={getFlightGroups(selectedFaction()?.packages ?? []).sort((a, b) => sortAsc(a, b, (o) => o.startTime))}
 					>
-						{(fg) => <FlightGroupItem flightGroup={fg} />}
+						{(fg) => <FlightGroupItem flightGroup={fg} faction={selectedFaction()} />}
 					</For>
 				</Components.List>
 			</Show>
