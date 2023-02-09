@@ -14,7 +14,7 @@
 		"sams": ["SA-2"],
 		"infantries": ["Infantry AK"],
 		"vehicles": ["BMP-2"],
-		"aaa": ["ZSU-23-4 Shilka"],
-		"manpads": ["SA-18 Igla manpad"]
+		"shoradVehicles": ["ZSU-23-4 Shilka"],
+		"shoradInfantries": ["SA-18 Igla manpad"]
 	}
 }

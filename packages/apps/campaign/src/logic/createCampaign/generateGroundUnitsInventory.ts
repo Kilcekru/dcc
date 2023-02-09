@@ -36,19 +36,19 @@ export const generateGroundUnitsInventory = (faction: DcsJs.FactionDefinition) =
 		vehicleTypes: [],
 	};
 
-	const aaaName = firstItem(faction.template.aaa);
+	const shoradVehicleName = firstItem(faction.template.shoradVehicles);
 
-	const aaaVehicle: DcsJs.CampaignUnit | undefined =
-		aaaName == null
+	const shoradVehicle: DcsJs.CampaignUnit | undefined =
+		shoradVehicleName == null
 			? undefined
 			: {
 					id: "",
-					name: aaaName,
-					displayName: aaaName,
+					name: shoradVehicleName,
+					displayName: shoradVehicleName,
 					alive: true,
-					category: "Infantry",
+					category: "Air Defence",
 					state: "idle",
-					vehicleTypes: [],
+					vehicleTypes: ["SHORAD"],
 			  };
 
 	const groundUnits: Record<string, DcsJs.CampaignUnit> = {};
@@ -73,14 +73,14 @@ export const generateGroundUnitsInventory = (faction: DcsJs.FactionDefinition) =
 		};
 	});
 
-	if (aaaVehicle != null) {
+	if (shoradVehicle != null) {
 		Array.from({ length: 20 }, () => {
 			const id = createUniqueId();
 
 			groundUnits[id] = {
-				...aaaVehicle,
+				...shoradVehicle,
 				id,
-				displayName: `${aaaVehicle.name}|${id}`,
+				displayName: `${shoradVehicle.name}|${id}`,
 			};
 		});
 	}

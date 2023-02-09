@@ -52,6 +52,8 @@ export const createCampaign = (
 		groundGroups: [],
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
+		awacsFrequency: 285.0,
+		downedPilots: [],
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -74,6 +76,8 @@ export const createCampaign = (
 		groundGroups: [],
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
+		awacsFrequency: 280.0,
+		downedPilots: [],
 	};
 
 	state.objectives =
@@ -97,6 +101,17 @@ export const createCampaign = (
 					}
 				})
 				.slice(0, random(4, 8));
+
+			if (groupType === "armor") {
+				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
+					(unit) => unit.category === "Air Defence" && unit.state === "idle"
+				);
+				const count = random(0, 2);
+
+				const selectedADUnits = airDefenceUnits.slice(0, count);
+
+				selectedADUnits.forEach((unit) => units.push(unit));
+			}
 
 			const structures = dataStore.strikeTargets?.[dataObjective.name]?.filter((target) => target.type === "Structure");
 

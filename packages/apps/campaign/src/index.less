@@ -4,6 +4,8 @@ body {
 	font-family: Calibri, Helvetica, sans-serif;
 
 	--action: #704b91;
+	--action-hover: #835da4;
+	--action-active: #aa81cc;
 	--secondary: #bd8152;
 	--body: #ffffff;
 	--background: #27212e;
@@ -23,6 +25,20 @@ body,
 	width: 100%;
 	overflow: hidden;
 	margin: 0;
+
+	&::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+
+	&::-webkit-scrollbar-track {
+		margin-top: 2px;
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-corner {
+		display: none;
+	}
 }
 
 p {

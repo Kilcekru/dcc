@@ -150,6 +150,7 @@ export const generateStrikePackage = (
 		taskEndTime: endIngressTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
+		frequency: random(310, 343),
 		id: createUniqueId(),
 	};
 };

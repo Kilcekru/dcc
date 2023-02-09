@@ -106,6 +106,17 @@ export const deployFrontline = (state: RunningCampaignState, dataStore: DataStor
 
 					const selectedUnits = availableGroundUnits.slice(0, random(4, 8));
 
+					if (groupType === "armor") {
+						const airDefenceUnits = Object.values(faction.inventory.groundUnits).filter(
+							(unit) => unit.category === "Air Defence" && unit.state === "idle"
+						);
+						const count = random(0, 2);
+
+						const selectedADUnits = airDefenceUnits.slice(0, count);
+
+						selectedADUnits.forEach((unit) => selectedUnits.push(unit));
+					}
+
 					const unitIds = selectedUnits.map((u) => u.id);
 
 					const id = createUniqueId();

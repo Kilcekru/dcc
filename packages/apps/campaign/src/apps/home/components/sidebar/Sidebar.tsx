@@ -15,18 +15,24 @@ export const Sidebar = () => {
 
 	return (
 		<div class={style.sidebar}>
-			<Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Button>
-			<Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Button>
-			<Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Button>
-			<Button onPress={() => setSelectedListType("aircrafts")}>Aircrafts</Button>
+			<div>
+				<Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Button>
+				<Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Button>
+				<Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Button>
+				<Button onPress={() => setSelectedListType("aircrafts")}>Aircrafts</Button>
+			</div>
 			<Show when={selectedListType() === "flightGroups"}>
-				<Components.List>
-					<For
-						each={getFlightGroups(selectedFaction()?.packages ?? []).sort((a, b) => sortAsc(a, b, (o) => o.startTime))}
-					>
-						{(fg) => <FlightGroupItem flightGroup={fg} faction={selectedFaction()} />}
-					</For>
-				</Components.List>
+				<Components.ScrollContainer>
+					<Components.List class={style.sidebar__list}>
+						<For
+							each={getFlightGroups(selectedFaction()?.packages ?? []).sort((a, b) =>
+								sortAsc(a, b, (o) => o.startTime)
+							)}
+						>
+							{(fg) => <FlightGroupItem flightGroup={fg} faction={selectedFaction()} />}
+						</For>
+					</Components.List>
+				</Components.ScrollContainer>
 			</Show>
 			<Show when={selectedListType() === "aircrafts"}>
 				<Components.List>

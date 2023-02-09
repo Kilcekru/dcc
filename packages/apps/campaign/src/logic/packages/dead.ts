@@ -136,6 +136,7 @@ export const generateDeadPackage = (
 		taskEndTime: endEnRouteTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
+		frequency: random(310, 343),
 		id: createUniqueId(),
 	};
 };

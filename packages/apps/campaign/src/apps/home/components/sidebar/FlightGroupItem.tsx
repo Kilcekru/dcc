@@ -15,9 +15,7 @@ export const FlightGroupItem = (props: {
 }) => {
 	const [, { selectFlightGroup, setClient }] = useContext(CampaignContext);
 	const [clientCount, setClientCount] = createSignal(0);
-	const [aircrafts, setAircrafts] = createSignal<Array<{ callSign: string; aircraftType: string; isClient: boolean }>>(
-		[]
-	);
+	const [aircrafts, setAircrafts] = createSignal<Array<{ name: string; aircraftType: string; isClient: boolean }>>([]);
 
 	createEffect(() => {
 		setClientCount(props.flightGroup.units.filter((unit) => unit.client).length);
@@ -44,7 +42,7 @@ export const FlightGroupItem = (props: {
 	};
 
 	createEffect(() => {
-		const list: Array<{ callSign: string; aircraftType: string; isClient: boolean }> = [];
+		const list: Array<{ name: string; aircraftType: string; isClient: boolean }> = [];
 		const faction = props.faction;
 
 		if (faction?.inventory == null) {
@@ -59,7 +57,7 @@ export const FlightGroupItem = (props: {
 			}
 
 			list.push({
-				callSign: unit.callSign,
+				name: unit.name,
 				aircraftType: aircraft.aircraftType,
 				isClient: unit.client,
 			});
@@ -101,7 +99,7 @@ export const FlightGroupItem = (props: {
 						<For each={aircrafts()}>
 							{(aircraft) => (
 								<>
-									<div>{aircraft.callSign}</div>
+									<div>{aircraft.name}</div>
 									<div>{aircraft.aircraftType}</div>
 									<div>{aircraft.isClient ? "Player" : ""}</div>
 								</>

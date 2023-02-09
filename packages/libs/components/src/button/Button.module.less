@@ -11,11 +11,16 @@
 
 	&:hover {
 		box-shadow: var(--shadow);
+		background-color: var(--action-hover);
 	}
 
 	&:active,
 	&:focus-visible {
 		outline: unset;
+	}
+
+	&:active {
+		background-color: var(--action-active);
 	}
 }
 
