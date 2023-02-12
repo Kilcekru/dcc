@@ -86,7 +86,7 @@ export const Home = () => {
 			<Header showMissionModal={() => setShowMissionModal(true)} />
 			<Sidebar />
 			<div class={styles.content}>
-				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
+				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000, display: "none" }}>
 					<Button onPress={onReset}>Reset</Button>
 					<Button onPress={onClearPackages}>Clear Packages</Button>
 					<Button onPress={onLog}>Log State</Button>

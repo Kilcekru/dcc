@@ -1,8 +1,9 @@
 {
 	"countryName": "USA",
-	"name": "USA 2005",
+	"name": "USA",
+	"year": 2004,
 	"aircraftTypes": {
-		"cap": ["F-16C_50"],
+		"cap": ["F-15C"],
 		"cas": ["A-10C_2"],
 		"awacs": ["E-3A"],
 		"dead": ["F-16C_50"],
@@ -15,6 +16,7 @@
 		"vehicles": ["M-2 Bradley"],
 		"infantries": ["Soldier M4"],
 		"shoradVehicles": ["M6 Linebacker"],
-		"shoradInfantries": ["Soldier stinger"]
+		"shoradInfantries": ["Soldier stinger"],
+		"ews": ["FPS-117"]
 	}
 }

@@ -1,9 +1,14 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { createUniqueId } from "solid-js";
 
-import { firstItem } from "../../utils";
+import { Scenario } from "../../data";
+import { firstItem, randomItem } from "../../utils";
 
-export const generateGroundUnitsInventory = (faction: DcsJs.FactionDefinition) => {
+export const generateGroundUnitsInventory = (
+	faction: DcsJs.FactionDefinition,
+	coalition: DcsJs.CampaignCoalition,
+	scenario: Scenario
+) => {
 	const vehicleName = firstItem(faction.template.vehicles);
 
 	if (vehicleName == null) {
@@ -84,6 +89,27 @@ export const generateGroundUnitsInventory = (faction: DcsJs.FactionDefinition) =
 			};
 		});
 	}
+
+	scenario[coalition === "blue" ? "blue" : "red"].ewNames.forEach(() => {
+		const name = randomItem(faction.template.ews);
+
+		if (name == null) {
+			return;
+		}
+
+		const id = createUniqueId();
+		const unit: DcsJs.CampaignUnit = {
+			id,
+			name: name,
+			displayName: `${name}|${id}`,
+			alive: true,
+			category: "Air Defence",
+			state: "idle",
+			vehicleTypes: ["Unarmored", "EW"],
+		};
+
+		groundUnits[id] = unit;
+	});
 
 	return groundUnits;
 };

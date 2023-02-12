@@ -10,14 +10,7 @@ import { isEmpty } from "./utils";
 const App = () => {
 	const [state] = useContext(CampaignContext);
 	return (
-		<Show
-			when={state.active === true}
-			fallback={
-				<div>
-					<CreateCampaign />
-				</div>
-			}
-		>
+		<Show when={state.active === true} fallback={<CreateCampaign />}>
 			<Home />
 		</Show>
 	);

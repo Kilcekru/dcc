@@ -1,6 +1,7 @@
 {
 	"countryName": "France",
-	"name": "France 2005",
+	"name": "France",
+	"year": 2004,
 	"aircraftTypes": {
 		"cap": ["M-2000C"],
 		"cas": ["SA342M"],
@@ -15,6 +16,7 @@
 		"vehicles": ["LAV-25"],
 		"infantries": ["Soldier M4"],
 		"shoradVehicles": ["Gepard"],
-		"shoradInfantries": ["Soldier stinger"]
+		"shoradInfantries": ["Soldier stinger"],
+		"ews": ["FPS-117"]
 	}
 }

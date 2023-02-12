@@ -15,7 +15,7 @@ export const Sidebar = () => {
 
 	return (
 		<div class={style.sidebar}>
-			<div>
+			<div style={{ display: "none" }}>
 				<Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Button>
 				<Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Button>
 				<Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Button>

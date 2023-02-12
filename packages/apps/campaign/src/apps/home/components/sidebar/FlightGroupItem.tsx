@@ -7,6 +7,7 @@ import { cnb } from "cnbuilder";
 import { createEffect, createSignal, For, Show, useContext } from "solid-js";
 
 import { CampaignContext, Clock } from "../../../../components";
+import { DataContext } from "../../../../components/DataProvider";
 import styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: {
@@ -14,6 +15,7 @@ export const FlightGroupItem = (props: {
 	faction: DcsJs.CampaignFaction | undefined;
 }) => {
 	const [, { selectFlightGroup, setClient }] = useContext(CampaignContext);
+	const dataStore = useContext(DataContext);
 	const [clientCount, setClientCount] = createSignal(0);
 	const [aircrafts, setAircrafts] = createSignal<Array<{ name: string; aircraftType: string; isClient: boolean }>>([]);
 
@@ -21,7 +23,7 @@ export const FlightGroupItem = (props: {
 		setClientCount(props.flightGroup.units.filter((unit) => unit.client).length);
 	});
 	const onPress = () => {
-		selectFlightGroup?.(props.flightGroup);
+		selectFlightGroup?.({ ...props.flightGroup });
 	};
 
 	const updateClients = (value: number) => {
@@ -100,7 +102,10 @@ export const FlightGroupItem = (props: {
 							{(aircraft) => (
 								<>
 									<div>{aircraft.name}</div>
-									<div>{aircraft.aircraftType}</div>
+									<div>
+										{dataStore.aircrafts?.[aircraft.aircraftType as DcsJs.AircraftType]?.display_name ??
+											aircraft.aircraftType}
+									</div>
 									<div>{aircraft.isClient ? "Player" : ""}</div>
 								</>
 							)}

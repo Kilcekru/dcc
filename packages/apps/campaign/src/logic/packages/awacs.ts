@@ -3,19 +3,18 @@ import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import {
-	addHeading,
 	calcPackageEndTime,
 	distanceToPosition,
 	firstItem,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
-	headingToPosition,
 	Minutes,
 	objectToPosition,
-	positionFromHeading,
+	oppositeCoalition,
 } from "../../utils";
+import { awacsTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
+import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
 
 export const generateAwacsPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -24,6 +23,7 @@ export const generateAwacsPackage = (
 	startTime: number
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
+	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 
 	if (faction == null || dataStore?.airdromes == null) {
 		return;
@@ -45,12 +45,14 @@ export const generateAwacsPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, airdrome);
-	const endPosition = positionFromHeading(airdrome, headingToPosition(oppAirdrome, airdrome), 20000);
-	const durationEnRoute = getDurationEnRoute(airdrome, endPosition, speed);
-	const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
-	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 40_000);
-	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 40_000);
+	const raceTracks = awacsTarget(coalition, state.objectives, faction, oppFaction, dataStore);
+
+	if (raceTracks == null) {
+		return;
+	}
+
+	const [racetrackStart, racetrackEnd] = raceTracks;
+	const durationEnRoute = getDurationEnRoute(airdrome, racetrackStart, speed);
 	const duration = Minutes(120);
 
 	const endEnRouteTime = startTime + durationEnRoute;

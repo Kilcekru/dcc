@@ -1,6 +1,7 @@
 {
 	"countryName": "Russia",
-	"name": "Russia 2005",
+	"name": "Russia",
+	"year": 2004,
 	"aircraftTypes": {
 		"cap": ["MiG-29S"],
 		"cas": ["Su-25T"],
@@ -15,6 +16,7 @@
 		"infantries": ["Infantry AK"],
 		"vehicles": ["BMP-2"],
 		"shoradVehicles": ["ZSU-23-4 Shilka"],
-		"shoradInfantries": ["SA-18 Igla manpad"]
+		"shoradInfantries": ["SA-18 Igla manpad"],
+		"ews": ["1L13 EWR"]
 	}
 }

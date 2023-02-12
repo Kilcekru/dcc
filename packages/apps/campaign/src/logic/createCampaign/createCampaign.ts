@@ -5,6 +5,7 @@ import { createUniqueId } from "solid-js";
 import { factionList } from "../../data";
 import { scenarioList } from "../../data/scenarios";
 import { firstItem, Minutes, random } from "../../utils";
+import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
@@ -45,7 +46,7 @@ export const createCampaign = (
 		airdromeNames: scenario.blue.airdromeNames as DcsJs.AirdromeName[],
 		inventory: {
 			aircrafts: generateAircraftInventory("blue", blueBaseFaction, scenario, dataStore),
-			groundUnits: generateGroundUnitsInventory(blueBaseFaction),
+			groundUnits: generateGroundUnitsInventory(blueBaseFaction, "blue", scenario),
 		},
 		packages: [],
 		sams: blueSams,
@@ -54,6 +55,7 @@ export const createCampaign = (
 		reinforcementDelay: Minutes(30),
 		awacsFrequency: 285.0,
 		downedPilots: [],
+		ews: [], // will be filled with addEWs()
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -69,7 +71,7 @@ export const createCampaign = (
 
 		inventory: {
 			aircrafts: generateAircraftInventory("red", redBaseFaction, scenario, dataStore),
-			groundUnits: generateGroundUnitsInventory(redBaseFaction),
+			groundUnits: generateGroundUnitsInventory(redBaseFaction, "red", scenario),
 		},
 		packages: [],
 		sams: generateSams("red", redBaseFaction, dataStore, scenario),
@@ -78,6 +80,7 @@ export const createCampaign = (
 		reinforcementDelay: Minutes(30),
 		awacsFrequency: 280.0,
 		downedPilots: [],
+		ews: [], // will be filled with addEWs()
 	};
 
 	state.objectives =
@@ -104,7 +107,7 @@ export const createCampaign = (
 
 			if (groupType === "armor") {
 				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
-					(unit) => unit.category === "Air Defence" && unit.state === "idle"
+					(unit) => unit.vehicleTypes.find((vt) => vt === "SHORAD") && unit.state === "idle"
 				);
 				const count = random(0, 2);
 
@@ -165,6 +168,8 @@ export const createCampaign = (
 			prev[objective.name] = objective;
 			return prev;
 		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
+
+	addEWs(state, scenario);
 
 	state.active = true;
 	state.farps = [

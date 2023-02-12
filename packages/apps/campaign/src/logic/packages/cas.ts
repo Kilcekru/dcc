@@ -32,7 +32,7 @@ export const generateCasPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction.inventory.aircrafts, faction.aircraftTypes.cas);
+	let usableAircrafts = getUsableAircraftsByType(faction.inventory.aircrafts, faction.aircraftTypes.cas);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -42,13 +42,13 @@ export const generateCasPackage = (
 
 	const selectedAircrafts = usableAircrafts.filter((ac) => ac.aircraftType === firstAircraft?.aircraftType);
 
-	if (firstAircraft == null || selectedAircrafts == null || selectedAircrafts.length === 0) {
+	if (firstAircraft == null || selectedAircrafts == null || selectedAircrafts.length < 2) {
 		return;
 	}
 
-	const isHelicopter = dataStore.aircrafts?.[firstAircraft.aircraftType]?.isHelicopter;
+	let isHelicopter = dataStore.aircrafts?.[firstAircraft.aircraftType]?.isHelicopter;
 
-	const startPosition =
+	let startPosition =
 		firstAircraft.homeBase.type === "airdrome"
 			? dataStore.airdromes[firstAircraft.homeBase.name as DcsJs.AirdromeName]
 			: firstItem(dataStore.farps?.[firstAircraft.homeBase.name])?.position;
@@ -63,6 +63,37 @@ export const generateCasPackage = (
 		return;
 	}
 
+	if (groundGroupTarget.groupType === "infantry") {
+		const usableLightAircrafts = getUsableAircraftsByType(
+			faction.inventory.aircrafts,
+			faction.aircraftTypes.lightAttack
+		);
+
+		if (usableLightAircrafts.length >= 2) {
+			const firstLightAircraft = firstItem(usableAircrafts);
+
+			const selectedFirstAircrafts = usableLightAircrafts.filter(
+				(ac) => ac.aircraftType === firstLightAircraft?.aircraftType
+			);
+
+			if (firstLightAircraft == null || selectedFirstAircrafts == null || selectedFirstAircrafts.length < 2) {
+				return;
+			}
+
+			const startLightPosition =
+				firstLightAircraft.homeBase.type === "airdrome"
+					? dataStore.airdromes[firstLightAircraft.homeBase.name as DcsJs.AirdromeName]
+					: firstItem(dataStore.farps?.[firstLightAircraft.homeBase.name])?.position;
+
+			if (startLightPosition == null) {
+				return;
+			}
+
+			isHelicopter = dataStore.aircrafts?.[firstLightAircraft.aircraftType]?.isHelicopter;
+			usableAircrafts = usableLightAircrafts;
+			startPosition = startLightPosition;
+		}
+	}
 	const headingObjectiveToAirdrome = headingToPosition(groundGroupTarget.position, startPosition);
 	const racetrackStart = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome - 90, 7500);
 	const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);

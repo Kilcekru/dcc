@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { oppositeCoalition, random } from "../../utils";
+import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -12,11 +12,11 @@ const hasStillAliveUnits = (groundGroup: DcsJs.CampaignGroundGroup, faction: Dcs
 	});
 };
 
-const g2gBattle = (
+export const g2gBattle = (
 	blueGroundGroup: DcsJs.CampaignGroundGroup,
 	redGroundGroup: DcsJs.CampaignGroundGroup,
 	state: RunningCampaignState
-): DcsJs.CampaignCoalition => {
+) => {
 	if (random(1, 100) <= 50) {
 		console.log(`Ground: ${blueGroundGroup.id} destroyed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
 
@@ -67,11 +67,36 @@ const g2gBattle = (
 	const redAlive = hasStillAliveUnits(redGroundGroup, state.redFaction);
 
 	if (blueAlive && redAlive) {
-		return g2gBattle(blueGroundGroup, redGroundGroup, state);
+		blueGroundGroup.combatTimer = state.timer + Minutes(3);
+		blueGroundGroup.state = "combat";
+		redGroundGroup.combatTimer = state.timer + Minutes(3);
+		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
-		return "blue";
+		blueGroundGroup.state = "on objective";
+		const objective = state.objectives[blueGroundGroup.objective.name];
+
+		if (objective == null) {
+			// eslint-disable-next-line no-console
+			console.error("objective not found", blueGroundGroup);
+			return;
+		}
+
+		objective.coalition = "blue";
+		objective.incomingGroundGroups["blue"] = undefined;
+		objective.incomingGroundGroups["red"] = undefined;
 	} else {
-		return "red";
+		redGroundGroup.state = "on objective";
+		const objective = state.objectives[redGroundGroup.objective.name];
+
+		if (objective == null) {
+			// eslint-disable-next-line no-console
+			console.error("objective not found", redGroundGroup);
+			return;
+		}
+
+		objective.coalition = "red";
+		objective.incomingGroundGroups["blue"] = undefined;
+		objective.incomingGroundGroups["red"] = undefined;
 	}
 };
 

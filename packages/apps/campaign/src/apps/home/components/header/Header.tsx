@@ -38,9 +38,7 @@ export const Header = (props: { showMissionModal: () => void }) => {
 
 	return (
 		<div class={styles.header}>
-			<h1>
-				{state.blueFaction?.name} vs {state.redFaction?.name}
-			</h1>
+			<h1 class={styles.title}>Red Waters</h1>
 			<div>
 				<TimerClock />
 			</div>
