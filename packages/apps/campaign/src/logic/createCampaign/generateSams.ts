@@ -3,22 +3,22 @@ import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data/scenarios";
-import { firstItem, randomItem } from "../../utils";
+import { firstItem, random, randomItem } from "../../utils";
 
 export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
-	faction: DcsJs.FactionDefinition,
+	faction: DcsJs.CampaignFaction,
 	dataStore: DataStore,
 	scenario: Scenario
-): Array<DcsJs.CampaignSam> => {
+) => {
 	if (coalition === "neutral") {
-		return [];
+		return;
 	}
 
 	const samTemplate = dataStore.samTemplates?.[(firstItem(faction.template.sams) ?? "SA-2") as DcsJs.SAMType];
 
 	if (samTemplate == null) {
-		return [];
+		return;
 	}
 
 	const templateVehicles =
@@ -26,6 +26,8 @@ export const generateSams = (
 			const vehicle = dataStore.vehicles?.[name];
 
 			if (vehicle == null) {
+				// eslint-disable-next-line no-console
+				console.error("vehicle not found", name);
 				return prev;
 			}
 
@@ -79,39 +81,22 @@ export const generateSams = (
 		selectedTargets.push(selectedTarget);
 	});
 
-	/* const blueAirdromes = scenario.blue.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
-	const redAirdromes = scenario.red.airdromeNames.map((name) => airdromes[name as DcsJs.AirdromeName]);
+	const units = Object.values(faction.inventory.groundUnits)
+		.filter((unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && unit.state === "idle")
+		.slice(0, random(1, 2));
 
-	const sams =
-		strikeTargets == null
-			? []
-			: Object.values(strikeTargets).reduce((prev, targets) => {
-					return [...prev, ...targets.filter((target) => target.type === "SAM")];
-			  }, [] as Array<DcsJs.StrikeTarget>);
+	units.forEach((unit) => {
+		const inventoryUnit = faction.inventory.groundUnits[unit.id];
 
-	const selectedSams = redAirdromes.reduce((prev, airdrome) => {
-		const nearestSam = findNearest(sams, objectToPosition(airdrome), (sam) => sam.position);
-
-		if (nearestSam == null) {
-			return prev;
-		} else {
-			return [...prev, nearestSam];
+		if (inventoryUnit == null) {
+			return;
 		}
-	}, [] as Array<DcsJs.StrikeTarget>);
 
-	const firstBlueAirdrome = firstItem(blueAirdromes);
+		inventoryUnit.state = "on objective";
+		templateVehicles.push(unit);
+	});
 
-	if (firstBlueAirdrome == null) {
-		throw "Unknown blue airdrome";
-	}
-
-	const selectedFrontlineSam = findNearest(sams, objectToPosition(firstBlueAirdrome), (sam) => sam.position);
-
-	if (selectedFrontlineSam != null) {
-		selectedSams.push(selectedFrontlineSam);
-	} */
-
-	return selectedTargets.map((sam) => {
+	faction.sams = selectedTargets.map((sam) => {
 		const objectiveTarget = Object.entries(strikeTargets).find(([, targets]) =>
 			targets.some((target) => target.name === sam.name)
 		);

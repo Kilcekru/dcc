@@ -2,6 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
+import { Position } from "../../types";
 import {
 	addHeading,
 	calcPackageEndTime,
@@ -19,6 +20,104 @@ import { getStrikeTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
 
+const speed = 170;
+
+const calcHoldWaypoint = (
+	startPosition: Position,
+	targetPosition: Position,
+	startTime: number
+): [DcsJs.CampaignWaypoint, Position, number] => {
+	const targetHeading = headingToPosition(startPosition, targetPosition);
+
+	const holdPosition = positionFromHeading(startPosition, targetHeading, 20_000);
+
+	const durationEnRoute = getDurationEnRoute(startPosition, holdPosition, speed);
+	const endTime = startTime + durationEnRoute;
+	const holdEndTime = endTime + Minutes(2);
+
+	const waypoint: DcsJs.CampaignWaypoint = {
+		name: "Hold",
+		position: holdPosition,
+		time: startTime,
+		speed,
+		duration: Minutes(2),
+	};
+
+	return [waypoint, holdPosition, holdEndTime];
+};
+
+const escortFlightGroup = (
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+	dataStore: DataStore,
+	targetFlightGroup: DcsJs.CampaignFlightGroup,
+	ingressPosition: Position,
+	engressPosition: Position,
+	engressTime: number
+) => {
+	const faction = getCoalitionFaction(coalition, state);
+
+	if (faction == null || dataStore.airdromes == null) {
+		return;
+	}
+
+	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.cap);
+
+	if (usableAircrafts == null || usableAircrafts.length === 0) {
+		return;
+	}
+
+	const airdromeName = firstItem(faction.airdromeNames);
+
+	if (airdromeName == null) {
+		throw `airdrome not found: ${airdromeName ?? ""}`;
+	}
+
+	const airdrome = dataStore.airdromes[airdromeName];
+
+	let cs = generateCallSign(coalition, state, dataStore, "aircraft");
+
+	while(cs.flightGroupName === targetFlightGroup.name) {
+		cs = generateCallSign(coalition, state, dataStore, "aircraft");
+	}
+
+	const [holdWaypoint] = calcHoldWaypoint(airdrome, ingressPosition, targetFlightGroup.startTime);
+	const [landingWaypoints] = calcLandingWaypoints(engressPosition, airdrome, engressTime);
+
+	holdWaypoint.taskStart = true;
+
+	const flightGroup: DcsJs.CampaignFlightGroup = {
+		id: createUniqueId(),
+		airdromeName,
+		units:
+			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+				id: aircraft.id,
+				callSign: cs.unitCallSign(i),
+				name: cs.unitName(i),
+				client: false,
+			})) ?? [],
+		name: cs.flightGroupName,
+		task: "Escort",
+		startTime: targetFlightGroup.startTime,
+		tot: targetFlightGroup.tot,
+		landingTime: targetFlightGroup.landingTime,
+		waypoints: [
+			{
+				name: "Take Off",
+				position: objectToPosition(airdrome),
+				time: targetFlightGroup.startTime,
+				speed,
+				onGround: true,
+			},
+			holdWaypoint,
+			...landingWaypoints,
+		],
+		target: targetFlightGroup.name,
+		position: objectToPosition(airdrome),
+	};
+
+	return flightGroup;
+};
 export const generateStrikePackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
@@ -55,7 +154,6 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const speed = 170;
 	const ingressPosition = positionFromHeading(
 		targetObjective.position,
 		headingToPosition(targetObjective.position, airdrome),
@@ -69,21 +167,20 @@ export const generateStrikePackage = (
 			: headingToPosition(targetObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const engressPosition = positionFromHeading(targetObjective.position, addHeading(engressHeading, 180), 20000);
 
-	const durationEnRoute = getDurationEnRoute(airdrome, ingressPosition, speed);
 	const durationIngress = getDurationEnRoute(ingressPosition, targetObjective.position, speed);
 	const durationEngress = getDurationEnRoute(targetObjective.position, engressPosition, speed);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(15, 30));
-	const endEnRouteTime = startTime + durationEnRoute;
+
+	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(airdrome, ingressPosition, startTime);
+	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, speed);
+	const endEnRouteTime = holdTime + durationEnRoute;
+	const totTime = endEnRouteTime + 1;
 	const endIngressTime = endEnRouteTime + durationIngress;
 	const endEngressTime = endIngressTime + durationEngress;
-	const [landingNavPosition, landingWaypoints, landingTime] = calcLandingWaypoints(
-		engressPosition,
-		airdrome,
-		endEngressTime + 1
-	);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, airdrome, endEngressTime + 1);
 
-	const cs = generateCallSign(state, dataStore, "aircraft");
+	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
@@ -91,50 +188,43 @@ export const generateStrikePackage = (
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
-				callSign: `${cs.unit}${i + 1}`,
-				name: `${cs.flightGroup}-${i + 1}`,
+				callSign: cs.unitCallSign(i),
+				name: cs.unitName(i),
 				client: false,
 			})) ?? [],
-		name: cs.flightGroup,
+		name: cs.flightGroupName,
 		task: "Pinpoint Strike",
 		startTime,
-		tot: endEnRouteTime + 1,
+		tot: totTime,
 		landingTime: landingTime,
 		waypoints: [
 			{
 				name: "Take Off",
 				position: objectToPosition(airdrome),
-				endPosition: ingressPosition,
 				time: startTime,
-				endTime: endEnRouteTime,
 				speed,
 				onGround: true,
 			},
+			holdWaypoint,
 			{
 				name: "Ingress",
 				position: ingressPosition,
-				endPosition: targetObjective.position,
 				speed,
 				time: endEnRouteTime + 1,
-				endTime: endIngressTime,
 				taskStart: true,
 			},
 			...targetObjective.structures.map((structure, i) => ({
 				name: targetObjective.structures.length > 1 ? `Strike #${i + 1}` : "Strike",
 				position: structure.position,
-				endPosition: engressPosition,
 				speed,
 				time: endIngressTime + 1,
-				endTime: endIngressTime + 1,
 				onGround: true,
 			})),
 			{
 				name: "Engress",
 				position: engressPosition,
-				endPosition: landingNavPosition,
 				speed,
 				time: endIngressTime + 2,
-				endTime: endEngressTime,
 			},
 			...landingWaypoints,
 		],
@@ -142,7 +232,8 @@ export const generateStrikePackage = (
 		position: objectToPosition(airdrome),
 	};
 
-	const flightGroups = [flightGroup];
+	const escort = escortFlightGroup(coalition, state, dataStore, flightGroup,  ingressPosition, engressPosition, endEngressTime);
+	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];
 
 	return {
 		task: "Pinpoint Strike" as DcsJs.Task,

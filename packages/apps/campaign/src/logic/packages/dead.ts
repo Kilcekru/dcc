@@ -64,13 +64,13 @@ export const generateDeadPackage = (
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
 
-	const [landingNavPosition, landingWaypoints, landingTime] = calcLandingWaypoints(
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(
 		selectedObjective.position,
 		airdrome,
 		endIngressTime + 1
 	);
 
-	const cs = generateCallSign(state, dataStore, "aircraft");
+	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
@@ -78,11 +78,11 @@ export const generateDeadPackage = (
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
-				callSign: `${cs.unit}${i + 1}`,
-				name: `${cs.flightGroup}-${i + 1}`,
+				callSign: cs.unitCallSign(i),
+				name: cs.unitName(i),
 				client: false,
 			})) ?? [],
-		name: cs.flightGroup,
+		name: cs.flightGroupName,
 		task: "DEAD",
 		startTime,
 		tot: endEnRouteTime + 1,
@@ -91,27 +91,21 @@ export const generateDeadPackage = (
 			{
 				name: "Take Off",
 				position: objectToPosition(airdrome),
-				endPosition: ingressPosition,
 				time: startTime,
-				endTime: endEnRouteTime,
 				speed,
 				onGround: true,
 			},
 			{
 				name: "Ingress",
 				position: selectedObjective.position,
-				endPosition: objectToPosition(airdrome),
 				speed,
 				time: endEnRouteTime + 1,
-				endTime: endIngressTime,
 				taskStart: true,
 			},
 			{
 				name: "DEAD",
 				position: selectedObjective.position,
-				endPosition: landingNavPosition,
 				time: endEnRouteTime + 1,
-				endTime: endEnRouteTime + 1,
 				speed,
 			},
 			...landingWaypoints,

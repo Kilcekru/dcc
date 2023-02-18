@@ -123,9 +123,9 @@ export const generateCapPackage = (
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
 
-	const cs = generateCallSign(state, dataStore, "aircraft");
+	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
@@ -133,11 +133,11 @@ export const generateCapPackage = (
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
-				callSign: `${cs.unit}${i + 1}`,
-				name: `${cs.flightGroup}-${i + 1}`,
+				callSign: cs.unitCallSign(i),
+				name: cs.unitName(i),
 				client: false,
 			})) ?? [],
-		name: cs.flightGroup,
+		name: cs.flightGroupName,
 		task: "CAP",
 		startTime,
 		tot: endEnRouteTime + 1,
@@ -146,20 +146,16 @@ export const generateCapPackage = (
 			{
 				name: "Take Off",
 				position: objectToPosition(airdrome),
-				endPosition: racetrackStart,
 				time: startTime,
-				endTime: endEnRouteTime,
 				speed,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				endPosition: racetrackEnd,
 				speed,
 				duration,
 				time: endEnRouteTime + 1,
-				endTime: endOnStationTime,
 				taskStart: true,
 				racetrack: {
 					position: racetrackEnd,
@@ -171,15 +167,7 @@ export const generateCapPackage = (
 			...landingWaypoints,
 		],
 		position: objectToPosition(airdrome),
-		objective: {
-			coalition: oppositeCoalition(coalition),
-			name: objectiveName,
-			position: endPosition,
-			structures: [],
-			deploymentDelay: 0,
-			deploymentTimer: 0,
-			incomingGroundGroups: {},
-		},
+		target: objectiveName
 	};
 
 	const flightGroups = [flightGroup];
@@ -192,5 +180,5 @@ export const generateCapPackage = (
 		flightGroups,
 		frequency: random(310, 343),
 		id: createUniqueId(),
-	};
+			};
 };

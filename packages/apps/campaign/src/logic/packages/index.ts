@@ -10,10 +10,10 @@ import { generateCasPackage } from "./cas";
 import { generateDeadPackage } from "./dead";
 import { generateStrikePackage } from "./strike";
 
-const updatePackagesState = (packages: Array<DcsJs.CampaignPackage>, timer: number) => {
+const updatePackagesState = (packages: Array<DcsJs.CampaignPackage>, timer: number, dataStore: DataStore) => {
 	packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
-			const position = calcFlightGroupPosition(fg, timer, 170);
+			const position = calcFlightGroupPosition(fg, timer, 170, dataStore);
 
 			if (position == null) {
 				return;
@@ -73,7 +73,7 @@ const capPackages = (
 			(pkg) =>
 				pkg.task === "CAP" &&
 				pkg.flightGroups.some((fg) => {
-					return fg.objective?.name === airdromeName;
+					return fg.target === airdromeName;
 				})
 		);
 
@@ -90,7 +90,7 @@ const capPackages = (
 			(pkg) =>
 				pkg.task === "CAP" &&
 				pkg.flightGroups.some((fg) => {
-					return fg.objective?.name === "Frontline";
+					return fg.target === "Frontline";
 				})
 		);
 
@@ -175,7 +175,7 @@ const factionPackagesTick = (
 	dataStore: DataStore,
 	faction: DcsJs.CampaignFaction
 ) => {
-	updatePackagesState(faction.packages, state.timer);
+	updatePackagesState(faction.packages, state.timer, dataStore);
 	casPackages(coalition, state, dataStore, faction.packages);
 	capPackages(coalition, state, dataStore, faction.packages);
 	awacsPackages(coalition, state, dataStore, faction.packages);

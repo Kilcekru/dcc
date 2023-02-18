@@ -57,9 +57,9 @@ export const generateAwacsPackage = (
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [, landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
 
-	const cs = generateCallSign(state, dataStore, "awacs");
+	const cs = generateCallSign(coalition, state, dataStore, "awacs");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
@@ -67,11 +67,11 @@ export const generateAwacsPackage = (
 		units:
 			usableAircrafts?.slice(0, 1).map((aircraft, i) => ({
 				id: aircraft.id,
-				callSign: `${cs.unit}${i + 1}`,
-				name: `${cs.flightGroup}-${i + 1}`,
+				callSign: cs.unitCallSign(i),
+				name: cs.unitName(i),
 				client: false,
 			})) ?? [],
-		name: cs.flightGroup,
+		name: cs.flightGroupName,
 		task: "AWACS",
 		startTime,
 		tot: endEnRouteTime + 1,
@@ -80,19 +80,15 @@ export const generateAwacsPackage = (
 			{
 				name: "Take Off",
 				position: objectToPosition(airdrome),
-				endPosition: racetrackStart,
 				time: startTime,
-				endTime: endEnRouteTime,
 				speed,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				endPosition: objectToPosition(airdrome),
 				speed,
 				time: endEnRouteTime + 1,
-				endTime: endOnStationTime,
 				duration,
 				taskStart: true,
 				racetrack: {

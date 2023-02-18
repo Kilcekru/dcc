@@ -74,7 +74,7 @@ export const a2a = (state: RunningCampaignState) => {
 			}
 
 			redFaction.packages.forEach((pkg) => {
-				const oppFg = pkg.flightGroups.find((oppFg) => distanceToPosition(fg.position, oppFg.position) <= 40_000);
+				const oppFg = pkg.flightGroups.find((oppFg) => oppFg.startTime < state.timer && distanceToPosition(fg.position, oppFg.position) <= 40_000);
 
 				if (oppFg == null || oppFg.startTime > state.timer) {
 					return;

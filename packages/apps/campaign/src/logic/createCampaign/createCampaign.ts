@@ -38,8 +38,6 @@ export const createCampaign = (
 		throw "unknown airdrome";
 	}
 
-	const blueSams = generateSams("blue", blueBaseFaction, dataStore, scenario);
-
 	state.blueFaction = {
 		...blueBaseFaction,
 		countryName: blueBaseFaction.countryName as DcsJs.CountryName,
@@ -49,7 +47,7 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction, "blue", scenario),
 		},
 		packages: [],
-		sams: blueSams,
+		sams: [], // will be filled later
 		groundGroups: [],
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
@@ -74,7 +72,7 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(redBaseFaction, "red", scenario),
 		},
 		packages: [],
-		sams: generateSams("red", redBaseFaction, dataStore, scenario),
+		sams: [], // will be filled later
 		groundGroups: [],
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
@@ -170,6 +168,8 @@ export const createCampaign = (
 		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
 
 	addEWs(state, scenario);
+	generateSams("blue", state.blueFaction, dataStore, scenario);
+	generateSams("red", state.redFaction, dataStore, scenario);
 
 	state.active = true;
 	state.farps = [

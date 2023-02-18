@@ -110,9 +110,17 @@ export const randomCallSign = (dataStore: DataStore, type: "aircraft" | "helicop
 	const callSigns = dataStore.callSigns?.[type];
 
 	if (callSigns == null) {
-		return "Enfield";
+		return {
+			name: "Enfield",
+			index: 1,
+		};
 	}
-	return randomItem(callSigns) ?? "Enfield";
+	const selected = randomItem(callSigns) ?? "Enfield";
+
+	return {
+		name: selected,
+		index: callSigns.indexOf(selected) ?? 1,
+	};
 };
 
 export const findInside = <T>(
@@ -189,20 +197,47 @@ export const positionAfterDurationToPosition = (
 };
 
 export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) => {
-	return fg.waypoints.find((wp) => wp.time <= timer && wp.endTime >= timer);
+	return fg.waypoints.reduce((prev, wp) => {
+		if (prev == null) {
+			return wp;
+		}
+
+		if (wp.time <= timer) {
+			return wp;
+		}
+
+		return prev;
+	}, undefined as DcsJs.CampaignWaypoint | undefined);
 };
 
-export const calcFlightGroupPosition = (fg: DcsJs.CampaignFlightGroup, timer: number, speed: number) => {
+export const getNextWaypoint = (fg: DcsJs.CampaignFlightGroup, waypoint: DcsJs.CampaignWaypoint) => {
+	return fg.waypoints[fg.waypoints.indexOf(waypoint) + 1];
+};
+
+export const calcFlightGroupPosition = (
+	fg: DcsJs.CampaignFlightGroup,
+	timer: number,
+	speed: number,
+	dataStore: DataStore
+) => {
+	if (fg.startTime >= timer) {
+		return;
+	}
+	
 	const activeWaypoint = getActiveWaypoint(fg, timer);
 
 	if (activeWaypoint == null) {
 		return;
 	}
 
+	const nextWaypoint = getNextWaypoint(fg, activeWaypoint);
+
+	const airdrome = dataStore.airdromes?.[fg.airdromeName];
+
 	if (activeWaypoint?.racetrack == null) {
 		return positionAfterDurationToPosition(
 			activeWaypoint.position,
-			activeWaypoint.endPosition,
+			nextWaypoint?.position ?? airdrome ?? activeWaypoint.position,
 			timer - activeWaypoint.time,
 			speed
 		);

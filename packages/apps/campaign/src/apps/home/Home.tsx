@@ -1,6 +1,6 @@
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
-import { createEffect, createSignal, onCleanup, useContext } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
@@ -14,10 +14,12 @@ export const Home = () => {
 	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
 	const [showMissionModal, setShowMissionModal] = createSignal(false);
 	let inter: number;
+	let tickFinished = true;
+	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
 
 	const onReset = () => {
 		rpc.campaign.save({} as CampaignState).catch((err) => {
-			console.log("RPC error", err); // eslint-disable-line no-console
+			console.error("RPC error", err); // eslint-disable-line no-console
 		});
 	};
 
@@ -51,24 +53,25 @@ export const Home = () => {
 	};
 
 	const interval = () => {
-		if (state.multiplier === 1) {
+		if (tickFinished === true) {
+			tickFinished = false;
+			const tickValue = state.multiplier === 1 ? 1 : 10;
+
 			clientPackageCheck();
-			tick?.(1 / 10);
+			tick?.(tickValue);
 
 			saveCampaignRound?.(dataStore);
+			tickFinished = true;
 		} else {
-			const multi = state.multiplier / 10;
-
-			Array.from({ length: multi }, () => {
-				clientPackageCheck();
-				tick?.(1);
-
-				saveCampaignRound?.(dataStore);
-			});
+			// eslint-disable-next-line no-console
+			console.warn("tick skipped");
 		}
 	};
 
-	const startInterval = () => (inter = window.setInterval(interval, 100));
+	const startInterval = () => {
+		window.clearInterval(inter);
+		inter = window.setInterval(interval, intervalTimeout());
+	};
 	const stopInterval = () => window.clearInterval(inter);
 
 	createEffect(() => {
@@ -86,7 +89,7 @@ export const Home = () => {
 			<Header showMissionModal={() => setShowMissionModal(true)} />
 			<Sidebar />
 			<div class={styles.content}>
-				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000, display: "none" }}>
+				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
 					<Button onPress={onReset}>Reset</Button>
 					<Button onPress={onClearPackages}>Clear Packages</Button>
 					<Button onPress={onLog}>Log State</Button>

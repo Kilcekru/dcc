@@ -79,7 +79,7 @@ export const generateGroundUnitsInventory = (
 	});
 
 	if (shoradVehicle != null) {
-		Array.from({ length: 20 }, () => {
+		Array.from({ length: 30 }, () => {
 			const id = createUniqueId();
 
 			groundUnits[id] = {

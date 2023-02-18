@@ -103,13 +103,13 @@ export const generateCasPackage = (
 	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + casDuration;
-	const [, landingWaypoints, landingTime] = calcLandingWaypoints(
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(
 		groundGroupTarget.position,
 		startPosition,
 		endOnStationTime + 1
 	);
 
-	const cs = generateCallSign(state, dataStore, isHelicopter ? "helicopter" : "aircraft");
+	const cs = generateCallSign(coalition, state, dataStore, isHelicopter ? "helicopter" : "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
@@ -117,11 +117,11 @@ export const generateCasPackage = (
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
-				callSign: `${cs.unit}${i + 1}`,
-				name: `${cs.flightGroup}-${i + 1}`,
+				callSign: cs.unitCallSign(i),
+				name: cs.unitName(i),
 				client: false,
 			})) ?? [],
-		name: cs.flightGroup,
+		name: cs.flightGroupName,
 		task: "CAS",
 		startTime,
 		tot: endEnRouteTime + 1,
@@ -130,20 +130,16 @@ export const generateCasPackage = (
 			{
 				name: "Take Off",
 				position: objectToPosition(startPosition),
-				endPosition: racetrackStart,
 				time: startTime,
-				endTime: endEnRouteTime,
 				speed,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				endPosition: objectToPosition(startPosition),
 				speed,
 				duration: casDuration,
 				time: endEnRouteTime + 1,
-				endTime: endOnStationTime,
 				taskStart: true,
 				racetrack: {
 					position: racetrackEnd,
@@ -154,7 +150,6 @@ export const generateCasPackage = (
 			},
 			...landingWaypoints,
 		],
-		objective: groundGroupTarget.objective,
 		position: objectToPosition(startPosition),
 	};
 

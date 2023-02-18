@@ -187,6 +187,10 @@ export const Map = () => {
 				return;
 			}
 
+			if (fg.startTime >= state.timer) {
+				return;
+			}
+
 			const str = `${coalition === "red" ? "[R]" : "[B]"}${fg.name} - ${fg.task}`;
 
 			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";

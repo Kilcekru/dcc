@@ -10,6 +10,7 @@ import {
 	headingToPosition,
 	oppositeCoalition,
 	positionFromHeading,
+	random,
 	randomCallSign,
 } from "../utils";
 import { RunningCampaignState } from "./types";
@@ -27,8 +28,9 @@ export const getCoalitionFaction = (coalition: DcsJs.CampaignCoalition, state: R
 const calcNumber = (
 	state: RunningCampaignState,
 	base: string,
+	index: number,
 	number: number
-): { flightGroup: string; unit: string } => {
+): { flightGroup: string; unit: { name: string; index: number; number: number } } => {
 	const tmp = `${base}-${number}`;
 
 	const fgs = [...getFlightGroups(state.blueFaction.packages), ...getFlightGroups(state.redFaction.packages)];
@@ -38,21 +40,41 @@ const calcNumber = (
 	if (callSignFg == null) {
 		return {
 			flightGroup: tmp,
-			unit: `${base}${number}`,
+			unit: {
+				name: base,
+				index,
+				number,
+			},
 		};
 	}
 
-	return calcNumber(state, base, number + 1);
+	return calcNumber(state, base, index, number + 1);
 };
 
 export const generateCallSign = (
+	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: DataStore,
 	type: "aircraft" | "helicopter" | "awacs"
 ) => {
-	const base = randomCallSign(dataStore, type);
+	const { name, index } = randomCallSign(dataStore, type);
 
-	return calcNumber(state, base, 1);
+	const number = calcNumber(state, name, index, 1);
+
+	return {
+		unitCallSign: (index: number) => {
+			return coalition === "blue"
+				? {
+						"1": number.unit.index,
+						"2": number.unit.number,
+						"3": index + 1,
+						name: `${number.unit.name}${number.unit.number}${index + 1}`,
+				  }
+				: random(100, 999);
+		},
+		unitName: (index: number) => `${number.flightGroup}-${index + 1}`,
+		flightGroupName: number.flightGroup,
+	};
 };
 
 const landingNavPosition = (engressPosition: Position, airdromePosition: Position) => {
@@ -64,7 +86,7 @@ export const calcLandingWaypoints = (
 	engressPosition: Position,
 	airdromePosition: Position,
 	startTime: number
-): [Position, Array<DcsJs.CampaignWaypoint>, number] => {
+): [Array<DcsJs.CampaignWaypoint>, number] => {
 	const navPosition = landingNavPosition(engressPosition, airdromePosition);
 	const durationNav = getDurationEnRoute(engressPosition, navPosition, speed);
 	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, speed);
@@ -72,23 +94,18 @@ export const calcLandingWaypoints = (
 	const endLandingTime = endNavTime + 1 + durationLanding;
 
 	return [
-		navPosition,
 		[
 			{
 				name: "Nav",
 				position: navPosition,
-				endPosition: airdromePosition,
 				speed,
 				time: startTime,
-				endTime: endNavTime,
 			},
 			{
 				name: "Landing",
 				position: airdromePosition,
-				endPosition: airdromePosition,
 				speed,
 				time: endNavTime + 1,
-				endTime: endLandingTime,
 				onGround: true,
 			},
 		],
