@@ -167,7 +167,7 @@ export const generateCapPackage = (
 			...landingWaypoints,
 		],
 		position: objectToPosition(airdrome),
-		target: objectiveName
+		target: objectiveName,
 	};
 
 	const flightGroups = [flightGroup];
@@ -180,5 +180,5 @@ export const generateCapPackage = (
 		flightGroups,
 		frequency: random(310, 343),
 		id: createUniqueId(),
-			};
+	};
 };

@@ -77,7 +77,7 @@ const escortFlightGroup = (
 
 	let cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
-	while(cs.flightGroupName === targetFlightGroup.name) {
+	while (cs.flightGroupName === targetFlightGroup.name) {
 		cs = generateCallSign(coalition, state, dataStore, "aircraft");
 	}
 
@@ -232,7 +232,15 @@ export const generateStrikePackage = (
 		position: objectToPosition(airdrome),
 	};
 
-	const escort = escortFlightGroup(coalition, state, dataStore, flightGroup,  ingressPosition, engressPosition, endEngressTime);
+	const escort = escortFlightGroup(
+		coalition,
+		state,
+		dataStore,
+		flightGroup,
+		ingressPosition,
+		engressPosition,
+		endEngressTime
+	);
 	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];
 
 	return {

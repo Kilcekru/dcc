@@ -223,7 +223,7 @@ export const calcFlightGroupPosition = (
 	if (fg.startTime >= timer) {
 		return;
 	}
-	
+
 	const activeWaypoint = getActiveWaypoint(fg, timer);
 
 	if (activeWaypoint == null) {
