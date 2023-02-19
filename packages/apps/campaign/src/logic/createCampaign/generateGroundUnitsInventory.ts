@@ -38,7 +38,7 @@ export const generateGroundUnitsInventory = (
 		alive: true,
 		category: "Infantry",
 		state: "idle",
-		vehicleTypes: [],
+		vehicleTypes: ["Infantry"],
 	};
 
 	const shoradVehicleName = firstItem(faction.template.shoradVehicles);
@@ -55,6 +55,21 @@ export const generateGroundUnitsInventory = (
 					state: "idle",
 					vehicleTypes: ["SHORAD"],
 			  };
+
+	const shoradInfantryName = firstItem(faction.template.shoradInfantries);
+
+	const shoradInfantry: DcsJs.CampaignUnit | undefined =
+	shoradInfantryName == null
+			? undefined
+			: {
+					id: "",
+					name: shoradInfantryName,
+					displayName: shoradInfantryName,
+					alive: true,
+					category: "Air Defence",
+					state: "idle",
+					vehicleTypes: ["SHORAD", "Infantry"],
+						};
 
 	const groundUnits: Record<string, DcsJs.CampaignUnit> = {};
 
@@ -86,6 +101,18 @@ export const generateGroundUnitsInventory = (
 				...shoradVehicle,
 				id,
 				displayName: `${shoradVehicle.name}|${id}`,
+			};
+		});
+	}
+
+	if (shoradInfantry != null) {
+		Array.from({ length: 30 }, () => {
+			const id = createUniqueId();
+
+			groundUnits[id] = {
+				...shoradInfantry,
+				id,
+				displayName: `${shoradInfantry.name}|${id}`,
 			};
 		});
 	}

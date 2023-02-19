@@ -105,9 +105,18 @@ export const createCampaign = (
 
 			if (groupType === "armor") {
 				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
-					(unit) => unit.vehicleTypes.find((vt) => vt === "SHORAD") && unit.state === "idle"
+					(unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && !unit.vehicleTypes.some((vt) => vt === "Infantry") && unit.state === "idle"
 				);
-				const count = random(0, 2);
+				const count = random(0, 100) > 10 ? random(1, 2) : 0;
+
+				const selectedADUnits = airDefenceUnits.slice(0, count);
+
+				selectedADUnits.forEach((unit) => units.push(unit));
+			} else if (groupType === "infantry") {
+				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
+					(unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && unit.vehicleTypes.some((vt) => vt === "Infantry") && unit.state === "idle"
+				);
+				const count = random(0, 100) > 50 ? random(1, 2) : 0;
 
 				const selectedADUnits = airDefenceUnits.slice(0, count);
 
