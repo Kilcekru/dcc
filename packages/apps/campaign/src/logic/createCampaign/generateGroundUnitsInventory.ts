@@ -59,7 +59,7 @@ export const generateGroundUnitsInventory = (
 	const shoradInfantryName = firstItem(faction.template.shoradInfantries);
 
 	const shoradInfantry: DcsJs.CampaignUnit | undefined =
-	shoradInfantryName == null
+		shoradInfantryName == null
 			? undefined
 			: {
 					id: "",
@@ -69,7 +69,7 @@ export const generateGroundUnitsInventory = (
 					category: "Air Defence",
 					state: "idle",
 					vehicleTypes: ["SHORAD", "Infantry"],
-						};
+			  };
 
 	const groundUnits: Record<string, DcsJs.CampaignUnit> = {};
 

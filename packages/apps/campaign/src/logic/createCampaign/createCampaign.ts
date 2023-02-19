@@ -105,7 +105,10 @@ export const createCampaign = (
 
 			if (groupType === "armor") {
 				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
-					(unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && !unit.vehicleTypes.some((vt) => vt === "Infantry") && unit.state === "idle"
+					(unit) =>
+						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
+						!unit.vehicleTypes.some((vt) => vt === "Infantry") &&
+						unit.state === "idle"
 				);
 				const count = random(0, 100) > 10 ? random(1, 2) : 0;
 
@@ -114,7 +117,10 @@ export const createCampaign = (
 				selectedADUnits.forEach((unit) => units.push(unit));
 			} else if (groupType === "infantry") {
 				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
-					(unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && unit.vehicleTypes.some((vt) => vt === "Infantry") && unit.state === "idle"
+					(unit) =>
+						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
+						unit.vehicleTypes.some((vt) => vt === "Infantry") &&
+						unit.state === "idle"
 				);
 				const count = random(0, 100) > 50 ? random(1, 2) : 0;
 
