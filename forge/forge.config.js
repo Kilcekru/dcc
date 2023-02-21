@@ -11,7 +11,7 @@ module.exports = {
 			name: "@electron-forge/maker-squirrel",
 			config: {
 				name: "DCC",
-				title: "DCS Crew Chief",
+				title: "Digital Crew Chief",
 				exe: "DCC.exe",
 			},
 		},

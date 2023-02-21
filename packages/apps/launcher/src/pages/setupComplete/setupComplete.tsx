@@ -8,7 +8,7 @@ export const SetupComplete = (props: SetupCompleteProps) => {
 			<h2>Installation successfull</h2>
 			<div>
 				<p>Digital Crew Chief has been installed.</p>
-				<p>A shortcut to start is has been placed on your Desktop.</p>
+				<p>A shortcut to start DCC has been placed on your Desktop.</p>
 				<p>You can now delete the setup file.</p>
 			</div>
 			<div>

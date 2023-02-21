@@ -2,7 +2,7 @@
 	"name": "@kilcekru/dcc-forge",
 	"productName": "DCC",
 	"version": "0.1.0",
-	"description": "DCS Crew Chief",
+	"description": "Digital Crew Chief",
 	"private": true,
 	"license": "MIT",
 	"main": "dist/chief/index.js",
