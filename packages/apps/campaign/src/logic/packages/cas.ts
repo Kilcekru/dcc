@@ -151,6 +151,7 @@ export const generateCasPackage = (
 			...landingWaypoints,
 		],
 		position: objectToPosition(startPosition),
+		target: groundGroupTarget.id,
 	};
 
 	const flightGroups = [flightGroup];

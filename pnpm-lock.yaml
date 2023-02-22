@@ -26,7 +26,7 @@ importers:
 
   packages/apps/campaign:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.195
+      '@foxdelta2/dcsjs': 0.2.198
       '@kilcekru/dcc-lib-components': workspace:*
       '@kilcekru/dcc-lib-rpc': workspace:*
       '@types/leaflet': 1.9.0
@@ -56,7 +56,7 @@ importers:
       milsymbol: 2.0.0
       solid-js: 1.6.2
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.195
+      '@foxdelta2/dcsjs': 0.2.198
       '@types/leaflet': 1.9.0
 
   packages/apps/launcher:
@@ -69,7 +69,7 @@ importers:
 
   packages/chief/core:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.195
+      '@foxdelta2/dcsjs': 0.2.198
       '@kilcekru/dcc-shared-rpc-types': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.11.10
@@ -79,7 +79,7 @@ importers:
       fs-extra: ^11.1.0
       regedit: ^5.1.1
     dependencies:
-      '@foxdelta2/dcsjs': 0.2.195
+      '@foxdelta2/dcsjs': 0.2.198
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
       fs-extra: 11.1.0
@@ -124,9 +124,9 @@ importers:
 
   packages/shared/rpc-types:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.195
+      '@foxdelta2/dcsjs': 0.2.198
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.195
+      '@foxdelta2/dcsjs': 0.2.198
 
   utils/build:
     specifiers:
@@ -514,8 +514,8 @@ packages:
       - supports-color
     dev: true
 
-  /@foxdelta2/dcsjs/0.2.195:
-    resolution: {integrity: sha512-mWmj2s5d+IH8nfwAbUQLK4yQZOzdhV8LMwUQXgQ2eDe1m1EbmnwtlrBTBax5m1alo0d4IO4Zv3o9I7J73XZg4w==}
+  /@foxdelta2/dcsjs/0.2.198:
+    resolution: {integrity: sha512-5embsFgEu2L3tuGBgF2/OawONh/4Fo43rnuZU5XuiCEy9mOFX8Am8TLmL9lce7m6lppb5GUGjiNJyjXDBWQXQQ==}
     dependencies:
       '@kilcekru/lua-table': 1.0.0
       adm-zip: 0.5.10

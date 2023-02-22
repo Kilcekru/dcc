@@ -67,15 +67,23 @@ export const getStrikeTarget = (
 		return;
 	}
 
-	const highestGroupId = objective.structures.reduce((prev, structure) => {
+	const aliveStructures = objective.structures.filter((str) => str.alive)
+
+	const highestGroupId = aliveStructures.reduce((prev, structure) => {
 		return structure.groupId > prev ? structure.groupId : prev;
 	}, 0);
 
 	const groupId = random(1, highestGroupId);
 
+	let selectedStructures = objective.structures.filter((str) => str.groupId === groupId)
+
+	if (selectedStructures.length < 1) {
+		selectedStructures = objective.structures.filter((str) => str.groupId === highestGroupId)
+	}
+
 	return {
 		...objective,
-		structures: objective.structures.filter((str) => str.groupId === groupId),
+		structures: selectedStructures,
 	};
 };
 
