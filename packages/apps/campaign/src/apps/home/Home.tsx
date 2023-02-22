@@ -37,8 +37,8 @@ export const Home = () => {
 	};
 
 	const clientPackageCheck = () => {
-		let tickValue: number | undefined = undefined
-		
+		let tickValue: number | undefined = undefined;
+
 		state.blueFaction?.packages.forEach((pkg) => {
 			if (pkg.startTime <= state.timer + 21 && !pkg.notified) {
 				const hasClient = pkg.flightGroups.some((fg) => {
@@ -48,12 +48,12 @@ export const Home = () => {
 				if (hasClient) {
 					notifyPackage?.(pkg.id);
 					pause?.();
-					tickValue = pkg.startTime - state.timer
+					tickValue = pkg.startTime - state.timer;
 				}
 			}
 		});
 
-		return tickValue
+		return tickValue;
 	};
 
 	const interval = () => {
