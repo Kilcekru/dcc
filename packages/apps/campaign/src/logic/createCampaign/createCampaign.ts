@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 
 import { factionList } from "../../data";
 import { scenarioList } from "../../data/scenarios";
-import { firstItem, Minutes, random } from "../../utils";
+import { firstItem, getUsableUnit, Minutes, random } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
@@ -112,7 +112,9 @@ export const createCampaign = (
 				);
 				const count = random(0, 100) > 10 ? random(1, 2) : 0;
 
-				const selectedADUnits = airDefenceUnits.slice(0, count);
+				const usableADUnits = getUsableUnit(airDefenceUnits, "name", count);
+
+				const selectedADUnits = usableADUnits.slice(0, count);
 
 				selectedADUnits.forEach((unit) => units.push(unit));
 			} else if (groupType === "infantry") {
@@ -122,9 +124,12 @@ export const createCampaign = (
 						unit.vehicleTypes.some((vt) => vt === "Infantry") &&
 						unit.state === "idle"
 				);
+
 				const count = random(0, 100) > 50 ? random(1, 2) : 0;
 
-				const selectedADUnits = airDefenceUnits.slice(0, count);
+				const usableADUnits = getUsableUnit(airDefenceUnits, "name", count);
+
+				const selectedADUnits = usableADUnits.slice(0, count);
 
 				selectedADUnits.forEach((unit) => units.push(unit));
 			}

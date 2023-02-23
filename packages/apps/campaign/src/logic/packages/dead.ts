@@ -31,7 +31,7 @@ export const generateDeadPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.dead);
+	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.dead, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;

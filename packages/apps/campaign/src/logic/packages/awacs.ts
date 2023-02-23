@@ -29,7 +29,7 @@ export const generateAwacsPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.awacs);
+	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.awacs, 1);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;

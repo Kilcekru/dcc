@@ -61,7 +61,7 @@ const escortFlightGroup = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.cap);
+	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.cap, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -132,7 +132,7 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.strike);
+	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.strike, 2);
 	// console.log("usable aircrafts", usableAircrafts);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {

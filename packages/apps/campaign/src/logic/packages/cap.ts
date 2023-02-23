@@ -39,7 +39,13 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction.aircraftTypes.cap);
+	const aircraftCount = random(2, 4);
+
+	const usableAircrafts = getUsableAircraftsByType(
+		faction?.inventory.aircrafts,
+		faction.aircraftTypes.cap,
+		aircraftCount
+	);
 	const airdromes = dataStore.airdromes;
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {

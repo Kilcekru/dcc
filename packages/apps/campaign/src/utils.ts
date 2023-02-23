@@ -298,12 +298,27 @@ export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.CampaignAircraft
 
 export const getUsableAircraftsByType = (
 	activeAircrafts: Record<string, DcsJs.CampaignAircraft> | undefined,
-	aircraftTypes: Array<string> | undefined
+	aircraftTypes: Array<string> | undefined,
+	count: number
 ) => {
-	return Object.values(activeAircrafts ?? []).filter(
+	const aircrafts = Object.values(activeAircrafts ?? []).filter(
 		(aircraft) =>
 			aircraft.state === "idle" && aircraft.alive && aircraftTypes?.some((acType) => aircraft.aircraftType === acType)
 	);
+
+	return getUsableUnit(aircrafts, "aircraftType", count);
+};
+
+export const getUsableUnit = <T>(units: Array<T>, typeParam: keyof T, count: number) => {
+	const usableUnitTypes = units.filter((ac) => {
+		const acCount = units.filter((a) => a[typeParam] === ac[typeParam]).length;
+
+		return acCount >= count;
+	});
+
+	const randomAircraft = randomItem(usableUnitTypes);
+
+	return usableUnitTypes.filter((ac) => ac[typeParam] === randomAircraft?.[typeParam]);
 };
 
 export const getAircraftStateFromFlightGroup = (
