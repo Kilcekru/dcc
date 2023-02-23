@@ -24,6 +24,13 @@ export async function buildChief({ env, watch }) {
 			define: {
 				BUILD_ENV: JSON.stringify(env !== "pro"),
 			},
+			loader: {
+				// .template and .lua files are used by dcsjs
+				// normally those are prebundled by dcsjs itself, but if dcsjs is linked via tsconfig for developing,
+				// this build has to handle it.
+				".template": "text",
+				".lua": "text",
+			},
 			external: ["electron"],
 			watch: watch && {
 				onRebuild: (err) => {
