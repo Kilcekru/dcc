@@ -190,7 +190,7 @@ const moveFactionGroundGroups = (coalition: DcsJs.CampaignCoalition, state: Runn
 					gg.startObjective.position,
 					gg.objective.position,
 					state.timer - gg.startTime,
-					10
+					6 // slow down on map, because the units uses the direct way.
 				);
 			}
 		}

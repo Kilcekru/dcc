@@ -21,57 +21,41 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 
 	faction.packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
-			if (fg.task === "CAS" && fg.objective != null && distanceToPosition(fg.position, fg.objective.position) < 3_000) {
-				fg.units.forEach((unit) => {
-					const aircraft = faction.inventory.aircrafts[unit.id];
+			if (fg.task === "CAS" && fg.target != null) {
+				const gg = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
 
-					if (aircraft == null) {
-						return;
-					}
+				if (gg != null && distanceToPosition(fg.position, gg?.position) < 3_000) {
+					fg.units.forEach((unit) => {
+						const aircraft = faction.inventory.aircrafts[unit.id];
 
-					if (aircraft.weaponReadyTimer == null) {
-						aircraft.weaponReadyTimer = state.timer + Minutes(3);
-					} else if (aircraft.weaponReadyTimer <= state.timer) {
-						if (fg.objective == null) {
-							// eslint-disable-next-line no-console
-							console.error("combat cas: flight group doesn't have a objective: " + fg.name);
+						if (aircraft == null) {
 							return;
 						}
 
-						const fgObjective = state.objectives[fg.objective.name];
+						if (aircraft.weaponReadyTimer == null) {
+							aircraft.weaponReadyTimer = state.timer + Minutes(3);
+						} else if (aircraft.weaponReadyTimer <= state.timer) {
+							const aliveUnitId = gg.unitIds.find((id) => {
+								const inventoryUnit = oppFaction.inventory.groundUnits[id];
 
-						if (fgObjective == null) {
-							// eslint-disable-next-line no-console
-							console.error("combat cas: objective not found: " + fg.objective.name);
-							return;
+								return inventoryUnit?.alive;
+							});
+
+							if (aliveUnitId == null) {
+								return;
+							}
+
+							if (random(1, 100) <= 50) {
+								destroyUnit(oppFaction, aliveUnitId, state.timer);
+								console.log(`CAS: ${aircraft.id} destroyed ${aliveUnitId} in objective ${gg.objective.name}`); // eslint-disable-line no-console
+							} else {
+								console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${gg.objective.name}`); // eslint-disable-line no-console
+							}
+
+							aircraft.weaponReadyTimer = state.timer + Minutes(3);
 						}
-
-						const groundGroup = oppFaction.groundGroups.find((group) => group.objective.name === fgObjective.name);
-
-						if (groundGroup == null) {
-							return;
-						}
-
-						const aliveUnitId = groundGroup.unitIds.find((id) => {
-							const inventoryUnit = oppFaction.inventory.groundUnits[id];
-
-							return inventoryUnit?.alive;
-						});
-
-						if (aliveUnitId == null) {
-							return;
-						}
-
-						if (random(1, 100) <= 50) {
-							destroyUnit(oppFaction, aliveUnitId, state.timer);
-							console.log(`CAS: ${aircraft.id} destroyed ${aliveUnitId} in objective ${fgObjective.name}`); // eslint-disable-line no-console
-						} else {
-							console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${fgObjective.name}`); // eslint-disable-line no-console
-						}
-
-						aircraft.weaponReadyTimer = state.timer + Minutes(3);
-					}
-				});
+					});
+				}
 			}
 		});
 	});
