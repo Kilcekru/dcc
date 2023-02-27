@@ -2,9 +2,9 @@
 	"extends": "@kilcekru/ts-basics/tsconfig-node-app.json",
 	"compilerOptions": {
 		"paths": {
-			"@kilcekru/dcc-shared-*": ["../../shared/*/src/index.ts"]
 			// for easier development of campaign using dcsjs, uncomment following line
-			// "@foxdelta2/dcsjs": ["../../../../dcsjs/src/index.ts"]
+			// "@foxdelta2/dcsjs": ["../../../../dcsjs/src/index.ts"],
+			"@kilcekru/dcc-shared-*": ["../../shared/*/src/index.ts"]
 		}
 	},
 	"include": ["src", "src/@types"]
