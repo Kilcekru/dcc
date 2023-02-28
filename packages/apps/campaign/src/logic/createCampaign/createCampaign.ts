@@ -148,6 +148,13 @@ export const createCampaign = (
 						groupId: structure.groupId,
 						objectiveName: structure.objectiveName,
 						alive: true,
+						structureType: "Barracks",
+						buildings:
+							dataStore.structures?.Barracks?.[0]?.buildings.map((unit, i) => ({
+								name: `${structure.name}|${i + 1}}`,
+								alive: true,
+								...unit,
+							})) ?? [],
 					})) ?? [],
 				coalition: isBlue ? "blue" : "red",
 				deploymentDelay: isBlue ? Minutes(30) : Minutes(60),

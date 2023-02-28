@@ -5,14 +5,13 @@ import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
-import { GameOverModal, Header, MissionModal, Sidebar, StartMissionModal } from "./components";
+import { GameOverModal, Header, Sidebar, StartMissionModal } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
 	const [state, { tick, clearPackages, saveCampaignRound, notifyPackage, pause }] = useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
-	const [showMissionModal, setShowMissionModal] = createSignal(false);
 	let inter: number;
 	let tickFinished = true;
 	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
@@ -90,7 +89,7 @@ export const Home = () => {
 
 	return (
 		<div class={styles.home}>
-			<Header showMissionModal={() => setShowMissionModal(true)} />
+			<Header />
 			<Sidebar />
 			<div class={styles.content}>
 				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
@@ -100,7 +99,6 @@ export const Home = () => {
 					<Button onPress={onNextRound}>Next Round</Button>
 				</div>
 				<Map />
-				<MissionModal isOpen={showMissionModal()} onClose={() => setShowMissionModal(false)} />
 				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />
 				<GameOverModal />
 			</div>

@@ -29,6 +29,7 @@ export async function buildApps({ env, watch }) {
 				loader: {
 					".svg": "dataurl",
 					".png": "file",
+					".jpg": "file",
 				},
 				assetNames: "[name]",
 				plugins: [solidPlugin(), cssExtraPlugin()],

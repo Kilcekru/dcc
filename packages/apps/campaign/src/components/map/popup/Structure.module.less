@@ -1,0 +1,58 @@
+.structure-type {
+	font-weight: 800;
+	font-size: 30px;
+	color: var(--secondary);
+	-webkit-text-fill-color: transparent;
+	-webkit-text-stroke: 2px;
+	margin-block: 10px !important;
+}
+
+.objective {
+	margin-top: 20px;
+}
+
+.header {
+	font-size: 16px;
+	font-weight: 600;
+	padding-inline: 10px;
+	text-transform: uppercase;
+}
+
+.buildings {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 175px;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.building {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	padding-right: 10px;
+
+	&:nth-child(2n) {
+		background-color: var(--secondary);
+	}
+}
+
+.building-name {
+	font-size: 16px;
+}
+
+.building-image {
+	width: 100px;
+	height: 50px;
+	background-position: center;
+	background-size: cover;
+}
+
+.image-garage-b {
+	background-image: url("./images/garage-b.jpg");
+}
+
+.image-tech-hangar-a {
+	background-image: url("./images/tech-hangar-a.jpg");
+}

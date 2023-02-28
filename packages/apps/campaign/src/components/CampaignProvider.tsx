@@ -159,16 +159,18 @@ export function CampaignProvider(props: {
 
 						Object.values(s.objectives).forEach((objective) => {
 							objective.structures.forEach((structure) => {
-								if (structure.alive === false) {
-									return;
-								}
+								structure.buildings.forEach((building) => {
+									if (building.alive === false) {
+										return;
+									}
 
-								const isDestroyed = state.killed_ground_units.some((unitName) => unitName === structure.name);
+									const isDestroyed = state.killed_ground_units.some((unitName) => unitName === building.name);
 
-								if (isDestroyed) {
-									structure.alive = false;
-									structure.destroyedTime = s.timer;
-								}
+									if (isDestroyed) {
+										building.alive = false;
+										building.destroyedTime = s.timer;
+									}
+								});
 							});
 						});
 

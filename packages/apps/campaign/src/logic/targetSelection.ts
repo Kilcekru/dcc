@@ -53,7 +53,8 @@ export const getStrikeTarget = (
 ): DcsJs.CampaignObjective | undefined => {
 	const oppObjectives = Object.values(objectives).filter((obj) => obj.coalition === oppCoalition);
 	const objectivesWithAliveStructures = oppObjectives.filter(
-		(obj) => obj.structures.filter((structure) => structure.alive === true).length > 0
+		(obj) =>
+			obj.structures.filter((structure) => structure.buildings.find((building) => building.alive === true)).length > 0
 	);
 
 	const objectivesInRange = findInside(objectivesWithAliveStructures, startPosition, (obj) => obj?.position, 150_000);
@@ -67,23 +68,19 @@ export const getStrikeTarget = (
 		return;
 	}
 
-	const aliveStructures = objective.structures.filter((str) => str.alive);
+	const aliveStructures = objective.structures.filter((str) =>
+		str.buildings.find((building) => building.alive === true)
+	);
 
-	const highestGroupId = aliveStructures.reduce((prev, structure) => {
-		return structure.groupId > prev ? structure.groupId : prev;
-	}, 0);
+	const selectedStructures = randomItem(aliveStructures);
 
-	const groupId = random(1, highestGroupId);
-
-	let selectedStructures = objective.structures.filter((str) => str.groupId === groupId);
-
-	if (selectedStructures.length < 1) {
-		selectedStructures = objective.structures.filter((str) => str.groupId === highestGroupId);
+	if (selectedStructures == null) {
+		return;
 	}
 
 	return {
 		...objective,
-		structures: selectedStructures,
+		structures: [selectedStructures],
 	};
 };
 

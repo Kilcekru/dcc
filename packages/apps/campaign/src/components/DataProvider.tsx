@@ -10,6 +10,7 @@ const initState: DataStore = {
 	samTemplates: undefined,
 	vehicles: undefined,
 	aircrafts: undefined,
+	structures: undefined,
 	farps: undefined,
 	callSigns: undefined,
 };

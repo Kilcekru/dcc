@@ -1,0 +1,56 @@
+.mission-overlay {
+	position: fixed;
+	top: 0;
+	right: 0;
+	background-color: var(--action);
+	height: 0;
+	width: 0;
+	border-bottom-left-radius: 50%;
+	overflow: hidden;
+	transition: all 300ms ease-in-out;
+	z-index: 100000;
+
+	&--show {
+		height: 5000px;
+		width: 5000px;
+	}
+}
+
+.content {
+	position: absolute;
+	right: 20px;
+	top: 20px;
+	width: calc(100vw - 40px);
+	height: calc(100vh - 40px);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.clock {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 60px;
+	font-weight: 300;
+}
+
+.title {
+	font-size: 60px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 20px;
+}
+
+.button {
+	background-color: var(--secondary);
+
+	&:hover {
+		background-color: var(--secondary);
+	}
+}

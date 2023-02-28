@@ -10,6 +10,7 @@ export type DataStore = {
 	strikeTargets: DcsJs.GetStrikeTargets | undefined;
 	samTemplates: DcsJs.GetSamTemplates | undefined;
 	vehicles: DcsJs.GetVehicles | undefined;
+	structures: DcsJs.GetStructures | undefined;
 	farps: DcsJs.GetFarps | undefined;
 	callSigns: DcsJs.GetCallSigns | undefined;
 };

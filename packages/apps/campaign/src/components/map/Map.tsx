@@ -7,9 +7,10 @@ import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { MapPosition } from "../../types";
-import { firstItem, getFlightGroups, positionToMapPosition } from "../../utils";
+import { getFlightGroups, positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
 import { DataContext } from "../DataProvider";
+import { Structure } from "./popup";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -139,7 +140,20 @@ export const Map = () => {
 				return;
 			}
 
-			const highestGroupId = objective.structures.reduce((prev, structure) => {
+			objective.structures.forEach((structure) => {
+				const marker = createSymbol(
+					positionToMapPosition(structure.position),
+					objective.coalition === "red",
+					false,
+					"militaryBase"
+				)?.bindPopup((<Structure structure={structure} />) as string);
+
+				if (marker != null) {
+					objectiveMarkers[structure.id] = marker;
+				}
+			});
+
+			/*const highestGroupId = objective.structures.reduce((prev, structure) => {
 				return structure.groupId > prev ? structure.groupId : prev;
 			}, 0);
 
@@ -173,7 +187,7 @@ export const Map = () => {
 				if (marker != null) {
 					objectiveMarkers[structure.id] = marker;
 				}
-			});
+			}); */
 		});
 	};
 

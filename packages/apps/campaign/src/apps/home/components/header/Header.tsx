@@ -1,15 +1,17 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
-import { useContext } from "solid-js";
+import { createSignal, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { Button, CampaignContext } from "../../../../components";
 import styles from "./Header.module.less";
+import { MissionOverlay } from "./MissionOverlay";
 import { TimerClock } from "./TimerClock";
 
-export const Header = (props: { showMissionModal: () => void }) => {
+export const Header = () => {
 	const [state, { pause }] = useContext(CampaignContext);
+	const [showOverlay, setShowOverlay] = createSignal(false);
 
 	const onSave = () => {
 		rpc.campaign
@@ -33,7 +35,7 @@ export const Header = (props: { showMissionModal: () => void }) => {
 
 		await rpc.campaign.generateCampaignMission(JSON.parse(JSON.stringify(unwrapped)) as DcsJs.Campaign);
 
-		props.showMissionModal();
+		setShowOverlay(true);
 	};
 
 	return (
@@ -50,6 +52,7 @@ export const Header = (props: { showMissionModal: () => void }) => {
 					Takeoff
 				</Button>
 			</div>
+			<MissionOverlay show={showOverlay()} onClose={() => setShowOverlay(false)} />
 		</div>
 	);
 };

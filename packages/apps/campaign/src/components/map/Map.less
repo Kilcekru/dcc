@@ -4,3 +4,27 @@
 	background-color: gray;
 	overflow: hidden;
 }
+
+.leaflet-popup {
+	.leaflet-popup-content-wrapper,
+	.leaflet-popup-tip {
+		background-color: var(--background);
+		color: var(--body);
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.leaflet-popup-close-button {
+		span {
+			color: var(--body);
+		}
+	}
+
+	.leaflet-popup-content {
+		margin: 0;
+
+		p {
+			margin: unset;
+		}
+	}
+}

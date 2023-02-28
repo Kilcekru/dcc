@@ -21,11 +21,27 @@ const destroyStructure = (state: RunningCampaignState, structure: DcsJs.Campaign
 		return;
 	}
 
-	objStructure.alive = false;
-	objStructure.destroyedTime = state.timer;
+	const objBuilding = objStructure.buildings.find((building) => building.alive);
 
-	structure.alive = false;
-	structure.destroyedTime = state.timer;
+	if (objBuilding == null) {
+		// eslint-disable-next-line no-console
+		console.error("destroy structure: building not found", structure.id);
+		return;
+	}
+
+	objBuilding.alive = false;
+	objBuilding.destroyedTime = state.timer;
+
+	const building = structure.buildings.find((b) => b.name === objBuilding.name);
+
+	if (building == null) {
+		// eslint-disable-next-line no-console
+		console.error("destroy structure: building not found", structure.id);
+		return;
+	}
+
+	building.alive = false;
+	building.destroyedTime = state.timer;
 };
 
 export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
@@ -49,7 +65,9 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 						}
 
 						if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
-							const structure = fgObjective.structures.find((str) => str.alive === true);
+							const structure = fgObjective.structures.find((str) =>
+								str.buildings.find((building) => building.alive === true)
+							);
 
 							if (structure == null) {
 								return;
