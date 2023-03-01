@@ -1,4 +1,5 @@
-import { Button } from "../../../components";
+import * as Components from "@kilcekru/dcc-lib-components";
+
 import styles from "./Start.module.less";
 
 export const Start = (props: { next: () => void }) => {
@@ -19,9 +20,9 @@ export const Start = (props: { next: () => void }) => {
 				Main goal for the NATO coalition is the <strong>recapture of the Enguri Dam</strong>. To limit the damage to the
 				Geogian infrastructure
 			</p>
-			<Button onPress={() => props.next()} large class={styles.button}>
+			<Components.Button onPress={() => props.next()} large class={styles.button}>
 				Start Campaign
-			</Button>
+			</Components.Button>
 		</>
 	);
 };

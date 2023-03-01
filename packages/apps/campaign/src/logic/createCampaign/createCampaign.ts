@@ -7,8 +7,10 @@ import { scenarioList } from "../../data/scenarios";
 import { firstItem, getUsableUnit, Minutes, random } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
+import { generateBarracks } from "./generateBarracks";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
+import { moveInfantryIntoBarracks } from "./moveInfantryIntoBarracks";
 
 /**
  *
@@ -54,6 +56,7 @@ export const createCampaign = (
 		awacsFrequency: 285.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
+		barracks: generateBarracks(scenario.blue, dataStore),
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -79,6 +82,7 @@ export const createCampaign = (
 		awacsFrequency: 280.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
+		barracks: generateBarracks(scenario.red, dataStore),
 	};
 
 	state.objectives =
@@ -134,8 +138,18 @@ export const createCampaign = (
 				selectedADUnits.forEach((unit) => units.push(unit));
 			}
 
-			const structures = dataStore.strikeTargets?.[dataObjective.name]?.filter((target) => target.type === "Structure");
+			const structures = dataStore.strikeTargets?.[dataObjective.name]
+				?.filter((target) => target.type === "Structure")
+				.filter((target) => !Object.keys(faction.barracks).some((name) => name === target.name));
 
+			const structureTypeRandom = random(1, 100);
+			let structureType: DcsJs.StructureType = "Ammo Depot";
+
+			if (structureTypeRandom <= 50) {
+				structureType = "Ammo Depot";
+			} else {
+				structureType = "Barracks";
+			}
 			const objective: DcsJs.CampaignObjective = {
 				name: dataObjective.name,
 				position: dataObjective.position,
@@ -148,10 +162,10 @@ export const createCampaign = (
 						groupId: structure.groupId,
 						objectiveName: structure.objectiveName,
 						alive: true,
-						structureType: "Barracks",
+						structureType,
 						buildings:
-							dataStore.structures?.Barracks?.[0]?.buildings.map((unit, i) => ({
-								name: `${structure.name}|${i + 1}}`,
+							dataStore.structures?.[structureType]?.[0]?.buildings.map((unit, i) => ({
+								name: `${structure.name}|${i + 1}`,
 								alive: true,
 								...unit,
 							})) ?? [],
@@ -197,6 +211,7 @@ export const createCampaign = (
 	addEWs(state, scenario);
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
+	moveInfantryIntoBarracks(state);
 
 	state.active = true;
 	state.farps = [

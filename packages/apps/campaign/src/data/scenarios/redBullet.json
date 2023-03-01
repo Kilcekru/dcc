@@ -7,13 +7,15 @@
 		"farpNames": ["Poti"],
 		"objectiveNames": ["Poti", "Siriachkoni", "Ketilari", "Nasakirali", "Nagomari", "Maharadze", "Konchkati"],
 		"samNames": ["Nasakirali"],
-		"ewNames": []
+		"ewNames": [],
+		"barracks": ["Nagomari|Structure|2"]
 	},
 	"red": {
 		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
 		"farpNames": [],
 		"objectiveNames": [],
 		"samNames": ["Ochkhomuri", "Sukhumi-Babushara", "Nalchik", "Zeni"],
-		"ewNames": ["Meore-Balda", "Bedia"]
+		"ewNames": ["Meore-Balda", "Bedia"],
+		"barracks": ["Bataria|Structure|1"]
 	}
 }

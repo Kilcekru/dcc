@@ -181,7 +181,7 @@ export const generateStrikePackage = (
 	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, airdrome, endEngressTime + 1);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
-
+	const targetStructure = targetObjective.structures[0];
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
 		airdromeName,
@@ -213,13 +213,20 @@ export const generateStrikePackage = (
 				time: endEnRouteTime + 1,
 				taskStart: true,
 			},
-			...targetObjective.structures.map((structure, i) => ({
-				name: targetObjective.structures.length > 1 ? `Strike #${i + 1}` : "Strike",
-				position: structure.position,
-				speed,
-				time: endIngressTime + 1,
-				onGround: true,
-			})),
+			...(targetStructure?.buildings.map((building, i) => {
+				const wp: DcsJs.CampaignWaypoint = {
+					name: targetStructure.buildings.length > 1 ? `Strike #${i + 1}` : "Strike",
+					position: {
+						x: targetStructure.position.x + building.offset.x,
+						y: targetStructure.position.y + building.offset.y,
+					},
+					speed,
+					time: endIngressTime + 1,
+					onGround: true,
+				};
+
+				return wp;
+			}) ?? []),
 			{
 				name: "Engress",
 				position: engressPosition,

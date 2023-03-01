@@ -1,10 +1,11 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createSignal, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { Button, CampaignContext } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import styles from "./Header.module.less";
 import { MissionOverlay } from "./MissionOverlay";
 import { TimerClock } from "./TimerClock";
@@ -45,12 +46,12 @@ export const Header = () => {
 				<TimerClock />
 			</div>
 			<div class={styles.buttons}>
-				<Button onPress={onSave} large>
+				<Components.Button onPress={onSave} large>
 					Save
-				</Button>
-				<Button onPress={onGenerateMission} large>
+				</Components.Button>
+				<Components.Button onPress={onGenerateMission} large>
 					Takeoff
-				</Button>
+				</Components.Button>
 			</div>
 			<MissionOverlay show={showOverlay()} onClose={() => setShowOverlay(false)} />
 		</div>

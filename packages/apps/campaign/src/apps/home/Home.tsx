@@ -1,9 +1,10 @@
+import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createEffect, createMemo, createSignal, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { Button, CampaignContext, Map } from "../../components";
+import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
 import { GameOverModal, Header, Sidebar, StartMissionModal } from "./components";
 import styles from "./Home.module.less";
@@ -93,10 +94,10 @@ export const Home = () => {
 			<Sidebar />
 			<div class={styles.content}>
 				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
-					<Button onPress={onReset}>Reset</Button>
-					<Button onPress={onClearPackages}>Clear Packages</Button>
-					<Button onPress={onLog}>Log State</Button>
-					<Button onPress={onNextRound}>Next Round</Button>
+					<Components.Button onPress={onReset}>Reset</Components.Button>
+					<Components.Button onPress={onClearPackages}>Clear Packages</Components.Button>
+					<Components.Button onPress={onLog}>Log State</Components.Button>
+					<Components.Button onPress={onNextRound}>Next Round</Components.Button>
 				</div>
 				<Map />
 				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />

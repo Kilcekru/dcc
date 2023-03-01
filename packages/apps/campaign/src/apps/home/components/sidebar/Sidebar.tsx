@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createSignal, For, Show, useContext } from "solid-js";
 
-import { Button, CampaignContext } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import { getFlightGroups, sortAsc } from "../../../../utils";
 import { AircraftItem } from "./AircraftItem";
 import { FlightGroupItem } from "./FlightGroupItem";
@@ -16,10 +16,10 @@ export const Sidebar = () => {
 	return (
 		<div class={style.sidebar}>
 			<div style={{ display: "block" }}>
-				<Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Button>
-				<Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Button>
-				<Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Button>
-				<Button onPress={() => setSelectedListType("aircrafts")}>Aircrafts</Button>
+				<Components.Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Components.Button>
+				<Components.Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Components.Button>
+				<Components.Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Components.Button>
+				<Components.Button onPress={() => setSelectedListType("aircrafts")}>Aircrafts</Components.Button>
 			</div>
 			<Show when={selectedListType() === "flightGroups"}>
 				<Components.ScrollContainer>

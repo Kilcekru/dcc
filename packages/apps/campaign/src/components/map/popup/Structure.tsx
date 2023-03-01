@@ -7,11 +7,13 @@ import styles from "./Structure.module.less";
 const staticTypeName: Record<DcsJS.StaticType, string> = {
 	"Garage B": "Garage",
 	"Tech hangar A": "Hangar",
+	"Electric power box": "Power Box",
 };
 
 const staticTypeImage: Record<DcsJS.StaticType, keyof typeof styles> = {
 	"Garage B": "image-garage-b",
 	"Tech hangar A": "image-tech-hangar-a",
+	"Electric power box": "image-electric-power-box",
 };
 
 export function Structure(props: { structure: DcsJS.CampaignStructure }) {
@@ -27,7 +29,15 @@ export function Structure(props: { structure: DcsJS.CampaignStructure }) {
 								<div
 									class={cnb(styles["building-image"], styles[staticTypeImage[building.type] ?? "image-garage-b"])}
 								/>
-								<p class={styles["building-name"]}>{staticTypeName[building.type] ?? "Garage"}</p>
+								<p class={styles["building-name"]}>
+									{staticTypeName[building.type] ?? "Garage"}
+									{!building.alive ? (
+										<>
+											<br />
+											<span>Destroyed</span>
+										</>
+									) : null}
+								</p>
 							</div>
 						);
 					}}
