@@ -10,10 +10,12 @@ import { GameOverModal, Header, Sidebar, StartMissionModal } from "./components"
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [state, { tick, clearPackages, saveCampaignRound, notifyPackage, pause }] = useContext(CampaignContext);
+	const [state, { tick, clearPackages, saveCampaignRound, notifyPackage, pause, updateDeploymentScore }] =
+		useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
 	let inter: number;
+	let longInter: number;
 	let tickFinished = true;
 	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
 
@@ -72,11 +74,19 @@ export const Home = () => {
 		}
 	};
 
-	const startInterval = () => {
-		window.clearInterval(inter);
-		inter = window.setInterval(interval, intervalTimeout());
+	const longInterval = () => {
+		updateDeploymentScore?.();
 	};
-	const stopInterval = () => window.clearInterval(inter);
+
+	const startInterval = () => {
+		stopInterval();
+		inter = window.setInterval(interval, intervalTimeout());
+		longInter = window.setInterval(longInterval, 1000);
+	};
+	const stopInterval = () => {
+		window.clearInterval(inter);
+		window.clearInterval(longInter);
+	};
 
 	createEffect(() => {
 		if (state.paused) {

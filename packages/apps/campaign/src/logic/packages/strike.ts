@@ -147,28 +147,27 @@ export const generateStrikePackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const targetObjective = getStrikeTarget(airdrome, state.objectives, oppCoalition, oppFaction);
+	const targetStructure = getStrikeTarget(airdrome, state.objectives, coalition, faction, oppFaction);
 
-	// console.log("strike target", target);
-	if (targetObjective == null) {
+	if (targetStructure == null) {
 		return;
 	}
 
 	const ingressPosition = positionFromHeading(
-		targetObjective.position,
-		headingToPosition(targetObjective.position, airdrome),
+		targetStructure.position,
+		headingToPosition(targetStructure.position, airdrome),
 		15000
 	);
 
-	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetObjective.position);
+	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetStructure.position);
 	const engressHeading =
 		oppAirdrome == null
-			? headingToPosition(targetObjective.position, airdrome)
-			: headingToPosition(targetObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
-	const engressPosition = positionFromHeading(targetObjective.position, addHeading(engressHeading, 180), 20000);
+			? headingToPosition(targetStructure.position, airdrome)
+			: headingToPosition(targetStructure.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+	const engressPosition = positionFromHeading(targetStructure.position, addHeading(engressHeading, 180), 20000);
 
-	const durationIngress = getDurationEnRoute(ingressPosition, targetObjective.position, speed);
-	const durationEngress = getDurationEnRoute(targetObjective.position, engressPosition, speed);
+	const durationIngress = getDurationEnRoute(ingressPosition, targetStructure.position, speed);
+	const durationEngress = getDurationEnRoute(targetStructure.position, engressPosition, speed);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(15, 30));
 
@@ -181,7 +180,7 @@ export const generateStrikePackage = (
 	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, airdrome, endEngressTime + 1);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
-	const targetStructure = targetObjective.structures[0];
+
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId(),
 		airdromeName,
@@ -235,7 +234,7 @@ export const generateStrikePackage = (
 			},
 			...landingWaypoints,
 		],
-		objective: targetObjective,
+		target: targetStructure.name,
 		position: objectToPosition(airdrome),
 	};
 

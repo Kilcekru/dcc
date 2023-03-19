@@ -132,65 +132,6 @@ export const Map = () => {
 		});
 	};
 
-	const createObjectiveSymbols = () => {
-		Object.values(state.objectives).forEach((objective) => {
-			const faction = objective.coalition === "blue" ? state.blueFaction : state.redFaction;
-
-			if (faction == null) {
-				return;
-			}
-
-			objective.structures.forEach((structure) => {
-				const marker = createSymbol(
-					positionToMapPosition(structure.position),
-					objective.coalition === "red",
-					false,
-					"militaryBase"
-				)?.bindPopup((<Structure structure={structure} />) as string);
-
-				if (marker != null) {
-					objectiveMarkers[structure.id] = marker;
-				}
-			});
-
-			/*const highestGroupId = objective.structures.reduce((prev, structure) => {
-				return structure.groupId > prev ? structure.groupId : prev;
-			}, 0);
-
-			Array.from({ length: highestGroupId }).forEach((_, i) => {
-				const structures = objective.structures.filter((str) => str.groupId === i + 1);
-
-				const structure = firstItem(structures);
-
-				if (structure == null) {
-					return;
-				}
-
-				if (structures.filter((str) => str.alive).length === 0) {
-					if (objectiveMarkers[structure.id] != null) {
-						removeSymbol(objectiveMarkers[structure.id]);
-						objectiveMarkers[structure.id] = undefined;
-					}
-				}
-
-				const str = structures.reduce((prev, struct) => {
-					return prev + struct.name + (struct.alive ? "" : "[DESTROYED]") + "<br />";
-				}, objective.name + "<br />");
-
-				const marker = createSymbol(
-					positionToMapPosition(structure.position),
-					objective.coalition === "red",
-					false,
-					"militaryBase"
-				)?.bindPopup(str);
-
-				if (marker != null) {
-					objectiveMarkers[structure.id] = marker;
-				}
-			}); */
-		});
-	};
-
 	const createAircraftSymbols = (coalition: DcsJs.CampaignCoalition, packages: Array<DcsJs.CampaignPackage>) => {
 		const flightGroups = packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
@@ -307,6 +248,30 @@ export const Map = () => {
 
 				removeSymbol(ewMarkers[gg.id]);
 				ewMarkers[gg.id] = undefined;
+			}
+		});
+	};
+
+	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+		Object.values(faction.structures).forEach((structure) => {
+			const hasAliveBuildings = structure.buildings.some((building) => building.alive);
+
+			if (hasAliveBuildings && objectiveMarkers[structure.id] == null) {
+				const marker = createSymbol(
+					positionToMapPosition(structure.position),
+					coalition === "red",
+					false,
+					"militaryBase"
+				)?.bindPopup((<Structure structure={structure} />) as string);
+
+				if (marker != null) {
+					objectiveMarkers[structure.id] = marker;
+				}
+			} else {
+				if (!hasAliveBuildings) {
+					removeSymbol(objectiveMarkers[structure.id]);
+					objectiveMarkers[structure.id] = undefined;
+				}
 			}
 		});
 	};
@@ -453,7 +418,6 @@ export const Map = () => {
 		}).addTo(map);
 
 		createAirdromeSymbols();
-		createObjectiveSymbols();
 		createSamSymbols();
 	});
 
@@ -469,9 +433,11 @@ export const Map = () => {
 		createAircraftSymbols("blue", bluePackages);
 		createGroundGroupSymbols("blue", state.blueFaction);
 		createEWSymbols("blue", state.blueFaction);
+		createStructureSymbols("blue", state.blueFaction);
 		createAircraftSymbols("red", redPackages);
 		createGroundGroupSymbols("red", state.redFaction);
 		createEWSymbols("red", state.redFaction);
+		createStructureSymbols("red", state.redFaction);
 
 		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];
 

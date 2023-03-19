@@ -15,6 +15,9 @@ import {
 } from "../utils";
 import { RunningCampaignState } from "./types";
 
+export const ammoDepotRange = 50_000;
+export const barrackRange = 30_000;
+export const depotRange = 70_000;
 export const speed = 170;
 
 export const getCoalitionFaction = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
@@ -148,3 +151,9 @@ export const unitIdsToGroundUnit = (faction: DcsJs.CampaignFaction, ids: Array<s
 		}
 	}, [] as Array<DcsJs.CampaignUnit>);
 };
+
+export function isCampaignStructureUnitCamp(
+	structure: DcsJs.CampaignStructure
+): structure is DcsJs.CampaignStructureUnitCamp {
+	return (structure as DcsJs.CampaignStructureUnitCamp).unitIds != null;
+}

@@ -8,9 +8,11 @@ import { firstItem, getUsableUnit, Minutes, random } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateBarracks } from "./generateBarracks";
+import { generateDepots } from "./generateDepots";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
 import { moveInfantryIntoBarracks } from "./moveInfantryIntoBarracks";
+import { moveVehiclesIntoDepot } from "./moveVehiclesIntoDepot";
 
 /**
  *
@@ -56,7 +58,7 @@ export const createCampaign = (
 		awacsFrequency: 285.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		barracks: generateBarracks(scenario.blue, dataStore),
+		structures: { ...generateBarracks(scenario.blue, dataStore), ...generateDepots(scenario.blue, dataStore) },
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -82,7 +84,7 @@ export const createCampaign = (
 		awacsFrequency: 280.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		barracks: generateBarracks(scenario.red, dataStore),
+		structures: { ...generateBarracks(scenario.red, dataStore), ...generateDepots(scenario.red, dataStore) },
 	};
 
 	state.objectives =
@@ -138,38 +140,9 @@ export const createCampaign = (
 				selectedADUnits.forEach((unit) => units.push(unit));
 			}
 
-			const structures = dataStore.strikeTargets?.[dataObjective.name]
-				?.filter((target) => target.type === "Structure")
-				.filter((target) => !Object.keys(faction.barracks).some((name) => name === target.name));
-
-			const structureTypeRandom = random(1, 100);
-			let structureType: DcsJs.StructureType = "Ammo Depot";
-
-			if (structureTypeRandom <= 50) {
-				structureType = "Ammo Depot";
-			} else {
-				structureType = "Barracks";
-			}
 			const objective: DcsJs.CampaignObjective = {
 				name: dataObjective.name,
 				position: dataObjective.position,
-				structures:
-					structures?.map((structure) => ({
-						id: createUniqueId(),
-						name: structure.name,
-						position: structure.position,
-						unitPositions: structure.unitPositions,
-						groupId: structure.groupId,
-						objectiveName: structure.objectiveName,
-						alive: true,
-						structureType,
-						buildings:
-							dataStore.structures?.[structureType]?.[0]?.buildings.map((unit, i) => ({
-								name: `${structure.name}|${i + 1}`,
-								alive: true,
-								...unit,
-							})) ?? [],
-					})) ?? [],
 				coalition: isBlue ? "blue" : "red",
 				deploymentDelay: isBlue ? Minutes(30) : Minutes(60),
 				deploymentTimer: state.timer,
@@ -212,6 +185,7 @@ export const createCampaign = (
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
 	moveInfantryIntoBarracks(state);
+	moveVehiclesIntoDepot(state);
 
 	state.active = true;
 	state.farps = [

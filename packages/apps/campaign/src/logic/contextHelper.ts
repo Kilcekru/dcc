@@ -73,6 +73,27 @@ export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignSt
 		unit.destroyedTime = s.timer;
 	});
 
+	missionState.killed_ground_units.forEach((killedUnitName) => {
+		const objectStructure = Object.values(faction.structures).find((structure) =>
+			structure.buildings.some((building) => building.name === killedUnitName)
+		);
+
+		if (objectStructure == null) {
+			return;
+		}
+
+		const structure = faction.structures[objectStructure.id];
+
+		const building = structure?.buildings.find((building) => building.name === killedUnitName);
+
+		if (building == null) {
+			return;
+		}
+
+		building.alive = false;
+		building.destroyedTime = s.timer;
+	});
+
 	faction.sams.forEach((sam) => {
 		if (sam.operational) {
 			const trackRadarAlive = sam.units.some((u) => u.alive && u.vehicleTypes.some((vt) => vt === "Track Radar"));

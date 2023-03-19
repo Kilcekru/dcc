@@ -3,7 +3,7 @@ import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-import { campaignRound, createCampaign, missionRound, updateFactionState } from "../logic";
+import { campaignRound, createCampaign, deploymentScoreUpdate, missionRound, updateFactionState } from "../logic";
 
 type CampaignStore = [
 	CampaignState,
@@ -25,6 +25,7 @@ type CampaignStore = [
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: MissionState, dataStore: DataStore) => void;
 		saveCampaignRound?: (dataStore: DataStore) => void;
+		updateDeploymentScore?: () => void;
 	}
 ];
 
@@ -157,29 +158,15 @@ export function CampaignProvider(props: {
 							updateFactionState(s.redFaction, s, state);
 						}
 
-						Object.values(s.objectives).forEach((objective) => {
-							objective.structures.forEach((structure) => {
-								structure.buildings.forEach((building) => {
-									if (building.alive === false) {
-										return;
-									}
-
-									const isDestroyed = state.killed_ground_units.some((unitName) => unitName === building.name);
-
-									if (isDestroyed) {
-										building.alive = false;
-										building.destroyedTime = s.timer;
-									}
-								});
-							});
-						});
-
 						missionRound(s, dataStore);
 					})
 				);
 			},
 			saveCampaignRound(dataStore) {
 				setState(produce((s) => campaignRound(s, dataStore)));
+			},
+			updateDeploymentScore() {
+				setState(produce((s) => deploymentScoreUpdate(s)));
 			},
 		},
 	];

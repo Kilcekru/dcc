@@ -106,6 +106,22 @@ export const randomItem = <T>(arr: Array<T>, filterFn?: (value: T) => boolean): 
 	return filtered[random(0, filtered.length - 1)];
 };
 
+export const randomList = <T>(arr: Array<T>, length: number): Array<T> => {
+	const selected: Array<T> = [];
+
+	Array.from({ length: length }, () => {
+		const s = randomItem(arr, (v) => !selected.some((a) => a == v));
+
+		if (s == null) {
+			return;
+		}
+
+		selected.push(s);
+	});
+
+	return selected;
+};
+
 export const randomCallSign = (dataStore: DataStore, type: "aircraft" | "helicopter" | "awacs") => {
 	const callSigns = dataStore.callSigns?.[type];
 
@@ -190,6 +206,10 @@ export const positionAfterDurationToPosition = (
 	duration: number,
 	speed: number
 ): Position => {
+	if (duration <= 0) {
+		return sourcePosition;
+	}
+
 	const distanceTraveled = speed * duration;
 	const heading = headingToPosition(sourcePosition, targetPosition);
 

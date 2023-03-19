@@ -1,24 +1,29 @@
-import { CampaignFaction } from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 
-function moveInfantryIntoBarracksForFaction(faction: CampaignFaction) {
-	const barracksCount = Object.entries(faction.barracks).length;
+import { isCampaignStructureUnitCamp } from "../utils";
+
+function moveInfantryIntoBarracksForFaction(faction: DcsJs.CampaignFaction) {
+	const barracks = Object.values(faction.structures).filter((structure) => structure.structureType === "Barracks");
+	const barracksCount = Object.entries(barracks).length;
 	const idleInfantry = Object.values(faction.inventory.groundUnits).filter(
 		(unit) => unit.vehicleTypes.some((vt) => vt === "Infantry") && unit.state === "idle"
 	);
 	const perBarrack = Math.ceil(idleInfantry.length / barracksCount);
 
-	Object.entries(faction.barracks).forEach(([id], i) => {
+	barracks.forEach((barrack, i) => {
 		const start = i * perBarrack;
 		const end = start + perBarrack;
 
-		const barrack = faction.barracks[id];
+		const structure = faction.structures[barrack.name];
 
-		if (barrack == null) {
+		if (structure == null) {
 			throw "Barrack not found";
 		}
 
-		barrack.unitIds = idleInfantry.slice(start, end).map((unit) => unit.id);
+		if (isCampaignStructureUnitCamp(structure)) {
+			structure.unitIds = idleInfantry.slice(start, end).map((unit) => unit.id);
+		}
 	});
 }
 

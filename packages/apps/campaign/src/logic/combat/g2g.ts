@@ -73,6 +73,7 @@ export const g2gBattle = (
 		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
 		blueGroundGroup.state = "on objective";
+
 		const objective = state.objectives[blueGroundGroup.objective.name];
 
 		if (objective == null) {
@@ -81,6 +82,7 @@ export const g2gBattle = (
 			return;
 		}
 
+		blueGroundGroup.position = objective.position;
 		objective.coalition = "blue";
 		objective.incomingGroundGroups["blue"] = undefined;
 		objective.incomingGroundGroups["red"] = undefined;
@@ -94,6 +96,7 @@ export const g2gBattle = (
 			return;
 		}
 
+		redGroundGroup.position = objective.position;
 		objective.coalition = "red";
 		objective.incomingGroundGroups["blue"] = undefined;
 		objective.incomingGroundGroups["red"] = undefined;

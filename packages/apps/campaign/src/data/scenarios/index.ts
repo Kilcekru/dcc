@@ -6,6 +6,7 @@ export type ScenarioCoalition = {
 	samNames: Array<string>;
 	ewNames: Array<string>;
 	barracks: Array<string>;
+	depots: Array<string>;
 };
 export type Scenario = {
 	map: string;

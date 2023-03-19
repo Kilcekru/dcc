@@ -5,8 +5,8 @@ import { createUniqueId } from "solid-js";
 import { ScenarioCoalition } from "../../data";
 import { randomItem } from "../../utils";
 
-export function generateBarracks(scenarioCoalition: ScenarioCoalition, dataStore: DataStore) {
-	return scenarioCoalition.barracks.reduce((prev, structureName) => {
+export function generateDepots(scenarioCoalition: ScenarioCoalition, dataStore: DataStore) {
+	return scenarioCoalition.depots.reduce((prev, structureName) => {
 		if (dataStore.strikeTargets == null) {
 			return prev;
 		}
@@ -24,11 +24,11 @@ export function generateBarracks(scenarioCoalition: ScenarioCoalition, dataStore
 			return prev;
 		}
 
-		const barrackTemplate = randomItem(dataStore.structures?.Barracks ?? []);
+		const depotTemplate = randomItem(dataStore.structures?.Depots ?? []);
 
 		prev[structureName] = {
 			name: structureName,
-			buildings: barrackTemplate?.buildings.map((building, i) => ({
+			buildings: depotTemplate?.buildings.map((building, i) => ({
 				alive: true,
 				name: `${structureName}|${i + 1}`,
 				...building,
@@ -37,7 +37,7 @@ export function generateBarracks(scenarioCoalition: ScenarioCoalition, dataStore
 			id: createUniqueId(),
 			objectiveName: strikeTarget.objectiveName,
 			position: strikeTarget.position,
-			structureType: "Barracks",
+			structureType: "Depots",
 			deploymentScore: 0,
 			unitIds: [],
 			state: "active",

@@ -114,7 +114,6 @@ export const generateDeadPackage = (
 			name: selectedObjective.id,
 			coalition: oppositeCoalition(coalition),
 			position: selectedObjective.position,
-			structures: [],
 			deploymentDelay: 0,
 			deploymentTimer: 0,
 			incomingGroundGroups: {},

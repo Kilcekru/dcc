@@ -10,6 +10,7 @@ import {
 	Minutes,
 	positionAfterDurationToPosition,
 	random,
+	randomList,
 } from "../utils";
 import { g2g, g2gBattle } from "./combat";
 import { RunningCampaignState } from "./types";
@@ -45,7 +46,19 @@ export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 			return [...prev, ...aliveUnits];
 		}, [] as Array<DcsJs.CampaignUnit>);
 
-		if (blueAliveUnits.length === 0 && redAliveUnits.length === 0 && objective.structures.length === 0) {
+		const blueStructure = Object.values(blueFaction.structures).some(
+			(str) => str.objectiveName === objective.name && str.buildings.some((b) => b.alive)
+		);
+		const redStructure = Object.values(redFaction.structures).some(
+			(str) => str.objectiveName === objective.name && str.buildings.some((b) => b.alive)
+		);
+
+		if (
+			blueAliveUnits.length === 0 &&
+			redAliveUnits.length === 0 &&
+			blueStructure === false &&
+			redStructure === false
+		) {
 			objective.coalition = "neutral";
 
 			return;
@@ -61,35 +74,45 @@ export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 	});
 };
 
+type deploymentInfantry = {
+	groupType: "infantry";
+	barrack: DcsJs.CampaignStructureUnitCamp;
+};
+
+type deploymentArmor = {
+	groupType: "armor";
+	depot: DcsJs.CampaignStructureUnitCamp;
+};
+
+type deploymentSource = deploymentInfantry | deploymentArmor;
+
 const deployFrontline = (
-	targetObjective: DcsJs.CampaignObjective,
-	startObjective: DcsJs.CampaignObjective,
-	state: RunningCampaignState
+	p: {
+		targetObjective: DcsJs.CampaignObjective;
+		startObjective: DcsJs.CampaignObjective;
+		state: RunningCampaignState;
+	} & deploymentSource
 ) => {
 	// Is no other ground group on the way
-	if (targetObjective.incomingGroundGroups[startObjective.coalition] == null) {
-		const faction = getCoalitionFaction(startObjective.coalition, state);
+	if (p.targetObjective.incomingGroundGroups[p.startObjective.coalition] == null) {
+		const faction = getCoalitionFaction(p.startObjective.coalition, p.state);
+		const groundUnits =
+			p.groupType === "infantry"
+				? getUsableGroundUnits(faction.inventory.groundUnits).filter((unit) =>
+						p.barrack.unitIds.some((id) => id === unit.id)
+				  )
+				: getUsableGroundUnits(faction.inventory.groundUnits).filter(
+						(unit) => !unit.vehicleTypes.some((vt) => vt === "Infantry")
+				  );
+		const nonSHORADUnits = groundUnits.filter((unit) => !unit.vehicleTypes.some((vt) => vt === "SHORAD"));
 
-		const groupType = random(1, 100) > 40 ? "armor" : "infantry";
+		const selectedGroundUnits = randomList(nonSHORADUnits, random(4, 8));
 
-		const availableGroundUnits = getUsableGroundUnits(faction.inventory.groundUnits)
-			.filter((unit) => unit.category !== "Air Defence")
-			.filter((unit) => {
-				if (groupType === "infantry") {
-					return unit.category === "Infantry" && unit.state === "idle";
-				} else {
-					return unit.category !== "Infantry" && unit.state === "idle";
-				}
-			})
-			.slice(0, random(4, 8));
-
-		if (availableGroundUnits.length < 4) {
+		if (selectedGroundUnits.length < 4) {
 			return;
 		}
 
-		const selectedUnits = availableGroundUnits.slice(0, random(4, 8));
-
-		if (groupType === "armor") {
+		if (p.groupType === "armor") {
 			const airDefenceUnits = Object.values(faction.inventory.groundUnits).filter(
 				(unit) => unit.category === "Air Defence" && unit.state === "idle"
 			);
@@ -97,27 +120,27 @@ const deployFrontline = (
 
 			const selectedADUnits = airDefenceUnits.slice(0, count);
 
-			selectedADUnits.forEach((unit) => selectedUnits.push(unit));
+			selectedADUnits.forEach((unit) => selectedGroundUnits.push(unit));
 		}
 
-		const unitIds = selectedUnits.map((u) => u.id);
+		const unitIds = selectedGroundUnits.map((u) => u.id);
 
 		const id = createUniqueId();
 
 		// create ground group
 		faction.groundGroups.push({
 			id,
-			startObjective,
-			objective: targetObjective,
-			position: startObjective.position,
-			startTime: state.timer + Minutes(random(15, 25)),
+			startObjective: p.startObjective,
+			objective: p.targetObjective,
+			position: p.startObjective.position,
+			startTime: p.state.timer + Minutes(random(5, 15)),
 			state: "en route",
 			unitIds,
-			groupType,
+			groupType: p.groupType,
 		});
 
 		// update inventory
-		selectedUnits.forEach((u) => {
+		selectedGroundUnits.forEach((u) => {
 			const inventoryUnit = faction.inventory.groundUnits[u.id];
 
 			if (inventoryUnit == null) {
@@ -127,12 +150,19 @@ const deployFrontline = (
 			inventoryUnit.state = "on objective";
 		});
 
+		// update barrack
+		if (p.groupType === "infantry") {
+			p.barrack.unitIds = p.barrack.unitIds.filter((id) => !selectedGroundUnits.some((unit) => id === unit.id));
+		}
+
 		// update objective
-		targetObjective.incomingGroundGroups[startObjective.coalition] = id;
-		startObjective.deploymentTimer = state.timer;
+		p.targetObjective.incomingGroundGroups[p.startObjective.coalition] = id;
+		p.startObjective.deploymentTimer = p.state.timer;
 	}
 };
-export const captureNeutralObjectives = (state: RunningCampaignState, dataStore: DataStore) => {
+// TODO
+/* export const captureNeutralObjectives = (state: RunningCampaignState, dataStore: DataStore) => {
+	
 	Object.values(state.objectives).forEach((objective) => {
 		if (objective.deploymentTimer + objective.deploymentDelay <= state.timer && objective.coalition !== "neutral") {
 			const objectivesInRange = findInside(
@@ -158,13 +188,13 @@ export const captureNeutralObjectives = (state: RunningCampaignState, dataStore:
 			}
 		}
 	});
-};
+}; */
 
 const moveFactionGroundGroups = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 
 	faction.groundGroups.forEach((gg) => {
-		if (gg.state === "en route") {
+		if (gg.state === "en route" && gg.startTime <= state.timer) {
 			if (distanceToPosition(gg.position, gg.objective.position) < 2_000) {
 				const objective = state.objectives[gg.objective.name];
 
@@ -180,8 +210,9 @@ const moveFactionGroundGroups = (coalition: DcsJs.CampaignCoalition, state: Runn
 
 					gg.state = "on objective";
 				} else if (objective.coalition === coalition) {
-					// eslint-disable-next-line no-console
-					console.error("ground groups conflict on objective: ", objective.name);
+					gg.state = "on objective";
+					gg.position = objective.position;
+					objective.incomingGroundGroups[coalition] = undefined;
 				} else {
 					g2g(coalition, gg, state);
 				}
@@ -197,37 +228,77 @@ const moveFactionGroundGroups = (coalition: DcsJs.CampaignCoalition, state: Runn
 	});
 };
 
+const attackDeploymentCost = 30_000;
+
 const attackFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
 	const oppCoalition = "red";
-	state.blueFaction.groundGroups.forEach((gg) => {
-		if (gg.state === "on objective") {
-			const objective = state.objectives[gg.objective.name];
+	Object.keys(state.blueFaction.structures).forEach((id) => {
+		const structure = state.blueFaction.structures[id];
 
-			if (objective == null) {
-				return;
-			}
+		if (structure == null) {
+			throw "attackFrontline: depot not found";
+		}
 
-			if (state.timer >= objective.deploymentTimer + objective.deploymentDelay * 1.5) {
-				const objectivesInRange = findInside(
-					Object.values(state.objectives),
-					objective.position,
-					(obj) => obj.position,
-					12_000
-				);
+		if (structure.structureType === "Depots") {
+			if (structure.deploymentScore >= attackDeploymentCost && structure.state === "active") {
+				const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
+				const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups.blue == null);
+				const objectivesInRange = findInside(freeOppObjectives, structure.position, (obj) => obj.position, 70_000);
 
-				const oppObjectives = objectivesInRange.filter((obj) => obj.coalition === oppCoalition);
-				const vehicleObjectives = oppObjectives.filter((obj) =>
+				const vehicleObjectives = objectivesInRange.filter((obj) =>
 					dataStore.strikeTargets?.[obj.name]?.some((target) => target.type === "Vehicle")
 				);
 
 				if (vehicleObjectives.length > 0) {
-					const targetObjective = findNearest(vehicleObjectives, objective.position, (obj) => obj.position);
+					const targetObjective = findNearest(vehicleObjectives, structure.position, (obj) => obj.position);
 
 					if (targetObjective == null) {
 						return;
 					}
 
-					deployFrontline(targetObjective, objective, state);
+					const objective = state.objectives[structure.objectiveName];
+
+					if (objective == null) {
+						return;
+					}
+
+					deployFrontline({ targetObjective, startObjective: objective, state, groupType: "armor", depot: structure });
+					structure.deploymentScore -= attackDeploymentCost;
+				}
+			}
+		}
+
+		if (structure.structureType === "Barracks") {
+			if (structure.deploymentScore >= attackDeploymentCost && structure.state === "active") {
+				const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
+				const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups.blue == null);
+				const objectivesInRange = findInside(freeOppObjectives, structure.position, (obj) => obj.position, 30_000);
+
+				const vehicleObjectives = objectivesInRange.filter((obj) =>
+					dataStore.strikeTargets?.[obj.name]?.some((target) => target.type === "Vehicle")
+				);
+
+				if (vehicleObjectives.length > 0) {
+					const targetObjective = findNearest(vehicleObjectives, structure.position, (obj) => obj.position);
+
+					if (targetObjective == null) {
+						return;
+					}
+
+					const objective = state.objectives[structure.objectiveName];
+
+					if (objective == null) {
+						return;
+					}
+
+					deployFrontline({
+						targetObjective,
+						startObjective: objective,
+						state,
+						groupType: "infantry",
+						barrack: structure,
+					});
+					structure.deploymentScore -= attackDeploymentCost;
 				}
 			}
 		}
@@ -259,7 +330,7 @@ const updateCombat = (state: RunningCampaignState) => {
 
 export const updateFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
 	updateObjectivesCoalition(state);
-	captureNeutralObjectives(state, dataStore);
+	// captureNeutralObjectives(state, dataStore); TODO
 	moveFrontline(state);
 	attackFrontline(state, dataStore);
 	updateCombat(state);

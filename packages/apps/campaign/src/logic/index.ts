@@ -3,6 +3,7 @@ import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { cleanupFlightGroups } from "./cleanupFlightGroups";
 import { cleanupGroundGroups } from "./cleanupGroundGroup";
 import { cleanupPackages } from "./cleanupPackages";
+import { cleanupStructures } from "./cleanupStructures";
 import { combatRound } from "./combat";
 import { gameOver } from "./gameOver";
 import { packagesRound } from "./packages";
@@ -44,6 +45,7 @@ export const missionRound = (state: CampaignState, dataStore: DataStore) => {
 	packagesRound(state as RunningCampaignState, dataStore);
 	cleanupFlightGroups(state as RunningCampaignState);
 	cleanupGroundGroups(state as RunningCampaignState);
+	cleanupStructures(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
 	gameOver(state as RunningCampaignState);
@@ -53,3 +55,4 @@ export const missionRound = (state: CampaignState, dataStore: DataStore) => {
 
 export * from "./contextHelper";
 export * from "./createCampaign";
+export * from "./deploymentScoreUpdate";

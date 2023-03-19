@@ -12,6 +12,7 @@ import {
 	random,
 	randomItem,
 } from "../utils";
+import { ammoDepotRange } from "./utils";
 
 const isInSamRange = (position: Position, oppFaction: DcsJs.CampaignFaction) => {
 	return oppFaction?.sams
@@ -48,40 +49,63 @@ export const getDeadTarget = (startPosition: Position, oppFaction: DcsJs.Campaig
 export const getStrikeTarget = (
 	startPosition: Position,
 	objectives: Record<string, DcsJs.CampaignObjective>,
-	oppCoalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.CampaignCoalition,
+	faction: DcsJs.CampaignFaction,
 	oppFaction: DcsJs.CampaignFaction
-): DcsJs.CampaignObjective | undefined => {
-	const oppObjectives = Object.values(objectives).filter((obj) => obj.coalition === oppCoalition);
-	const objectivesWithAliveStructures = oppObjectives.filter(
-		(obj) =>
-			obj.structures.filter((structure) => structure.buildings.find((building) => building.alive === true)).length > 0
-	);
+): DcsJs.CampaignStructure | undefined => {
+	const factionObjectives = Object.values(objectives).filter((obj) => obj.coalition === coalition);
+	const structures = Object.values(oppFaction.structures).filter((structure) => {
+		const alreadyTarget = faction.packages.find((pkg) => pkg.flightGroups.find((fg) => fg.target === structure.id));
 
-	const objectivesInRange = findInside(objectivesWithAliveStructures, startPosition, (obj) => obj?.position, 150_000);
-	const objectivesOutsideSamRange = objectivesInRange.filter(
-		(objective) => !isInSamRange(objective.position, oppFaction)
-	);
+		if (alreadyTarget) {
+			return false;
+		}
 
-	const objective = randomItem(objectivesOutsideSamRange);
+		const hasAliveBuildings = structure.buildings.some((building) => building.alive);
 
-	if (objective == null) {
-		return;
-	}
+		// All buildings are destroyed
+		if (!hasAliveBuildings) {
+			return false;
+		}
 
-	const aliveStructures = objective.structures.filter((str) =>
-		str.buildings.find((building) => building.alive === true)
-	);
+		const objectivesNearBarrack = findInside(factionObjectives, structure.position, (obj) => obj?.position, 100_000);
 
-	const selectedStructures = randomItem(aliveStructures);
+		// Barrack is not near frontline
+		if (objectivesNearBarrack.length === 0) {
+			return false;
+		}
 
-	if (selectedStructures == null) {
-		return;
-	}
+		return true;
+	});
 
-	return {
-		...objective,
-		structures: [selectedStructures],
-	};
+	const scoredStructures = structures.map((str) => {
+		const distance = distanceToPosition(startPosition, str.position);
+
+		let prio = 0;
+
+		switch (str.structureType) {
+			case "Ammo Depot": {
+				const consumingStructures = structures.filter(
+					(str) => str.structureType === "Barracks" || str.structureType === "Depots"
+				);
+
+				const inRangeStructures = findInside(consumingStructures, str.position, (s) => s.position, ammoDepotRange);
+
+				prio = 30 * inRangeStructures.length;
+			}
+		}
+
+		return {
+			structure: str,
+			score: distance / 1000 + prio,
+		};
+	});
+
+	const sortedStructures = scoredStructures.sort((a, b) => b.score - a.score);
+
+	const selectedStructure = randomItem(sortedStructures.slice(0, 2));
+
+	return selectedStructure?.structure;
 };
 
 export const awacsTarget = (
