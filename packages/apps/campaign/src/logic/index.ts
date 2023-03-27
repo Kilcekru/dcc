@@ -8,6 +8,7 @@ import { combatRound } from "./combat";
 import { gameOver } from "./gameOver";
 import { packagesRound } from "./packages";
 import { reinforcement } from "./reinforcement";
+import { repairStructures } from "./repairStructures";
 import { RunningCampaignState } from "./types";
 import { updateAircraftState } from "./updateAircraftState";
 import { updateFrontline } from "./updateFrontline";
@@ -30,6 +31,7 @@ export const campaignRound = (state: CampaignState, dataStore: DataStore) => {
 	cleanupGroundGroups(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
+	repairStructures(state as RunningCampaignState);
 	gameOver(state as RunningCampaignState);
 
 	return state;
@@ -48,6 +50,7 @@ export const missionRound = (state: CampaignState, dataStore: DataStore) => {
 	cleanupStructures(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
+	repairStructures(state as RunningCampaignState);
 	gameOver(state as RunningCampaignState);
 
 	return state;
@@ -56,3 +59,4 @@ export const missionRound = (state: CampaignState, dataStore: DataStore) => {
 export * from "./contextHelper";
 export * from "./createCampaign";
 export * from "./deploymentScoreUpdate";
+export * from "./repairScoreUpdate";

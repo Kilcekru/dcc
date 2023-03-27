@@ -13,6 +13,8 @@ export type DataStore = {
 	structures: DcsJs.GetStructures | undefined;
 	farps: DcsJs.GetFarps | undefined;
 	callSigns: DcsJs.GetCallSigns | undefined;
+	launchers: DcsJs.GetLaunchers | undefined;
+	weapons: DcsJs.GetWeapons | undefined;
 };
 
 export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> & {

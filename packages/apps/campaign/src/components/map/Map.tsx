@@ -6,11 +6,11 @@ import L from "leaflet";
 import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
+import { OverlaySidebarContext } from "../../apps/home/components";
 import { MapPosition } from "../../types";
 import { getFlightGroups, positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
 import { DataContext } from "../DataProvider";
-import { Structure } from "./popup";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -41,6 +41,7 @@ export const Map = () => {
 	const [state] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useContext(DataContext);
+	const [, { openStructure, openFlightGroup }] = useContext(OverlaySidebarContext);
 
 	const kobuleti = createMemo(() => {
 		const position = dataStore.airdromes?.["Kobuleti"];
@@ -146,8 +147,6 @@ export const Map = () => {
 				return;
 			}
 
-			const str = `${coalition === "red" ? "[R]" : "[B]"}${fg.name} - ${fg.task}`;
-
 			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
 
 			if (flightGroupMarkers[fg.id] == null) {
@@ -156,7 +155,7 @@ export const Map = () => {
 					coalition === "red",
 					true,
 					code as SidcUnitCodeKey
-				)?.bindPopup(str);
+				)?.addEventListener("click", () => openFlightGroup?.(fg.id, coalition));
 
 				if (marker == null) {
 					return;
@@ -254,23 +253,16 @@ export const Map = () => {
 
 	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
-			const hasAliveBuildings = structure.buildings.some((building) => building.alive);
-
-			if (hasAliveBuildings && objectiveMarkers[structure.id] == null) {
+			if (objectiveMarkers[structure.id] == null) {
 				const marker = createSymbol(
 					positionToMapPosition(structure.position),
 					coalition === "red",
 					false,
 					"militaryBase"
-				)?.bindPopup((<Structure structure={structure} />) as string);
+				)?.addEventListener("click", () => openStructure?.(structure.name, coalition));
 
 				if (marker != null) {
 					objectiveMarkers[structure.id] = marker;
-				}
-			} else {
-				if (!hasAliveBuildings) {
-					removeSymbol(objectiveMarkers[structure.id]);
-					objectiveMarkers[structure.id] = undefined;
 				}
 			}
 		});
@@ -346,6 +338,18 @@ export const Map = () => {
 
 				removeSymbol(samCircle?.circle);
 				removeSymbol(samCircle?.marker);
+			}
+		});
+	};
+
+	const cleanupStructures = () => {
+		Object.entries(objectiveMarkers).forEach(([id, marker]) => {
+			const blueStructure = Object.values(state.blueFaction?.structures ?? {}).some((structure) => structure.id === id);
+			const redStructure = Object.values(state.redFaction?.structures ?? {}).some((structure) => structure.id === id);
+
+			if (!blueStructure && !redStructure) {
+				removeSymbol(marker);
+				delete objectiveMarkers[id];
 			}
 		});
 	};
@@ -460,6 +464,8 @@ export const Map = () => {
 				groundGroupMarkers[id] = undefined;
 			}
 		});
+
+		cleanupStructures();
 	});
 
 	return <div class="map" ref={(el) => (mapDiv = el)} />;

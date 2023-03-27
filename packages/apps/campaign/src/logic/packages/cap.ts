@@ -22,6 +22,7 @@ import {
 	calcNearestOppositeAirdrome,
 	generateCallSign,
 	getCoalitionFaction,
+	getLoadoutForAircraftType,
 	speed,
 } from "../utils";
 
@@ -142,6 +143,7 @@ export const generateCapPackage = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
+				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "CAP", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "CAP",

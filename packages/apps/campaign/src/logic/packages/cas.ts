@@ -17,7 +17,13 @@ import {
 } from "../../utils";
 import { getCasTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, speed } from "../utils";
+import {
+	calcLandingWaypoints,
+	generateCallSign,
+	getCoalitionFaction,
+	getLoadoutForAircraftType,
+	speed,
+} from "../utils";
 
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -121,6 +127,7 @@ export const generateCasPackage = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
+				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "CAS", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "CAS",

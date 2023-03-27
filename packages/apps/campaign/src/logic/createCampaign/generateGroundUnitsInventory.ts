@@ -60,7 +60,7 @@ export const generateGroundUnitsInventory = (
 	const groundUnits: Record<string, DcsJs.CampaignUnit> = {};
 
 	if (vehicles.length > 0) {
-		const unitCount = 40 / vehicles.length;
+		const unitCount = 80 / vehicles.length;
 
 		vehicles.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {
@@ -76,7 +76,7 @@ export const generateGroundUnitsInventory = (
 	}
 
 	if (infantries.length > 0) {
-		const unitCount = 40 / infantries.length;
+		const unitCount = 80 / infantries.length;
 
 		infantries.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {

@@ -16,7 +16,7 @@ import {
 } from "../../utils";
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
+import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
 export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -81,6 +81,7 @@ export const generateDeadPackage = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
+				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "DEAD", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "DEAD",

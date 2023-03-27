@@ -13,6 +13,8 @@ const initState: DataStore = {
 	structures: undefined,
 	farps: undefined,
 	callSigns: undefined,
+	launchers: undefined,
+	weapons: undefined,
 };
 
 export const DataContext = createContext<DataStore>(initState);

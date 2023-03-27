@@ -1,14 +1,62 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import { createUniqueId } from "solid-js";
 
 import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
-import { getCoalitionFaction } from "../utils";
+import { getCoalitionFaction, isCampaignStructureUnitCamp } from "../utils";
 
 const hasStillAliveUnits = (groundGroup: DcsJs.CampaignGroundGroup, faction: DcsJs.CampaignFaction) => {
 	return groundGroup.unitIds.some((unitId) => {
 		const unit = faction.inventory.groundUnits[unitId];
 
 		return unit?.alive ?? false;
+	});
+};
+
+export const conquerObjective = (
+	attackingGroundGroup: DcsJs.CampaignGroundGroup,
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState
+) => {
+	const faction = getCoalitionFaction(coalition, state);
+	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
+
+	const objective = state.objectives[attackingGroundGroup.objective.name];
+
+	if (objective == null) {
+		// eslint-disable-next-line no-console
+		throw "objective not found";
+		return;
+	}
+
+	attackingGroundGroup.state = "on objective";
+	attackingGroundGroup.position = objective.position;
+	objective.coalition = coalition;
+	objective.incomingGroundGroups["blue"] = undefined;
+	objective.incomingGroundGroups["red"] = undefined;
+
+	const oppStructures = Object.values(oppFaction.structures).filter(
+		(structure) => structure.objectiveName === objective.name
+	);
+
+	oppStructures.forEach((structure) => {
+		if (isCampaignStructureUnitCamp(structure)) {
+			faction.structures[structure.name] = {
+				...structure,
+				id: createUniqueId(),
+				deploymentScore: 0,
+				buildings: structure.buildings.map((building) => ({
+					...building,
+					alive: true,
+					destroyedTime: undefined,
+				})),
+				unitIds: [],
+			};
+		}
+	});
+
+	oppStructures.forEach((structure) => {
+		delete oppFaction.structures[structure.name];
 	});
 };
 
@@ -72,34 +120,9 @@ export const g2gBattle = (
 		redGroundGroup.combatTimer = state.timer + Minutes(3);
 		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
-		blueGroundGroup.state = "on objective";
-
-		const objective = state.objectives[blueGroundGroup.objective.name];
-
-		if (objective == null) {
-			// eslint-disable-next-line no-console
-			console.error("objective not found", blueGroundGroup);
-			return;
-		}
-
-		blueGroundGroup.position = objective.position;
-		objective.coalition = "blue";
-		objective.incomingGroundGroups["blue"] = undefined;
-		objective.incomingGroundGroups["red"] = undefined;
+		conquerObjective(blueGroundGroup, "blue", state);
 	} else {
-		redGroundGroup.state = "on objective";
-		const objective = state.objectives[redGroundGroup.objective.name];
-
-		if (objective == null) {
-			// eslint-disable-next-line no-console
-			console.error("objective not found", redGroundGroup);
-			return;
-		}
-
-		redGroundGroup.position = objective.position;
-		objective.coalition = "red";
-		objective.incomingGroundGroups["blue"] = undefined;
-		objective.incomingGroundGroups["red"] = undefined;
+		conquerObjective(redGroundGroup, "red", state);
 	}
 };
 
@@ -108,17 +131,19 @@ export const g2g = (
 	attackingGroundGroup: DcsJs.CampaignGroundGroup,
 	state: RunningCampaignState
 ) => {
-	const objective = attackingGroundGroup.objective;
 	const defendingCoalition = oppositeCoalition(attackingCoalition);
 	const defendingFaction = getCoalitionFaction(defendingCoalition, state);
 
 	const defendingGroundGroup = defendingFaction.groundGroups.find(
-		(gg) => gg.state === "on objective" && gg.objective.name === objective.name
+		(gg) => gg.state === "on objective" && gg.objective.name === attackingGroundGroup.objective.name
 	);
 
 	if (defendingGroundGroup == null) {
 		// eslint-disable-next-line no-console
-		console.error("defending ground group not found", objective.name);
+		console.error("defending ground group not found", attackingGroundGroup.objective.name);
+
+		conquerObjective(attackingGroundGroup, attackingCoalition, state);
+
 		return;
 	}
 

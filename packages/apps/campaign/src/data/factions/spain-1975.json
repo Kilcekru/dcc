@@ -1,0 +1,22 @@
+{
+	"countryName": "Spain",
+	"name": "Spain",
+	"year": 1975,
+	"aircraftTypes": {
+		"cap": ["Mirage-F1EE"],
+		"cas": ["SA342M"],
+		"awacs": ["E-3A"],
+		"dead": ["Mirage-F1EE"],
+		"strike": ["Mirage-F1EE"],
+		"lightAttack": ["SA342L"],
+		"heliHunt": ["SA342Mistral"]
+	},
+	"template": {
+		"sams": ["Hawk"],
+		"vehicles": ["LAV-25"],
+		"infantries": ["Soldier M4"],
+		"shoradVehicles": ["Gepard"],
+		"shoradInfantries": ["Soldier stinger"],
+		"ews": ["FPS-117"]
+	}
+}

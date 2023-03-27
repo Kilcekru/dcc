@@ -19,6 +19,7 @@ export const ammoDepotRange = 50_000;
 export const barrackRange = 30_000;
 export const depotRange = 70_000;
 export const speed = 170;
+export const repairScoreCost = 100_000;
 
 export const getCoalitionFaction = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
 	if (coalition === "blue") {
@@ -153,7 +154,69 @@ export const unitIdsToGroundUnit = (faction: DcsJs.CampaignFaction, ids: Array<s
 };
 
 export function isCampaignStructureUnitCamp(
-	structure: DcsJs.CampaignStructure
+	structure: DcsJs.CampaignStructure | undefined
 ): structure is DcsJs.CampaignStructureUnitCamp {
 	return (structure as DcsJs.CampaignStructureUnitCamp).unitIds != null;
+}
+
+export function getLoadoutForAircraftType(
+	aircraftType: DcsJs.AircraftType,
+	task: DcsJs.Task | "default",
+	dataStore: DataStore
+): DcsJs.CampaignFlightGroupLoadout {
+	const ac = dataStore.aircrafts?.[aircraftType];
+
+	if (ac == null) {
+		throw "aircraft not found";
+	}
+
+	const loadout =
+		ac.loadouts.find((loadout) => loadout.task === task) ?? ac.loadouts.find((loadout) => loadout.task === "default");
+
+	if (loadout == null) {
+		// eslint-disable-next-line no-console
+		console.error("getLoadoutForAircraftType", "loadout not found", ac, task);
+		throw "loadout not found";
+	}
+
+	return {
+		...loadout,
+		pylons: loadout.pylons.map((p): DcsJs.CampaignPylon => {
+			const launcher = Object.values(dataStore.launchers ?? {}).find((launcher) => p.CLSID === launcher.CLSID);
+			const weapon = launcher?.type === "Weapon" ? dataStore.weapons?.[launcher.weapon] : undefined;
+
+			if (launcher == null) {
+				// eslint-disable-next-line no-console
+				console.error("getLoadoutForAircraftType", "launcher not found", p);
+				throw "launcher not found";
+			}
+
+			return {
+				CLSID: p.CLSID,
+				num: p.num ?? 0,
+				type: launcher.type,
+				count: launcher.total,
+				total: launcher.total,
+				weapon,
+			};
+		}),
+	};
+}
+
+export function getWeaponsForFlightGroupUnit(unit: DcsJs.CampaignFlightGroupUnit) {
+	const weapons: Map<string, { item: DcsJs.Weapon; count: number; total: number }> = new Map();
+
+	unit.loadout.pylons.forEach((pylon) => {
+		if (pylon.type === "Weapon" && pylon.weapon != null) {
+			const wep = weapons.get(pylon.weapon.name);
+
+			weapons.set(pylon.weapon.name, {
+				item: pylon.weapon,
+				count: pylon.count + (wep?.count ?? 0),
+				total: pylon.total + (wep?.total ?? 0),
+			});
+		}
+	});
+
+	return weapons;
 }

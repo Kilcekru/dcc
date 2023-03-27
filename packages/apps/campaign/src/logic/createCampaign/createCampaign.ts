@@ -90,6 +90,12 @@ export const createCampaign = (
 	state.objectives =
 		dataStore.objectives?.reduce((prev, dataObjective) => {
 			const isBlue = scenario.blue.objectiveNames.some((name) => name === dataObjective.name);
+			const isRed = scenario.red.objectiveNames.some((name) => name === dataObjective.name);
+
+			if (!isBlue && !isRed) {
+				return prev;
+			}
+
 			const faction = isBlue ? state.blueFaction : state.redFaction;
 
 			if (faction == null) {

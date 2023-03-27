@@ -3,7 +3,14 @@ import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-import { campaignRound, createCampaign, deploymentScoreUpdate, missionRound, updateFactionState } from "../logic";
+import {
+	campaignRound,
+	createCampaign,
+	deploymentScoreUpdate,
+	missionRound,
+	repairScoreUpdate,
+	updateFactionState,
+} from "../logic";
 
 type CampaignStore = [
 	CampaignState,
@@ -26,6 +33,7 @@ type CampaignStore = [
 		submitMissionState?: (state: MissionState, dataStore: DataStore) => void;
 		saveCampaignRound?: (dataStore: DataStore) => void;
 		updateDeploymentScore?: () => void;
+		updateRepairScore?: () => void;
 	}
 ];
 
@@ -167,6 +175,9 @@ export function CampaignProvider(props: {
 			},
 			updateDeploymentScore() {
 				setState(produce((s) => deploymentScoreUpdate(s)));
+			},
+			updateRepairScore() {
+				setState(produce((s) => repairScoreUpdate(s)));
 			},
 		},
 	];

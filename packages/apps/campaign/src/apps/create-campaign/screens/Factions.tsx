@@ -15,6 +15,8 @@ const Faction = (props: { faction: DcsJs.FactionDefinition; onPress: (name: stri
 				return styles.france;
 			case "Russia":
 				return styles.russia;
+			case "Spain":
+				return styles.spain;
 			default:
 				return;
 		}

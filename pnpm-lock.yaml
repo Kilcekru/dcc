@@ -26,7 +26,7 @@ importers:
 
   packages/apps/campaign:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.212
+      '@foxdelta2/dcsjs': 0.2.214
       '@kilcekru/dcc-lib-components': workspace:*
       '@kilcekru/dcc-lib-rpc': workspace:*
       '@types/leaflet': 1.9.0
@@ -56,7 +56,7 @@ importers:
       milsymbol: 2.0.0
       solid-js: 1.6.2
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.212
+      '@foxdelta2/dcsjs': 0.2.214
       '@types/leaflet': 1.9.0
 
   packages/apps/launcher:
@@ -69,7 +69,7 @@ importers:
 
   packages/chief/core:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.212
+      '@foxdelta2/dcsjs': 0.2.214
       '@kilcekru/dcc-shared-rpc-types': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.11.10
@@ -79,7 +79,7 @@ importers:
       fs-extra: ^11.1.0
       regedit: ^5.1.1
     dependencies:
-      '@foxdelta2/dcsjs': 0.2.212
+      '@foxdelta2/dcsjs': 0.2.214
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
       fs-extra: 11.1.0
@@ -124,9 +124,9 @@ importers:
 
   packages/shared/rpc-types:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.212
+      '@foxdelta2/dcsjs': 0.2.214
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.212
+      '@foxdelta2/dcsjs': 0.2.214
 
   utils/build:
     specifiers:
@@ -514,12 +514,12 @@ packages:
       - supports-color
     dev: true
 
-  /@foxdelta2/dcsjs/0.2.212:
-    resolution: {integrity: sha512-KdAwVG9GfCC+54SBMneGcO729x44kmNkhJcJX/frriSkjdrUCfymuWCX/Hu3abetk8gn1myD2XJ6nl2HweDzDg==}
+  /@foxdelta2/dcsjs/0.2.214:
+    resolution: {integrity: sha512-PmnMnOWiM12i8+CmSlnEByeWkSyOD9rkvM1aNyFJU6b7j60Fhu4kzDyaYNU114hihcYP0tmwboiUk3iZSL7kHw==}
     dependencies:
       '@kilcekru/lua-table': 1.0.0
       adm-zip: 0.5.10
-      fs-extra: 11.1.0
+      fs-extra: 11.1.1
 
   /@humanwhocodes/config-array/0.11.8:
     resolution: {integrity: sha512-UybHIJzJnR5Qc/MsD9Kr+RpO2h+/P1GhOwdiLPXK5TWk5sgTdu88bTD9UP+CKbPPh5Rni1u0GjAdYQLemG8g+g==}
@@ -2129,6 +2129,15 @@ packages:
       graceful-fs: 4.2.10
       jsonfile: 6.1.0
       universalify: 2.0.0
+    dev: false
+
+  /fs-extra/11.1.1:
+    resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
+    engines: {node: '>=14.14'}
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.1.0
+      universalify: 2.0.0
 
   /fs-extra/8.1.0:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
@@ -2307,7 +2316,6 @@ packages:
   /graceful-fs/4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
     requiresBuild: true
-    optional: true
 
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}

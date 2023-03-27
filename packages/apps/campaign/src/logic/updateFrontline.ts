@@ -12,7 +12,7 @@ import {
 	random,
 	randomList,
 } from "../utils";
-import { g2g, g2gBattle } from "./combat";
+import { conquerObjective, g2g, g2gBattle } from "./combat";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction, unitIdsToGroundUnit } from "./utils";
 
@@ -232,6 +232,10 @@ const attackDeploymentCost = 30_000;
 
 const attackFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
 	const oppCoalition = "red";
+	const oppFaction = getCoalitionFaction(oppCoalition, state);
+
+	const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
+
 	Object.keys(state.blueFaction.structures).forEach((id) => {
 		const structure = state.blueFaction.structures[id];
 
@@ -241,16 +245,18 @@ const attackFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
 
 		if (structure.structureType === "Depots") {
 			if (structure.deploymentScore >= attackDeploymentCost && structure.state === "active") {
-				const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
 				const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups.blue == null);
 				const objectivesInRange = findInside(freeOppObjectives, structure.position, (obj) => obj.position, 70_000);
 
-				const vehicleObjectives = objectivesInRange.filter((obj) =>
-					dataStore.strikeTargets?.[obj.name]?.some((target) => target.type === "Vehicle")
-				);
+				const validObjectives = objectivesInRange.filter((obj) => {
+					return (
+						Object.values(oppFaction.structures).some((structure) => structure.objectiveName === obj.name) ||
+						oppFaction.groundGroups.some((gg) => gg.objective.name === obj.name)
+					);
+				});
 
-				if (vehicleObjectives.length > 0) {
-					const targetObjective = findNearest(vehicleObjectives, structure.position, (obj) => obj.position);
+				if (validObjectives.length > 0) {
+					const targetObjective = findNearest(validObjectives, structure.position, (obj) => obj.position);
 
 					if (targetObjective == null) {
 						return;
@@ -320,6 +326,8 @@ const updateCombat = (state: RunningCampaignState) => {
 			if (redGg == null) {
 				// eslint-disable-next-line no-console
 				console.error("red combat ground group not found", gg);
+
+				conquerObjective(gg, "blue", state);
 				return;
 			}
 

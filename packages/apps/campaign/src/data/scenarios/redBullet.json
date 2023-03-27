@@ -5,7 +5,16 @@
 	"blue": {
 		"airdromeNames": ["Kobuleti"],
 		"farpNames": ["Poti"],
-		"objectiveNames": ["Poti", "Siriachkoni", "Ketilari", "Nasakirali", "Nagomari", "Maharadze", "Konchkati"],
+		"objectiveNames": [
+			"Poti",
+			"Siriachkoni",
+			"Ketilari",
+			"Nasakirali",
+			"Nagomari",
+			"Maharadze",
+			"Konchkati",
+			"Lanchhuti"
+		],
 		"samNames": ["Nasakirali"],
 		"ewNames": [],
 		"barracks": ["Siriachkoni|Structure|1"],
@@ -14,7 +23,22 @@
 	"red": {
 		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
 		"farpNames": [],
-		"objectiveNames": [],
+		"objectiveNames": [
+			"Enguri Dam",
+			"Dzhvari",
+			"Zeni",
+			"Lia",
+			"Natsatu",
+			"Zugdidi",
+			"Kahati",
+			"Tsatshvi",
+			"Okhvamekari",
+			"Dgvaba",
+			"Naposhtu",
+			"Durgena",
+			"Senaki-Kolkhi",
+			"Bataria"
+		],
 		"samNames": ["Ochkhomuri", "Sukhumi-Babushara", "Nalchik", "Zeni"],
 		"ewNames": ["Meore-Balda", "Bedia"],
 		"barracks": [

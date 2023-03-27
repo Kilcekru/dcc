@@ -1,0 +1,31 @@
+.overlay-sidebar {
+	position: absolute;
+	width: 500px;
+	top: 0;
+	bottom: 0;
+	left: -500px;
+	background-color: var(--action);
+	transition: left 200ms ease-in-out;
+
+	&--open {
+		left: 0;
+	}
+}
+
+.close-button {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	color: var(--body);
+	background-color: unset;
+	border: none;
+	border-radius: 50%;
+	padding: 5px;
+	height: 30px;
+	width: 30px;
+
+	svg {
+		width: 20px;
+		height: 20px;
+	}
+}

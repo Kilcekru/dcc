@@ -6,12 +6,21 @@ import { unwrap } from "solid-js/store";
 
 import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
-import { GameOverModal, Header, Sidebar, StartMissionModal } from "./components";
+import {
+	GameOverModal,
+	Header,
+	OverlaySidebar,
+	OverlaySidebarProvider,
+	Sidebar,
+	StartMissionModal,
+} from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [state, { tick, clearPackages, saveCampaignRound, notifyPackage, pause, updateDeploymentScore }] =
-		useContext(CampaignContext);
+	const [
+		state,
+		{ tick, clearPackages, saveCampaignRound, notifyPackage, pause, updateDeploymentScore, updateRepairScore },
+	] = useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
 	let inter: number;
@@ -66,7 +75,12 @@ export const Home = () => {
 			const clientTick = clientPackageCheck();
 			tick?.(clientTick ?? tickValue);
 
-			saveCampaignRound?.(dataStore);
+			try {
+				saveCampaignRound?.(dataStore);
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error(e);
+			}
 			tickFinished = true;
 		} else {
 			// eslint-disable-next-line no-console
@@ -76,6 +90,7 @@ export const Home = () => {
 
 	const longInterval = () => {
 		updateDeploymentScore?.();
+		updateRepairScore?.();
 	};
 
 	const startInterval = () => {
@@ -99,20 +114,23 @@ export const Home = () => {
 	onCleanup(() => stopInterval());
 
 	return (
-		<div class={styles.home}>
-			<Header />
-			<Sidebar />
-			<div class={styles.content}>
-				<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
-					<Components.Button onPress={onReset}>Reset</Components.Button>
-					<Components.Button onPress={onClearPackages}>Clear Packages</Components.Button>
-					<Components.Button onPress={onLog}>Log State</Components.Button>
-					<Components.Button onPress={onNextRound}>Next Round</Components.Button>
+		<OverlaySidebarProvider>
+			<div class={styles.home}>
+				<Header />
+				<Sidebar />
+				<OverlaySidebar />
+				<div class={styles.content}>
+					<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
+						<Components.Button onPress={onReset}>Reset</Components.Button>
+						<Components.Button onPress={onClearPackages}>Clear Packages</Components.Button>
+						<Components.Button onPress={onLog}>Log State</Components.Button>
+						<Components.Button onPress={onNextRound}>Next Round</Components.Button>
+					</div>
+					<Map />
+					<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />
+					<GameOverModal />
 				</div>
-				<Map />
-				<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />
-				<GameOverModal />
 			</div>
-		</div>
+		</OverlaySidebarProvider>
 	);
 };
