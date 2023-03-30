@@ -22,9 +22,9 @@ import {
 	calcNearestOppositeAirdrome,
 	generateCallSign,
 	getCoalitionFaction,
-	getLoadoutForAircraftType,
 	speed,
 } from "../utils";
+import { updateAircraftForFlightGroup } from "./utils";
 
 export const generateCapPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -143,7 +143,6 @@ export const generateCapPackage = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
-				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "CAP", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "CAP",
@@ -177,6 +176,8 @@ export const generateCapPackage = (
 		position: objectToPosition(airdrome),
 		target: objectiveName,
 	};
+
+	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
 
 	const flightGroups = [flightGroup];
 

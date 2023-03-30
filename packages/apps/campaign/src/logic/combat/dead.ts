@@ -44,7 +44,7 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 							return;
 						}
 
-						if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
+						if (aircraft.a2GWeaponReadyTimer == null || aircraft.a2GWeaponReadyTimer <= state.timer) {
 							// Is the attack successful
 							if (random(1, 100) <= 50) {
 								destroySam(oppFaction, objective.name, state.timer);
@@ -53,7 +53,7 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 								console.log(`DEAD: ${aircraft.id} missed SAM in objective ${objective.name}`); // eslint-disable-line no-console
 							}
 
-							aircraft.weaponReadyTimer = state.timer + Minutes(60);
+							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(60);
 						}
 					});
 				}

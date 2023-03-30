@@ -42,7 +42,7 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 							return;
 						}
 
-						if (aircraft.weaponReadyTimer == null || aircraft.weaponReadyTimer <= state.timer) {
+						if (aircraft.a2GWeaponReadyTimer == null || aircraft.a2GWeaponReadyTimer <= state.timer) {
 							// Is the attack successful
 							if (random(1, 100) <= 75) {
 								destroyStructure(targetStructure, state.timer);
@@ -51,7 +51,7 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 								console.log(`Strike: ${aircraft.id} missed structure ${targetStructure.name}`); // eslint-disable-line no-console
 							}
 
-							aircraft.weaponReadyTimer = state.timer + Minutes(60);
+							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(60);
 						}
 					});
 				}

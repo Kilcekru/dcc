@@ -24,6 +24,7 @@ import {
 	getLoadoutForAircraftType,
 	speed,
 } from "../utils";
+import { updateAircraftForFlightGroup } from "./utils";
 
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -161,6 +162,8 @@ export const generateCasPackage = (
 		position: objectToPosition(startPosition),
 		target: groundGroupTarget.id,
 	};
+
+	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
 
 	const flightGroups = [flightGroup];
 

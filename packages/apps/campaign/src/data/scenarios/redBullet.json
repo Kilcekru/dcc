@@ -18,7 +18,8 @@
 		"samNames": ["Nasakirali"],
 		"ewNames": [],
 		"barracks": ["Siriachkoni|Structure|1"],
-		"depots": ["Lanchhuti|Structure|1"]
+		"depots": ["Lanchhuti|Structure|1"],
+		"ammoDepots": ["Konchkati|Structure|2", "Nagomari|Structure|2"]
 	},
 	"red": {
 		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
@@ -48,6 +49,7 @@
 			"Ochkhomuri|Structure|1",
 			"Dzhvari|Structure|3"
 		],
-		"depots": ["Dgvaba|Structure|1", "Meore-Balda|Structure|1", "Zeni|Structure|1", "Ochamchira|Structure|1"]
+		"depots": ["Dgvaba|Structure|1", "Meore-Balda|Structure|1", "Zeni|Structure|1", "Ochamchira|Structure|1"],
+		"ammoDepots": ["Gakhomela|Structure|1", "Kahati|Structure|1", "Natsatu|Structure|1", "Sachino|Structure|2"]
 	}
 }

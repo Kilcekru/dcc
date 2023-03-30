@@ -18,13 +18,8 @@ import {
 } from "../../utils";
 import { getStrikeTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import {
-	calcLandingWaypoints,
-	calcNearestOppositeAirdrome,
-	generateCallSign,
-	getCoalitionFaction,
-	getLoadoutForAircraftType,
-} from "../utils";
+import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
+import { updateAircraftForFlightGroup } from "./utils";
 
 const speed = 170;
 
@@ -101,7 +96,6 @@ const escortFlightGroup = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
-				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "Escort", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "Escort",
@@ -122,6 +116,8 @@ const escortFlightGroup = (
 		target: targetFlightGroup.name,
 		position: objectToPosition(airdrome),
 	};
+
+	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
 
 	return flightGroup;
 };
@@ -197,7 +193,6 @@ export const generateStrikePackage = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
-				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "Pinpoint Strike", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "Pinpoint Strike",
@@ -255,6 +250,9 @@ export const generateStrikePackage = (
 		engressPosition,
 		endEngressTime
 	);
+
+	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+
 	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];
 
 	return {

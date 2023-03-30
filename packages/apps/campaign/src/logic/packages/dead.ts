@@ -16,7 +16,8 @@ import {
 } from "../../utils";
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
+import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
+import { updateAircraftForFlightGroup } from "./utils";
 
 export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -76,13 +77,15 @@ export const generateDeadPackage = (
 		id: createUniqueId(),
 		airdromeName,
 		units:
-			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
-				id: aircraft.id,
-				callSign: cs.unitCallSign(i),
-				name: cs.unitName(i),
-				client: false,
-				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "DEAD", dataStore),
-			})) ?? [],
+			usableAircrafts?.slice(0, 2).map(
+				(aircraft, i) =>
+					({
+						id: aircraft.id,
+						callSign: cs.unitCallSign(i),
+						name: cs.unitName(i),
+						client: false,
+					} as DcsJs.CampaignFlightGroupUnit)
+			) ?? [],
 		name: cs.flightGroupName,
 		task: "DEAD",
 		startTime,
@@ -121,6 +124,8 @@ export const generateDeadPackage = (
 		},
 		position: objectToPosition(airdrome),
 	};
+
+	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
 
 	const flightGroups = [flightGroup];
 

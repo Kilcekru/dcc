@@ -32,9 +32,9 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 							return;
 						}
 
-						if (aircraft.weaponReadyTimer == null) {
-							aircraft.weaponReadyTimer = state.timer + Minutes(3);
-						} else if (aircraft.weaponReadyTimer <= state.timer) {
+						if (aircraft.a2GWeaponReadyTimer == null) {
+							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);
+						} else if (aircraft.a2GWeaponReadyTimer <= state.timer) {
 							const aliveUnitId = gg.unitIds.find((id) => {
 								const inventoryUnit = oppFaction.inventory.groundUnits[id];
 
@@ -52,7 +52,7 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 								console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${gg.objective.name}`); // eslint-disable-line no-console
 							}
 
-							aircraft.weaponReadyTimer = state.timer + Minutes(3);
+							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);
 						}
 					});
 				}

@@ -24,7 +24,7 @@ export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; co
 		return ac;
 	});
 
-	const weapons = createMemo(() => getWeaponsForFlightGroupUnit(props.unit));
+	const weapons = createMemo(() => getWeaponsForFlightGroupUnit(aircraft()));
 
 	return (
 		<div>

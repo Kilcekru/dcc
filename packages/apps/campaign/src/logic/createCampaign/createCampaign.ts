@@ -7,6 +7,7 @@ import { scenarioList } from "../../data/scenarios";
 import { firstItem, getUsableUnit, Minutes, random } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
+import { generateAmmoDepots } from "./generateAmmoDepots";
 import { generateBarracks } from "./generateBarracks";
 import { generateDepots } from "./generateDepots";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
@@ -58,7 +59,11 @@ export const createCampaign = (
 		awacsFrequency: 285.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		structures: { ...generateBarracks(scenario.blue, dataStore), ...generateDepots(scenario.blue, dataStore) },
+		structures: {
+			...generateBarracks(scenario.blue, dataStore),
+			...generateDepots(scenario.blue, dataStore),
+			...generateAmmoDepots(scenario.blue, dataStore),
+		},
 	};
 
 	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
@@ -84,7 +89,11 @@ export const createCampaign = (
 		awacsFrequency: 280.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		structures: { ...generateBarracks(scenario.red, dataStore), ...generateDepots(scenario.red, dataStore) },
+		structures: {
+			...generateBarracks(scenario.red, dataStore),
+			...generateDepots(scenario.red, dataStore),
+			...generateAmmoDepots(scenario.red, dataStore),
+		},
 	};
 
 	state.objectives =
