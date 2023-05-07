@@ -10,17 +10,17 @@ import style from "./Sidebar.module.less";
 
 export const Sidebar = () => {
 	const [state] = useContext(CampaignContext);
-	const [selectedFaction, setSelectedFaction] = createSignal<DcsJs.CampaignFaction | undefined>(state.blueFaction);
-	const [selectedListType, setSelectedListType] = createSignal<"flightGroups" | "aircrafts">("flightGroups");
+	const [selectedFaction] = createSignal<DcsJs.CampaignFaction | undefined>(state.blueFaction);
+	const [selectedListType] = createSignal<"flightGroups" | "aircrafts">("flightGroups");
 
 	return (
 		<div class={style.sidebar}>
-			<div style={{ display: "block" }}>
+			{/* <div style={{ display: "block" }}>
 				<Components.Button onPress={() => setSelectedFaction(state.blueFaction)}>Blue</Components.Button>
 				<Components.Button onPress={() => setSelectedFaction(state.redFaction)}>Red</Components.Button>
 				<Components.Button onPress={() => setSelectedListType("flightGroups")}>Flight Groups</Components.Button>
 				<Components.Button onPress={() => setSelectedListType("aircrafts")}>Aircrafts</Components.Button>
-			</div>
+	</div> */}
 			<Show when={selectedListType() === "flightGroups"}>
 				<Components.ScrollContainer>
 					<Components.List class={style.sidebar__list}>

@@ -5,6 +5,7 @@ import { CampaignContext } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction, getWeaponsForFlightGroupUnit } from "../../../../logic/utils";
+import Style from "./Item.module.less";
 
 export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; coalition: DcsJs.CampaignCoalition }) {
 	const [state] = useContext(CampaignContext);
@@ -28,16 +29,16 @@ export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; co
 
 	return (
 		<div>
-			<h3>{props.unit.name}</h3>
-			<p>{dataStore.aircrafts?.[aircraft().aircraftType]?.display_name ?? aircraft().aircraftType}</p>
+			<div class={Style.header}>
+				<h3 class={Style.subtitle}>{props.unit.name}</h3>
+				<p>{dataStore.aircrafts?.[aircraft().aircraftType]?.display_name ?? aircraft().aircraftType}</p>
+			</div>
 			<For each={[...weapons()]}>
-				{([, { item, count, total }]) => (
-					<>
+				{([, { item, count }]) => (
+					<div class={Style.weapon}>
+						<div class={Style.weapon__count}>{count}x</div>
 						<div>{item.displayName}</div>
-						<div>
-							{count}({total})
-						</div>
-					</>
+					</div>
 				)}
 			</For>
 		</div>

@@ -156,6 +156,18 @@ export const generateStrikePackage = (
 		return;
 	}
 
+	const activeStrikes = faction.packages.filter((pkg) => pkg.task === "Pinpoint Strike");
+	const activeStrikeStartTime = activeStrikes.reduce((prev, pkg) => {
+		if (pkg.startTime > prev) {
+			return pkg.startTime;
+		}
+
+		return prev;
+	}, 0);
+	const nextAvailableStartTime = activeStrikeStartTime + Minutes(random(20, 30));
+	const currentStartTime = Math.floor(state.timer) + Minutes(random(15, 20));
+	const startTime = currentStartTime > nextAvailableStartTime ? currentStartTime : nextAvailableStartTime;
+
 	const ingressPosition = positionFromHeading(
 		targetStructure.position,
 		headingToPosition(targetStructure.position, airdrome),
@@ -171,8 +183,6 @@ export const generateStrikePackage = (
 
 	const durationIngress = getDurationEnRoute(ingressPosition, targetStructure.position, speed);
 	const durationEngress = getDurationEnRoute(targetStructure.position, engressPosition, speed);
-
-	const startTime = Math.floor(state.timer) + Minutes(random(15, 30));
 
 	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(airdrome, ingressPosition, startTime);
 	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, speed);
@@ -241,6 +251,8 @@ export const generateStrikePackage = (
 		position: objectToPosition(airdrome),
 	};
 
+	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+
 	const escort = escortFlightGroup(
 		coalition,
 		state,
@@ -251,7 +263,9 @@ export const generateStrikePackage = (
 		endEngressTime
 	);
 
-	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+	if (escort != null) {
+		updateAircraftForFlightGroup(escort, faction, dataStore);
+	}
 
 	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];
 

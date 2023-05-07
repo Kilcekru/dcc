@@ -15,6 +15,8 @@ function updateUnitCampState(
 	const structureObjective = state.objectives[camp.objectiveName];
 
 	if (structureObjective == null) {
+		// eslint-disable-next-line no-console
+		console.error("cleanupFactionStructures: objective not found", camp);
 		throw "cleanupFactionStructures: objective not found";
 	}
 

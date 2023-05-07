@@ -1,5 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
 import { Scenario } from "./data";
 import { MapPosition, Position, Task } from "./types";
@@ -12,15 +13,16 @@ export const isEmpty = (object: object) => {
 	return Object.keys(object).length === 0;
 };
 
-const basePos = { x: -317962.296875, y: 635632.96875 };
-const baseLatLon: MapPosition = [41.9292, 41.8642];
 export const positionToMapPosition = (pos: { x: number; y: number }): MapPosition => {
-	const distance = distanceToPosition(basePos, pos);
-	const heading = headingToPosition(basePos, pos);
+	try {
+		const latLng = LOtoLL({ map: "caucasus", x: pos.x, z: pos.y });
 
-	const newPosition = computeDestinationMapPosition(baseLatLon, distance, (heading - 90) * -1);
-
-	return newPosition;
+		return [latLng.lat, latLng.lng];
+	} catch (e: unknown) {
+		// eslint-disable-next-line no-console
+		console.error(e, pos);
+		throw new Error("invalid map position");
+	}
 };
 
 export const headingToPosition = (position1: Position, position2: Position) => {
@@ -47,50 +49,6 @@ export const addHeading = (heading: number, value: number) => {
 
 	return sum % 360;
 };
-
-export const earthRadius = 6378137;
-export const MINLAT = -90;
-export const MAXLAT = 90;
-export const MINLON = -180;
-export const MAXLON = 180;
-
-const computeDestinationMapPosition = (start: MapPosition, distance: number, bearing: number): MapPosition => {
-	const lat = getLatitude(start);
-	const lng = getLongitude(start);
-
-	const delta = distance / earthRadius;
-	const theta = toRad(bearing);
-
-	const phi1 = toRad(lat);
-	const lambda1 = toRad(lng);
-
-	const phi2 = Math.asin(Math.sin(phi1) * Math.cos(delta) + Math.cos(phi1) * Math.sin(delta) * Math.cos(theta));
-
-	let lambda2 =
-		lambda1 +
-		Math.atan2(Math.sin(theta) * Math.sin(delta) * Math.cos(phi1), Math.cos(delta) - Math.sin(phi1) * Math.sin(phi2));
-
-	let longitude = toDeg(lambda2);
-	if (longitude < MINLON || longitude > MAXLON) {
-		// normalise to >=-180 and <=180° if value is >MAXLON or <MINLON
-		lambda2 = ((lambda2 + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
-		longitude = toDeg(lambda2);
-	}
-
-	return [longitude, toDeg(phi2)];
-};
-
-const getLatitude = (mapPosition: MapPosition) => {
-	return mapPosition[1];
-};
-
-const getLongitude = (mapPosition: MapPosition) => {
-	return mapPosition[0];
-};
-
-const toRad = (value: number) => (value * Math.PI) / 180;
-
-const toDeg = (value: number) => (value * 180) / Math.PI;
 
 export const Minutes = (value: number) => {
 	return value * 60;

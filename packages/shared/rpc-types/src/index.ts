@@ -11,7 +11,6 @@ export type DataStore = {
 	samTemplates: DcsJs.GetSamTemplates | undefined;
 	vehicles: DcsJs.GetVehicles | undefined;
 	structures: DcsJs.GetStructures | undefined;
-	farps: DcsJs.GetFarps | undefined;
 	callSigns: DcsJs.GetCallSigns | undefined;
 	launchers: DcsJs.GetLaunchers | undefined;
 	weapons: DcsJs.GetWeapons | undefined;

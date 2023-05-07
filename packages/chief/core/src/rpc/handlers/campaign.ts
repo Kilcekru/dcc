@@ -50,7 +50,6 @@ const getDataStore: Campaign["getDataStore"] = async () => {
 		samTemplates: DcsJs.getSamTemplates(),
 		strikeTargets: DcsJs.getStrikeTargets(),
 		structures: DcsJs.getStructures(),
-		farps: DcsJs.getFarps(),
 		callSigns: DcsJs.getCallSigns(),
 		launchers: DcsJs.getLaunchers(),
 		weapons: DcsJs.getWeapons(),

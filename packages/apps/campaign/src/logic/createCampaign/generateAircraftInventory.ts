@@ -35,7 +35,7 @@ export const generateAircraftInventory = (
 	}
 
 	const aircrafts: Array<DcsJs.CampaignAircraft> = [];
-	const farpName = firstItem(getScenarioFaction(coalition, scenario).farpNames);
+	const farpName = firstItem(getScenarioFaction(coalition, scenario).farps);
 
 	faction.aircraftTypes.cap.forEach((acType) => {
 		const count = Math.max(2, capCount * faction.aircraftTypes.cap.length);

@@ -1,0 +1,40 @@
+.header {
+	background-color: var(--action-hover);
+	padding: 10px;
+}
+
+.title {
+	font-size: 50px;
+	font-weight: 800;
+	text-transform: uppercase;
+	margin-left: 10px;
+	margin-top: 30px;
+}
+
+.subtitle {
+	font-size: 30px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.weapon {
+	display: flex;
+	gap: 10px;
+	font-size: 18px;
+	padding-block: 5px;
+
+	&__count {
+		padding-left: 10px;
+		font-weight: 600;
+	}
+
+	&:nth-child(odd) {
+		background-color: var(--action-dark);
+	}
+}
+
+.task {
+	margin-left: 10px;
+	margin-bottom: 10px;
+	border: 1px solid white;
+}

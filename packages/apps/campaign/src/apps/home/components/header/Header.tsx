@@ -27,6 +27,7 @@ export const Header = () => {
 
 	const onGenerateMission = async () => {
 		pause?.();
+		onSave();
 
 		const unwrapped = unwrap(state);
 

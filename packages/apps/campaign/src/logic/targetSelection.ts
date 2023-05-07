@@ -55,7 +55,7 @@ export const getStrikeTarget = (
 ): DcsJs.CampaignStructure | undefined => {
 	const factionObjectives = Object.values(objectives).filter((obj) => obj.coalition === coalition);
 	const structures = Object.values(oppFaction.structures).filter((structure) => {
-		const alreadyTarget = faction.packages.find((pkg) => pkg.flightGroups.find((fg) => fg.target === structure.id));
+		const alreadyTarget = faction.packages.find((pkg) => pkg.flightGroups.find((fg) => fg.target === structure.name));
 
 		if (alreadyTarget) {
 			return false;
@@ -176,7 +176,7 @@ export const awacsTarget = (
 
 	const heading = headingToPosition(nearestObjective.position, fartestAirdrome);
 
-	const centerPosition = positionFromHeading(nearestObjective.position, heading, random(200_000, 280_000));
+	const centerPosition = positionFromHeading(nearestObjective.position, heading, random(50_000, 70_000));
 
 	const racetrackStart = positionFromHeading(centerPosition, addHeading(heading, -90), 40_000);
 	const racetrackEnd = positionFromHeading(centerPosition, addHeading(heading, 90), 40_000);

@@ -11,7 +11,6 @@ const initState: DataStore = {
 	vehicles: undefined,
 	aircrafts: undefined,
 	structures: undefined,
-	farps: undefined,
 	callSigns: undefined,
 	launchers: undefined,
 	weapons: undefined,

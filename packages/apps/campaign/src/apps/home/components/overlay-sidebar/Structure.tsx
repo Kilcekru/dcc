@@ -6,6 +6,7 @@ import { createMemo, For, Show, useContext } from "solid-js";
 import { CampaignContext } from "../../../../components";
 import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction, isCampaignStructureUnitCamp, repairScoreCost } from "../../../../logic/utils";
+import Style from "./Item.module.less";
 import { OverlaySidebarContext } from "./OverlaySidebarProvider";
 import styles from "./Structure.module.less";
 
@@ -14,6 +15,11 @@ const staticTypeName: Record<DcsJs.StaticType, string> = {
 	"Tech hangar A": "Hangar",
 	"Electric power box": "Power Box",
 	"Repair workshop": "Repair Workshop",
+	"FARP Ammo Dump Coating": "Ammo Storage",
+	"FARP CP Blindage": "Command Post",
+	"FARP Fuel Depot": "Fuel Depot",
+	"FARP Tent": "Tent",
+	"Invisible FARP": "Heliport",
 };
 
 const staticTypeImage: Record<DcsJs.StaticType, keyof typeof styles> = {
@@ -21,6 +27,11 @@ const staticTypeImage: Record<DcsJs.StaticType, keyof typeof styles> = {
 	"Tech hangar A": "image-tech-hangar-a",
 	"Electric power box": "image-electric-power-box",
 	"Repair workshop": "image-repair-workshop",
+	"FARP Ammo Dump Coating": "image-farp-ammo-storage",
+	"FARP CP Blindage": "image-farp-command-post",
+	"FARP Fuel Depot": "image-farp-fuel-depot",
+	"FARP Tent": "image-farp-tent",
+	"Invisible FARP": "image-invisible-farp",
 };
 
 export function Structure() {
@@ -78,7 +89,7 @@ export function Structure() {
 	return (
 		<Show when={structure() != null}>
 			<div>
-				<h2 class={cnb(styles.header, styles.objective)}>{structure()?.objectiveName}</h2>
+				<h2 class={Style.title}>{structure()?.objectiveName}</h2>
 				<h2 class={styles.header}>{structure()?.structureType}</h2>
 
 				{deploymentScore == null ? null : <p>Deployment Score: {deploymentScore()}</p>}

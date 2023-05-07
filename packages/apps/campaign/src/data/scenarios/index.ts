@@ -1,13 +1,13 @@
 import * as redBullet from "./redBullet.json";
 export type ScenarioCoalition = {
 	airdromeNames: Array<string>;
-	farpNames: Array<string>;
 	objectiveNames: Array<string>;
 	samNames: Array<string>;
 	ewNames: Array<string>;
 	barracks: Array<string>;
 	depots: Array<string>;
 	ammoDepots: Array<string>;
+	farps: Array<string>;
 };
 export type Scenario = {
 	map: string;

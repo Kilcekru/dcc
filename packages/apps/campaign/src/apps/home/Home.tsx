@@ -47,24 +47,22 @@ export const Home = () => {
 		saveCampaignRound?.(dataStore);
 	};
 
-	const clientPackageCheck = () => {
-		let tickValue: number | undefined = undefined;
+	const clientPackageCheck = (tickValue: number) => {
+		const newTimer = tickValue + state.timer;
 
-		state.blueFaction?.packages.forEach((pkg) => {
-			if (pkg.startTime <= state.timer + 21 && !pkg.notified) {
-				const hasClient = pkg.flightGroups.some((fg) => {
-					return fg.units.some((unit) => unit.client);
-				});
+		return state.blueFaction?.packages.reduce((prev, pkg) => {
+			const hasClient = pkg.flightGroups.some((fg) => {
+				return fg.units.some((unit) => unit.client);
+			});
 
-				if (hasClient) {
-					notifyPackage?.(pkg.id);
-					pause?.();
-					tickValue = pkg.startTime - state.timer;
-				}
+			if (hasClient && newTimer >= pkg.startTime && !pkg.notified) {
+				notifyPackage?.(pkg.id);
+				pause?.();
+				return newTimer - pkg.startTime;
 			}
-		});
 
-		return tickValue;
+			return prev;
+		}, tickValue);
 	};
 
 	const interval = () => {
@@ -72,14 +70,15 @@ export const Home = () => {
 			tickFinished = false;
 			const tickValue = state.multiplier === 1 ? 1 : 10;
 
-			const clientTick = clientPackageCheck();
+			const clientTick = clientPackageCheck(tickValue);
 			tick?.(clientTick ?? tickValue);
 
 			try {
 				saveCampaignRound?.(dataStore);
 			} catch (e) {
 				// eslint-disable-next-line no-console
-				console.error(e);
+				console.error(e, state);
+				stopInterval();
 			}
 			tickFinished = true;
 		} else {

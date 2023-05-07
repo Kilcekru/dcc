@@ -53,6 +53,27 @@ export const conquerObjective = (
 				unitIds: [],
 			};
 		}
+
+		if (structure.structureType === "Farp") {
+			faction.structures[structure.name] = {
+				...structure,
+				id: createUniqueId(),
+			};
+
+			const farpAircrafts = Object.values(faction.inventory.aircrafts).filter((ac) => ac.homeBase.type === "farp");
+
+			farpAircrafts.forEach((ac) => {
+				const inventoryAc = faction.inventory.aircrafts[ac.id];
+
+				if (inventoryAc == null) {
+					return;
+				}
+
+				inventoryAc.homeBase.name = structure.name;
+			});
+		}
+
+		faction.structures[structure.name] = structure;
 	});
 
 	oppStructures.forEach((structure) => {

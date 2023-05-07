@@ -3,11 +3,11 @@ import "./FlightGroupItem.less";
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { Icons } from "@kilcekru/dcc-lib-components";
-import { cnb } from "cnbuilder";
 import { createEffect, createSignal, For, Show, useContext } from "solid-js";
 
 import { CampaignContext, Clock } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
+import { OverlaySidebarContext } from "../overlay-sidebar";
 import styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: {
@@ -18,29 +18,18 @@ export const FlightGroupItem = (props: {
 	const dataStore = useContext(DataContext);
 	const [clientCount, setClientCount] = createSignal(0);
 	const [aircrafts, setAircrafts] = createSignal<Array<{ name: string; aircraftType: string; isClient: boolean }>>([]);
+	const [, { openFlightGroup }] = useContext(OverlaySidebarContext);
 
 	createEffect(() => {
 		setClientCount(props.flightGroup.units.filter((unit) => unit.client).length);
 	});
 	const onPress = () => {
 		selectFlightGroup?.({ ...props.flightGroup });
+		openFlightGroup?.(props.flightGroup.id, "blue");
 	};
 
 	const updateClients = (value: number) => {
 		setClient?.(props.flightGroup.id, clientCount() + value);
-	};
-
-	const taskClass = () => {
-		switch (props.flightGroup.task) {
-			case "AWACS":
-				return styles["task--awacs"];
-			case "CAS":
-				return styles["task--cas"];
-			case "CAP":
-				return styles["task--cap"];
-			default:
-				return undefined;
-		}
 	};
 
 	createEffect(() => {
@@ -80,7 +69,7 @@ export const FlightGroupItem = (props: {
 				<Components.Button class={styles.clientAddButton} onPress={() => updateClients(1)}>
 					<Icons.PersonAdd />
 				</Components.Button>
-				<div class={cnb(styles.task, taskClass())}>{props.flightGroup.task}</div>
+				<Components.TaskLabel task={props.flightGroup.task} class={styles.task} />
 				<div class={styles.stats}>
 					<div>
 						<p class={styles.label}>Start</p>

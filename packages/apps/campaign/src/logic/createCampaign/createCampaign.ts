@@ -10,10 +10,12 @@ import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateAmmoDepots } from "./generateAmmoDepots";
 import { generateBarracks } from "./generateBarracks";
 import { generateDepots } from "./generateDepots";
+import { generateFarps } from "./generateFarps";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
 import { moveInfantryIntoBarracks } from "./moveInfantryIntoBarracks";
 import { moveVehiclesIntoDepot } from "./moveVehiclesIntoDepot";
+import { claimsObjective } from "./utils";
 
 /**
  *
@@ -63,6 +65,7 @@ export const createCampaign = (
 			...generateBarracks(scenario.blue, dataStore),
 			...generateDepots(scenario.blue, dataStore),
 			...generateAmmoDepots(scenario.blue, dataStore),
+			...generateFarps(scenario.blue, dataStore),
 		},
 	};
 
@@ -93,13 +96,14 @@ export const createCampaign = (
 			...generateBarracks(scenario.red, dataStore),
 			...generateDepots(scenario.red, dataStore),
 			...generateAmmoDepots(scenario.red, dataStore),
+			...generateFarps(scenario.red, dataStore),
 		},
 	};
 
 	state.objectives =
 		dataStore.objectives?.reduce((prev, dataObjective) => {
-			const isBlue = scenario.blue.objectiveNames.some((name) => name === dataObjective.name);
-			const isRed = scenario.red.objectiveNames.some((name) => name === dataObjective.name);
+			const isBlue = claimsObjective(scenario.blue, dataObjective.name);
+			const isRed = claimsObjective(scenario.red, dataObjective.name);
 
 			if (!isBlue && !isRed) {
 				return prev;
@@ -203,10 +207,6 @@ export const createCampaign = (
 	moveVehiclesIntoDepot(state);
 
 	state.active = true;
-	state.farps = [
-		...scenario.blue.farpNames.map((name) => ({ coalition: "blue" as DcsJs.CampaignCoalition, name })),
-		...scenario.red.farpNames.map((name) => ({ coalition: "red" as DcsJs.CampaignCoalition, name })),
-	];
 
 	return state;
 };

@@ -191,6 +191,11 @@ export function getLoadoutForAircraftType(
 				throw "launcher not found";
 			}
 
+			if (launcher.type === "Weapon" && weapon == null) {
+				// eslint-disable-next-line no-console
+				console.log("Weapon not found", launcher.weapon, dataStore.weapons);
+			}
+
 			return {
 				CLSID: p.CLSID,
 				num: p.num ?? 0,

@@ -31,7 +31,6 @@ export const generateDeadPackage = (
 	if (faction == null || dataStore.airdromes == null) {
 		return;
 	}
-
 	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.dead, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {

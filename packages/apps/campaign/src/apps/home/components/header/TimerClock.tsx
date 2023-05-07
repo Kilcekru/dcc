@@ -23,15 +23,26 @@ export const TimerClock = () => {
 		pause?.();
 	});
 	return (
-		<div>
-			<Clock value={state.timer} />
+		<div class={styles.wrapper}>
+			<div class={styles.clock}>
+				<Clock value={state.timer} />
+			</div>
 
-			<Components.Button onPress={() => togglePause?.()} unstyled class={styles.icon}>
-				{state.paused ? <Components.Icons.Play /> : <Components.Icons.Pause />}
-			</Components.Button>
-			<Components.Button onPress={() => onPressMultiplier(1)}>1</Components.Button>
-			<Components.Button onPress={() => onPressMultiplier(60)}>60</Components.Button>
-			<Components.Button onPress={() => onPressMultiplier(600)}>600</Components.Button>
+			<div>
+				<Components.Button onPress={() => togglePause?.()} unstyled class={styles.icon}>
+					{state.paused ? <Components.Icons.PauseFill /> : <Components.Icons.Pause />}
+				</Components.Button>
+				<Components.Button onPress={() => onPressMultiplier?.(1)} unstyled class={styles.icon}>
+					{!state.paused && state.multiplier === 1 ? <Components.Icons.PlayFill /> : <Components.Icons.Play />}
+				</Components.Button>
+				<Components.Button onPress={() => onPressMultiplier?.(300)} unstyled class={styles.icon}>
+					{!state.paused && state.multiplier > 1 ? (
+						<Components.Icons.FastForwardFill />
+					) : (
+						<Components.Icons.FastForward />
+					)}
+				</Components.Button>
+			</div>
 		</div>
 	);
 };

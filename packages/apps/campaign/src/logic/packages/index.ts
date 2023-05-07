@@ -54,9 +54,13 @@ const casPackages = (
 		const pkg = generateCasPackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
+
+		if (pkg != null) {
+			return true;
+		}
 	}
 
-	return packages;
+	return false;
 };
 
 const capPackages = (
@@ -83,7 +87,11 @@ const capPackages = (
 	if (airdromeName != null) {
 		const pkg = generateCapPackage(coalition, state, dataStore, airdromeName);
 
-		packages = addPackage(packages, pkg);
+		addPackage(packages, pkg);
+
+		if (pkg != null) {
+			return true;
+		}
 	} else {
 		const frontlinePackages = getRunningPackages(
 			faction.packages,
@@ -97,11 +105,15 @@ const capPackages = (
 		if (frontlinePackages.length < 1) {
 			const pkg = generateCapPackage(coalition, state, dataStore, "Frontline");
 
-			packages = addPackage(packages, pkg);
+			addPackage(packages, pkg);
+
+			if (pkg != null) {
+				return true;
+			}
 		}
 	}
 
-	return packages;
+	return false;
 };
 
 const awacsPackages = (
@@ -129,10 +141,14 @@ const awacsPackages = (
 			const pkg = generateAwacsPackage(coalition, state, dataStore, taskEndTime - Minutes(2));
 
 			packages = addPackage(packages, pkg);
+
+			if (pkg != null) {
+				return true;
+			}
 		}
 	}
 
-	return packages;
+	return false;
 };
 
 const deadPackages = (
@@ -147,9 +163,13 @@ const deadPackages = (
 		const pkg = generateDeadPackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
+
+		if (pkg != null) {
+			return true;
+		}
 	}
 
-	return packages;
+	return false;
 };
 
 const strikePackages = (
@@ -164,9 +184,13 @@ const strikePackages = (
 		const pkg = generateStrikePackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
+
+		if (pkg != null) {
+			return true;
+		}
 	}
 
-	return packages;
+	return false;
 };
 
 const factionPackagesTick = (
@@ -176,10 +200,18 @@ const factionPackagesTick = (
 	faction: DcsJs.CampaignFaction
 ) => {
 	updatePackagesState(faction.packages, state.timer, dataStore);
-	casPackages(coalition, state, dataStore, faction.packages);
-	capPackages(coalition, state, dataStore, faction.packages);
-	awacsPackages(coalition, state, dataStore, faction.packages);
-	deadPackages(coalition, state, dataStore, faction.packages);
+	if (casPackages(coalition, state, dataStore, faction.packages)) {
+		return;
+	}
+	if (capPackages(coalition, state, dataStore, faction.packages)) {
+		return;
+	}
+	if (awacsPackages(coalition, state, dataStore, faction.packages)) {
+		return;
+	}
+	if (deadPackages(coalition, state, dataStore, faction.packages)) {
+		return;
+	}
 	strikePackages(coalition, state, dataStore, faction.packages);
 };
 

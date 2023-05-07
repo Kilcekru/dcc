@@ -41,3 +41,28 @@
 		flex-direction: column;
 	}
 }
+
+.shadow {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 10px;
+	opacity: 0;
+	transition: opacity 100ms linear;
+	pointer-events: none;
+	z-index: 90;
+	box-shadow: var(--shadow);
+
+	&--top {
+		top: -10px;
+	}
+
+	&--bottom {
+		bottom: -10px;
+		transform: rotate(180deg);
+	}
+
+	&--show {
+		opacity: 1;
+	}
+}

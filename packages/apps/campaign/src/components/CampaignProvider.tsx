@@ -28,7 +28,7 @@ type CampaignStore = [
 		updateAircraftState?: () => void;
 		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		destroyStructure?: (objectiveName: string) => void;
-		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup) => void;
+		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup | undefined) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: MissionState, dataStore: DataStore) => void;
 		saveCampaignRound?: (dataStore: DataStore) => void;
@@ -48,7 +48,6 @@ const initState: CampaignState = {
 	blueFaction: undefined,
 	redFaction: undefined,
 	objectives: {},
-	farps: [],
 };
 
 export const CampaignContext = createContext<CampaignStore>([initState, {}]);

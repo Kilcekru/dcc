@@ -38,10 +38,10 @@ export const Map = () => {
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
-	const [state] = useContext(CampaignContext);
+	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useContext(DataContext);
-	const [, { openStructure, openFlightGroup }] = useContext(OverlaySidebarContext);
+	const [, { openStructure, openFlightGroup, openGroundGroup }] = useContext(OverlaySidebarContext);
 
 	const kobuleti = createMemo(() => {
 		const position = dataStore.airdromes?.["Kobuleti"];
@@ -52,6 +52,15 @@ export const Map = () => {
 
 		return positionToMapPosition(position);
 	});
+
+	const onClickFlightGroup = (flightGroup: DcsJs.CampaignFlightGroup, coalition: DcsJs.CampaignCoalition) => {
+		selectFlightGroup?.(flightGroup);
+		openFlightGroup?.(flightGroup.id, coalition);
+	};
+
+	const onClickGroundGroup = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
+		openGroundGroup?.(groundGroup.id, coalition);
+	};
 
 	const createSymbol = (
 		mapPosition: MapPosition,
@@ -155,7 +164,7 @@ export const Map = () => {
 					coalition === "red",
 					true,
 					code as SidcUnitCodeKey
-				)?.addEventListener("click", () => openFlightGroup?.(fg.id, coalition));
+				)?.addEventListener("click", () => onClickFlightGroup(fg, coalition));
 
 				if (marker == null) {
 					return;
@@ -190,7 +199,7 @@ export const Map = () => {
 					coalition === "red",
 					false,
 					gg.groupType === "armor" ? "armor" : "infantry"
-				)?.bindPopup(str);
+				)?.addEventListener("click", () => onClickGroundGroup(gg, coalition));
 
 				if (marker == null) {
 					return;

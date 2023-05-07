@@ -17,5 +17,7 @@
 		"cnbuilder": "3.1.0",
 		"solid-js": "1.6.2"
 	},
-	"devDependencies": {}
+	"devDependencies": {
+		"@foxdelta2/dcsjs": "0.2.216"
+	}
 }
