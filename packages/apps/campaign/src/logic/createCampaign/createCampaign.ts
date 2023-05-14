@@ -39,18 +39,46 @@ export const createCampaign = (
 		throw "unknown faction: " + blueFactionName;
 	}
 
+	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
+
+	if (redBaseFaction == null) {
+		throw "unknown faction: " + blueFactionName;
+	}
+
 	const firstBlueAirdrome = dataStore.airdromes?.[(firstItem(scenario.blue.airdromeNames) ?? "") as DcsJs.AirdromeName];
 
 	if (firstBlueAirdrome == null) {
 		throw "unknown airdrome";
 	}
 
+	const blueObjectives: DataStore["objectives"] = [];
+	const redObjectives: DataStore["objectives"] = [];
+
+	dataStore.objectives?.forEach((dataObjective) => {
+		const isBlue = claimsObjective(scenario.blue, dataObjective.name);
+		const isRed = claimsObjective(scenario.red, dataObjective.name);
+
+		if (isBlue) {
+			blueObjectives.push(dataObjective);
+		}
+
+		if (isRed) {
+			redObjectives.push(dataObjective);
+		}
+	});
+
 	state.blueFaction = {
 		...blueBaseFaction,
 		countryName: blueBaseFaction.countryName as DcsJs.CountryName,
 		airdromeNames: scenario.blue.airdromeNames as DcsJs.AirdromeName[],
 		inventory: {
-			aircrafts: generateAircraftInventory("blue", blueBaseFaction, scenario, dataStore),
+			aircrafts: generateAircraftInventory({
+				coalition: "blue",
+				faction: blueBaseFaction,
+				scenario,
+				dataStore,
+				objectives: blueObjectives,
+			}),
 			groundUnits: generateGroundUnitsInventory(blueBaseFaction, "blue", scenario),
 		},
 		packages: [],
@@ -69,19 +97,19 @@ export const createCampaign = (
 		},
 	};
 
-	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
-
-	if (redBaseFaction == null) {
-		throw "unknown faction: " + blueFactionName;
-	}
-
 	state.redFaction = {
 		...redBaseFaction,
 		countryName: redBaseFaction.countryName as DcsJs.CountryName,
 		airdromeNames: scenario.red.airdromeNames as DcsJs.AirdromeName[],
 
 		inventory: {
-			aircrafts: generateAircraftInventory("red", redBaseFaction, scenario, dataStore),
+			aircrafts: generateAircraftInventory({
+				coalition: "red",
+				faction: redBaseFaction,
+				scenario,
+				dataStore,
+				objectives: redObjectives,
+			}),
 			groundUnits: generateGroundUnitsInventory(redBaseFaction, "red", scenario),
 		},
 		packages: [],

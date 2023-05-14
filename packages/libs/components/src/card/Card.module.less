@@ -5,8 +5,21 @@
 	overflow: hidden;
 	background-color: var(--background);
 	width: 100%;
+	box-sizing: border-box;
 
 	&:hover {
 		background-color: var(--background-hover);
+	}
+
+	&--disabled {
+		cursor: default;
+
+		&:hover {
+			background-color: var(--background);
+		}
+	}
+
+	&--selected {
+		border: 1px solid white;
 	}
 }

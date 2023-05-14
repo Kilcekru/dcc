@@ -41,7 +41,7 @@ export const Map = () => {
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useContext(DataContext);
-	const [, { openStructure, openFlightGroup, openGroundGroup }] = useContext(OverlaySidebarContext);
+	const [, { openStructure, openFlightGroup, openGroundGroup, openAirdrome }] = useContext(OverlaySidebarContext);
 
 	const kobuleti = createMemo(() => {
 		const position = dataStore.airdromes?.["Kobuleti"];
@@ -60,6 +60,10 @@ export const Map = () => {
 
 	const onClickGroundGroup = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
 		openGroundGroup?.(groundGroup.id, coalition);
+	};
+
+	const onClickAirdrome = (airdromeName: string, coalition: DcsJs.CampaignCoalition) => {
+		openAirdrome?.(airdromeName, coalition);
 	};
 
 	const createSymbol = (
@@ -126,7 +130,9 @@ export const Map = () => {
 
 			const mapPosition = positionToMapPosition(airdrome);
 
-			createSymbol(mapPosition, false, false, "airport")?.bindPopup(airdromeName);
+			createSymbol(mapPosition, false, false, "airport")?.addEventListener("click", () =>
+				onClickAirdrome(airdromeName, "blue")
+			);
 		});
 
 		state.redFaction?.airdromeNames.forEach((airdromeName) => {
@@ -138,7 +144,9 @@ export const Map = () => {
 
 			const mapPosition = positionToMapPosition(airdrome);
 
-			createSymbol(mapPosition, true, false, "airport")?.bindPopup(airdromeName);
+			createSymbol(mapPosition, true, false, "airport")?.addEventListener("click", () =>
+				onClickAirdrome(airdromeName, "red")
+			);
 		});
 	};
 

@@ -2,21 +2,48 @@
 	"countryName": "France",
 	"name": "France",
 	"year": 2004,
+	"playable": true,
 	"aircraftTypes": {
-		"cap": ["M-2000C"],
-		"cas": ["SA342M"],
-		"awacs": ["E-3A"],
-		"dead": ["M-2000C"],
-		"strike": ["M-2000C"],
-		"lightAttack": ["SA342L"],
-		"heliHunt": ["SA342Mistral"]
+		"cap": [
+			"M-2000C"
+		],
+		"cas": [
+			"SA342M"
+		],
+		"awacs": [
+			"E-3A"
+		],
+		"dead": [
+			"M-2000C"
+		],
+		"strike": [
+			"M-2000C"
+		],
+		"lightAttack": [
+			"SA342L"
+		],
+		"heliHunt": [
+			"SA342Mistral"
+		]
 	},
 	"template": {
-		"sams": ["Hawk"],
-		"vehicles": ["LAV-25"],
-		"infantries": ["Soldier M4"],
-		"shoradVehicles": ["Gepard"],
-		"shoradInfantries": ["Soldier stinger"],
-		"ews": ["FPS-117"]
+		"sams": [
+			"Hawk"
+		],
+		"vehicles": [
+			"LAV-25"
+		],
+		"infantries": [
+			"Soldier M4"
+		],
+		"shoradVehicles": [
+			"Gepard"
+		],
+		"shoradInfantries": [
+			"Soldier stinger"
+		],
+		"ews": [
+			"FPS-117"
+		]
 	}
 }

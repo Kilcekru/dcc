@@ -4,5 +4,8 @@ export * from "./icons";
 export * from "./list";
 export * from "./modal";
 export * from "./scroll-container";
+export * from "./stat";
 export * from "./task-label";
+export * from "./toast";
+export * from "./tooltip";
 export * as Utils from "./utils";

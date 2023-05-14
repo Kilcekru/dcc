@@ -10,15 +10,28 @@ import styles from "./MissionOverlay.module.less";
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [state, { submitMissionState }] = useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
+	const createToast = Components.useCreateErrorToast();
 
 	const onSubmit = async () => {
 		const missionState = await rpc.campaign.loadMissionState();
 
 		if (missionState == null) {
+			createToast({
+				description: "Mission Result not found",
+				title: "Mission not saved",
+			});
+			// eslint-disable-next-line no-console
+			console.error("mission result not found");
 			return;
 		}
 
 		if (missionState.time < state.timer) {
+			createToast({
+				description: "Mission Result is in the past",
+				title: "Mission not saved",
+			});
+			// eslint-disable-next-line no-console
+			console.error("mission is in the past");
 			return;
 		}
 

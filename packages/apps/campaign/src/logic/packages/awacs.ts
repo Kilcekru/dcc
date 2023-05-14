@@ -10,7 +10,6 @@ import {
 	getUsableAircraftsByType,
 	Minutes,
 	objectToPosition,
-	oppositeCoalition,
 } from "../../utils";
 import { awacsTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
@@ -24,7 +23,6 @@ export const generateAwacsPackage = (
 	startTime: number
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
-	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 
 	if (faction == null || dataStore?.airdromes == null) {
 		return;
@@ -46,7 +44,7 @@ export const generateAwacsPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const raceTracks = awacsTarget(coalition, state.objectives, faction, oppFaction, dataStore);
+	const raceTracks = awacsTarget(coalition, state, dataStore);
 
 	if (raceTracks == null) {
 		return;

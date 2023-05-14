@@ -3,22 +3,34 @@ import "./FlightGroupItem.less";
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { Icons } from "@kilcekru/dcc-lib-components";
-import { createEffect, createSignal, For, Show, useContext } from "solid-js";
+import { cnb } from "cnbuilder";
+import { createEffect, createMemo, createSignal, For, Show, useContext } from "solid-js";
 
 import { CampaignContext, Clock } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { OverlaySidebarContext } from "../overlay-sidebar";
-import styles from "./FlightGroupItem.module.less";
+import Styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: {
 	flightGroup: DcsJs.CampaignFlightGroup;
 	faction: DcsJs.CampaignFaction | undefined;
 }) => {
-	const [, { selectFlightGroup, setClient }] = useContext(CampaignContext);
+	const [state, { selectFlightGroup, setClient }] = useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	const [clientCount, setClientCount] = createSignal(0);
 	const [aircrafts, setAircrafts] = createSignal<Array<{ name: string; aircraftType: string; isClient: boolean }>>([]);
 	const [, { openFlightGroup }] = useContext(OverlaySidebarContext);
+	const hasPlayableAircrafts = createMemo(() =>
+		aircrafts().some((ac) => {
+			const aircraft = dataStore.aircrafts?.[ac.aircraftType as DcsJs.AircraftType];
+
+			if (aircraft == null) {
+				return false;
+			}
+
+			return aircraft.controllable;
+		})
+	);
 
 	createEffect(() => {
 		setClientCount(props.flightGroup.units.filter((unit) => unit.client).length);
@@ -58,44 +70,51 @@ export const FlightGroupItem = (props: {
 	});
 
 	return (
-		<Components.ListItem class={styles.item}>
-			<Components.Card class={styles.card} onPress={onPress}>
-				<div class={styles.name}>{props.flightGroup.name}</div>
-				<Show when={clientCount() >= 1}>
-					<Components.Button class={styles.clientRemoveButton} onPress={() => updateClients(-1)}>
-						<Icons.PersonRemove />
+		<Components.ListItem class={Styles.item}>
+			<Components.Card class={Styles.card} onPress={onPress} selected={props.flightGroup.startTime < state.timer}>
+				<div class={Styles.name}>{props.flightGroup.name}</div>
+				<Show when={hasPlayableAircrafts()}>
+					<Show when={clientCount() >= 1}>
+						<Components.Button class={Styles.clientRemoveButton} onPress={() => updateClients(-1)}>
+							<Icons.PersonRemove />
+						</Components.Button>
+					</Show>
+					<Components.Button class={Styles.clientAddButton} onPress={() => updateClients(1)}>
+						<Icons.PersonAdd />
+						<Show when={clientCount() === 0}>
+							<span>JOIN</span>
+						</Show>
 					</Components.Button>
 				</Show>
-				<Components.Button class={styles.clientAddButton} onPress={() => updateClients(1)}>
-					<Icons.PersonAdd />
-				</Components.Button>
-				<Components.TaskLabel task={props.flightGroup.task} class={styles.task} />
-				<div class={styles.stats}>
+				<Components.TaskLabel task={props.flightGroup.task} class={Styles.task} />
+				<div class={Styles.stats}>
 					<div>
-						<p class={styles.label}>Start</p>
+						<p class={Styles.label}>Start</p>
 						<Clock value={props.flightGroup.startTime} />
 					</div>
 					<div>
-						<p class={styles.label}>TOT</p>
+						<p class={Styles.label}>TOT</p>
 						<Clock value={props.flightGroup.tot} />
 					</div>
 					<div>
-						<p class={styles.label}>Duration</p>
+						<p class={Styles.label}>Duration</p>
 						<Clock value={props.flightGroup.landingTime - props.flightGroup.startTime} />
 					</div>
 				</div>
-				<div class={styles["aircrafts-wrapper"]}>
-					<p class={styles.label}>Aircrafts</p>
-					<div class={styles.aircrafts}>
+				<div class={Styles["aircrafts-wrapper"]}>
+					<p class={Styles.label}>Aircrafts</p>
+					<div class={Styles.aircrafts}>
 						<For each={aircrafts()}>
 							{(aircraft) => (
 								<>
-									<div>{aircraft.name}</div>
-									<div>
+									<div class={cnb(aircraft.isClient ? Styles["is-client"] : null)}>{aircraft.name}</div>
+									<div class={cnb(aircraft.isClient ? Styles["is-client"] : null)}>
 										{dataStore.aircrafts?.[aircraft.aircraftType as DcsJs.AircraftType]?.display_name ??
 											aircraft.aircraftType}
 									</div>
-									<div>{aircraft.isClient ? "Player" : ""}</div>
+									<div class={cnb(aircraft.isClient ? Styles["is-client"] : null)}>
+										{aircraft.isClient ? "Player" : ""}
+									</div>
 								</>
 							)}
 						</For>

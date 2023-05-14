@@ -227,7 +227,7 @@ export const generateStrikePackage = (
 			},
 			...(targetStructure?.buildings.map((building, i) => {
 				const wp: DcsJs.CampaignWaypoint = {
-					name: targetStructure.buildings.length > 1 ? `Strike #${i + 1}` : "Strike",
+					name: targetStructure.buildings.length > 1 ? `Strike #${i + 1}` : "Strike" + `: ${building.type}`,
 					position: {
 						x: targetStructure.position.x + building.offset.x,
 						y: targetStructure.position.y + building.offset.y,

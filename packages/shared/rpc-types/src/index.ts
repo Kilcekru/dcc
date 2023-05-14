@@ -18,6 +18,7 @@ export type DataStore = {
 
 export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> & {
 	active: boolean;
+	loaded: boolean;
 	timer: number;
 	multiplier: number;
 	paused: boolean;

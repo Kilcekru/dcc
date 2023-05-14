@@ -1,0 +1,28 @@
+{
+    "map": "syria",
+    "id": "desert-thunder",
+    "name": "Desert Thunder",
+    "available": false,
+    "date": "1972-09-20",
+    "era": "Cold War",
+    "blue": {
+        "airdromeNames": [],
+        "farps": [],
+        "objectiveNames": [],
+        "samNames": [],
+        "ewNames": [],
+        "barracks": [],
+        "depots": [],
+        "ammoDepots": []
+    },
+    "red": {
+        "airdromeNames": [],
+        "farps": [],
+        "objectiveNames": [],
+        "samNames": [],
+        "ewNames": [],
+        "barracks": [],
+        "depots": [],
+        "ammoDepots": []
+    }
+}

@@ -82,7 +82,7 @@ export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignSt
 			return;
 		}
 
-		const structure = faction.structures[objectStructure.id];
+		const structure = faction.structures[objectStructure.name];
 
 		const building = structure?.buildings.find((building) => building.name === killedUnitName);
 

@@ -1,14 +1,17 @@
 import { cnb } from "cnbuilder";
 import { JSX } from "solid-js";
 
-import styles from "./Button.module.less";
+import Styles from "./Button.module.less";
 
 export const Button = (props: {
 	onPress?: () => void;
 	children?: JSX.Element;
 	class?: string;
 	large?: boolean;
+	disabled?: boolean;
+	tooltipDisabled?: boolean;
 	unstyled?: boolean;
+	tooltipLabel?: string;
 }) => {
 	const onClick = (e: MouseEvent) => {
 		e.stopPropagation();
@@ -18,16 +21,19 @@ export const Button = (props: {
 	};
 
 	return (
-		<button
-			class={cnb(
-				styles.button,
-				props.large ? styles["button--large"] : null,
-				props.unstyled ? styles["button--unstyled"] : null,
-				props.class
-			)}
-			onClick={onClick}
-		>
-			{props.children}
-		</button>
+		<>
+			<button
+				class={cnb(
+					Styles.button,
+					props.large ? Styles["button--large"] : null,
+					props.unstyled ? Styles["button--unstyled"] : null,
+					props.disabled ? Styles["button--disabled"] : null,
+					props.class
+				)}
+				onClick={onClick}
+			>
+				{props.children}
+			</button>
+		</>
 	);
 };

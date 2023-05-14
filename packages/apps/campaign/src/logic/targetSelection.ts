@@ -8,11 +8,19 @@ import {
 	findInside,
 	findNearest,
 	headingToPosition,
+	oppositeCoalition,
 	positionFromHeading,
 	random,
 	randomItem,
 } from "../utils";
-import { ammoDepotRange } from "./utils";
+import { RunningCampaignState } from "./types";
+import {
+	ammoDepotRange,
+	getCoalitionFaction,
+	getCoalitionObjectives,
+	getFarthestAirdromeFromPosition,
+	getFrontlineObjective,
+} from "./utils";
 
 const isInSamRange = (position: Position, oppFaction: DcsJs.CampaignFaction) => {
 	return oppFaction?.sams
@@ -110,73 +118,37 @@ export const getStrikeTarget = (
 
 export const awacsTarget = (
 	coalition: DcsJs.CampaignCoalition,
-	objectives: Record<string, DcsJs.CampaignObjective>,
-	faction: DcsJs.CampaignFaction,
-	oppFaction: DcsJs.CampaignFaction,
+	state: RunningCampaignState,
 	dataStore: DataStore
 ): [Position, Position] | undefined => {
-	const dataAirdromes = dataStore.airdromes;
+	const oppCoalition = oppositeCoalition(coalition);
+	const oppFaction = getCoalitionFaction(oppCoalition, state);
+	const faction = getCoalitionFaction(coalition, state);
 
-	if (dataAirdromes == null) {
-		return undefined;
-	}
-	const oppAirdromes = oppFaction.airdromeNames.map((name) => {
-		return dataAirdromes[name];
-	});
+	const objectives = getCoalitionObjectives(coalition, state);
+	const frontlineObjective = getFrontlineObjective(objectives, oppFaction.airdromeNames, dataStore);
 
-	const nearestObjective = oppAirdromes.reduce(
-		(prev, airdrome) => {
-			const obj = findNearest(
-				Object.values(objectives).filter((obj) => obj.coalition === coalition),
-				airdrome,
-				(obj) => obj.position
-			);
-
-			if (obj == null) {
-				return prev;
-			}
-
-			const distance = distanceToPosition(airdrome, obj.position);
-
-			if (distance < prev[1]) {
-				return [obj, distance] as [DcsJs.CampaignObjective, number];
-			} else {
-				return prev;
-			}
-		},
-		[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number]
-	)[0];
-
-	if (nearestObjective == null) {
+	if (frontlineObjective == null) {
 		return undefined;
 	}
 
-	const airdromes = faction.airdromeNames.map((name) => {
-		return dataAirdromes[name];
-	});
-
-	const airdromesInRange = findInside(airdromes, nearestObjective?.position, (airdrome) => airdrome, 280_000);
-
-	const [fartestAirdrome] = airdromesInRange.reduce(
-		(prev, airdrome) => {
-			const distance = distanceToPosition(nearestObjective.position, airdrome);
-
-			if (distance > prev[1]) {
-				return [airdrome, distance] as [DcsJs.DCS.Airdrome, number];
-			} else {
-				return prev;
-			}
-		},
-		[undefined, 0] as [DcsJs.DCS.Airdrome | undefined, number]
+	const farthestAirdrome = getFarthestAirdromeFromPosition(
+		frontlineObjective.position,
+		faction.airdromeNames,
+		dataStore
 	);
 
-	if (fartestAirdrome == null) {
+	if (farthestAirdrome == null) {
 		return undefined;
 	}
 
-	const heading = headingToPosition(nearestObjective.position, fartestAirdrome);
+	const heading = headingToPosition(frontlineObjective.position, farthestAirdrome);
 
-	const centerPosition = positionFromHeading(nearestObjective.position, heading, random(50_000, 70_000));
+	const centerPosition = positionFromHeading(
+		frontlineObjective.position,
+		heading,
+		coalition === "blue" ? random(50_000, 70_000) : random(80_000, 120_000)
+	);
 
 	const racetrackStart = positionFromHeading(centerPosition, addHeading(heading, -90), 40_000);
 	const racetrackEnd = positionFromHeading(centerPosition, addHeading(heading, 90), 40_000);

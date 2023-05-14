@@ -39,6 +39,7 @@ type CampaignStore = [
 
 const initState: CampaignState = {
 	active: false,
+	loaded: false,
 	campaignTime: new Date("2022-06-01").getTime(),
 	timer: 32400,
 	lastTickTimer: 32400,

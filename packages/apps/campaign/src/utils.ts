@@ -268,6 +268,12 @@ export const getFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefin
 	);
 };
 
+export const getClientFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
+	const fgs = getFlightGroups(packages);
+
+	return fgs.filter((fg) => fg.units.some((unit) => unit.client));
+};
+
 export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined, task: Task) => {
 	return activeAircrafts?.filter(
 		(aircraft) => aircraft.state === "idle" && aircraft.availableTasks.some((aircraftTask) => aircraftTask === task)

@@ -8,10 +8,18 @@
 	font-weight: 800;
 	text-transform: uppercase;
 	margin-left: 10px;
-	margin-top: 30px;
+	margin-top: 10px;
 }
 
 .subtitle {
+	font-size: 30px;
+	font-weight: 800;
+	text-transform: uppercase;
+	margin-left: 10px;
+	margin-bottom: 10px;
+}
+
+.item-title {
 	font-size: 30px;
 	font-weight: 800;
 	text-transform: uppercase;
@@ -37,4 +45,99 @@
 	margin-left: 10px;
 	margin-bottom: 10px;
 	border: 1px solid white;
+}
+
+.flag {
+	height: 200px;
+	width: 100%;
+	opacity: 0.2;
+}
+
+.usa {
+	background-image: url("./flags/usa.png");
+}
+
+.france {
+	background-image: url("./flags/france.png");
+	background-position: center;
+}
+
+.spain {
+	background-image: url("./flags/spain.png");
+	background-position: right center;
+}
+
+.russia {
+	background-image: url("./flags/russia.png");
+	background-position: center;
+	background-size: contain;
+}
+
+.item-image {
+	width: 100px;
+	height: 75px;
+	background-position: center;
+	background-size: cover;
+}
+
+.image-garage-b {
+	background-image: url("./images/garage-b.jpg");
+}
+
+.image-tech-hangar-a {
+	background-image: url("./images/tech-hangar-a.jpg");
+}
+
+.image-electric-power-box {
+	background-image: url("./images/electric-power-box.jpg");
+}
+
+.image-repair-workshop {
+	background-image: url("./images/repair-workshop.jpg");
+}
+
+.image-farp-ammo-storage {
+	background-image: url("./images/farp-ammo-storage.jpg");
+}
+
+.image-farp-command-post {
+	background-image: url("./images/farp-command-post.jpg");
+}
+
+.image-farp-fuel-depot {
+	background-image: url("./images/farp-fuel-depot.jpg");
+}
+
+.image-farp-tent {
+	background-image: url("./images/farp-tent.jpg");
+}
+
+.image-invisible-farp {
+	background-image: url("./images/invisible-farp.jpg");
+}
+
+.building {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.stats {
+	display: flex;
+	justify-content: space-between;
+	gap: 50px;
+}
+
+.stat-label {
+	font-size: 12px;
+	opacity: 0.8;
+	text-align: left;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.stat-value {
+	font-size: 16px;
+	color: var(--body);
+	margin: 0;
 }

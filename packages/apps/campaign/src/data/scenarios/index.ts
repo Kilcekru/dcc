@@ -1,4 +1,6 @@
-import * as redBullet from "./redBullet.json";
+import * as desertThunder from "./desert-thunder.json";
+import * as redBullet from "./red-bullet.json";
+import * as roadToParis from "./road-to-paris.json";
 export type ScenarioCoalition = {
 	airdromeNames: Array<string>;
 	objectiveNames: Array<string>;
@@ -11,10 +13,13 @@ export type ScenarioCoalition = {
 };
 export type Scenario = {
 	map: string;
+	id: string;
+	available: boolean;
 	name: string;
+	era: string;
 	date: string;
 	blue: ScenarioCoalition;
 	red: ScenarioCoalition;
 };
 
-export const scenarioList: Array<Scenario> = [redBullet];
+export const scenarioList: Array<Scenario> = [redBullet, roadToParis, desertThunder];

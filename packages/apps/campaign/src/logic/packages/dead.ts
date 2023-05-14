@@ -109,6 +109,7 @@ export const generateDeadPackage = (
 				name: "DEAD",
 				position: selectedObjective.position,
 				time: endEnRouteTime + 1,
+				onGround: true,
 				speed,
 			},
 			...landingWaypoints,

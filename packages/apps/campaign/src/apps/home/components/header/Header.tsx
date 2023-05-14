@@ -6,13 +6,15 @@ import { createSignal, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CampaignContext } from "../../../../components";
-import styles from "./Header.module.less";
+import { getClientFlightGroups } from "../../../../utils";
+import Styles from "./Header.module.less";
 import { MissionOverlay } from "./MissionOverlay";
 import { TimerClock } from "./TimerClock";
 
 export const Header = () => {
 	const [state, { pause }] = useContext(CampaignContext);
 	const [showOverlay, setShowOverlay] = createSignal(false);
+	const createToast = Components.useCreateErrorToast();
 
 	const onSave = () => {
 		rpc.campaign
@@ -35,24 +37,47 @@ export const Header = () => {
 			throw "faction not found";
 		}
 
-		await rpc.campaign.generateCampaignMission(JSON.parse(JSON.stringify(unwrapped)) as DcsJs.Campaign);
+		try {
+			await rpc.campaign.generateCampaignMission(JSON.parse(JSON.stringify(unwrapped)) as DcsJs.Campaign);
 
-		setShowOverlay(true);
+			setShowOverlay(true);
+		} catch (e) {
+			const errorString = String(e).split("'rpc':")[1];
+
+			if (errorString == null) {
+				return;
+			}
+
+			// eslint-disable-next-line no-console
+			console.error(errorString);
+			createToast({
+				title: "Mission Generation failed",
+				description: errorString,
+			});
+		}
+	};
+
+	const hasClientFlightGroup = () => {
+		const clientFlightGroups = getClientFlightGroups(state.blueFaction?.packages);
+
+		return clientFlightGroups.length > 0;
 	};
 
 	return (
-		<div class={styles.header}>
-			<h1 class={styles.title}>Red Waters</h1>
+		<div class={Styles.header}>
+			<h1 class={Styles.title}>Red Waters</h1>
 			<div>
 				<TimerClock />
 			</div>
-			<div class={styles.buttons}>
+			<div class={Styles.buttons}>
 				<Components.Button onPress={onSave} large>
 					Save
 				</Components.Button>
-				<Components.Button onPress={onGenerateMission} large>
-					Takeoff
-				</Components.Button>
+				<Components.Tooltip text="Join a Flight Group to Start" disabled={hasClientFlightGroup()}>
+					<Components.Button onPress={onGenerateMission} large disabled={!hasClientFlightGroup()}>
+						Takeoff
+					</Components.Button>
+				</Components.Tooltip>
 			</div>
 			<MissionOverlay show={showOverlay()} onClose={() => setShowOverlay(false)} />
 		</div>

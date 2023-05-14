@@ -4,6 +4,8 @@ import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { Position } from "../types";
 import {
 	addHeading,
+	distanceToPosition,
+	findInside,
 	findNearest,
 	getDurationEnRoute,
 	getFlightGroups,
@@ -83,7 +85,7 @@ export const generateCallSign = (
 
 const landingNavPosition = (engressPosition: Position, airdromePosition: Position) => {
 	const heading = headingToPosition(engressPosition, airdromePosition);
-	return positionFromHeading(airdromePosition, addHeading(heading, 180), 25000);
+	return positionFromHeading(airdromePosition, addHeading(heading, 180), 32000);
 };
 
 export const calcLandingWaypoints = (
@@ -240,4 +242,77 @@ export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.CampaignAircraft)
 		.map((value) => value.item as DcsJs.Weapon & DcsJs.A2AWeapon);
 
 	return availableA2AWeapons.sort((a, b) => b.range - a.range)[0];
+}
+
+export function getFrontlineObjective(
+	objectives: Array<{ position: Position }>,
+	oppositeAirdromeNames: Array<DcsJs.AirdromeName>,
+	dataStore: DataStore
+) {
+	const dataAirdromes = dataStore.airdromes;
+
+	if (dataAirdromes == null) {
+		return undefined;
+	}
+
+	const oppAirdromes = oppositeAirdromeNames.map((name) => {
+		return dataAirdromes[name];
+	});
+
+	const nearestObjective = oppAirdromes.reduce(
+		(prev, airdrome) => {
+			const obj = findNearest(objectives, airdrome, (obj) => obj.position);
+
+			if (obj == null) {
+				return prev;
+			}
+
+			const distance = distanceToPosition(airdrome, obj.position);
+
+			if (distance < prev[1]) {
+				return [obj, distance] as [DcsJs.CampaignObjective, number];
+			} else {
+				return prev;
+			}
+		},
+		[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number]
+	)[0];
+
+	return nearestObjective;
+}
+
+export function getFarthestAirdromeFromPosition(
+	position: Position,
+	airdromeNames: Array<DcsJs.AirdromeName>,
+	dataStore: DataStore
+) {
+	const dataAirdromes = dataStore.airdromes;
+
+	if (dataAirdromes == null) {
+		return undefined;
+	}
+	const airdromes = airdromeNames.map((name) => {
+		return dataAirdromes[name];
+	});
+
+	const airdromesInRange = findInside(airdromes, position, (airdrome) => airdrome, 280_000);
+
+	const [farthestAirdrome] = airdromesInRange.reduce(
+		(prev, airdrome) => {
+			const distance = distanceToPosition(position, airdrome);
+
+			if (distance > prev[1]) {
+				return [airdrome, distance] as [DcsJs.DCS.Airdrome, number];
+			} else {
+				return prev;
+			}
+		},
+		[undefined, 0] as [DcsJs.DCS.Airdrome | undefined, number]
+	);
+
+	return farthestAirdrome;
+}
+
+export function getCoalitionObjectives(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
+	return Object.values(state.objectives).filter((obj) => obj.coalition === coalition);
 }

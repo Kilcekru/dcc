@@ -6,6 +6,8 @@ import { createSignal, For, Match, Switch } from "solid-js";
 import { factionList } from "../../../data";
 import styles from "./Faction.module.less";
 
+const playableFactionList = factionList.filter((faction) => faction.playable);
+
 const Faction = (props: { faction: DcsJs.FactionDefinition; onPress: (name: string) => void }) => {
 	const flagCountry = () => {
 		switch (props.faction.countryName) {
@@ -41,7 +43,7 @@ export const Factions = (props: { next: (blueId: string, redId: string) => void 
 				<div>
 					<h1 class={styles.title}>Select your Faction</h1>
 					<Components.List>
-						<For each={factionList} fallback={<div>Loading...</div>}>
+						<For each={playableFactionList} fallback={<div>Loading...</div>}>
 							{(faction) => <Faction faction={faction} onPress={setBlueFactionName} />}
 						</For>
 					</Components.List>

@@ -30,7 +30,7 @@ export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; co
 	return (
 		<div>
 			<div class={Style.header}>
-				<h3 class={Style.subtitle}>{props.unit.name}</h3>
+				<h3 class={Style["item-title"]}>{props.unit.name}</h3>
 				<p>{dataStore.aircrafts?.[aircraft().aircraftType]?.display_name ?? aircraft().aircraftType}</p>
 			</div>
 			<For each={[...weapons()]}>

@@ -1,0 +1,28 @@
+{
+    "map": "normandy",
+    "id": "road-to-paris",
+    "name": "Road to Paris",
+    "available": false,
+    "date": "1944-06-06",
+    "era": "WW2",
+    "blue": {
+        "airdromeNames": [],
+        "farps": [],
+        "objectiveNames": [],
+        "samNames": [],
+        "ewNames": [],
+        "barracks": [],
+        "depots": [],
+        "ammoDepots": []
+    },
+    "red": {
+        "airdromeNames": [],
+        "farps": [],
+        "objectiveNames": [],
+        "samNames": [],
+        "ewNames": [],
+        "barracks": [],
+        "depots": [],
+        "ammoDepots": []
+    }
+}

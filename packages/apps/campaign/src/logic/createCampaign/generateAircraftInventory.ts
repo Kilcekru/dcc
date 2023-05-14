@@ -3,19 +3,44 @@ import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data/scenarios";
+import { Position } from "../../types";
 import { firstItem, getScenarioFaction, onboardNumber } from "../../utils";
-import { getLoadoutForAircraftType } from "../utils";
+import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAircraftType } from "../utils";
 
-export const generateAircraftInventory = (
-	coalition: DcsJs.CampaignCoalition,
-	faction: DcsJs.FactionDefinition,
-	scenario: Scenario,
-	dataStore: DataStore
-) => {
+export const generateAircraftInventory = ({
+	coalition,
+	faction,
+	objectives,
+	scenario,
+	dataStore,
+}: {
+	coalition: DcsJs.CampaignCoalition;
+	faction: DcsJs.FactionDefinition;
+	objectives: Array<{ position: Position }>;
+	scenario: Scenario;
+	dataStore: DataStore;
+}) => {
 	const airdromes = dataStore.airdromes;
+	const airdromeNames: Array<DcsJs.AirdromeName> = (
+		coalition === "blue" ? scenario.blue.airdromeNames : scenario.red.airdromeNames
+	) as Array<DcsJs.AirdromeName>;
+	const oppAirdromeNames: Array<DcsJs.AirdromeName> = (
+		coalition === "blue" ? scenario.red.airdromeNames : scenario.blue.airdromeNames
+	) as Array<DcsJs.AirdromeName>;
 
 	if (airdromes == null) {
 		throw "airdromes not found";
+	}
+
+	const frontlineObjective = getFrontlineObjective(objectives, oppAirdromeNames, dataStore);
+
+	if (frontlineObjective == null) {
+		throw "generateAircraftInventory: Frontline Objective not found";
+	}
+	const awacsAirdrome = getFarthestAirdromeFromPosition(frontlineObjective.position, airdromeNames, dataStore);
+
+	if (awacsAirdrome == null) {
+		throw "generateAircraftInventory: AWACS Airdrome not found";
 	}
 
 	const airdrome = airdromes[coalition === "blue" ? "Kobuleti" : "Mozdok"];
@@ -94,7 +119,7 @@ export const generateAircraftInventory = (
 			aircrafts.push({
 				aircraftType,
 				homeBase: {
-					name: airdrome.name,
+					name: awacsAirdrome.name,
 					type: "airdrome",
 				},
 				state: "idle",
