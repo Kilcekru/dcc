@@ -6,12 +6,8 @@
 	"date": "2022-06-01",
 	"era": "Modern",
 	"blue": {
-		"airdromeNames": [
-			"Kobuleti"
-		],
-		"farps": [
-			"Poti|Structure|1"
-		],
+		"airdromeNames": ["Kobuleti"],
+		"farps": ["Poti|Structure|1"],
 		"objectiveNames": [
 			"Poti",
 			"Siriachkoni",
@@ -22,26 +18,14 @@
 			"Konchkati",
 			"Lanchhuti"
 		],
-		"samNames": [
-			"Nasakirali"
-		],
+		"samNames": ["Nasakirali"],
 		"ewNames": [],
-		"barracks": [
-			"Siriachkoni|Structure|1"
-		],
-		"depots": [
-			"Lanchhuti|Structure|1"
-		],
-		"ammoDepots": [
-			"Konchkati|Structure|2",
-			"Nagomari|Structure|2"
-		]
+		"barracks": ["Siriachkoni|Structure|1"],
+		"depots": ["Lanchhuti|Structure|1"],
+		"ammoDepots": ["Konchkati|Structure|2", "Nagomari|Structure|2"]
 	},
 	"red": {
-		"airdromeNames": [
-			"Sukhumi-Babushara",
-			"Mozdok"
-		],
+		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
 		"farps": [],
 		"objectiveNames": [
 			"Enguri Dam",
@@ -59,16 +43,8 @@
 			"Senaki-Kolkhi",
 			"Bataria"
 		],
-		"samNames": [
-			"Ochkhomuri",
-			"Sukhumi-Babushara",
-			"Nalchik",
-			"Zeni"
-		],
-		"ewNames": [
-			"Meore-Balda",
-			"Bedia"
-		],
+		"samNames": ["Ochkhomuri", "Sukhumi-Babushara", "Nalchik", "Zeni"],
+		"ewNames": ["Meore-Balda", "Bedia"],
 		"barracks": [
 			"Bataria|Structure|1",
 			"Martvili|Structure|1",
@@ -76,17 +52,7 @@
 			"Ochkhomuri|Structure|1",
 			"Dzhvari|Structure|3"
 		],
-		"depots": [
-			"Dgvaba|Structure|1",
-			"Meore-Balda|Structure|1",
-			"Zeni|Structure|1",
-			"Ochamchira|Structure|1"
-		],
-		"ammoDepots": [
-			"Gakhomela|Structure|1",
-			"Kahati|Structure|1",
-			"Natsatu|Structure|1",
-			"Sachino|Structure|2"
-		]
+		"depots": ["Dgvaba|Structure|1", "Meore-Balda|Structure|1", "Zeni|Structure|1", "Ochamchira|Structure|1"],
+		"ammoDepots": ["Gakhomela|Structure|1", "Kahati|Structure|1", "Natsatu|Structure|1", "Sachino|Structure|2"]
 	}
 }
