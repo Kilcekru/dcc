@@ -4,7 +4,7 @@ import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { isCampaignStructureUnitCamp } from "../utils";
 
 function moveInfantryIntoBarracksForFaction(faction: DcsJs.CampaignFaction) {
-	const barracks = Object.values(faction.structures).filter((structure) => structure.structureType === "Barracks");
+	const barracks = Object.values(faction.structures).filter((structure) => structure.structureType === "Barrack");
 	const barracksCount = Object.entries(barracks).length;
 	const idleInfantry = Object.values(faction.inventory.groundUnits).filter(
 		(unit) => unit.vehicleTypes.some((vt) => vt === "Infantry") && unit.state === "idle"

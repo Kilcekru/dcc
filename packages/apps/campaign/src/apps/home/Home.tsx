@@ -1,28 +1,19 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
-import { createEffect, createMemo, createSignal, onCleanup, useContext } from "solid-js";
+import { createEffect, createMemo, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
-import {
-	GameOverModal,
-	Header,
-	OverlaySidebar,
-	OverlaySidebarProvider,
-	Sidebar,
-	StartMissionModal,
-} from "./components";
+import { getClientMissionStartTime } from "../../utils";
+import { GameOverModal, Header, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [
-		state,
-		{ tick, clearPackages, saveCampaignRound, notifyPackage, pause, updateDeploymentScore, updateRepairScore },
-	] = useContext(CampaignContext);
+	const [state, { tick, clearPackages, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore }] =
+		useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
-	const [showStartMissionModal, setShowStartMissionModal] = createSignal(false);
 	let inter: number;
 	let longInter: number;
 	let tickFinished = true;
@@ -47,38 +38,24 @@ export const Home = () => {
 		saveCampaignRound?.(dataStore);
 	};
 
-	const clientPackageCheck = (tickValue: number) => {
-		const newTimer = tickValue + state.timer;
-
-		return state.blueFaction?.packages.reduce((prev, pkg) => {
-			const hasClient = pkg.flightGroups.some((fg) => {
-				return fg.units.some((unit) => unit.client);
-			});
-
-			if (hasClient && newTimer >= pkg.startTime && !pkg.notified) {
-				notifyPackage?.(pkg.id);
-				pause?.();
-				return newTimer - pkg.startTime;
-			}
-
-			return prev;
-		}, tickValue);
-	};
-
 	const interval = () => {
 		if (tickFinished === true) {
 			tickFinished = false;
 			const tickValue = state.multiplier === 1 ? 1 : 10;
+			const clientMissionStartTime = getClientMissionStartTime(state);
 
-			const clientTick = clientPackageCheck(tickValue);
-			tick?.(clientTick ?? tickValue);
+			if (clientMissionStartTime == null || state.timer < clientMissionStartTime) {
+				tick?.(tickValue);
 
-			try {
-				saveCampaignRound?.(dataStore);
-			} catch (e) {
-				// eslint-disable-next-line no-console
-				console.error(e, state);
-				stopInterval();
+				try {
+					saveCampaignRound?.(dataStore);
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e, state);
+					stopInterval();
+				}
+			} else {
+				pause?.();
 			}
 			tickFinished = true;
 		} else {
@@ -126,7 +103,6 @@ export const Home = () => {
 						<Components.Button onPress={onNextRound}>Next Round</Components.Button>
 					</div>
 					<Map />
-					<StartMissionModal isOpen={showStartMissionModal()} onClose={() => setShowStartMissionModal(false)} />
 					<GameOverModal />
 				</div>
 			</div>

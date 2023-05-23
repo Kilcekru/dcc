@@ -62,7 +62,7 @@ const escortFlightGroup = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.cap, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.cap, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -117,7 +117,7 @@ const escortFlightGroup = (
 		position: objectToPosition(airdrome),
 	};
 
-	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
 	return flightGroup;
 };
@@ -135,7 +135,7 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.strike, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.strike, 2);
 	// console.log("usable aircrafts", usableAircrafts);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -225,20 +225,16 @@ export const generateStrikePackage = (
 				time: endEnRouteTime + 1,
 				taskStart: true,
 			},
-			...(targetStructure?.buildings.map((building, i) => {
-				const wp: DcsJs.CampaignWaypoint = {
-					name: targetStructure.buildings.length > 1 ? `Strike #${i + 1}` : "Strike" + `: ${building.type}`,
-					position: {
-						x: targetStructure.position.x + building.offset.x,
-						y: targetStructure.position.y + building.offset.y,
-					},
-					speed,
-					time: endIngressTime + 1,
-					onGround: true,
-				};
-
-				return wp;
-			}) ?? []),
+			{
+				name: "Strike",
+				position: {
+					x: targetStructure.position.x,
+					y: targetStructure.position.y,
+				},
+				speed,
+				time: endIngressTime + 1,
+				onGround: true,
+			},
 			{
 				name: "Engress",
 				position: engressPosition,
@@ -251,7 +247,7 @@ export const generateStrikePackage = (
 		position: objectToPosition(airdrome),
 	};
 
-	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
 	const escort = escortFlightGroup(
 		coalition,
@@ -264,7 +260,7 @@ export const generateStrikePackage = (
 	);
 
 	if (escort != null) {
-		updateAircraftForFlightGroup(escort, faction, dataStore);
+		updateAircraftForFlightGroup(escort, state, coalition, dataStore);
 	}
 
 	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];

@@ -15,7 +15,9 @@ export const generateSams = (
 		return;
 	}
 
-	const samTemplate = dataStore.samTemplates?.[(firstItem(faction.template.sams) ?? "SA-2") as DcsJs.SAMType];
+	const samType = (firstItem(faction.template.sams) ?? "SA-2") as DcsJs.SamType;
+
+	const samTemplate = dataStore.samTemplates?.[samType];
 
 	if (samTemplate == null) {
 		return;
@@ -63,8 +65,14 @@ export const generateSams = (
 
 	const selectedTargets: DcsJs.StrikeTarget[] = [];
 
-	scenario[coalition].samNames.forEach((name) => {
-		const targets = strikeTargets[name];
+	scenario[coalition].objectivePlans.forEach((objectivePlan) => {
+		const withSam = objectivePlan.groundUnitTypes.some((gut) => gut === "sam");
+
+		if (!withSam) {
+			return;
+		}
+
+		const targets = strikeTargets[objectivePlan.objectiveName];
 
 		if (targets == null) {
 			return;
@@ -114,6 +122,7 @@ export const generateSams = (
 			fireInterval: samTemplate.fireInterval,
 			weaponReadyTimer: 0,
 			name: sam.name,
+			type: samType,
 			objectiveName: objectiveTarget[0],
 		};
 	});

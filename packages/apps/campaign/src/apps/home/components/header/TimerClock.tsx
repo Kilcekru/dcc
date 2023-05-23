@@ -3,7 +3,7 @@ import { createEffect, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { Clock } from "../../../../components/Clock";
-import styles from "./TimerClock.module.less";
+import Styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
 	const [state, { setMultiplier, togglePause, resume, pause }] = useContext(CampaignContext);
@@ -23,19 +23,19 @@ export const TimerClock = () => {
 		pause?.();
 	});
 	return (
-		<div class={styles.wrapper}>
-			<div class={styles.clock}>
-				<Clock value={state.timer} />
+		<div class={Styles.wrapper}>
+			<div class={Styles.clock}>
+				<Clock value={state.timer} withDay />
 			</div>
 
-			<div>
-				<Components.Button onPress={() => togglePause?.()} unstyled class={styles.icon}>
+			<div class={Styles.buttons}>
+				<Components.Button onPress={() => togglePause?.()} unstyled class={Styles.icon}>
 					{state.paused ? <Components.Icons.PauseFill /> : <Components.Icons.Pause />}
 				</Components.Button>
-				<Components.Button onPress={() => onPressMultiplier?.(1)} unstyled class={styles.icon}>
+				<Components.Button onPress={() => onPressMultiplier?.(1)} unstyled class={Styles.icon}>
 					{!state.paused && state.multiplier === 1 ? <Components.Icons.PlayFill /> : <Components.Icons.Play />}
 				</Components.Button>
-				<Components.Button onPress={() => onPressMultiplier?.(300)} unstyled class={styles.icon}>
+				<Components.Button onPress={() => onPressMultiplier?.(300)} unstyled class={Styles.icon}>
 					{!state.paused && state.multiplier > 1 ? (
 						<Components.Icons.FastForwardFill />
 					) : (

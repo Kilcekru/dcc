@@ -25,6 +25,7 @@ export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> &
 	selectedFlightGroup: DcsJs.CampaignFlightGroup | undefined;
 	blueFaction: DcsJs.CampaignFaction | undefined;
 	redFaction: DcsJs.CampaignFaction | undefined;
+	winningCondition: { type: "ground units" } | { type: "objective"; value: string };
 };
 
 export type MissionState = {

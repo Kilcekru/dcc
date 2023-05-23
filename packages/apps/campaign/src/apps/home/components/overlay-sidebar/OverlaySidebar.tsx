@@ -2,25 +2,20 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { createMemo, onCleanup, onMount, Show, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
 import { Airdrome } from "./Airdrome";
 import { FlightGroup } from "./FlightGroup";
 import { GroundGroup } from "./GroundGroup";
 import style from "./OverlaySidebar.module.less";
 import { OverlaySidebarContext } from "./OverlaySidebarProvider";
+import { Sam } from "./Sam";
 import { Structure } from "./Structure";
+import { useOverlayClose } from "./utils";
 
 export function OverlaySidebar() {
-	const [store, { close }] = useContext(OverlaySidebarContext);
-	const [, { selectFlightGroup }] = useContext(CampaignContext);
+	const [store] = useContext(OverlaySidebarContext);
 	const isOpen = createMemo(() => store.state != "closed");
 
-	const onClose = () => {
-		if (store.state === "flight group") {
-			selectFlightGroup?.(undefined);
-		}
-		close?.();
-	};
+	const onClose = useOverlayClose();
 
 	const onKeydown = (e: KeyboardEvent) => {
 		if (e.key === "Escape" && isOpen()) {
@@ -40,11 +35,14 @@ export function OverlaySidebar() {
 			<Show when={store.state === "flight group"}>
 				<FlightGroup />
 			</Show>
-			<Show when={store.state === "ground group"}>
+			<Show when={store.state === "ground group" || store.state === "ewr"}>
 				<GroundGroup />
 			</Show>
 			<Show when={store.state === "airdrome"}>
 				<Airdrome />
+			</Show>
+			<Show when={store.state === "sam"}>
+				<Sam />
 			</Show>
 
 			<Components.Button onPress={onClose} class={style["close-button"]} large>

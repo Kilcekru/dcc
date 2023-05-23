@@ -1,15 +1,19 @@
 import * as desertThunder from "./desert-thunder.json";
 import * as redBullet from "./red-bullet.json";
 import * as roadToParis from "./road-to-paris.json";
+
+export type StructurePlan = {
+	structureName: string;
+	structureType: string;
+};
+export type ObjectivePlan = {
+	objectiveName: string;
+	structures: Array<StructurePlan>;
+	groundUnitTypes: Array<string>;
+};
 export type ScenarioCoalition = {
 	airdromeNames: Array<string>;
-	objectiveNames: Array<string>;
-	samNames: Array<string>;
-	ewNames: Array<string>;
-	barracks: Array<string>;
-	depots: Array<string>;
-	ammoDepots: Array<string>;
-	farps: Array<string>;
+	objectivePlans: Array<ObjectivePlan>;
 };
 export type Scenario = {
 	map: string;
@@ -18,8 +22,20 @@ export type Scenario = {
 	name: string;
 	era: string;
 	date: string;
+	"win-condition":
+		| {
+				type: "ground units";
+		  }
+		| {
+				type: "objective";
+				value: string;
+		  };
 	blue: ScenarioCoalition;
 	red: ScenarioCoalition;
 };
 
-export const scenarioList: Array<Scenario> = [redBullet, roadToParis, desertThunder];
+export const scenarioList: Array<Scenario> = [
+	redBullet as Scenario,
+	roadToParis as Scenario,
+	desertThunder as Scenario,
+];

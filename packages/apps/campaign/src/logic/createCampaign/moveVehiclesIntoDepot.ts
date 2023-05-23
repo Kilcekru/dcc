@@ -4,7 +4,7 @@ import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { isCampaignStructureUnitCamp } from "../utils";
 
 function moveVehiclesIntoDepotForFaction(faction: CampaignFaction) {
-	const depots = Object.values(faction.structures).filter((structure) => structure.structureType === "Depots");
+	const depots = Object.values(faction.structures).filter((structure) => structure.structureType === "Depot");
 	const depotCount = Object.entries(depots).length;
 	const idleVehicles = Object.values(faction.inventory.groundUnits).filter(
 		(unit) => unit.vehicleTypes.some((vt) => vt !== "Infantry") && unit.state === "idle"

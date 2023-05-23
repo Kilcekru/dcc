@@ -1,5 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { createMemo, Show, useContext } from "solid-js";
+import * as Components from "@kilcekru/dcc-lib-components";
+import { createMemo, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import { RunningCampaignState } from "../../../../logic/types";
@@ -27,9 +28,10 @@ export function GroundGroupUnit(props: { unitId: string; coalition: DcsJs.Campai
 		<div>
 			<div class={Style.header}>
 				<h3 class={Style["item-title"]}>{unit().name}</h3>
-				<Show when={!unit().alive}>
-					<p>Destroyed</p>
-				</Show>
+				<Components.Stat>
+					<Components.StatLabel>Status</Components.StatLabel>
+					<Components.StatValue>{unit().alive ? "Alive" : "Destroyed"}</Components.StatValue>
+				</Components.Stat>
 			</div>
 		</div>
 	);

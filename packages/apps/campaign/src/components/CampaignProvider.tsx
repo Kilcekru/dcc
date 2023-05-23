@@ -11,6 +11,7 @@ import {
 	repairScoreUpdate,
 	updateFactionState,
 } from "../logic";
+import { getClientMissionStartTime } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
@@ -19,7 +20,6 @@ type CampaignStore = [
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
-		notifyPackage?: (id: string) => void;
 		pause?: () => void;
 		resume?: () => void;
 
@@ -49,6 +49,7 @@ const initState: CampaignState = {
 	blueFaction: undefined,
 	redFaction: undefined,
 	objectives: {},
+	winningCondition: { type: "ground units" },
 };
 
 export const CampaignContext = createContext<CampaignStore>([initState, {}]);
@@ -69,8 +70,21 @@ export function CampaignProvider(props: {
 				setState("multiplier", multiplier);
 			},
 			tick(multiplier) {
-				setState("lastTickTimer", () => state.timer);
-				setState("timer", (prev) => prev + multiplier);
+				setState(
+					produce((s) => {
+						s.lastTickTimer = s.timer;
+
+						const missionTimer = getClientMissionStartTime(s);
+
+						const newTimer = s.timer + multiplier;
+
+						if (missionTimer != null && newTimer > missionTimer) {
+							s.timer = missionTimer;
+						} else {
+							s.timer = newTimer;
+						}
+					})
+				);
 			},
 			togglePause() {
 				setState("paused", (v) => {
@@ -90,19 +104,6 @@ export function CampaignProvider(props: {
 
 			clearPackages(factionString) {
 				setState(factionString, "packages", () => []);
-			},
-			notifyPackage(id: string) {
-				setState(
-					produce((s) => {
-						const pkg = s.blueFaction?.packages.find((pkg) => pkg.id === id);
-
-						if (pkg == null) {
-							return;
-						}
-
-						pkg.notified = true;
-					})
-				);
 			},
 			destroySam(factionString, samId) {
 				setState(factionString, "sams", (sams) =>

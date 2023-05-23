@@ -1,8 +1,10 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
-import { Scenario } from "./data";
+import { Config, Scenario } from "./data";
+import { RunningCampaignState } from "./logic/types";
+import { getCoalitionFaction } from "./logic/utils";
 import { MapPosition, Position, Task } from "./types";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -281,16 +283,38 @@ export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.CampaignAircraft
 };
 
 export const getUsableAircraftsByType = (
-	activeAircrafts: Record<string, DcsJs.CampaignAircraft> | undefined,
+	state: RunningCampaignState,
+	coalition: DcsJs.CampaignCoalition,
 	aircraftTypes: Array<string> | undefined,
 	count: number
 ) => {
-	const aircrafts = Object.values(activeAircrafts ?? []).filter(
-		(aircraft) =>
-			aircraft.state === "idle" && aircraft.alive && aircraftTypes?.some((acType) => aircraft.aircraftType === acType)
-	);
+	const faction = getCoalitionFaction(coalition, state);
+	const aircrafts = Object.values(faction.inventory.aircrafts ?? []);
 
-	return getUsableUnit(aircrafts, "aircraftType", count);
+	// Filter only aircrafts that are in idle state
+	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle");
+	// Filter only aircrafts that are alive
+	const aliveAircrafts = idleAircrafts.filter((ac) => ac.alive);
+	// Filter only aircrafts of specific aircraft types
+	const typeAircrafts = aliveAircrafts.filter((ac) => aircraftTypes?.some((acType) => ac.aircraftType === acType));
+
+	// The aircraft types of the remaining aircrafts
+	const availableAircraftTypes = typeAircrafts.reduce((prev, ac) => {
+		prev.set(ac.aircraftType, (prev.get(ac.aircraftType) ?? 0) + 1);
+
+		return prev;
+	}, new Map<string, number>());
+
+	// Filter only aircraft types with the min amount of aircrafts
+	const validAircraftTypes = Array.from(availableAircraftTypes)
+		.filter(([, acCount]) => acCount >= count)
+		.map(([acType]) => acType);
+
+	// Select a random aircraft type from the valid aircraft types
+	const selectedAircraftType = randomItem(validAircraftTypes);
+
+	// Return only aircraft with the selected aircraft type
+	return aliveAircrafts.filter((ac) => ac.aircraftType === selectedAircraftType);
 };
 
 export const getUsableUnit = <T>(units: Array<T>, typeParam: keyof T, count: number) => {
@@ -379,4 +403,63 @@ export const getScenarioFaction = (coalition: DcsJs.CampaignCoalition, scenario:
 
 export const sortAsc = <T>(a: T, b: T, fn: (o: T) => number) => {
 	return fn(a) - fn(b);
+};
+
+export const hasStructureInRange = (
+	position: Position | undefined,
+	faction: DcsJs.CampaignFaction | undefined,
+	structureType: DcsJs.StructureType,
+	range: number
+) => {
+	if (position == null || faction == null) {
+		return false;
+	}
+
+	const structures = Object.values(faction.structures).filter(
+		(str) => str.structureType === structureType && str.state === "active"
+	);
+
+	const inRange = findInside(structures, position, (str) => str.position, range);
+
+	return inRange.length > 0;
+};
+
+export const hasPowerInRange = (position: Position | undefined, faction: DcsJs.CampaignFaction | undefined) => {
+	return hasStructureInRange(position, faction, "Power Plant", Config.structureRange.power);
+};
+
+export const hasAmmoDepotInRange = (position: Position | undefined, faction: DcsJs.CampaignFaction | undefined) => {
+	return hasStructureInRange(position, faction, "Ammo Depot", Config.structureRange.ammo);
+};
+
+export const hasFuelStorageInRange = (position: Position | undefined, faction: DcsJs.CampaignFaction | undefined) => {
+	return hasStructureInRange(position, faction, "Fuel Storage", Config.structureRange.fuel);
+};
+
+export const getClientMissionStartTime = (state: CampaignState) => {
+	return state.blueFaction?.packages.reduce((prev, pkg) => {
+		const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
+
+		if (hasClients) {
+			if (pkg.startTime > (prev ?? 0)) {
+				return pkg.startTime;
+			}
+		}
+
+		return prev;
+	}, undefined as number | undefined);
+};
+
+export const getDeploymentCost = (
+	coalition: DcsJs.CampaignCoalition | undefined,
+	structureType: DcsJs.StructureType | undefined
+) => {
+	if (coalition == null || structureType == null) {
+		return 999999;
+	}
+	const cost =
+		structureType === "Depot" ? Config.deploymentScore.frontline.depot : Config.deploymentScore.frontline.barrack;
+
+	// Penalty for red frontline
+	return coalition === "red" ? cost * 3 : cost;
 };

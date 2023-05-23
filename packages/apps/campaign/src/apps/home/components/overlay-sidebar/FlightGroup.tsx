@@ -1,26 +1,19 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import { createMemo, For, Show, useContext } from "solid-js";
+import { createEffect, createMemo, For, Show, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
-import { RunningCampaignState } from "../../../../logic/types";
-import { getCoalitionFaction } from "../../../../logic/utils";
+import { FlightGroupButtons } from "../../../../components";
+import { useFaction } from "../../../../components/utils";
 import { Flag } from "./Flag";
 import { FlightGroupUnit } from "./FlightGroupUnit";
-import Style from "./Item.module.less";
+import Styles from "./Item.module.less";
 import { OverlaySidebarContext } from "./OverlaySidebarProvider";
+import { useOverlayClose } from "./utils";
 
 export function FlightGroup() {
-	const [state] = useContext(CampaignContext);
 	const [overlayStore] = useContext(OverlaySidebarContext);
+	const onClose = useOverlayClose();
 
-	const faction = createMemo(() => {
-		const coalition = overlayStore.coalition;
-
-		if (coalition == null) {
-			return undefined;
-		}
-		return getCoalitionFaction(coalition, state as RunningCampaignState);
-	});
+	const faction = useFaction(overlayStore.coalition);
 
 	const flightGroup = createMemo(() => {
 		const flightGroupId = overlayStore.flightGroupId;
@@ -33,12 +26,24 @@ export function FlightGroup() {
 		return pkg.flightGroups.find((f) => f.id === flightGroupId);
 	});
 
+	// Close if the flight group is removed
+	createEffect(() => {
+		if (flightGroup() == null) {
+			onClose();
+		}
+	});
+
 	return (
 		<Show when={flightGroup() != null}>
 			<div>
 				<Flag countryName={faction()?.countryName} />
-				<h2 class={Style.title}>{flightGroup()?.name}</h2>
-				<Components.TaskLabel task={flightGroup()?.task ?? "CAP"} class={Style.task} />
+				<h2 class={Styles.title}>{flightGroup()?.name}</h2>
+				<Components.TaskLabel task={flightGroup()?.task ?? "CAP"} class={Styles.task} />
+				<FlightGroupButtons
+					coalition={overlayStore.coalition}
+					flightGroup={flightGroup()}
+					class={Styles["flight-group-buttons"]}
+				/>
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>

@@ -9,6 +9,6 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"devDependencies": {
-		"@foxdelta2/dcsjs": "0.2.217"
+		"@foxdelta2/dcsjs": "0.2.218"
 	}
 }

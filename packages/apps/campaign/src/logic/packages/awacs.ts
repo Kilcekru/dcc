@@ -28,7 +28,7 @@ export const generateAwacsPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.awacs, 1);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.awacs, 1);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -102,7 +102,7 @@ export const generateAwacsPackage = (
 		position: objectToPosition(airdrome),
 	};
 
-	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
 	const flightGroups = [flightGroup];
 

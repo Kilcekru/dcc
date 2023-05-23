@@ -33,7 +33,7 @@ const saveBattleReport = (
 			if (pylon == null) {
 				// eslint-disable-next-line no-console
 				console.error("saveBattleReport", "pylon not found", aircraft, entry.weapon, report);
-				throw "pylon not found";
+				return;
 			}
 
 			pylon.count -= 1;

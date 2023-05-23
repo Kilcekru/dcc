@@ -16,6 +16,14 @@ const staticTypeName: Record<DcsJs.StaticType, string> = {
 	"FARP Fuel Depot": "Fuel Depot",
 	"FARP Tent": "Tent",
 	"Invisible FARP": "Heliport",
+	"Boiler-house A": "Boiler House",
+	"Chemical tank A": "Fuel Tank",
+	"Hangar B": "Hangar",
+	"Military staff": "Office Building",
+	"TV tower": "TV Tower",
+	"Workshop A": "Workshop",
+	"Subsidiary structure 2": "Subsidiary Structure",
+	"Small werehouse 2": "Small Warehouse",
 };
 
 const staticTypeImage: Record<DcsJs.StaticType, keyof typeof Styles> = {
@@ -28,6 +36,14 @@ const staticTypeImage: Record<DcsJs.StaticType, keyof typeof Styles> = {
 	"FARP Fuel Depot": "image-farp-fuel-depot",
 	"FARP Tent": "image-farp-tent",
 	"Invisible FARP": "image-invisible-farp",
+	"Boiler-house A": "image-boiler-house-a",
+	"Chemical tank A": "image-chemical-tank-a",
+	"Hangar B": "image-hangar-b",
+	"Military staff": "image-military-staff",
+	"TV tower": "image-tv-tower",
+	"Workshop A": "image-workshop-a",
+	"Subsidiary structure 2": "image-subsidiary-structure-2",
+	"Small werehouse 2": "image-small-werehouse-2",
 };
 
 export function StructureBuilding(props: {
@@ -41,7 +57,7 @@ export function StructureBuilding(props: {
 			</div>
 			<div class={Styles.building}>
 				<div class={cnb(Styles["item-image"], Styles[staticTypeImage[props.building.type] ?? "image-garage-b"])} />
-				<div class={Styles.stats}>
+				<div class={Styles["building-stats"]}>
 					<div>
 						<p class={Styles["stat-label"]}>Status</p>
 						<p class={Styles["stat-value"]}>{props.building.alive ? "Alive" : "Destroyed"}</p>

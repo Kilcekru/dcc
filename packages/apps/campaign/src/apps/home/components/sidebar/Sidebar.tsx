@@ -1,10 +1,9 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { createMemo, createSignal, For, Show, useContext } from "solid-js";
+import { createSignal, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import { getFlightGroups, sortAsc } from "../../../../utils";
-import { AircraftItem } from "./AircraftItem";
 import { FlightGroupItem } from "./FlightGroupItem";
 import Styles from "./Sidebar.module.less";
 
@@ -12,7 +11,6 @@ export const Sidebar = () => {
 	const [state] = useContext(CampaignContext);
 	const [selectedFaction] = createSignal<DcsJs.CampaignFaction | undefined>(state.blueFaction);
 	const [selectedListType] = createSignal<"flightGroups" | "aircrafts">("flightGroups");
-	const aircrafts = createMemo(() => Object.values(selectedFaction()?.inventory.aircrafts ?? []));
 
 	return (
 		<div class={Styles.sidebar}>
@@ -35,11 +33,6 @@ export const Sidebar = () => {
 						</For>
 					</Components.List>
 				</Components.ScrollContainer>
-			</Show>
-			<Show when={selectedListType() === "aircrafts"}>
-				<Components.List>
-					<For each={aircrafts()}>{(ac) => <AircraftItem aircraft={ac} faction={selectedFaction()} />}</For>
-				</Components.List>
 			</Show>
 		</div>
 	);

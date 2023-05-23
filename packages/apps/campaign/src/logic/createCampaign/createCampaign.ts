@@ -7,12 +7,9 @@ import { scenarioList } from "../../data/scenarios";
 import { firstItem, getUsableUnit, Minutes, random } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
-import { generateAmmoDepots } from "./generateAmmoDepots";
-import { generateBarracks } from "./generateBarracks";
-import { generateDepots } from "./generateDepots";
-import { generateFarps } from "./generateFarps";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
+import { generateStructures } from "./generateStructures";
 import { moveInfantryIntoBarracks } from "./moveInfantryIntoBarracks";
 import { moveVehiclesIntoDepot } from "./moveVehiclesIntoDepot";
 import { claimsObjective } from "./utils";
@@ -89,12 +86,7 @@ export const createCampaign = (
 		awacsFrequency: 285.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		structures: {
-			...generateBarracks(scenario.blue, dataStore),
-			...generateDepots(scenario.blue, dataStore),
-			...generateAmmoDepots(scenario.blue, dataStore),
-			...generateFarps(scenario.blue, dataStore),
-		},
+		structures: generateStructures(scenario.blue, dataStore),
 	};
 
 	state.redFaction = {
@@ -120,12 +112,7 @@ export const createCampaign = (
 		awacsFrequency: 280.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		structures: {
-			...generateBarracks(scenario.red, dataStore),
-			...generateDepots(scenario.red, dataStore),
-			...generateAmmoDepots(scenario.red, dataStore),
-			...generateFarps(scenario.red, dataStore),
-		},
+		structures: generateStructures(scenario.red, dataStore),
 	};
 
 	state.objectives =
@@ -235,6 +222,7 @@ export const createCampaign = (
 	moveVehiclesIntoDepot(state);
 
 	state.active = true;
+	state.winningCondition = scenario["win-condition"];
 
 	return state;
 };

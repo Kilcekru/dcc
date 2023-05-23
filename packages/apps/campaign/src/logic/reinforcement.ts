@@ -27,10 +27,31 @@ export const factionReinforcement = (coalition: DcsJs.CampaignCoalition, state: 
 			};
 		});
 
-		faction.reinforcementTimer = state.timer;
-
 		// eslint-disable-next-line no-console
 		console.log(`${coalition} reinforced ${destroyedAircrafts.length} aircrafts`);
+
+		if (coalition === "blue") {
+			const destroyedGroundUnits = Object.values(faction.inventory.groundUnits).filter(
+				(gu) => gu.alive === false && gu.destroyedTime != null && gu.destroyedTime > faction.reinforcementTimer
+			);
+
+			destroyedGroundUnits.forEach((gu) => {
+				const id = createUniqueId();
+
+				faction.inventory.groundUnits[id] = {
+					...gu,
+					alive: true,
+					destroyedTime: undefined,
+					state: "idle",
+					id,
+				};
+			});
+
+			// eslint-disable-next-line no-console
+			console.log(`${coalition} reinforced ${destroyedGroundUnits.length} ground units`);
+		}
+
+		faction.reinforcementTimer = state.timer;
 	}
 };
 

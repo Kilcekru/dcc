@@ -2,10 +2,34 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { Scenario } from "../../data/scenarios";
+import { ObjectivePlan, Scenario } from "../../data/scenarios";
 import { Position } from "../../types";
-import { firstItem, getScenarioFaction, onboardNumber } from "../../utils";
+import { findNearest, onboardNumber } from "../../utils";
 import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAircraftType } from "../utils";
+
+function getFrontlineFarp(
+	objectives: Array<{ name: string; position: Position }>,
+	objectivePlans: Array<ObjectivePlan>,
+	frontlineObjective: DcsJs.CampaignObjective
+) {
+	const farps = objectivePlans.reduce((prev, plan) => {
+		const isFarp = plan.structures.some((str) => str.structureType === "Farp");
+
+		if (isFarp) {
+			const objective = objectives.find((obj) => obj.name === plan.objectiveName);
+
+			if (objective == null) {
+				return prev;
+			}
+
+			return [...prev, objective];
+		}
+
+		return prev;
+	}, [] as Array<{ name: string; position: Position }>);
+
+	return findNearest(farps, frontlineObjective.position, (farp) => farp.position);
+}
 
 export const generateAircraftInventory = ({
 	coalition,
@@ -16,7 +40,7 @@ export const generateAircraftInventory = ({
 }: {
 	coalition: DcsJs.CampaignCoalition;
 	faction: DcsJs.FactionDefinition;
-	objectives: Array<{ position: Position }>;
+	objectives: Array<{ name: string; position: Position }>;
 	scenario: Scenario;
 	dataStore: DataStore;
 }) => {
@@ -60,7 +84,11 @@ export const generateAircraftInventory = ({
 	}
 
 	const aircrafts: Array<DcsJs.CampaignAircraft> = [];
-	const farpName = firstItem(getScenarioFaction(coalition, scenario).farps);
+	const farpObjective = getFrontlineFarp(
+		objectives,
+		scenario[coalition === "blue" ? "blue" : "red"].objectivePlans,
+		frontlineObjective
+	);
 
 	faction.aircraftTypes.cap.forEach((acType) => {
 		const count = Math.max(2, capCount * faction.aircraftTypes.cap.length);
@@ -92,10 +120,10 @@ export const generateAircraftInventory = ({
 			aircrafts.push({
 				aircraftType,
 				homeBase:
-					aircraft?.isHelicopter && farpName != null
+					aircraft?.isHelicopter && farpObjective != null
 						? {
 								type: "farp",
-								name: farpName,
+								name: farpObjective.name,
 						  }
 						: {
 								type: "airdrome",

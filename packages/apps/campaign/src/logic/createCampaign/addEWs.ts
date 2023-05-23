@@ -10,8 +10,14 @@ const addCoalitionEW = (state: CampaignState, scenario: Scenario, coalition: "bl
 		return;
 	}
 
-	scenario[coalition].ewNames.forEach((name) => {
-		const objective = state.objectives[name];
+	scenario[coalition].objectivePlans.forEach((plan) => {
+		const hasEWR = plan.groundUnitTypes.some((gut) => gut === "ewr");
+
+		if (!hasEWR) {
+			return;
+		}
+
+		const objective = state.objectives[plan.objectiveName];
 
 		if (objective == null) {
 			return;

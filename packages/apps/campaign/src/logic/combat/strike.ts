@@ -29,8 +29,9 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 
 				if (targetStructure == null) {
 					// eslint-disable-next-line no-console
-					console.error("strike", "strike flight group target is unknown", fg, targetName, oppFaction);
-					throw "strike flight group target is unknown";
+					console.warn("strike", "strike flight group target is unknown", fg, targetName, oppFaction);
+
+					return;
 				}
 
 				if (

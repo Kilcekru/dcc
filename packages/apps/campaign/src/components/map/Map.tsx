@@ -19,6 +19,9 @@ const sidcUnitCode = {
 	armor: "UCA---",
 	infantry: "UCI---",
 	armamentProduction: "IMG---",
+	fuelStorage: "IRP---",
+	powerPlant: "IUE---",
+	depot: "IMV---",
 	attack: "MFA---",
 	aew: "MFRW--",
 	fighter: "MFF---",
@@ -41,7 +44,8 @@ export const Map = () => {
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useContext(DataContext);
-	const [, { openStructure, openFlightGroup, openGroundGroup, openAirdrome }] = useContext(OverlaySidebarContext);
+	const [, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openEWR, openSam }] =
+		useContext(OverlaySidebarContext);
 
 	const kobuleti = createMemo(() => {
 		const position = dataStore.airdromes?.["Kobuleti"];
@@ -62,8 +66,16 @@ export const Map = () => {
 		openGroundGroup?.(groundGroup.id, coalition);
 	};
 
+	const onClickEWR = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
+		openEWR?.(groundGroup.id, coalition);
+	};
+
 	const onClickAirdrome = (airdromeName: string, coalition: DcsJs.CampaignCoalition) => {
 		openAirdrome?.(airdromeName, coalition);
+	};
+
+	const onClickSam = (id: string, coalition: DcsJs.CampaignCoalition) => {
+		openSam?.(id, coalition);
 	};
 
 	const createSymbol = (
@@ -191,16 +203,6 @@ export const Map = () => {
 				return;
 			}
 
-			const str = gg.unitIds.reduce((prev, unitId) => {
-				const unit = faction.inventory.groundUnits[unitId];
-
-				if (unit == null) {
-					return prev;
-				}
-
-				return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
-			}, gg.objective.name + "<br />");
-
 			if (groundGroupMarkers[gg.id] == null) {
 				const marker = createSymbol(
 					positionToMapPosition(gg.position),
@@ -216,7 +218,6 @@ export const Map = () => {
 				groundGroupMarkers[gg.id] = marker;
 			} else {
 				groundGroupMarkers[gg.id]?.setLatLng(positionToMapPosition(gg.position));
-				groundGroupMarkers[gg.id]?.setPopupContent(str);
 			}
 		});
 	};
@@ -230,23 +231,13 @@ export const Map = () => {
 			const hasAliveUnits = gg.unitIds.some((id) => faction.inventory.groundUnits[id]?.alive);
 
 			if (hasAliveUnits) {
-				const str = gg.unitIds.reduce((prev, unitId) => {
-					const unit = faction.inventory.groundUnits[unitId];
-
-					if (unit == null) {
-						return prev;
-					}
-
-					return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
-				}, gg.objective.name + "<br />");
-
 				if (ewMarkers[gg.id] == null) {
 					const marker = createSymbol(
 						positionToMapPosition(gg.position),
 						coalition === "red",
 						false,
 						"radar"
-					)?.bindPopup(str);
+					)?.addEventListener("click", () => onClickEWR?.(gg, coalition));
 
 					if (marker == null) {
 						return;
@@ -255,7 +246,6 @@ export const Map = () => {
 					ewMarkers[gg.id] = marker;
 				} else {
 					ewMarkers[gg.id]?.setLatLng(positionToMapPosition(gg.position));
-					ewMarkers[gg.id]?.setPopupContent(str);
 				}
 			} else {
 				if (ewMarkers[gg.id] == null) {
@@ -285,8 +275,8 @@ export const Map = () => {
 		});
 	};
 
-	const createSamSymbols = () => {
-		state.blueFaction?.sams.forEach((sam) => {
+	const createSamSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+		faction.sams.forEach((sam) => {
 			if (sam.operational) {
 				const mapPosition = positionToMapPosition(sam.position);
 				const map = leaftletMap();
@@ -296,53 +286,15 @@ export const Map = () => {
 				}
 
 				if (samCircles[sam.id] == null) {
-					const str = sam.units.reduce((prev, unit) => {
-						if (unit == null) {
-							return prev;
-						}
+					const marker = createSymbol(mapPosition, coalition === "red", false, "airDefenceMissle")?.addEventListener(
+						"click",
+						() => onClickSam?.(sam.id, coalition)
+					);
 
-						return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
-					}, sam.name + "<br />");
-
-					const marker = createSymbol(mapPosition, false, false, "airDefenceMissle")?.bindPopup(str);
-
-					const circle = L.circle(mapPosition, { radius: sam.range, color: "#80e0ff" }).addTo(map);
-
-					if (circle == null || marker == null) {
-						return;
-					}
-
-					samCircles[sam.id] = { circle, marker };
-				}
-			} else {
-				const samCircle = samCircles[sam.id];
-
-				removeSymbol(samCircle?.circle);
-				removeSymbol(samCircle?.marker);
-			}
-		});
-
-		state.redFaction?.sams.forEach((sam) => {
-			if (sam.operational) {
-				const mapPosition = positionToMapPosition(sam.position);
-				const map = leaftletMap();
-
-				if (map == null) {
-					return;
-				}
-
-				if (samCircles[sam.id] == null) {
-					const str = sam.units.reduce((prev, unit) => {
-						if (unit == null) {
-							return prev;
-						}
-
-						return prev + unit.displayName + (unit.alive ? "" : "[DESTROYED]") + "<br />";
-					}, sam.name + "<br />");
-
-					const marker = createSymbol(mapPosition, true, false, "airDefenceMissle")?.bindPopup(str);
-
-					const circle = L.circle(mapPosition, { radius: sam.range, color: "#ff8080" }).addTo(map);
+					const circle = L.circle(mapPosition, {
+						radius: sam.range,
+						color: coalition === "blue" ? "#80e0ff" : "#ff8080",
+					}).addTo(map);
 
 					if (circle == null || marker == null) {
 						return;
@@ -439,7 +391,6 @@ export const Map = () => {
 		}).addTo(map);
 
 		createAirdromeSymbols();
-		createSamSymbols();
 	});
 
 	// Package Markers
@@ -455,10 +406,12 @@ export const Map = () => {
 		createGroundGroupSymbols("blue", state.blueFaction);
 		createEWSymbols("blue", state.blueFaction);
 		createStructureSymbols("blue", state.blueFaction);
+		createSamSymbols("blue", state.blueFaction);
 		createAircraftSymbols("red", redPackages);
 		createGroundGroupSymbols("red", state.redFaction);
 		createEWSymbols("red", state.redFaction);
 		createStructureSymbols("red", state.redFaction);
+		createSamSymbols("red", state.redFaction);
 
 		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];
 

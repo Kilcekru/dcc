@@ -31,7 +31,7 @@ export const generateDeadPackage = (
 	if (faction == null || dataStore.airdromes == null) {
 		return;
 	}
-	const usableAircrafts = getUsableAircraftsByType(faction?.inventory.aircrafts, faction?.aircraftTypes.dead, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.dead, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -125,7 +125,7 @@ export const generateDeadPackage = (
 		position: objectToPosition(airdrome),
 	};
 
-	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
 	const flightGroups = [flightGroup];
 

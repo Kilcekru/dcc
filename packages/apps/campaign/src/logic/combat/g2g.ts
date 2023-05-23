@@ -1,7 +1,8 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { Minutes, oppositeCoalition, random } from "../../utils";
+import { findNearest, Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, isCampaignStructureUnitCamp } from "../utils";
 
@@ -13,10 +14,64 @@ const hasStillAliveUnits = (groundGroup: DcsJs.CampaignGroundGroup, faction: Dcs
 	});
 };
 
+function moveFarpAircraftsToNearestFarp(
+	aircrafts: Array<DcsJs.CampaignAircraft>,
+	faction: DcsJs.CampaignFaction,
+	sourceStructure: DcsJs.CampaignStructure,
+	dataStore: DataStore
+) {
+	// Has the opposite faction aircrafts on the farp
+	if (aircrafts.length > 0) {
+		const alternativeFarps = Object.values(faction.structures).filter(
+			(str) => str.structureType === "Farp" && str.id !== sourceStructure.id
+		);
+
+		if (alternativeFarps.length > 0) {
+			const nearestFarp = findNearest(alternativeFarps, sourceStructure.position, (farp) => farp.position);
+
+			if (nearestFarp != null) {
+				aircrafts.forEach((ac) => {
+					const inventoryAc = faction.inventory.aircrafts[ac.id];
+
+					if (inventoryAc == null) {
+						return;
+					}
+
+					inventoryAc.homeBase.type = "farp";
+					inventoryAc.homeBase.name = nearestFarp.name;
+				});
+			}
+		}
+
+		const dataAirdromes = dataStore.airdromes;
+
+		if (dataAirdromes == null) {
+			return;
+		}
+
+		const airdromes = faction.airdromeNames.map((name) => dataAirdromes[name]);
+
+		const nearestAirdromes = findNearest(airdromes, sourceStructure.position, (ad) => ad);
+
+		if (nearestAirdromes != null) {
+			aircrafts.forEach((ac) => {
+				const inventoryAc = faction.inventory.aircrafts[ac.id];
+
+				if (inventoryAc == null) {
+					return;
+				}
+
+				inventoryAc.homeBase.type = "farp";
+				inventoryAc.homeBase.name = nearestAirdromes.name;
+			});
+		}
+	}
+}
 export const conquerObjective = (
 	attackingGroundGroup: DcsJs.CampaignGroundGroup,
 	coalition: DcsJs.CampaignCoalition,
-	state: RunningCampaignState
+	state: RunningCampaignState,
+	dataStore: DataStore
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
@@ -69,11 +124,21 @@ export const conquerObjective = (
 					return;
 				}
 
+				inventoryAc.homeBase.type = "farp";
 				inventoryAc.homeBase.name = structure.name;
 			});
+
+			const oppFarpAircrafts = Object.values(oppFaction.inventory.aircrafts).filter(
+				(ac) => ac.homeBase.name === structure.name
+			);
+
+			moveFarpAircraftsToNearestFarp(oppFarpAircrafts, oppFaction, structure, dataStore);
 		}
 
-		faction.structures[structure.name] = structure;
+		faction.structures[structure.name] = {
+			...structure,
+			id: createUniqueId(),
+		};
 	});
 
 	oppStructures.forEach((structure) => {
@@ -84,7 +149,8 @@ export const conquerObjective = (
 export const g2gBattle = (
 	blueGroundGroup: DcsJs.CampaignGroundGroup,
 	redGroundGroup: DcsJs.CampaignGroundGroup,
-	state: RunningCampaignState
+	state: RunningCampaignState,
+	dataStore: DataStore
 ) => {
 	if (random(1, 100) <= 50) {
 		console.log(`Ground: ${blueGroundGroup.id} destroyed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
@@ -141,16 +207,17 @@ export const g2gBattle = (
 		redGroundGroup.combatTimer = state.timer + Minutes(3);
 		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
-		conquerObjective(blueGroundGroup, "blue", state);
+		conquerObjective(blueGroundGroup, "blue", state, dataStore);
 	} else {
-		conquerObjective(redGroundGroup, "red", state);
+		conquerObjective(redGroundGroup, "red", state, dataStore);
 	}
 };
 
 export const g2g = (
 	attackingCoalition: DcsJs.CampaignCoalition,
 	attackingGroundGroup: DcsJs.CampaignGroundGroup,
-	state: RunningCampaignState
+	state: RunningCampaignState,
+	dataStore: DataStore
 ) => {
 	const defendingCoalition = oppositeCoalition(attackingCoalition);
 	const defendingFaction = getCoalitionFaction(defendingCoalition, state);
@@ -163,7 +230,7 @@ export const g2g = (
 		// eslint-disable-next-line no-console
 		console.error("defending ground group not found", attackingGroundGroup.objective.name);
 
-		conquerObjective(attackingGroundGroup, attackingCoalition, state);
+		conquerObjective(attackingGroundGroup, attackingCoalition, state, dataStore);
 
 		return;
 	}
@@ -171,5 +238,5 @@ export const g2g = (
 	const blueGroundGroup = defendingCoalition === "blue" ? defendingGroundGroup : attackingGroundGroup;
 	const redGroundGroup = defendingCoalition === "red" ? defendingGroundGroup : attackingGroundGroup;
 
-	g2gBattle(blueGroundGroup, redGroundGroup, state);
+	g2gBattle(blueGroundGroup, redGroundGroup, state, dataStore);
 };

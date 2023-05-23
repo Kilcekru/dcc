@@ -26,7 +26,7 @@ importers:
 
   packages/apps/campaign:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
       '@kilcekru/dcc-lib-components': workspace:*
       '@kilcekru/dcc-lib-rpc': workspace:*
       '@kilcekru/dcs-coordinates': 0.5.0
@@ -58,7 +58,7 @@ importers:
       milsymbol: 2.0.0
       solid-js: 1.6.2
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
       '@types/leaflet': 1.9.0
 
   packages/apps/launcher:
@@ -71,7 +71,7 @@ importers:
 
   packages/chief/core:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
       '@kilcekru/dcc-shared-rpc-types': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.11.10
@@ -81,7 +81,7 @@ importers:
       fs-extra: ^11.1.0
       regedit: ^5.1.1
     dependencies:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
       fs-extra: 11.1.0
@@ -102,7 +102,7 @@ importers:
 
   packages/libs/components:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
       '@zag-js/checkbox': 0.8.0
       '@zag-js/dialog': 0.8.0
       '@zag-js/editable': 0.8.0
@@ -125,7 +125,7 @@ importers:
       cnbuilder: 3.1.0
       solid-js: 1.6.2
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
 
   packages/libs/rpc:
     specifiers:
@@ -135,9 +135,9 @@ importers:
 
   packages/shared/rpc-types:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.217
+      '@foxdelta2/dcsjs': 0.2.218
 
   utils/build:
     specifiers:
@@ -535,8 +535,8 @@ packages:
       '@floating-ui/core': 1.2.6
     dev: false
 
-  /@foxdelta2/dcsjs/0.2.217:
-    resolution: {integrity: sha512-TJu6f2jGFZLALOZ3ywdsVhs7Eyfd/BOapc0rAPJqMA+t0qGifx9A/dnEgKLTsL7LB97Yf0ONlKJMgb0Cso/+sg==}
+  /@foxdelta2/dcsjs/0.2.218:
+    resolution: {integrity: sha512-NluMkqxawC/sv8fA0euCMykwNLcrUAfhv8PwoDNBK2Qyp+6yNYaKyp4nRKaggSz43pfq38RMhR2csSvAYaAVWw==}
     dependencies:
       '@kilcekru/lua-table': 1.0.0
       adm-zip: 0.5.10

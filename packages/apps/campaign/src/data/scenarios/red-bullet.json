@@ -5,54 +5,318 @@
 	"available": true,
 	"date": "2022-06-01",
 	"era": "Modern",
+	"win-condition": {
+		"type": "objective",
+		"value": "Enguri Dam"
+	},
 	"blue": {
 		"airdromeNames": ["Kobuleti"],
-		"farps": ["Poti|Structure|1"],
-		"objectiveNames": [
-			"Poti",
-			"Siriachkoni",
-			"Ketilari",
-			"Nasakirali",
-			"Nagomari",
-			"Maharadze",
-			"Konchkati",
-			"Lanchhuti"
-		],
-		"samNames": ["Nasakirali"],
-		"ewNames": [],
-		"barracks": ["Siriachkoni|Structure|1"],
-		"depots": ["Lanchhuti|Structure|1"],
-		"ammoDepots": ["Konchkati|Structure|2", "Nagomari|Structure|2"]
+		"objectivePlans": [
+			{
+				"objectiveName": "Poti",
+				"structures": [
+					{
+						"structureName": "Poti|Structure|1",
+						"structureType": "Farp"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Siriachkoni",
+				"structures": [
+					{
+						"structureName": "Siriachkoni|Structure|1",
+						"structureType": "Barrack"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Ketilari",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Nasakirali",
+				"structures": [
+					{
+						"structureName": "Nagomari|Structure|2",
+						"structureType": "Power Plant"
+					}
+				],
+				"groundUnitTypes": ["sam"]
+			},
+			{
+				"objectiveName": "Nagomari",
+				"structures": [
+					{
+						"structureName": "Nagomari|Structure|2",
+						"structureType": "Fuel Storage"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Maharadze",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Konchkati",
+				"structures": [
+					{
+						"structureName": "Konchkati|Structure|2",
+						"structureType": "Power Plant"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Lanchhuti",
+				"structures": [
+					{
+						"structureName": "Lanchhuti|Structure|1",
+						"structureType": "Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Patara-Poti",
+				"structures": [
+					{
+						"structureName": "Patara-Poti|Structure|1",
+						"structureType": "Fuel Storage"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Hidmagala",
+				"structures": [
+					{
+						"structureName": "Hidmagala|Structure|1",
+						"structureType": "Ammo Depot"
+					}
+				],
+				"groundUnitTypes": ["sam"]
+			}
+		]
 	},
 	"red": {
 		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
-		"farps": [],
-		"objectiveNames": [
-			"Enguri Dam",
-			"Dzhvari",
-			"Zeni",
-			"Lia",
-			"Natsatu",
-			"Zugdidi",
-			"Kahati",
-			"Tsatshvi",
-			"Okhvamekari",
-			"Dgvaba",
-			"Naposhtu",
-			"Durgena",
-			"Senaki-Kolkhi",
-			"Bataria"
-		],
-		"samNames": ["Ochkhomuri", "Sukhumi-Babushara", "Nalchik", "Zeni"],
-		"ewNames": ["Meore-Balda", "Bedia"],
-		"barracks": [
-			"Bataria|Structure|1",
-			"Martvili|Structure|1",
-			"Tsatshvi|Structure|1",
-			"Ochkhomuri|Structure|1",
-			"Dzhvari|Structure|3"
-		],
-		"depots": ["Dgvaba|Structure|1", "Meore-Balda|Structure|1", "Zeni|Structure|1", "Ochamchira|Structure|1"],
-		"ammoDepots": ["Gakhomela|Structure|1", "Kahati|Structure|1", "Natsatu|Structure|1", "Sachino|Structure|2"]
+		"objectivePlans": [
+			{
+				"objectiveName": "Enguri Dam",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Dzhvari",
+				"structures": [
+					{
+						"structureName": "Dzhvari|Structure|1",
+						"structureType": "Barrack"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Zeni",
+				"structures": [
+					{
+						"structureName": "Zeni|Structure|1",
+						"structureType": "Depot"
+					}
+				],
+				"groundUnitTypes": ["sam"]
+			},
+			{
+				"objectiveName": "Lia",
+				"structures": [
+					{
+						"structureName": "Lia|Structure|1",
+						"structureType": "Power Plant"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Natsatu",
+				"structures": [
+					{
+						"structureName": "Natsatu|Structure|1",
+						"structureType": "Ammo Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Zugdidi",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Kahati",
+				"structures": [
+					{
+						"structureName": "Kahati|Structure|1",
+						"structureType": "Ammo Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Tsatshvi",
+				"structures": [
+					{
+						"structureName": "Tsatshvi|Structure|1",
+						"structureType": "Barrack"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Okhvamekari",
+				"structures": [
+					{
+						"structureName": "Okhvamekari|Structure|1",
+						"structureType": "Fuel Storage"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Ochkhomuri",
+				"structures": [
+					{
+						"structureName": "Ochkhomuri|Structure|1",
+						"structureType": "Barrack"
+					}
+				],
+				"groundUnitTypes": ["sam"]
+			},
+			{
+				"objectiveName": "Dgvaba",
+				"structures": [
+					{
+						"structureName": "Dgvaba|Structure|1",
+						"structureType": "Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Dzveli-Senaki",
+				"structures": [
+					{
+						"structureName": "Dzveli-Senaki|Structure|2",
+						"structureType": "Power Plant"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Naposhtu",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Durgena",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Senaki-Kolkhi",
+				"structures": [],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Bataria",
+				"structures": [
+					{
+						"structureName": "Bataria|Structure|1",
+						"structureType": "Barrack"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Sukhumi-Babushara",
+				"structures": [],
+				"groundUnitTypes": ["sam"]
+			},
+			{
+				"objectiveName": "Nalchik",
+				"structures": [],
+				"groundUnitTypes": ["sam"]
+			},
+			{
+				"objectiveName": "Meore-Balda",
+				"structures": [
+					{
+						"structureName": "Meore-Balda|Structure|1",
+						"structureType": "Depot"
+					}
+				],
+				"groundUnitTypes": ["ewr"]
+			},
+			{
+				"objectiveName": "Bedia",
+				"structures": [],
+				"groundUnitTypes": ["ewr"]
+			},
+			{
+				"objectiveName": "Martvili",
+				"structures": [
+					{
+						"structureName": "Martvili|Structure|1",
+						"structureType": "Barrack"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Ochamchira",
+				"structures": [
+					{
+						"structureName": "Ochamchira|Structure|1",
+						"structureType": "Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Gakhomela",
+				"structures": [
+					{
+						"structureName": "Gakhomela|Structure|1",
+						"structureType": "Ammo Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Sachino",
+				"structures": [
+					{
+						"structureName": "Sachino|Structure|1",
+						"structureType": "Ammo Depot"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
+				"objectiveName": "Gali",
+				"structures": [
+					{
+						"structureName": "Gali|Structure|2",
+						"structureType": "Command Center"
+					}
+				],
+				"groundUnitTypes": []
+			}
+		]
 	}
 }

@@ -5,24 +5,15 @@
 	"available": false,
 	"date": "1944-06-06",
 	"era": "WW2",
+	"win-condition": {
+		"type": "ground units"
+	},
 	"blue": {
 		"airdromeNames": [],
-		"farps": [],
-		"objectiveNames": [],
-		"samNames": [],
-		"ewNames": [],
-		"barracks": [],
-		"depots": [],
-		"ammoDepots": []
+		"objectivePlans": []
 	},
 	"red": {
 		"airdromeNames": [],
-		"farps": [],
-		"objectiveNames": [],
-		"samNames": [],
-		"ewNames": [],
-		"barracks": [],
-		"depots": [],
-		"ammoDepots": []
+		"objectivePlans": []
 	}
 }

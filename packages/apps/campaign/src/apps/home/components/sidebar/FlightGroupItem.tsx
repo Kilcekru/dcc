@@ -1,12 +1,9 @@
-import "./FlightGroupItem.less";
-
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { Icons } from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
-import { createEffect, createMemo, createSignal, For, Show, useContext } from "solid-js";
+import { createMemo, For, useContext } from "solid-js";
 
-import { CampaignContext, Clock } from "../../../../components";
+import { CampaignContext, Clock, FlightGroupButtons } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { OverlaySidebarContext } from "../overlay-sidebar";
 import Styles from "./FlightGroupItem.module.less";
@@ -15,41 +12,16 @@ export const FlightGroupItem = (props: {
 	flightGroup: DcsJs.CampaignFlightGroup;
 	faction: DcsJs.CampaignFaction | undefined;
 }) => {
-	const [state, { selectFlightGroup, setClient }] = useContext(CampaignContext);
+	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
-	const [clientCount, setClientCount] = createSignal(0);
-	const [aircrafts, setAircrafts] = createSignal<Array<{ name: string; aircraftType: string; isClient: boolean }>>([]);
 	const [, { openFlightGroup }] = useContext(OverlaySidebarContext);
-	const hasPlayableAircrafts = createMemo(() =>
-		aircrafts().some((ac) => {
-			const aircraft = dataStore.aircrafts?.[ac.aircraftType as DcsJs.AircraftType];
 
-			if (aircraft == null) {
-				return false;
-			}
-
-			return aircraft.controllable;
-		})
-	);
-
-	createEffect(() => {
-		setClientCount(props.flightGroup.units.filter((unit) => unit.client).length);
-	});
-	const onPress = () => {
-		selectFlightGroup?.({ ...props.flightGroup });
-		openFlightGroup?.(props.flightGroup.id, "blue");
-	};
-
-	const updateClients = (value: number) => {
-		setClient?.(props.flightGroup.id, clientCount() + value);
-	};
-
-	createEffect(() => {
+	const aircrafts = createMemo(() => {
 		const list: Array<{ name: string; aircraftType: string; isClient: boolean }> = [];
 		const faction = props.faction;
 
 		if (faction?.inventory == null) {
-			return;
+			return [];
 		}
 
 		props.flightGroup.units.forEach((unit) => {
@@ -66,26 +38,19 @@ export const FlightGroupItem = (props: {
 			});
 		});
 
-		setAircrafts(list);
+		return list;
 	});
+
+	const onPress = () => {
+		selectFlightGroup?.({ ...props.flightGroup });
+		openFlightGroup?.(props.flightGroup.id, "blue");
+	};
 
 	return (
 		<Components.ListItem class={Styles.item}>
 			<Components.Card class={Styles.card} onPress={onPress} selected={props.flightGroup.startTime < state.timer}>
 				<div class={Styles.name}>{props.flightGroup.name}</div>
-				<Show when={hasPlayableAircrafts()}>
-					<Show when={clientCount() >= 1}>
-						<Components.Button class={Styles.clientRemoveButton} onPress={() => updateClients(-1)}>
-							<Icons.PersonRemove />
-						</Components.Button>
-					</Show>
-					<Components.Button class={Styles.clientAddButton} onPress={() => updateClients(1)}>
-						<Icons.PersonAdd />
-						<Show when={clientCount() === 0}>
-							<span>JOIN</span>
-						</Show>
-					</Components.Button>
-				</Show>
+				<FlightGroupButtons coalition="blue" flightGroup={props.flightGroup} />
 				<Components.TaskLabel task={props.flightGroup.task} class={Styles.task} />
 				<div class={Styles.stats}>
 					<div>

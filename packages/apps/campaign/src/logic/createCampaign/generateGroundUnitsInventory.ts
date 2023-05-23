@@ -76,7 +76,7 @@ export const generateGroundUnitsInventory = (
 	}
 
 	if (infantries.length > 0) {
-		const unitCount = 80 / infantries.length;
+		const unitCount = 120 / infantries.length;
 
 		infantries.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {
@@ -123,7 +123,13 @@ export const generateGroundUnitsInventory = (
 		});
 	}
 
-	scenario[coalition === "blue" ? "blue" : "red"].ewNames.forEach(() => {
+	scenario[coalition === "blue" ? "blue" : "red"].objectivePlans.forEach((plan) => {
+		const hasEWR = plan.groundUnitTypes.some((gut) => gut === "ewr");
+
+		if (!hasEWR) {
+			return;
+		}
+
 		const name = randomItem(faction.template.ews);
 
 		if (name == null) {

@@ -180,7 +180,8 @@ const strikePackages = (
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "Pinpoint Strike");
 
-	if (taskPackages.length < 2) {
+	// Penalty for red
+	if (taskPackages.length < (coalition === "blue" ? 2 : 1)) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
@@ -200,19 +201,26 @@ const factionPackagesTick = (
 	faction: DcsJs.CampaignFaction
 ) => {
 	updatePackagesState(faction.packages, state.timer, dataStore);
-	if (casPackages(coalition, state, dataStore, faction.packages)) {
-		return;
+
+	const date = new Date(state.timer * 1000);
+	const dayHour = date.getHours() ?? 0;
+
+	// Only create packages during the day
+	if (dayHour >= 8 && dayHour < 19) {
+		if (casPackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		if (capPackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		if (awacsPackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		if (deadPackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		strikePackages(coalition, state, dataStore, faction.packages);
 	}
-	if (capPackages(coalition, state, dataStore, faction.packages)) {
-		return;
-	}
-	if (awacsPackages(coalition, state, dataStore, faction.packages)) {
-		return;
-	}
-	if (deadPackages(coalition, state, dataStore, faction.packages)) {
-		return;
-	}
-	strikePackages(coalition, state, dataStore, faction.packages);
 };
 
 export const packagesRound = (state: RunningCampaignState, dataStore: DataStore) => {

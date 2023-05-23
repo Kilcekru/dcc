@@ -42,11 +42,7 @@ export const generateCapPackage = (
 
 	const aircraftCount = random(2, 4);
 
-	const usableAircrafts = getUsableAircraftsByType(
-		faction?.inventory.aircrafts,
-		faction.aircraftTypes.cap,
-		aircraftCount
-	);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.cap, aircraftCount);
 	const airdromes = dataStore.airdromes;
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -177,7 +173,7 @@ export const generateCapPackage = (
 		target: objectiveName,
 	};
 
-	updateAircraftForFlightGroup(flightGroup, faction, dataStore);
+	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
 	const flightGroups = [flightGroup];
 

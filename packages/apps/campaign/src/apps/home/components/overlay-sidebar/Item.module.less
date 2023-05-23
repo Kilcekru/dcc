@@ -47,6 +47,15 @@
 	border: 1px solid white;
 }
 
+.stats {
+	margin-left: 10px;
+	margin-bottom: 10px;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	column-gap: 50px;
+	row-gap: 10px;
+}
+
 .flag {
 	height: 200px;
 	width: 100%;
@@ -116,13 +125,45 @@
 	background-image: url("./images/invisible-farp.jpg");
 }
 
+.image-boiler-house-a {
+	background-image: url("./images/boiler-house-a.jpg");
+}
+
+.image-chemical-tank-a {
+	background-image: url("./images/chemical-tank-a.jpg");
+}
+
+.image-hangar-b {
+	background-image: url("./images/hangar-b.jpg");
+}
+
+.image-military-staff {
+	background-image: url("./images/military-staff.jpg");
+}
+
+.image-tv-tower {
+	background-image: url("./images/tv-tower.jpg");
+}
+
+.image-workshop-a {
+	background-image: url("./images/workshop-a.jpg");
+}
+
+.image-subsidiary-structure-2 {
+	background-image: url("./images/subsidiary-structure-2.jpg");
+}
+
+.image-small-werehouse-2 {
+	background-image: url("./images/small-werehouse-2.jpg");
+}
+
 .building {
 	display: flex;
 	gap: 10px;
 	align-items: center;
 }
 
-.stats {
+.building-stats {
 	display: flex;
 	justify-content: space-between;
 	gap: 50px;
@@ -140,4 +181,19 @@
 	font-size: 16px;
 	color: var(--body);
 	margin: 0;
+}
+
+.flight-group-buttons {
+	top: 200px;
+	right: 0;
+	left: 0;
+	position: absolute;
+
+	button {
+		background-color: var(--secondary);
+
+		&:hover {
+			background-color: var(--secondary-hover);
+		}
+	}
 }

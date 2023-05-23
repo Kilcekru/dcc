@@ -41,7 +41,7 @@ function cleanupFactionStructures(coalition: DcsJs.CampaignCoalition, state: Run
 	Object.keys(faction.structures).forEach((key) => {
 		const structure = faction.structures[key];
 
-		if (structure?.structureType === "Barracks" || structure?.structureType === "Depots") {
+		if (structure?.structureType === "Barrack" || structure?.structureType === "Depot") {
 			updateUnitCampState(coalition, state, structure);
 		}
 	});

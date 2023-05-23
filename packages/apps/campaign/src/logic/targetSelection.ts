@@ -63,6 +63,10 @@ export const getStrikeTarget = (
 ): DcsJs.CampaignStructure | undefined => {
 	const factionObjectives = Object.values(objectives).filter((obj) => obj.coalition === coalition);
 	const structures = Object.values(oppFaction.structures).filter((structure) => {
+		// don't attack Farps
+		if (structure.structureType === "Farp") {
+			return false;
+		}
 		const alreadyTarget = faction.packages.find((pkg) => pkg.flightGroups.find((fg) => fg.target === structure.name));
 
 		if (alreadyTarget) {
@@ -94,12 +98,28 @@ export const getStrikeTarget = (
 		switch (str.structureType) {
 			case "Ammo Depot": {
 				const consumingStructures = structures.filter(
-					(str) => str.structureType === "Barracks" || str.structureType === "Depots"
+					(str) => str.structureType === "Barrack" || str.structureType === "Depot"
 				);
 
 				const inRangeStructures = findInside(consumingStructures, str.position, (s) => s.position, ammoDepotRange);
 
 				prio = 30 * inRangeStructures.length;
+
+				break;
+			}
+			case "Power Plant": {
+				const consumingStructures = structures.filter(
+					(str) => str.structureType === "Barrack" || str.structureType === "Depot"
+				);
+
+				const inRangeStructures = findInside(consumingStructures, str.position, (s) => s.position, ammoDepotRange);
+
+				prio = 50 * inRangeStructures.length;
+
+				break;
+			}
+			case "Command Center": {
+				prio = 100;
 			}
 		}
 
