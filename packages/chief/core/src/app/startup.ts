@@ -12,7 +12,7 @@ export let mainWindow: BrowserWindow | undefined;
 export async function startupApp() {
 	await Promise.all([dccState.load(), userConfig.load()]);
 
-	setApplicationMenu();
+	setApplicationMenu(userConfig.data.currentApp ?? "launcher");
 
 	mainWindow = new BrowserWindow({
 		...getWindowBounds(),
@@ -38,6 +38,7 @@ export async function startupApp() {
 
 export async function loadApp(name: "launcher" | "campaign", query?: Record<string, string>) {
 	await mainWindow?.loadFile(getAppPath(name), { query });
+	setApplicationMenu(name);
 	userConfig.data.currentApp = name;
 	await userConfig.save();
 }
