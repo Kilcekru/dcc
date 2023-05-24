@@ -1,6 +1,7 @@
 interface DccWindow extends Window {
 	_dcc: {
 		rpc: (namespace: string, fnName: string, args: unknown) => Promise<unknown>;
+		on: (channel: string, listener: (payload: unknown) => void) => () => void;
 	};
 }
 declare const window: DccWindow;
@@ -12,4 +13,8 @@ export function rpc<T extends (...args: any[]) => Promise<unknown>>(namespace: s
 		const res = await window._dcc.rpc(namespace, fnName, args ?? []);
 		return res as Awaited<ReturnType<T>>;
 	};
+}
+
+export function onEvent(channel: string, listener: (payload: unknown) => void) {
+	return window._dcc.on(channel, listener);
 }

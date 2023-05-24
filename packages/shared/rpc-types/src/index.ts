@@ -1,5 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
+export * from "./events";
 export * from "./launcher";
 export * from "./misc";
 
