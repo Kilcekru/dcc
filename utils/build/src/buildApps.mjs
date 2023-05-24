@@ -23,9 +23,6 @@ export async function buildApps({ env, watch }) {
 				outdir: Path.join(paths.target, "apps", app.name),
 				bundle: true,
 				minify: env === "pro",
-				define: {
-					BUILD_ENV: JSON.stringify(env !== "pro"),
-				},
 				loader: {
 					".svg": "dataurl",
 					".png": "file",

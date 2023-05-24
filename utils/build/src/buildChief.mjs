@@ -22,7 +22,7 @@ export async function buildChief({ env, watch }) {
 			platform: "node",
 			target: "node16",
 			define: {
-				BUILD_ENV: JSON.stringify(env !== "pro"),
+				BUILD_ENV: JSON.stringify(env),
 			},
 			loader: {
 				// .template and .lua files are used by dcsjs

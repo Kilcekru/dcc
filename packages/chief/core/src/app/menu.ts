@@ -1,5 +1,6 @@
 import { BrowserWindow, Menu, MenuItemConstructorOptions } from "electron";
 
+import { config } from "../config";
 import * as Events from "../rpc/events";
 import { loadApp } from "./startup";
 
@@ -33,36 +34,14 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 			label: "View",
 			submenu: [
 				{
-					role: "reload",
-					accelerator: "F5",
-				},
-				{
-					// second accelerator for reload
-					visible: false,
-					role: "reload",
-					accelerator: "CommandOrControl+R",
-				},
-				{
-					// accelerator for force reload
-					visible: false,
-					role: "forceReload",
-					accelerator: "CommandOrControl+Shift+R",
-				},
-				{
-					label: "Dev Tools",
-					role: "toggleDevTools",
-					accelerator: "F12",
-				},
-				{ type: "separator" },
-				{
 					role: "resetZoom",
 					accelerator: "CommandOrControl+num0",
 				},
 				{
 					// second accelerator for reset zoom
-					visible: false,
 					role: "resetZoom",
 					accelerator: "CommandOrControl+0",
+					visible: false,
 				},
 				{
 					role: "zoomIn",
@@ -70,9 +49,9 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 				},
 				{
 					// second accelerator for zoom in
-					visible: false,
 					role: "zoomIn",
 					accelerator: "CommandOrControl+=",
+					visible: false,
 				},
 				{
 					role: "zoomOut",
@@ -80,9 +59,9 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 				},
 				{
 					// second accelerator for zoom out
-					visible: false,
 					role: "zoomOut",
 					accelerator: "CommandOrControl+-",
+					visible: false,
 				},
 				{ type: "separator" },
 				{
@@ -93,6 +72,33 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 			],
 		},
 	];
+
+	if (config.env === "dev") {
+		template.push({
+			label: "Dev",
+			submenu: [
+				{
+					role: "reload",
+					accelerator: "F5",
+				},
+				{
+					// second accelerator for reload
+					role: "reload",
+					accelerator: "CommandOrControl+R",
+					visible: false,
+				},
+				{
+					role: "forceReload",
+					accelerator: "CommandOrControl+Shift+R",
+				},
+				{
+					label: "Dev Tools",
+					role: "toggleDevTools",
+					accelerator: "F12",
+				},
+			],
+		});
+	}
 
 	if (currentApp === "campaign") {
 		template.push({

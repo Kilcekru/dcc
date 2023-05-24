@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain } from "electron";
 
 import { openContextMenu } from "../app/menu";
+import { config } from "../config";
 import { isArray, isPlainObject } from "../utils/utils";
 import { handlers } from "./handlers";
 
@@ -35,6 +36,9 @@ export function startRpc() {
 	});
 
 	ipcMain.handle("contextMenu", async (event, args: string) => {
+		if (config.env !== "dev") {
+			return;
+		}
 		const { x, y } = JSON.parse(args) as { x: number; y: number };
 		const window = BrowserWindow.fromWebContents(event.sender);
 		if (window == undefined) {
