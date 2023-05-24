@@ -64,9 +64,11 @@ importers:
   packages/apps/launcher:
     specifiers:
       '@kilcekru/dcc-lib-rpc': workspace:*
+      cnbuilder: 3.1.0
       solid-js: 1.6.2
     dependencies:
       '@kilcekru/dcc-lib-rpc': link:../../libs/rpc
+      cnbuilder: 3.1.0
       solid-js: 1.6.2
 
   packages/chief/core:
@@ -2926,7 +2928,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
 
   /jsx-ast-utils/3.3.3:
     resolution: {integrity: sha512-fYQHZTZ8jSfmWZ0iyzfwiU4WDX4HpHbMCZ3gPlWYiCl3BoeOTsqKBqnTVfH2rYT7eP5c3sVbeSPHnnJOaTrWiw==}

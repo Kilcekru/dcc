@@ -1,0 +1,101 @@
+.app-launcher {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	flex-direction: column;
+}
+
+.app-list {
+	width: 500px;
+}
+
+.item {
+	border-radius: 5px;
+}
+
+.title {
+	font-weight: 300;
+	font-size: 45px;
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.name {
+	font-weight: 300;
+	font-size: 40px;
+	text-align: center;
+	text-transform: none;
+}
+
+.year {
+	font-weight: 300;
+	font-size: 20px;
+	opacity: 0.8;
+	text-align: center;
+}
+
+.app {
+	position: relative;
+	height: 200px;
+}
+
+.background {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	opacity: 0.1;
+	background-size: cover;
+}
+
+.description {
+	display: flex;
+	justify-content: space-around;
+	margin-top: 40px;
+	min-height: 49px;
+	align-items: center;
+}
+
+.campaign {
+	background-image: url("./images/campaign.png");
+}
+
+.mission {
+	background-image: url("./images/quick-mission.jpg");
+}
+
+.patcher {
+	background-image: url("./images/quick-mission.jpg");
+}
+
+.coming-soon {
+	position: absolute;
+	z-index: 10;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: var(--background-opacity);
+	justify-content: center;
+	align-items: center;
+	display: flex;
+	font-weight: 300;
+	font-size: 45px;
+	pointer-events: none;
+	opacity: 0.8;
+}
+
+.settings-button {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+
+	svg {
+		height: 32px;
+		width: 32px;
+		position: relative;
+		top: 2px;
+	}
+}

@@ -7,7 +7,7 @@ import { PauseFill } from "./PauseFill";
 import { PersonAdd } from "./person-add";
 import { PersonRemove } from "./person-remove";
 import { PlayFill } from "./PlayFill";
-
+import { SettingsFill } from "./SettingsFill";
 export const Icons = {
 	Close,
 	Pause,
@@ -18,4 +18,5 @@ export const Icons = {
 	PersonRemove,
 	FastForward,
 	FastForwardFill,
+	SettingsFill,
 };

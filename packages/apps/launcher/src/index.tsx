@@ -5,9 +5,7 @@ import { DcsPaths, UserConfig } from "@kilcekru/dcc-shared-rpc-types";
 import { createSignal, Match, Switch } from "solid-js";
 import { render } from "solid-js/web";
 
-import { AppLauncher } from "./pages/appLauncher";
-import { DcsPathSelector } from "./pages/dcsPaths";
-import { SetupComplete } from "./pages/setupComplete";
+import { AppLauncher, DcsPathSelector, SetupComplete } from "./pages";
 
 const App = () => {
 	const [error, setError] = createSignal<Error>();
