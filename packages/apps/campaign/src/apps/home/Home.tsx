@@ -1,17 +1,16 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createEffect, createMemo, onCleanup, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { CampaignContext, Map } from "../../components";
+import { CampaignContext, initState, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
 import { getClientMissionStartTime } from "../../utils";
 import { GameOverModal, Header, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [state, { tick, clearPackages, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore }] =
+	const [state, { tick, clearPackages, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore, reset }] =
 		useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	let inter: number;
@@ -20,7 +19,8 @@ export const Home = () => {
 	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
 
 	const onReset = () => {
-		rpc.campaign.save({} as CampaignState).catch((err) => {
+		reset?.();
+		rpc.campaign.save({ ...initState, loaded: true }).catch((err) => {
 			console.error("RPC error", err); // eslint-disable-line no-console
 		});
 	};

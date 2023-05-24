@@ -22,6 +22,7 @@ type CampaignStore = [
 		togglePause?: () => void;
 		pause?: () => void;
 		resume?: () => void;
+		reset?: () => void;
 
 		clearPackages?: (factionString: "blueFaction" | "redFaction") => void;
 		updatePackagesState?: (factionString: "blueFaction" | "redFaction") => void;
@@ -37,7 +38,7 @@ type CampaignStore = [
 	}
 ];
 
-const initState: CampaignState = {
+export const initState: CampaignState = {
 	active: false,
 	loaded: false,
 	campaignTime: new Date("2022-06-01").getTime(),
@@ -52,13 +53,13 @@ const initState: CampaignState = {
 	winningCondition: { type: "ground units" },
 };
 
-export const CampaignContext = createContext<CampaignStore>([initState, {}]);
+export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
 
 export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore(initState);
+	const [state, setState] = createStore({ ...initState });
 
 	const store: CampaignStore = [
 		state,
@@ -101,7 +102,10 @@ export function CampaignProvider(props: {
 			resume() {
 				setState("paused", () => false);
 			},
-
+			reset() {
+				setState(initState);
+				setState("loaded", true);
+			},
 			clearPackages(factionString) {
 				setState(factionString, "packages", () => []);
 			},
