@@ -5,7 +5,16 @@ import { app } from "electron";
 import FS from "fs-extra";
 import { promisified as regedit, RegistryItem, setExternalVBSLocation } from "regedit";
 
-setExternalVBSLocation("./vbs");
+/**
+ * resourcesPath is not available for `electron-forge start` (it points to node_modules)
+ * so we use resourcesPath, if current directory is inside resourcesPath.
+ * otherwise we resolve a relative path (for dev)
+ */
+const relative = Path.relative(process.resourcesPath, __dirname);
+const isInResources = !relative.startsWith("..") && !Path.isAbsolute(relative);
+const vbsDir = isInResources ? Path.join(process.resourcesPath, "vbs") : Path.join(__dirname, "../../vbs");
+
+setExternalVBSLocation(vbsDir);
 
 const registryPath = "HKCU\\SOFTWARE\\Eagle Dynamics\\DCS World";
 const registryPathBeta = "HKCU\\SOFTWARE\\Eagle Dynamics\\DCS World OpenBeta";

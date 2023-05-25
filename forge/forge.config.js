@@ -9,6 +9,8 @@ module.exports = {
 			return path != "" && path !== "/package.json" && !path.startsWith("/dist");
 		},
 		icon: iconPath,
+		asar: true,
+		extraResource: ["vbs"],
 	},
 	rebuildConfig: {},
 	makers: [

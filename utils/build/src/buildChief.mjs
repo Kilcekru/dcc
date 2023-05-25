@@ -48,5 +48,5 @@ export async function buildChief({ env, watch }) {
 
 async function copyRegeditVBS() {
 	const path = Path.dirname(require.resolve("regedit"));
-	await FS.copy(Path.join(path, "vbs"), Path.join(paths.target, "chief/vbs"));
+	await FS.copy(Path.join(path, "vbs"), paths.vbs);
 }

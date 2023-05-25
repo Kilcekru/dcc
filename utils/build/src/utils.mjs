@@ -9,6 +9,7 @@ export const paths = {
 	chief: Path.join(repoPath, "packages/chief"),
 	indexHtml: Path.join(dirname, "../assets/index.html"),
 	target: Path.join(repoPath, "forge/dist"),
+	vbs: Path.join(repoPath, "forge/vbs"),
 };
 
 export function log(lvl, msg) {
