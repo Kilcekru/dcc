@@ -7,7 +7,12 @@ import { Portal } from "solid-js/web";
 
 import { Close } from "./Close";
 
-export const Modal = (props: { isOpen?: boolean; children: JSX.Element; onClose: () => void }) => {
+export const Modal = (props: {
+	isOpen?: boolean;
+	children: JSX.Element;
+	onClose: () => void;
+	disableClose?: boolean;
+}) => {
 	const [state, send] = useMachine(dialog.machine({ id: createUniqueId() }));
 
 	const api = createMemo(() => dialog.connect(state, send, normalizeProps));
@@ -27,12 +32,13 @@ export const Modal = (props: { isOpen?: boolean; children: JSX.Element; onClose:
 				<div {...api().containerProps} class="modal__container">
 					<div {...api().contentProps} class="modal__content">
 						{props.children}
-						<Close
-							onPress={() => {
-								// api().close();
-								props.onClose();
-							}}
-						/>
+						<Show when={props.disableClose !== true}>
+							<Close
+								onPress={() => {
+									props.onClose();
+								}}
+							/>
+						</Show>
 					</div>
 				</div>
 			</Portal>

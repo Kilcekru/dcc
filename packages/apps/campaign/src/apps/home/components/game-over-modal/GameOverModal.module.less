@@ -1,0 +1,29 @@
+.content {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.description {
+	font-size: 30px;
+	font-weight: 300;
+	width: 100%;
+	text-align: center;
+	margin-top: 30px;
+}
+
+.buttons {
+	margin-top: 20px;
+	display: flex;
+	gap: 10px;
+}
+
+.button {
+	&--cancel {
+		background-color: var(--secondary);
+
+		&:hover {
+			background-color: var(--secondary-hover);
+		}
+	}
+}

@@ -25,7 +25,10 @@ export const CreateCampaign = () => {
 						<ScenarioDescription next={() => setCurrentScreen("Factions")} prev={() => setCurrentScreen("Scenarios")} />
 					</Match>
 					<Match when={currentScreen() === "Factions"}>
-						<Factions next={(blueId, redId) => activate?.(dataStore, blueId, redId)} />
+						<Factions
+							next={(blueId, redId) => activate?.(dataStore, blueId, redId)}
+							prev={() => setCurrentScreen("Start")}
+						/>
 					</Match>
 				</Switch>
 			</div>

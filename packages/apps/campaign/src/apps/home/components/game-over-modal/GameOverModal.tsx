@@ -1,28 +1,31 @@
 import * as Components from "@kilcekru/dcc-lib-components";
+import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { Show, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
+import { CampaignContext, initState } from "../../../../components";
+import Styles from "./GameOverModal.module.less";
 
 export const GameOverModal = () => {
-	const [state] = useContext(CampaignContext);
+	const [state, { reset }] = useContext(CampaignContext);
+
+	const onConfirm = () => {
+		reset?.();
+		rpc.campaign.save({ ...initState, loaded: true }).catch((err) => {
+			console.error("RPC error", err); // eslint-disable-line no-console
+		});
+	};
 
 	return (
-		<Components.Modal isOpen={state.winner != null} onClose={() => null}>
-			<div class="game-over-modal">
+		<Components.Modal isOpen={state.winner != null} onClose={() => null} disableClose>
+			<div class={Styles.content}>
 				<Show when={state.winner === "blue"}>
-					<div>You Won!</div>
+					<div class={Styles.description}>You Won!</div>
 				</Show>
 				<Show when={state.winner === "red"}>
-					<div>You Lost!</div>
+					<div class={Styles.description}>You Lost!</div>
 				</Show>
-				<div>
-					{" "}
-					Aircrafts Lost:{" "}
-					{Object.values(state.blueFaction?.inventory.aircrafts ?? []).filter((ac) => ac.alive === false).length}
-				</div>
-				<div>
-					Aircrafts Destroyed:{" "}
-					{Object.values(state.blueFaction?.inventory.aircrafts ?? []).filter((ac) => ac.alive === false).length}
+				<div class={Styles.buttons}>
+					<Components.Button onPress={onConfirm}>New Campaign</Components.Button>
 				</div>
 			</div>
 		</Components.Modal>

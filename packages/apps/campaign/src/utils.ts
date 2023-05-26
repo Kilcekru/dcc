@@ -214,6 +214,9 @@ export const calcFlightGroupPosition = (
 
 	const airdrome = dataStore.airdromes?.[fg.airdromeName];
 
+	if (activeWaypoint.hold) {
+		return activeWaypoint.position;
+	}
 	if (activeWaypoint?.racetrack == null) {
 		return positionAfterDurationToPosition(
 			activeWaypoint.position,

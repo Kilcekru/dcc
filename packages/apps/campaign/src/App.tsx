@@ -1,7 +1,8 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import { rpc } from "@kilcekru/dcc-lib-rpc";
+import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createSignal, Match, onMount, Show, Switch, useContext } from "solid-js";
+import { unwrap } from "solid-js/store";
 
 import { CreateCampaign, Home } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
@@ -10,6 +11,10 @@ import { isEmpty } from "./utils";
 
 const App = () => {
 	const [state] = useContext(CampaignContext);
+
+	onEvent("menu.dev.logState", () => {
+		console.log(unwrap(state)); // eslint-disable-line no-console
+	});
 
 	return (
 		<Show when={state.loaded}>

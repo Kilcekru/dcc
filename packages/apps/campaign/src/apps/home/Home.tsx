@@ -1,42 +1,20 @@
-import * as Components from "@kilcekru/dcc-lib-components";
-import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { createEffect, createMemo, onCleanup, useContext } from "solid-js";
-import { unwrap } from "solid-js/store";
 
-import { CampaignContext, initState, Map } from "../../components";
+import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
 import { getClientMissionStartTime } from "../../utils";
 import { GameOverModal, Header, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
+import { ResetModal } from "./components/reset-modal";
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [state, { tick, clearPackages, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore, reset }] =
+	const [state, { tick, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore }] =
 		useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	let inter: number;
 	let longInter: number;
 	let tickFinished = true;
 	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
-
-	const onReset = () => {
-		reset?.();
-		rpc.campaign.save({ ...initState, loaded: true }).catch((err) => {
-			console.error("RPC error", err); // eslint-disable-line no-console
-		});
-	};
-
-	const onLog = () => {
-		console.log(unwrap(state)); // eslint-disable-line no-console
-	};
-
-	const onClearPackages = () => {
-		clearPackages?.("blueFaction");
-		clearPackages?.("redFaction");
-	};
-
-	const onNextRound = () => {
-		saveCampaignRound?.(dataStore);
-	};
 
 	const interval = () => {
 		if (tickFinished === true) {
@@ -96,15 +74,10 @@ export const Home = () => {
 				<Sidebar />
 				<OverlaySidebar />
 				<div class={styles.content}>
-					<div style={{ position: "absolute", top: 0, right: 0, left: 0, "z-index": 10000 }}>
-						<Components.Button onPress={onReset}>Reset</Components.Button>
-						<Components.Button onPress={onClearPackages}>Clear Packages</Components.Button>
-						<Components.Button onPress={onLog}>Log State</Components.Button>
-						<Components.Button onPress={onNextRound}>Next Round</Components.Button>
-					</div>
 					<Map />
 					<GameOverModal />
 				</div>
+				<ResetModal />
 			</div>
 		</OverlaySidebarProvider>
 	);

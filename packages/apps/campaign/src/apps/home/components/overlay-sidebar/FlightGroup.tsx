@@ -1,8 +1,9 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createEffect, createMemo, For, Show, useContext } from "solid-js";
 
-import { FlightGroupButtons } from "../../../../components";
+import { CampaignContext, FlightGroupButtons } from "../../../../components";
 import { useFaction } from "../../../../components/utils";
+import { getActiveWaypoint } from "../../../../utils";
 import { Flag } from "./Flag";
 import { FlightGroupUnit } from "./FlightGroupUnit";
 import Styles from "./Item.module.less";
@@ -10,6 +11,7 @@ import { OverlaySidebarContext } from "./OverlaySidebarProvider";
 import { useOverlayClose } from "./utils";
 
 export function FlightGroup() {
+	const [state] = useContext(CampaignContext);
 	const [overlayStore] = useContext(OverlaySidebarContext);
 	const onClose = useOverlayClose();
 
@@ -33,6 +35,16 @@ export function FlightGroup() {
 		}
 	});
 
+	const activeWaypoint = createMemo(() => {
+		const fg = flightGroup();
+
+		if (fg == null) {
+			return;
+		}
+
+		return getActiveWaypoint(fg, state.timer);
+	});
+
 	return (
 		<Show when={flightGroup() != null}>
 			<div>
@@ -44,6 +56,14 @@ export function FlightGroup() {
 					flightGroup={flightGroup()}
 					class={Styles["flight-group-buttons"]}
 				/>
+				<Show when={(flightGroup()?.startTime ?? 999999999) < state.timer}>
+					<div class={Styles.stats}>
+						<Components.Stat>
+							<Components.StatLabel>Waypoint</Components.StatLabel>
+							<Components.StatValue>{activeWaypoint()?.name}</Components.StatValue>
+						</Components.Stat>
+					</div>
+				</Show>
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>

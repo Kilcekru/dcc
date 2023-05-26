@@ -96,6 +96,12 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 					role: "toggleDevTools",
 					accelerator: "F12",
 				},
+				{
+					label: "Log State",
+					click: () => {
+						Events.send("menu.dev.logState", undefined);
+					},
+				},
 			],
 		});
 	}
@@ -105,7 +111,7 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 			label: "Campaign",
 			submenu: [
 				{
-					label: "Reset",
+					label: "Reset Campaign",
 					click: () => {
 						Events.send("menu.campaign.reset", undefined);
 					},

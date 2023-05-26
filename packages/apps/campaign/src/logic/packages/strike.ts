@@ -42,6 +42,7 @@ const calcHoldWaypoint = (
 		time: startTime,
 		speed,
 		duration: Minutes(2),
+		hold: true,
 	};
 
 	return [waypoint, holdPosition, holdEndTime];
