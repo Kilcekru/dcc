@@ -11,4 +11,6 @@ export const home: Home = {
 	showOpenFileDialog: rpc<Home["showOpenFileDialog"]>("home", "showOpenFileDialog"),
 	validateDcsInstallPath: rpc<Home["validateDcsInstallPath"]>("home", "validateDcsInstallPath"),
 	validateDcsSavedGamesPath: rpc<Home["validateDcsSavedGamesPath"]>("home", "validateDcsSavedGamesPath"),
+	validateDirectoryPath: rpc<Home["validateDirectoryPath"]>("home", "validateDirectoryPath"),
+	setDownloadsPath: rpc<Home["setDownloadsPath"]>("home", "setDownloadsPath"),
 };

@@ -10,11 +10,15 @@ export const Settings = () => {
 	const setAction = useSetAction();
 	const loadUserConfig = useLoadUserConfig();
 
-	const [paths, setPaths] = createSignal<Paths>({ install: { valid: false }, savedGames: { valid: false } });
+	const [dcsPaths, setDcsPaths] = createSignal<DcsPaths>({ install: { valid: false }, savedGames: { valid: false } });
+	const [downloadsPath, setDownloadsPaths] = createSignal<Path>({
+		value: userConfig?.downloadsPath,
+		valid: userConfig?.downloadsPath != undefined,
+	});
 
 	const onChangeInstall = async (path: string) => {
 		const valid = await rpc.home.validateDcsInstallPath(path);
-		setPaths((paths) => ({
+		setDcsPaths((paths) => ({
 			install: {
 				value: path,
 				valid,
@@ -25,7 +29,7 @@ export const Settings = () => {
 
 	const onChangeSavedGames = async (path: string) => {
 		const valid = await rpc.home.validateDcsSavedGamesPath(path);
-		setPaths((paths) => ({
+		setDcsPaths((paths) => ({
 			install: paths.install,
 			savedGames: {
 				value: path,
@@ -34,13 +38,36 @@ export const Settings = () => {
 		}));
 	};
 
+	const onChangeDownloads = async (path: string) => {
+		const valid = await rpc.home.validateDirectoryPath(path);
+		setDownloadsPaths({
+			value: path,
+			valid,
+		});
+	};
+
 	const onContinue = async () => {
 		try {
-			const p = paths();
-			if (p.install.valid && p.install.value != undefined && p.savedGames.valid && p.savedGames.value != undefined) {
-				await rpc.home.setDcsPaths({ install: p.install.value, savedGames: p.savedGames.value });
-			} else {
-				await rpc.home.setDcsNotAvailable();
+			const paths = dcsPaths();
+			if (
+				!userConfig?.dcs?.available ||
+				paths.install.value !== userConfig?.dcs?.paths.install ||
+				paths.savedGames.value !== userConfig?.dcs?.paths.savedGames
+			) {
+				if (
+					paths.install.valid &&
+					paths.install.value != undefined &&
+					paths.savedGames.valid &&
+					paths.savedGames.value != undefined
+				) {
+					await rpc.home.setDcsPaths({ install: paths.install.value, savedGames: paths.savedGames.value });
+				} else {
+					await rpc.home.setDcsNotAvailable();
+				}
+			}
+			const dPath = downloadsPath();
+			if (dPath.value !== userConfig?.downloadsPath && dPath.valid && dPath.value != undefined) {
+				await rpc.home.setDownloadsPath(dPath.value);
 			}
 			await loadUserConfig();
 			setAction(undefined);
@@ -52,14 +79,14 @@ export const Settings = () => {
 
 	onMount(async () => {
 		if (userConfig?.dcs?.available) {
-			setPaths({
+			setDcsPaths({
 				install: { value: userConfig.dcs.paths.install, valid: true },
 				savedGames: { value: userConfig.dcs.paths.savedGames, valid: true },
 			});
 		} else {
 			try {
 				const paths = await rpc.home.findDcsPaths();
-				setPaths({
+				setDcsPaths({
 					install: {
 						value: paths.install,
 						valid: paths.install != undefined,
@@ -78,11 +105,15 @@ export const Settings = () => {
 	return (
 		<div>
 			<h2>DCS Directories</h2>
-			<PathSelector description="DCS Installation Directory" value={paths().install} onChange={onChangeInstall} />
-			<PathSelector description="DCS Saved Games Directory" value={paths().savedGames} onChange={onChangeSavedGames} />
-			{/* <PathSelector description="Download" value={""} onChange={onChangeSavedGames} /> */}
+			<PathSelector description="DCS Installation Directory" value={dcsPaths().install} onChange={onChangeInstall} />
+			<PathSelector
+				description="DCS Saved Games Directory"
+				value={dcsPaths().savedGames}
+				onChange={onChangeSavedGames}
+			/>
+			<PathSelector description="Downloads" value={downloadsPath()} onChange={onChangeDownloads} />
 			<div>
-				<button disabled={!paths().install.valid || !paths().savedGames.valid} onClick={onContinue}>
+				<button disabled={!dcsPaths().install.valid || !dcsPaths().savedGames.valid} onClick={onContinue}>
 					Continue
 				</button>
 				<button onClick={onContinue}>Continue without DCS</button>
@@ -91,13 +122,12 @@ export const Settings = () => {
 	);
 };
 
-interface Paths {
-	install: {
-		value?: string;
-		valid: boolean;
-	};
-	savedGames: {
-		value?: string;
-		valid: boolean;
-	};
+interface Path {
+	value?: string;
+	valid: boolean;
+}
+
+interface DcsPaths {
+	install: Path;
+	savedGames: Path;
 }

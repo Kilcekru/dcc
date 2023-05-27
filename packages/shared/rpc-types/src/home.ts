@@ -14,4 +14,6 @@ export interface Home {
 	showOpenFileDialog: (args: showOpenFileDialogArgs) => Promise<string | undefined>;
 	validateDcsInstallPath: (path: string) => Promise<boolean>;
 	validateDcsSavedGamesPath: (path: string) => Promise<boolean>;
+	validateDirectoryPath: (path: string) => Promise<boolean>;
+	setDownloadsPath: (path: string) => Promise<void>;
 }

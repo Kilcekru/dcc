@@ -1,5 +1,6 @@
 import { Home } from "@kilcekru/dcc-shared-rpc-types";
 import { dialog } from "electron";
+import FS from "fs-extra";
 
 import { setApplicationMenu } from "../../app/menu";
 import { mainWindow } from "../../app/startup";
@@ -55,4 +56,16 @@ export const home: Home = {
 	showOpenFileDialog,
 	validateDcsInstallPath,
 	validateDcsSavedGamesPath,
+	validateDirectoryPath: async (path: string) => {
+		try {
+			const stat = await FS.stat(path);
+			return stat.isDirectory();
+		} catch {
+			return false;
+		}
+	},
+	setDownloadsPath: async (path: string) => {
+		userConfig.data.downloadsPath = path;
+		await userConfig.save();
+	},
 };
