@@ -1,6 +1,7 @@
-import { Launcher } from "@kilcekru/dcc-shared-rpc-types";
+import { Home } from "@kilcekru/dcc-shared-rpc-types";
 import { dialog } from "electron";
 
+import { setApplicationMenu } from "../../app/menu";
 import { mainWindow } from "../../app/startup";
 import { userConfig } from "../../persistance";
 import {
@@ -14,10 +15,11 @@ async function setSetupComplete() {
 	if (!userConfig.data.setupComplete) {
 		userConfig.data.setupComplete = true;
 		await userConfig.save();
+		setApplicationMenu();
 	}
 }
 
-const showOpenFileDialog: Launcher["showOpenFileDialog"] = async (args) => {
+const showOpenFileDialog: Home["showOpenFileDialog"] = async (args) => {
 	if (mainWindow != undefined) {
 		const res = await dialog.showOpenDialog(mainWindow, {
 			title: args.title,
@@ -31,7 +33,7 @@ const showOpenFileDialog: Launcher["showOpenFileDialog"] = async (args) => {
 	return undefined;
 };
 
-export const launcher: Launcher = {
+export const home: Home = {
 	findDcsPaths,
 	findDcsSavedGamesPath,
 	setDcsPaths: async (paths) => {
@@ -40,12 +42,14 @@ export const launcher: Launcher = {
 			paths,
 		};
 		await userConfig.save();
+		setApplicationMenu();
 	},
 	setDcsNotAvailable: async () => {
 		userConfig.data.dcs = {
 			available: false,
 		};
 		await userConfig.save();
+		setApplicationMenu();
 	},
 	setSetupComplete,
 	showOpenFileDialog,

@@ -14,7 +14,7 @@ interface PathSelectorProps {
 
 export const PathSelector = (props: PathSelectorProps) => {
 	const showFileDialog = async () => {
-		const path = await rpc.launcher.showOpenFileDialog({
+		const path = await rpc.home.showOpenFileDialog({
 			title: `Select ${props.description}`,
 			defaultPath: props.value.value,
 		});

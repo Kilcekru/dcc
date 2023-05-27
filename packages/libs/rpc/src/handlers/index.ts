@@ -1,3 +1,3 @@
 export * from "./campaign";
-export * from "./launcher";
+export * from "./home";
 export * from "./misc";

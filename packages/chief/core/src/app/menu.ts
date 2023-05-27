@@ -1,18 +1,30 @@
 import { BrowserWindow, Menu, MenuItemConstructorOptions } from "electron";
 
 import { config } from "../config";
+import { userConfig } from "../persistance";
 import * as Events from "../rpc/events";
 import { loadApp } from "./startup";
 
-function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
+function getAppMenuTemplate(): MenuItemConstructorOptions[] {
+	const currentApp = userConfig.data.currentApp ?? "home";
+	const enableNavigation = userConfig.data.setupComplete && userConfig.data.dcs != undefined ? true : false;
+
 	const template: MenuItemConstructorOptions[] = [
 		{
 			label: "File",
 			submenu: [
 				{
-					label: "Settings",
+					label: "Launcher",
+					enabled: enableNavigation,
 					click: () => {
-						void loadApp("launcher", { action: "settings" });
+						void loadApp("home");
+					},
+				},
+				{
+					label: "Settings",
+					enabled: enableNavigation,
+					click: () => {
+						void loadApp("home", { action: "settings" });
 					},
 				},
 				{ type: "separator" },
@@ -24,6 +36,7 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 			submenu: [
 				{
 					label: "Campaign",
+					enabled: enableNavigation,
 					click: () => {
 						void loadApp("campaign");
 					},
@@ -91,11 +104,21 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 					role: "forceReload",
 					accelerator: "CommandOrControl+Shift+R",
 				},
+				{ type: "separator" },
 				{
 					label: "Dev Tools",
 					role: "toggleDevTools",
 					accelerator: "F12",
 				},
+				{
+					label: "Reset user settings",
+					click: async () => {
+						userConfig.reset();
+						await userConfig.save();
+						void loadApp("home");
+					},
+				},
+				{ type: "separator" },
 				{
 					label: "Log State",
 					click: () => {
@@ -123,8 +146,8 @@ function getAppMenuTemplate(currentApp: string): MenuItemConstructorOptions[] {
 	return template;
 }
 
-export function setApplicationMenu(currentApp: string) {
-	const template = getAppMenuTemplate(currentApp);
+export function setApplicationMenu() {
+	const template = getAppMenuTemplate();
 	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 

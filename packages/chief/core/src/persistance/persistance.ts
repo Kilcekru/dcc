@@ -3,19 +3,22 @@ import * as Path from "node:path";
 import { app } from "electron";
 import FS from "fs-extra";
 
-interface PersistanceOptions {
+interface PersistanceOptions<T> {
 	path: string;
+	default?: Partial<T>;
 }
 
 export class Persistance<T> {
 	#path: string;
 	#tmp: string;
+	#default: Partial<T>;
 	#data: Partial<T>;
 
-	constructor(options: PersistanceOptions) {
+	constructor(options: PersistanceOptions<T>) {
 		this.#tmp = Path.join(app.getPath("userData"), "persistance", `${options.path}.tmp.json`);
 		this.#path = Path.join(app.getPath("userData"), "persistance", `${options.path}.json`);
-		this.#data = {};
+		this.#default = options.default ?? {};
+		this.#data = this.#default;
 	}
 
 	public get data() {
@@ -24,6 +27,10 @@ export class Persistance<T> {
 
 	public set data(newData: Partial<T>) {
 		this.#data = newData;
+	}
+
+	public reset() {
+		this.#data = this.#default;
 	}
 
 	public async load() {

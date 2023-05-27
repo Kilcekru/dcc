@@ -3,7 +3,7 @@ import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { cnb } from "cnbuilder";
 import { For, Show } from "solid-js";
 
-import Styles from "./AppLauncher.module.less";
+import Styles from "./Launcher.module.less";
 
 type App = {
 	name: string;
@@ -63,9 +63,9 @@ const AppItem = (props: { app: App }) => {
 		</Components.ListItem>
 	);
 };
-export const AppLauncher = (props: { onSettings: () => void }) => {
+export const Launcher = (props: { onSettings: () => void }) => {
 	return (
-		<div class={Styles["app-launcher"]}>
+		<div class={Styles["launcher"]}>
 			<h1 class={Styles.title}>Digital Crew Chief</h1>
 			<Components.List class={Styles["app-list"]}>
 				<For each={AppList} fallback={<div>Loading...</div>}>

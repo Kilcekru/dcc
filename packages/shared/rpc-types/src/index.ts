@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
 export * from "./events";
-export * from "./launcher";
+export * from "./home";
 export * from "./misc";
 
 export type DataStore = {

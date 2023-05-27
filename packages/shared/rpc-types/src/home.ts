@@ -5,7 +5,7 @@ interface showOpenFileDialogArgs {
 	defaultPath?: string;
 }
 
-export interface Launcher {
+export interface Home {
 	findDcsPaths: () => Promise<Partial<DcsPaths>>;
 	findDcsSavedGamesPath: (installPath: string) => Promise<string | undefined>;
 	setDcsPaths: (paths: DcsPaths) => Promise<void>;

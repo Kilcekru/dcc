@@ -12,7 +12,10 @@ export let mainWindow: BrowserWindow | undefined;
 export async function startupApp() {
 	await Promise.all([dccState.load(), userConfig.load()]);
 
-	setApplicationMenu(userConfig.data.currentApp ?? "launcher");
+	if (!(["home", "campaign"] as Array<string | undefined>).includes(userConfig.data.currentApp)) {
+		userConfig.data.currentApp = "home";
+	}
+	setApplicationMenu();
 
 	mainWindow = new BrowserWindow({
 		...getWindowBounds(),
@@ -21,24 +24,25 @@ export async function startupApp() {
 			preload: Path.join(__dirname, "preload.js"),
 		},
 	});
+
+	if (userConfig.data.dcs != undefined && userConfig.data.currentApp != undefined) {
+		await loadApp(userConfig.data.currentApp);
+	} else {
+		await loadApp("home");
+	}
+
+	registerBoundsEvents(mainWindow);
+
 	if (dccState.data.win?.maximized) {
 		mainWindow.maximize();
 	} else {
 		mainWindow.show();
 	}
-
-	registerBoundsEvents(mainWindow);
-
-	if (userConfig.data.setupComplete && userConfig.data.dcs != undefined && userConfig.data.currentApp != undefined) {
-		await mainWindow.loadFile(getAppPath(userConfig.data.currentApp));
-	} else {
-		await mainWindow.loadFile(getAppPath("launcher"));
-	}
 }
 
-export async function loadApp(name: "launcher" | "campaign", query?: Record<string, string>) {
+export async function loadApp(name: "home" | "campaign", query?: Record<string, string>) {
 	await mainWindow?.loadFile(getAppPath(name), { query });
-	setApplicationMenu(name);
 	userConfig.data.currentApp = name;
+	setApplicationMenu();
 	await userConfig.save();
 }

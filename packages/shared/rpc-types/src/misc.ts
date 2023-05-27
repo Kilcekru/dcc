@@ -2,7 +2,7 @@ export interface Misc {
 	getVersions: () => Promise<{ electron: string; node: string; chrome: string }>;
 	getUserConfig: () => Promise<Partial<UserConfig>>;
 	getSystemConfig: () => Promise<SystemConfig>;
-	loadApp: (name: "campaign" | "launcher") => Promise<void>;
+	loadApp: (name: "home" | "campaign") => Promise<void>;
 }
 
 export interface SystemConfig {
@@ -17,7 +17,8 @@ export interface UserConfig {
 				available: true;
 				paths: DcsPaths;
 		  };
-	currentApp: "launcher" | "campaign";
+	downloadsPath: string;
+	currentApp: "home" | "campaign";
 }
 
 export interface DcsPaths {
