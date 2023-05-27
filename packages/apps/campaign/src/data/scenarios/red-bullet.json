@@ -10,9 +10,7 @@
 		"value": "Enguri Dam"
 	},
 	"blue": {
-		"airdromeNames": [
-			"Kobuleti"
-		],
+		"airdromeNames": ["Kobuleti"],
 		"objectivePlans": [
 			{
 				"objectiveName": "Poti",
@@ -47,9 +45,7 @@
 						"structureType": "Power Plant"
 					}
 				],
-				"groundUnitTypes": [
-					"sam"
-				]
+				"groundUnitTypes": ["sam"]
 			},
 			{
 				"objectiveName": "Nagomari",
@@ -104,17 +100,12 @@
 						"structureType": "Ammo Depot"
 					}
 				],
-				"groundUnitTypes": [
-					"sam"
-				]
+				"groundUnitTypes": ["sam"]
 			}
 		]
 	},
 	"red": {
-		"airdromeNames": [
-			"Sukhumi-Babushara",
-			"Mozdok"
-		],
+		"airdromeNames": ["Sukhumi-Babushara", "Mozdok"],
 		"objectivePlans": [
 			{
 				"objectiveName": "Enguri Dam",
@@ -139,9 +130,7 @@
 						"structureType": "Depot"
 					}
 				],
-				"groundUnitTypes": [
-					"sam"
-				]
+				"groundUnitTypes": ["sam"]
 			},
 			{
 				"objectiveName": "Lia",
@@ -206,9 +195,7 @@
 						"structureType": "Barrack"
 					}
 				],
-				"groundUnitTypes": [
-					"sam"
-				]
+				"groundUnitTypes": ["sam"]
 			},
 			{
 				"objectiveName": "Dgvaba",
@@ -258,16 +245,12 @@
 			{
 				"objectiveName": "Sukhumi-Babushara",
 				"structures": [],
-				"groundUnitTypes": [
-					"sam"
-				]
+				"groundUnitTypes": ["sam"]
 			},
 			{
 				"objectiveName": "Nalchik",
 				"structures": [],
-				"groundUnitTypes": [
-					"sam"
-				]
+				"groundUnitTypes": ["sam"]
 			},
 			{
 				"objectiveName": "Meore-Balda",
@@ -277,16 +260,12 @@
 						"structureType": "Depot"
 					}
 				],
-				"groundUnitTypes": [
-					"ewr"
-				]
+				"groundUnitTypes": ["ewr"]
 			},
 			{
 				"objectiveName": "Bedia",
 				"structures": [],
-				"groundUnitTypes": [
-					"ewr"
-				]
+				"groundUnitTypes": ["ewr"]
 			},
 			{
 				"objectiveName": "Martvili",
