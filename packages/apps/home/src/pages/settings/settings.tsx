@@ -113,10 +113,15 @@ export const Settings = () => {
 			/>
 			<PathSelector description="Downloads" value={downloadsPath()} onChange={onChangeDownloads} />
 			<div>
-				<button disabled={!dcsPaths().install.valid || !dcsPaths().savedGames.valid} onClick={onContinue}>
+				<button
+					disabled={!dcsPaths().install.valid || !dcsPaths().savedGames.valid || !downloadsPath().valid}
+					onClick={onContinue}
+				>
 					Continue
 				</button>
-				<button onClick={onContinue}>Continue without DCS</button>
+				<button disabled={!downloadsPath().valid} onClick={onContinue}>
+					Continue without DCS
+				</button>
 			</div>
 		</div>
 	);
