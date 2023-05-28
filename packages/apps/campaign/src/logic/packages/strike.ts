@@ -89,7 +89,7 @@ const escortFlightGroup = (
 	holdWaypoint.taskStart = true;
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
-		id: createUniqueId(),
+		id: createUniqueId() + "-" + String(targetFlightGroup.startTime),
 		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
@@ -196,7 +196,7 @@ export const generateStrikePackage = (
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
-		id: createUniqueId(),
+		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
@@ -227,7 +227,7 @@ export const generateStrikePackage = (
 				taskStart: true,
 			},
 			{
-				name: "Strike",
+				name: `Strike ${targetStructure.objectiveName}`,
 				position: {
 					x: targetStructure.position.x,
 					y: targetStructure.position.y,

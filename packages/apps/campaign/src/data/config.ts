@@ -19,5 +19,9 @@ export const Config = {
 			barrack: 25_000,
 			depot: 30_000,
 		},
+		repair: 100_000,
+	},
+	flight: {
+		speed: 170,
 	},
 };

@@ -1,6 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
+import { Config } from "../data";
 import { Position } from "../types";
 import {
 	addHeading,
@@ -16,12 +17,6 @@ import {
 	randomCallSign,
 } from "../utils";
 import { RunningCampaignState } from "./types";
-
-export const ammoDepotRange = 50_000;
-export const barrackRange = 30_000;
-export const depotRange = 70_000;
-export const speed = 170;
-export const repairScoreCost = 100_000;
 
 export const getCoalitionFaction = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
 	if (coalition === "blue") {
@@ -94,8 +89,8 @@ export const calcLandingWaypoints = (
 	startTime: number
 ): [Array<DcsJs.CampaignWaypoint>, number] => {
 	const navPosition = landingNavPosition(engressPosition, airdromePosition);
-	const durationNav = getDurationEnRoute(engressPosition, navPosition, speed);
-	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, speed);
+	const durationNav = getDurationEnRoute(engressPosition, navPosition, Config.flight.speed);
+	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, Config.flight.speed);
 	const endNavTime = startTime + durationNav;
 	const endLandingTime = endNavTime + 1 + durationLanding;
 
@@ -104,13 +99,13 @@ export const calcLandingWaypoints = (
 			{
 				name: "Nav",
 				position: navPosition,
-				speed,
+				speed: Config.flight.speed,
 				time: startTime,
 			},
 			{
 				name: "Landing",
 				position: airdromePosition,
-				speed,
+				speed: Config.flight.speed,
 				time: endNavTime + 1,
 				onGround: true,
 			},

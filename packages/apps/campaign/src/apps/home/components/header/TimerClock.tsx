@@ -3,10 +3,12 @@ import { createEffect, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { Clock } from "../../../../components/Clock";
+import { useSave } from "../../../../hooks";
 import Styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
-	const [state, { setMultiplier, togglePause, resume, pause }] = useContext(CampaignContext);
+	const [state, { setMultiplier, resume, pause }] = useContext(CampaignContext);
+	const save = useSave();
 
 	const onPressMultiplier = (multiplier: number) => {
 		if (state.winner == null) {
@@ -22,6 +24,12 @@ export const TimerClock = () => {
 
 		pause?.();
 	});
+
+	const onPause = () => {
+		pause?.();
+		save();
+	};
+
 	return (
 		<div class={Styles.wrapper}>
 			<div class={Styles.clock}>
@@ -29,7 +37,7 @@ export const TimerClock = () => {
 			</div>
 
 			<div class={Styles.buttons}>
-				<Components.Button onPress={() => togglePause?.()} unstyled class={Styles.icon}>
+				<Components.Button onPress={onPause} unstyled class={Styles.icon}>
 					{state.paused ? <Components.Icons.PauseFill /> : <Components.Icons.Pause />}
 				</Components.Button>
 				<Components.Button onPress={() => onPressMultiplier?.(1)} unstyled class={Styles.icon}>

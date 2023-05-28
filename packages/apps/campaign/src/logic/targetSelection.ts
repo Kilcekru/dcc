@@ -1,6 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
+import { Config } from "../data";
 import { Position } from "../types";
 import {
 	addHeading,
@@ -15,7 +16,6 @@ import {
 } from "../utils";
 import { RunningCampaignState } from "./types";
 import {
-	ammoDepotRange,
 	getCoalitionFaction,
 	getCoalitionObjectives,
 	getFarthestAirdromeFromPosition,
@@ -101,7 +101,12 @@ export const getStrikeTarget = (
 					(str) => str.structureType === "Barrack" || str.structureType === "Depot"
 				);
 
-				const inRangeStructures = findInside(consumingStructures, str.position, (s) => s.position, ammoDepotRange);
+				const inRangeStructures = findInside(
+					consumingStructures,
+					str.position,
+					(s) => s.position,
+					Config.structureRange.ammo
+				);
 
 				prio = 30 * inRangeStructures.length;
 
@@ -112,7 +117,12 @@ export const getStrikeTarget = (
 					(str) => str.structureType === "Barrack" || str.structureType === "Depot"
 				);
 
-				const inRangeStructures = findInside(consumingStructures, str.position, (s) => s.position, ammoDepotRange);
+				const inRangeStructures = findInside(
+					consumingStructures,
+					str.position,
+					(s) => s.position,
+					Config.structureRange.ammo
+				);
 
 				prio = 50 * inRangeStructures.length;
 

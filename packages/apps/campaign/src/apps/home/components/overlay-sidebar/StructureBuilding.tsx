@@ -3,7 +3,7 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { Show } from "solid-js";
 
-import { repairScoreCost } from "../../../../logic/utils";
+import { Config } from "../../../../data";
 import Styles from "./Item.module.less";
 
 const staticTypeName: Record<DcsJs.StaticType, string> = {
@@ -66,7 +66,9 @@ export function StructureBuilding(props: {
 						<div>
 							<p class={Styles["stat-label"]}>Repair</p>
 							<p class={Styles["stat-value"]}>
-								{Components.Utils.formatPercentage(((props.building.repairScore ?? 0) / repairScoreCost) * 100)}
+								{Components.Utils.formatPercentage(
+									((props.building.repairScore ?? 0) / Config.deploymentScore.repair) * 100
+								)}
 							</p>
 						</div>
 					</Show>

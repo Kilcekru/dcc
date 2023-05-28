@@ -337,7 +337,13 @@ export const Map = () => {
 		}
 
 		state.selectedFlightGroup.waypoints.forEach((waypoint) => {
-			const marker = createSymbol(positionToMapPosition(waypoint.position), false, false, "waypoint", "123");
+			const marker = createSymbol(
+				positionToMapPosition(waypoint.position),
+				false,
+				false,
+				"waypoint",
+				"123"
+			)?.bindTooltip(waypoint.name, { permanent: true });
 
 			if (marker == null) {
 				return;
@@ -352,7 +358,7 @@ export const Map = () => {
 					false,
 					"waypoint",
 					"123"
-				);
+				)?.bindTooltip("Track-race end", { permanent: true });
 
 				if (marker == null) {
 					return;

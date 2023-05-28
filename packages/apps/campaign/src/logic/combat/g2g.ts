@@ -105,7 +105,6 @@ export const conquerObjective = (
 					alive: true,
 					destroyedTime: undefined,
 				})),
-				unitIds: [],
 			};
 		}
 

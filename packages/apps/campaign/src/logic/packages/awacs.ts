@@ -61,7 +61,7 @@ export const generateAwacsPackage = (
 	const cs = generateCallSign(coalition, state, dataStore, "awacs");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
-		id: createUniqueId(),
+		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 1).map((aircraft, i) => ({

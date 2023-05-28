@@ -1,43 +1,33 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { cnb } from "cnbuilder";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CampaignContext, Clock } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
+import { useSave } from "../../../../hooks";
 import Styles from "./MissionOverlay.module.less";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [state, { submitMissionState, pause }] = useContext(CampaignContext);
 	const [forwarding, setForwarding] = createSignal<boolean | undefined>(undefined);
+	const onSave = useSave();
 
 	const missionTime = createMemo(() => {
 		return state.blueFaction?.packages.reduce((prev, pkg) => {
 			const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
 
 			if (hasClients) {
-				if (pkg.startTime > prev) {
+				if (pkg.startTime < prev) {
 					return pkg.startTime;
 				}
 			}
 
 			return prev;
-		}, 0);
+		}, 99999999999);
 	});
-
-	const onSave = () => {
-		rpc.campaign
-			.save(JSON.parse(JSON.stringify(state)) as CampaignState)
-			.then((result) => {
-				console.log("save", result); // eslint-disable-line no-console
-			})
-			.catch((err) => {
-				console.log("RPC error", err); // eslint-disable-line no-console
-			});
-	};
 
 	const onGenerateMission = async () => {
 		pause?.();
@@ -123,6 +113,48 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				</div>
 				<div class={cnb(Styles["help-text"], forwarding() === false ? Styles["help-text--show"] : null)}>
 					<p>You can now start the Mission from within DCS.</p>
+					<p>Make sure DCC is able to persist the mission state</p>
+					<p>
+						Change the following lines in the file <strong>'DCS World/Scripts/MissionScripting.lua'</strong>
+					</p>
+					<p>From:</p>
+					<p>
+						do
+						<br />
+						sanitizeModule('os')
+						<br />
+						sanitizeModule('io')
+						<br />
+						sanitizeModule('lfs')
+						<br />
+						_G['require'] = nil
+						<br />
+						_G['loadlib'] = nil
+						<br />
+						_G['package'] = nil
+						<br />
+						end
+					</p>
+					<p>To:</p>
+					<p>
+						do
+						<br />
+						sanitizeModule('os')
+						<br />
+						<strong>
+							--sanitizeModule('io')
+							<br />
+							--sanitizeModule('lfs')
+							<br />
+						</strong>
+						_G['require'] = nil
+						<br />
+						_G['loadlib'] = nil
+						<br />
+						_G['package'] = nil
+						<br />
+						end
+					</p>
 					<p>
 						The Mission location is <strong>'Saved Games/DCS.openbeta/Missions/dcc_mission.miz'</strong>.
 					</p>

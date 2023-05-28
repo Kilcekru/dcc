@@ -2,6 +2,7 @@ import { createEffect, createMemo, onCleanup, useContext } from "solid-js";
 
 import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
+import { useSave } from "../../hooks";
 import { getClientMissionStartTime } from "../../utils";
 import { GameOverModal, Header, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import { ResetModal } from "./components/reset-modal";
@@ -15,6 +16,7 @@ export const Home = () => {
 	let longInter: number;
 	let tickFinished = true;
 	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
+	const save = useSave();
 
 	const interval = () => {
 		if (tickFinished === true) {
@@ -45,6 +47,7 @@ export const Home = () => {
 	const longInterval = () => {
 		updateDeploymentScore?.();
 		updateRepairScore?.();
+		save();
 	};
 
 	const startInterval = () => {
@@ -65,7 +68,9 @@ export const Home = () => {
 		}
 	});
 
-	onCleanup(() => stopInterval());
+	onCleanup(() => {
+		stopInterval();
+	});
 
 	return (
 		<OverlaySidebarProvider>

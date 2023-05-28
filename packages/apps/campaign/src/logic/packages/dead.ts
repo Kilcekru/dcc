@@ -3,6 +3,7 @@ import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import {
+	addHeading,
 	calcPackageEndTime,
 	firstItem,
 	getDurationEnRoute,
@@ -16,7 +17,7 @@ import {
 } from "../../utils";
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
+import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
 import { updateAircraftForFlightGroup } from "./utils";
 
 export const generateDeadPackage = (
@@ -55,25 +56,34 @@ export const generateDeadPackage = (
 	const ingressPosition = positionFromHeading(
 		selectedObjective.position,
 		headingToPosition(selectedObjective.position, airdrome),
-		100000
+		selectedObjective.range
 	);
+	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, selectedObjective.position);
+	const engressHeading =
+		oppAirdrome == null
+			? headingToPosition(selectedObjective.position, airdrome)
+			: headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+	const engressPosition = positionFromHeading(
+		selectedObjective.position,
+		addHeading(engressHeading, 180),
+		selectedObjective.range
+	);
+
 	const durationEnRoute = getDurationEnRoute(airdrome, selectedObjective.position, speed);
 	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
+	const durationEngress = getDurationEnRoute(selectedObjective.position, engressPosition, speed);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(5, 15));
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
+	const endEngressTime = endIngressTime + durationEngress;
 
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(
-		selectedObjective.position,
-		airdrome,
-		endIngressTime + 1
-	);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, airdrome, endEngressTime + 1);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
-		id: createUniqueId(),
+		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map(
@@ -100,7 +110,7 @@ export const generateDeadPackage = (
 			},
 			{
 				name: "Ingress",
-				position: selectedObjective.position,
+				position: ingressPosition,
 				speed,
 				time: endEnRouteTime + 1,
 				taskStart: true,
@@ -110,6 +120,12 @@ export const generateDeadPackage = (
 				position: selectedObjective.position,
 				time: endEnRouteTime + 1,
 				onGround: true,
+				speed,
+			},
+			{
+				name: "Engress",
+				position: engressPosition,
+				time: endEnRouteTime + 2,
 				speed,
 			},
 			...landingWaypoints,

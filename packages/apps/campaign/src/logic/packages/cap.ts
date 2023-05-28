@@ -2,6 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
+import { Config } from "../../data";
 import {
 	addHeading,
 	calcPackageEndTime,
@@ -17,13 +18,7 @@ import {
 	random,
 } from "../../utils";
 import { RunningCampaignState } from "../types";
-import {
-	calcLandingWaypoints,
-	calcNearestOppositeAirdrome,
-	generateCallSign,
-	getCoalitionFaction,
-	speed,
-} from "../utils";
+import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
 import { updateAircraftForFlightGroup } from "./utils";
 
 export const generateCapPackage = (
@@ -117,7 +112,7 @@ export const generateCapPackage = (
 	const heading = objectiveName === "Frontline" ? addHeading(oppHeading, 180) : oppHeading;
 
 	const endPosition = positionFromHeading(objectivePosition, heading, objectiveName === "Frontline" ? 10_000 : 30_000);
-	const durationEnRoute = getDurationEnRoute(airdrome, endPosition, speed);
+	const durationEnRoute = getDurationEnRoute(airdrome, endPosition, Config.flight.speed);
 	const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
@@ -131,7 +126,7 @@ export const generateCapPackage = (
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
-		id: createUniqueId(),
+		id: createUniqueId() + "-" + String(startTime),
 		airdromeName: airdrome.name,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
@@ -150,13 +145,13 @@ export const generateCapPackage = (
 				name: "Take Off",
 				position: objectToPosition(airdrome),
 				time: startTime,
-				speed,
+				speed: Config.flight.speed,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				speed,
+				speed: Config.flight.speed,
 				duration,
 				time: endEnRouteTime + 1,
 				taskStart: true,
@@ -164,7 +159,7 @@ export const generateCapPackage = (
 					position: racetrackEnd,
 					name: "Track-race end",
 					distance: distanceToPosition(racetrackStart, racetrackEnd),
-					duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
+					duration: getDurationEnRoute(racetrackStart, racetrackEnd, Config.flight.speed),
 				},
 			},
 			...landingWaypoints,

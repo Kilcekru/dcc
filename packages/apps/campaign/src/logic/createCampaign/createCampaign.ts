@@ -10,8 +10,6 @@ import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
 import { generateStructures } from "./generateStructures";
-import { moveInfantryIntoBarracks } from "./moveInfantryIntoBarracks";
-import { moveVehiclesIntoDepot } from "./moveVehiclesIntoDepot";
 import { claimsObjective } from "./utils";
 
 /**
@@ -218,8 +216,8 @@ export const createCampaign = (
 	addEWs(state, scenario);
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
-	moveInfantryIntoBarracks(state);
-	moveVehiclesIntoDepot(state);
+	// moveInfantryIntoBarracks(state);
+	// moveVehiclesIntoDepot(state);
 
 	state.active = true;
 	state.winningCondition = scenario["win-condition"];

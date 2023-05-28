@@ -2,6 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
+import { Config } from "../../data";
 import {
 	calcPackageEndTime,
 	distanceToPosition,
@@ -17,13 +18,7 @@ import {
 } from "../../utils";
 import { getCasTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import {
-	calcLandingWaypoints,
-	generateCallSign,
-	getCoalitionFaction,
-	getLoadoutForAircraftType,
-	speed,
-} from "../utils";
+import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 import { updateAircraftForFlightGroup } from "./utils";
 
 export const generateCasPackage = (
@@ -105,7 +100,7 @@ export const generateCasPackage = (
 	const headingObjectiveToAirdrome = headingToPosition(groundGroupTarget.position, startPosition);
 	const racetrackStart = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome - 90, 7500);
 	const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);
-	const durationEnRoute = getDurationEnRoute(startPosition, groundGroupTarget.position, speed);
+	const durationEnRoute = getDurationEnRoute(startPosition, groundGroupTarget.position, Config.flight.speed);
 	const casDuration = Minutes(30);
 
 	const startTime = Math.floor(state.timer) + Minutes(random(20, 35));
@@ -120,7 +115,7 @@ export const generateCasPackage = (
 	const cs = generateCallSign(coalition, state, dataStore, isHelicopter ? "helicopter" : "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
-		id: createUniqueId(),
+		id: createUniqueId() + "-" + String(startTime),
 		airdromeName: firstAircraft.homeBase.name as DcsJs.AirdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
@@ -140,13 +135,13 @@ export const generateCasPackage = (
 				name: "Take Off",
 				position: objectToPosition(startPosition),
 				time: startTime,
-				speed,
+				speed: Config.flight.speed,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				speed,
+				speed: Config.flight.speed,
 				duration: casDuration,
 				time: endEnRouteTime + 1,
 				taskStart: true,
@@ -154,7 +149,7 @@ export const generateCasPackage = (
 					position: racetrackEnd,
 					name: "Track-race end",
 					distance: distanceToPosition(racetrackStart, racetrackEnd),
-					duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
+					duration: getDurationEnRoute(racetrackStart, racetrackEnd, Config.flight.speed),
 				},
 			},
 			...landingWaypoints,
