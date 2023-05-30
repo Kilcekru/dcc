@@ -14,13 +14,15 @@
 		"@zag-js/editable": "0.8.0",
 		"@zag-js/hover-card": "0.8.0",
 		"@zag-js/pressable": "0.8.0",
+		"@zag-js/radio-group": "0.8.0",
 		"@zag-js/solid": "0.8.0",
+		"@zag-js/switch": "0.8.0",
 		"@zag-js/toast": "0.8.0",
 		"@zag-js/tooltip": "0.8.0",
 		"cnbuilder": "3.1.0",
 		"solid-js": "1.6.2"
 	},
 	"devDependencies": {
-		"@foxdelta2/dcsjs": "0.2.219"
+		"@foxdelta2/dcsjs": "0.2.221"
 	}
 }

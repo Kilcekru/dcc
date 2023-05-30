@@ -49,7 +49,6 @@ export function generateStructures(scenarioCoalition: ScenarioCoalition, dataSto
 					structureType: structureType,
 					state: "active",
 					deploymentScore: 0,
-					unitIds: [],
 				};
 
 				structures[structurePlan.structureName] = structure;

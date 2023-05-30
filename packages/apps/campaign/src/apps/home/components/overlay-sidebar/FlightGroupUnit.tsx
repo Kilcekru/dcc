@@ -1,11 +1,12 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { createMemo, For, useContext } from "solid-js";
+import { cnb } from "cnbuilder";
+import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction, getWeaponsForFlightGroupUnit } from "../../../../logic/utils";
-import Style from "./Item.module.less";
+import Styles from "./Item.module.less";
 
 export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; coalition: DcsJs.CampaignCoalition }) {
 	const [state] = useContext(CampaignContext);
@@ -29,14 +30,17 @@ export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; co
 
 	return (
 		<div>
-			<div class={Style.header}>
-				<h3 class={Style["item-title"]}>{props.unit.name}</h3>
+			<div class={cnb(Styles.header, props.unit.client ? Styles["header--with-client"] : "")}>
+				<h3 class={Styles["item-title"]}>{props.unit.name}</h3>
 				<p>{dataStore.aircrafts?.[aircraft().aircraftType]?.display_name ?? aircraft().aircraftType}</p>
+				<Show when={props.unit.client}>
+					<p class={Styles.player}>Player</p>
+				</Show>
 			</div>
 			<For each={[...weapons()]}>
 				{([, { item, count }]) => (
-					<div class={Style.weapon}>
-						<div class={Style.weapon__count}>{count}x</div>
+					<div class={Styles.weapon}>
+						<div class={Styles.weapon__count}>{count}x</div>
 						<div>{item.displayName}</div>
 					</div>
 				)}

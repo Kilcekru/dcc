@@ -7,6 +7,8 @@ import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { OverlaySidebarContext } from "../../apps/home/components";
+import { RunningCampaignState } from "../../logic/types";
+import { getCoalitionFaction } from "../../logic/utils";
 import { MapPosition } from "../../types";
 import { getFlightGroups, positionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
@@ -34,17 +36,19 @@ type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 
 export const Map = () => {
 	let mapDiv: HTMLDivElement;
-	const objectiveMarkers: Record<string, L.Marker | undefined> = {};
-	const flightGroupMarkers: Record<string, L.Marker | undefined> = {};
-	const groundGroupMarkers: Record<string, L.Marker | undefined> = {};
-	const ewMarkers: Record<string, L.Marker | undefined> = {};
+	let selectedMarkerId: string;
+	const airdromeMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
+	const objectiveMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
+	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
+	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
+	const ewMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
-	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker }> = {};
+	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useContext(DataContext);
-	const [, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openEWR, openSam }] =
+	const [overlaySidebarState, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openEWR, openSam }] =
 		useContext(OverlaySidebarContext);
 
 	const kobuleti = createMemo(() => {
@@ -78,32 +82,44 @@ export const Map = () => {
 		openSam?.(id, coalition);
 	};
 
-	const createSymbol = (
-		mapPosition: MapPosition,
-		hostile: boolean,
-		air: boolean,
-		unitCode: SidcUnitCodeKey,
-		specialPrefix?: string
-	) => {
+	const createSymbol = ({
+		mapPosition,
+		hostile,
+		air,
+		unitCode,
+		specialPrefix,
+		onClick,
+	}: {
+		mapPosition: MapPosition;
+		hostile: boolean;
+		air: boolean;
+		unitCode: SidcUnitCodeKey;
+		specialPrefix?: string;
+		onClick?: () => void;
+	}) => {
 		const map = leaftletMap();
 
 		if (map == null) {
 			return;
 		}
-		const symbol = specialPrefix
-			? new Symbol(`G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`, {
-					size: 20,
-			  })
-			: new Symbol(`S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`, {
-					size: 20,
-			  });
+		const symbolCode = specialPrefix
+			? `G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`
+			: `S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`;
+		const symbol = new Symbol(symbolCode, {
+			size: 20,
+		});
 
 		const icon = L.icon({
 			iconUrl: symbol.toDataURL(),
 			iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
 		});
 
-		return L.marker(mapPosition, { icon }).addTo(map);
+		const marker = L.marker(mapPosition, { icon }).addTo(map);
+
+		if (onClick != null) {
+			marker.addEventListener("click", onClick);
+		}
+		return { marker, symbolCode };
 	};
 
 	const removeSymbol = (marker: L.Marker | L.Circle | L.Polyline | undefined) => {
@@ -142,9 +158,19 @@ export const Map = () => {
 
 			const mapPosition = positionToMapPosition(airdrome);
 
-			createSymbol(mapPosition, false, false, "airport")?.addEventListener("click", () =>
-				onClickAirdrome(airdromeName, "blue")
-			);
+			const marker = createSymbol({
+				mapPosition: mapPosition,
+				hostile: false,
+				air: false,
+				unitCode: "airport",
+				onClick: () => onClickAirdrome(airdromeName, "blue"),
+			});
+
+			if (marker == null) {
+				return;
+			}
+
+			airdromeMarkers[airdromeName] = marker;
 		});
 
 		state.redFaction?.airdromeNames.forEach((airdromeName) => {
@@ -156,9 +182,19 @@ export const Map = () => {
 
 			const mapPosition = positionToMapPosition(airdrome);
 
-			createSymbol(mapPosition, true, false, "airport")?.addEventListener("click", () =>
-				onClickAirdrome(airdromeName, "red")
-			);
+			const marker = createSymbol({
+				mapPosition: mapPosition,
+				hostile: true,
+				air: false,
+				unitCode: "airport",
+				onClick: () => onClickAirdrome(airdromeName, "red"),
+			});
+
+			if (marker == null) {
+				return;
+			}
+
+			airdromeMarkers[airdromeName] = marker;
 		});
 	};
 
@@ -179,12 +215,13 @@ export const Map = () => {
 			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
 
 			if (flightGroupMarkers[fg.id] == null) {
-				const marker = createSymbol(
-					positionToMapPosition(fg.position),
-					coalition === "red",
-					true,
-					code as SidcUnitCodeKey
-				)?.addEventListener("click", () => onClickFlightGroup(fg, coalition));
+				const marker = createSymbol({
+					mapPosition: positionToMapPosition(fg.position),
+					hostile: coalition === "red",
+					air: true,
+					unitCode: code as SidcUnitCodeKey,
+					onClick: () => onClickFlightGroup(fg, coalition),
+				});
 
 				if (marker == null) {
 					return;
@@ -192,7 +229,7 @@ export const Map = () => {
 
 				flightGroupMarkers[fg.id] = marker;
 			} else {
-				flightGroupMarkers[fg.id]?.setLatLng(positionToMapPosition(fg.position));
+				flightGroupMarkers[fg.id]?.marker.setLatLng(positionToMapPosition(fg.position));
 			}
 		});
 	};
@@ -204,12 +241,13 @@ export const Map = () => {
 			}
 
 			if (groundGroupMarkers[gg.id] == null) {
-				const marker = createSymbol(
-					positionToMapPosition(gg.position),
-					coalition === "red",
-					false,
-					gg.groupType === "armor" ? "armor" : "infantry"
-				)?.addEventListener("click", () => onClickGroundGroup(gg, coalition));
+				const marker = createSymbol({
+					mapPosition: positionToMapPosition(gg.position),
+					hostile: coalition === "red",
+					air: false,
+					unitCode: gg.groupType === "armor" ? "armor" : "infantry",
+					onClick: () => onClickGroundGroup(gg, coalition),
+				});
 
 				if (marker == null) {
 					return;
@@ -217,7 +255,7 @@ export const Map = () => {
 
 				groundGroupMarkers[gg.id] = marker;
 			} else {
-				groundGroupMarkers[gg.id]?.setLatLng(positionToMapPosition(gg.position));
+				groundGroupMarkers[gg.id]?.marker.setLatLng(positionToMapPosition(gg.position));
 			}
 		});
 	};
@@ -232,12 +270,13 @@ export const Map = () => {
 
 			if (hasAliveUnits) {
 				if (ewMarkers[gg.id] == null) {
-					const marker = createSymbol(
-						positionToMapPosition(gg.position),
-						coalition === "red",
-						false,
-						"radar"
-					)?.addEventListener("click", () => onClickEWR?.(gg, coalition));
+					const marker = createSymbol({
+						mapPosition: positionToMapPosition(gg.position),
+						hostile: coalition === "red",
+						air: false,
+						unitCode: "radar",
+						onClick: () => onClickEWR?.(gg, coalition),
+					});
 
 					if (marker == null) {
 						return;
@@ -245,15 +284,15 @@ export const Map = () => {
 
 					ewMarkers[gg.id] = marker;
 				} else {
-					ewMarkers[gg.id]?.setLatLng(positionToMapPosition(gg.position));
+					ewMarkers[gg.id]?.marker.setLatLng(positionToMapPosition(gg.position));
 				}
 			} else {
 				if (ewMarkers[gg.id] == null) {
 					return;
 				}
 
-				removeSymbol(ewMarkers[gg.id]);
-				ewMarkers[gg.id] = undefined;
+				removeSymbol(ewMarkers[gg.id]?.marker);
+				delete ewMarkers[gg.id];
 			}
 		});
 	};
@@ -261,12 +300,13 @@ export const Map = () => {
 	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
 			if (objectiveMarkers[structure.id] == null) {
-				const marker = createSymbol(
-					positionToMapPosition(structure.position),
-					coalition === "red",
-					false,
-					"militaryBase"
-				)?.addEventListener("click", () => openStructure?.(structure.name, coalition));
+				const marker = createSymbol({
+					mapPosition: positionToMapPosition(structure.position),
+					hostile: coalition === "red",
+					air: false,
+					unitCode: "militaryBase",
+					onClick: () => openStructure?.(structure.name, coalition),
+				});
 
 				if (marker != null) {
 					objectiveMarkers[structure.id] = marker;
@@ -286,10 +326,13 @@ export const Map = () => {
 				}
 
 				if (samCircles[sam.id] == null) {
-					const marker = createSymbol(mapPosition, coalition === "red", false, "airDefenceMissle")?.addEventListener(
-						"click",
-						() => onClickSam?.(sam.id, coalition)
-					);
+					const marker = createSymbol({
+						mapPosition,
+						hostile: coalition === "red",
+						air: false,
+						unitCode: "airDefenceMissle",
+						onClick: () => onClickSam?.(sam.id, coalition),
+					});
 
 					const circle = L.circle(mapPosition, {
 						radius: sam.range,
@@ -300,7 +343,7 @@ export const Map = () => {
 						return;
 					}
 
-					samCircles[sam.id] = { circle, marker };
+					samCircles[sam.id] = { circle, ...marker };
 				}
 			} else {
 				const samCircle = samCircles[sam.id];
@@ -317,7 +360,7 @@ export const Map = () => {
 			const redStructure = Object.values(state.redFaction?.structures ?? {}).some((structure) => structure.id === id);
 
 			if (!blueStructure && !redStructure) {
-				removeSymbol(marker);
+				removeSymbol(marker.marker);
 				delete objectiveMarkers[id];
 			}
 		});
@@ -337,13 +380,13 @@ export const Map = () => {
 		}
 
 		state.selectedFlightGroup.waypoints.forEach((waypoint) => {
-			const marker = createSymbol(
-				positionToMapPosition(waypoint.position),
-				false,
-				false,
-				"waypoint",
-				"123"
-			)?.bindTooltip(waypoint.name, { permanent: true });
+			const marker = createSymbol({
+				mapPosition: positionToMapPosition(waypoint.position),
+				hostile: false,
+				air: false,
+				unitCode: "waypoint",
+				specialPrefix: "123",
+			})?.marker.bindTooltip(waypoint.name, { permanent: true });
 
 			if (marker == null) {
 				return;
@@ -352,13 +395,13 @@ export const Map = () => {
 			selectedFlightGroupMarkers.push(marker);
 
 			if (waypoint.racetrack != null) {
-				const marker = createSymbol(
-					positionToMapPosition(waypoint.racetrack.position),
-					false,
-					false,
-					"waypoint",
-					"123"
-				)?.bindTooltip("Track-race end", { permanent: true });
+				const marker = createSymbol({
+					mapPosition: positionToMapPosition(waypoint.racetrack.position),
+					hostile: false,
+					air: false,
+					unitCode: "waypoint",
+					specialPrefix: "123",
+				})?.marker.bindTooltip("Track-race end", { permanent: true });
 
 				if (marker == null) {
 					return;
@@ -383,6 +426,134 @@ export const Map = () => {
 		}
 
 		flightGroupLine = L.polyline(linePoints, { color: "#2a2a2a" }).addTo(map);
+	});
+
+	createEffect(() => {
+		const oldMarker =
+			flightGroupMarkers[selectedMarkerId] ??
+			groundGroupMarkers[selectedMarkerId] ??
+			objectiveMarkers[selectedMarkerId] ??
+			ewMarkers[selectedMarkerId] ??
+			airdromeMarkers[selectedMarkerId] ??
+			samCircles[selectedMarkerId];
+
+		if (oldMarker != null) {
+			const symbol = new Symbol(oldMarker.symbolCode, {
+				size: 20,
+			});
+
+			oldMarker.marker.setIcon(
+				L.icon({
+					iconUrl: symbol.toDataURL(),
+					iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
+				})
+			);
+		}
+
+		let marker = undefined;
+
+		if (overlaySidebarState.state === "flight group") {
+			const fgId = overlaySidebarState.flightGroupId;
+
+			if (fgId == null) {
+				return;
+			}
+
+			marker = flightGroupMarkers[fgId];
+			selectedMarkerId = fgId;
+		}
+
+		if (overlaySidebarState.state === "ground group") {
+			const ggId = overlaySidebarState.groundGroupId;
+
+			if (ggId == null) {
+				return;
+			}
+
+			marker = groundGroupMarkers[ggId];
+			selectedMarkerId = ggId;
+		}
+
+		if (overlaySidebarState.state === "structure") {
+			const name = overlaySidebarState.structureName;
+			const faction = getCoalitionFaction(overlaySidebarState.coalition ?? "blue", state as RunningCampaignState);
+
+			if (name == null) {
+				return;
+			}
+
+			const structure = faction.structures[name];
+
+			if (structure == null) {
+				return;
+			}
+
+			marker = objectiveMarkers[structure.id];
+			selectedMarkerId = structure.id;
+		}
+
+		if (overlaySidebarState.state === "ewr") {
+			const id = overlaySidebarState.groundGroupId;
+			const faction = getCoalitionFaction(overlaySidebarState.coalition ?? "blue", state as RunningCampaignState);
+
+			if (id == null) {
+				return;
+			}
+
+			const ewr = faction.ews.find((ew) => ew.id === id);
+
+			if (ewr == null) {
+				null;
+			}
+
+			marker = ewMarkers[id];
+			selectedMarkerId = id;
+		}
+
+		if (overlaySidebarState.state === "airdrome") {
+			const airdromeName = overlaySidebarState.airdromeName;
+
+			if (airdromeName == null) {
+				return;
+			}
+
+			marker = airdromeMarkers[airdromeName];
+			selectedMarkerId = airdromeName;
+		}
+
+		if (overlaySidebarState.state === "sam") {
+			const ggId = overlaySidebarState.groundGroupId;
+
+			if (ggId == null) {
+				return;
+			}
+
+			marker = samCircles[ggId];
+			selectedMarkerId = ggId;
+		}
+
+		if (marker == null) {
+			return;
+		}
+
+		const symbol = new Symbol(marker.symbolCode, {
+			size: 25,
+			iconColor: "rgba(255, 205, 0)",
+			colorMode: {
+				Civilian: "rgba(255, 205, 0)",
+				Friend: "rgba(255, 205, 0)",
+				Hostile: "rgba(255, 205, 0)",
+				Neutral: "rgba(255, 205, 0)",
+				Unknown: "rgba(255, 205, 0)",
+			},
+		});
+
+		marker.marker.setIcon(
+			L.icon({
+				iconUrl: symbol.toDataURL(),
+				iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
+			})
+		);
 	});
 
 	createEffect(() => {
@@ -425,8 +596,8 @@ export const Map = () => {
 			if (marker == null || fgs.some((fg) => fg.id === id)) {
 				return;
 			} else {
-				removeSymbol(marker);
-				flightGroupMarkers[id] = undefined;
+				removeSymbol(marker.marker);
+				delete flightGroupMarkers[id];
 			}
 		});
 
@@ -436,8 +607,8 @@ export const Map = () => {
 			if (marker == null || ggs.some((fg) => fg.id === id)) {
 				return;
 			} else {
-				removeSymbol(marker);
-				groundGroupMarkers[id] = undefined;
+				removeSymbol(marker.marker);
+				delete groundGroupMarkers[id];
 			}
 		});
 

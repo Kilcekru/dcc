@@ -8,17 +8,21 @@ import { PersonAdd } from "./person-add";
 import { PersonRemove } from "./person-remove";
 import { Play } from "./Play";
 import { PlayFill } from "./PlayFill";
+import { Question } from "./Question";
+import { QuestionCircle } from "./QuestionCircle";
 import { SettingsFill } from "./SettingsFill";
 export const Icons = {
 	ArrowBack,
 	Close,
-	Pause,
-	PauseFill,
-	Play,
-	PlayFill,
-	PersonAdd,
-	PersonRemove,
 	FastForward,
 	FastForwardFill,
+	Pause,
+	PauseFill,
+	PersonAdd,
+	PersonRemove,
+	Play,
+	PlayFill,
+	Question,
+	QuestionCircle,
 	SettingsFill,
 };

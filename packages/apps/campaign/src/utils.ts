@@ -408,6 +408,10 @@ export const sortAsc = <T>(a: T, b: T, fn: (o: T) => number) => {
 	return fn(a) - fn(b);
 };
 
+export const sortDesc = <T>(a: T, b: T, fn: (o: T) => number) => {
+	return fn(b) - fn(a);
+};
+
 export const hasStructureInRange = (
 	position: Position | undefined,
 	faction: DcsJs.CampaignFaction | undefined,

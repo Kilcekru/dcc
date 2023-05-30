@@ -101,9 +101,7 @@ const deployFrontline = (
 		const faction = getCoalitionFaction(p.startObjective.coalition, p.state);
 		const groundUnits =
 			p.groupType === "infantry"
-				? getUsableGroundUnits(faction.inventory.groundUnits).filter((unit) =>
-						p.barrack.unitIds.some((id) => id === unit.id)
-				  )
+				? getUsableGroundUnits(faction.inventory.groundUnits)
 				: getUsableGroundUnits(faction.inventory.groundUnits).filter(
 						(unit) => !unit.vehicleTypes.some((vt) => vt === "Infantry")
 				  );
@@ -156,11 +154,6 @@ const deployFrontline = (
 
 			inventoryUnit.state = "on objective";
 		});
-
-		// update barrack
-		if (p.groupType === "infantry") {
-			p.barrack.unitIds = p.barrack.unitIds.filter((id) => !selectedGroundUnits.some((unit) => id === unit.id));
-		}
 
 		// update objective
 		p.targetObjective.incomingGroundGroups[p.startObjective.coalition] = id;

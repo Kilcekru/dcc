@@ -77,8 +77,52 @@
 
 .help-text {
 	opacity: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 
 	&--show {
 		opacity: 1;
 	}
+}
+
+.persistent-hint {
+	background-color: var(--secondary-hover);
+	padding: 10px;
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
+	button {
+		&:hover {
+			background-color: var(--secondary);
+		}
+	}
+}
+
+.help-modal {
+	z-index: 100000;
+
+	ol {
+		padding-inline-start: 20px;
+	}
+
+	&.modal__backdrop {
+		z-index: 100000;
+	}
+
+	&.modal__container {
+		z-index: 100001;
+	}
+
+	&.modal__content {
+		padding: 30px;
+	}
+}
+
+.code-block {
+	background-color: var(--background-hover);
+	padding: 10px;
+	font-family: "Courier New", Courier, monospace;
 }

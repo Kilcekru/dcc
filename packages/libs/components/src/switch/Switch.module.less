@@ -1,0 +1,37 @@
+.root {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.control {
+	height: 20px;
+	border-radius: 10px;
+	width: 40px;
+	background-color: var(--background-hover);
+	position: relative;
+	cursor: pointer;
+
+	&[data-checked] {
+		background-color: var(--action-dark);
+		div[data-part="thumb"] {
+			left: 21px;
+		}
+	}
+}
+
+.thumb {
+	height: 16px;
+	width: 16px;
+	border-radius: 8px;
+	background-color: white;
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	transition: left 100ms ease-in-out;
+}
+
+.label {
+	font-size: 20px;
+	font-weight: 300;
+}

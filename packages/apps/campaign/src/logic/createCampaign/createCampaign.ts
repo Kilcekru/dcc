@@ -21,7 +21,9 @@ export const createCampaign = (
 	state: CampaignState,
 	dataStore: DataStore,
 	blueFactionName: string,
-	redFactionName: string
+	redFactionName: string,
+	aiSkill: DcsJs.AiSkill,
+	hardcore: boolean
 ) => {
 	const scenario = firstItem(scenarioList);
 	const blueBaseFaction = factionList.find((f) => f.name === blueFactionName);
@@ -216,11 +218,12 @@ export const createCampaign = (
 	addEWs(state, scenario);
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
-	// moveInfantryIntoBarracks(state);
-	// moveVehiclesIntoDepot(state);
 
+	state.name = scenario.name;
 	state.active = true;
 	state.winningCondition = scenario["win-condition"];
+	state.aiSkill = aiSkill;
+	state.hardcore = hardcore;
 
 	return state;
 };

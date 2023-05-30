@@ -14,7 +14,6 @@ export const generateSams = (
 	if (coalition === "neutral") {
 		return;
 	}
-
 	const samType = (firstItem(faction.template.sams) ?? "SA-2") as DcsJs.SamType;
 
 	const samTemplate = dataStore.samTemplates?.[samType];
@@ -23,29 +22,48 @@ export const generateSams = (
 		return;
 	}
 
-	const templateVehicles =
-		samTemplate?.units.reduce((prev, name) => {
-			const vehicle = dataStore.vehicles?.[name];
+	const templateVehicles = () => {
+		const samUnits =
+			samTemplate?.units.reduce((prev, name) => {
+				const vehicle = dataStore.vehicles?.[name];
 
-			if (vehicle == null) {
-				// eslint-disable-next-line no-console
-				console.error("vehicle not found", name);
-				return prev;
+				if (vehicle == null) {
+					// eslint-disable-next-line no-console
+					console.error("vehicle not found", name);
+					return prev;
+				}
+
+				const id = createUniqueId();
+				const unit: DcsJs.CampaignUnit = {
+					alive: true,
+					id,
+					state: "on objective",
+					displayName: `${vehicle.name}|${id}`,
+					category: vehicle.category,
+					name: vehicle.name,
+					vehicleTypes: vehicle.vehicleTypes,
+				};
+
+				return [...prev, unit];
+			}, [] as Array<DcsJs.CampaignUnit>) ?? [];
+
+		const units = Object.values(faction.inventory.groundUnits)
+			.filter((unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && unit.state === "idle")
+			.slice(0, random(1, 2));
+
+		units.forEach((unit) => {
+			const inventoryUnit = faction.inventory.groundUnits[unit.id];
+
+			if (inventoryUnit == null) {
+				return;
 			}
 
-			const id = createUniqueId();
-			const unit: DcsJs.CampaignUnit = {
-				alive: true,
-				id,
-				state: "on objective",
-				displayName: `${vehicle.name}|${id}`,
-				category: vehicle.category,
-				name: vehicle.name,
-				vehicleTypes: vehicle.vehicleTypes,
-			};
+			inventoryUnit.state = "on objective";
+			samUnits.push(unit);
+		});
 
-			return [...prev, unit];
-		}, [] as Array<DcsJs.CampaignUnit>) ?? [];
+		return samUnits;
+	};
 
 	if (dataStore.airdromes == null) {
 		throw "Unknown strike targets";
@@ -89,21 +107,6 @@ export const generateSams = (
 		selectedTargets.push(selectedTarget);
 	});
 
-	const units = Object.values(faction.inventory.groundUnits)
-		.filter((unit) => unit.vehicleTypes.some((vt) => vt === "SHORAD") && unit.state === "idle")
-		.slice(0, random(1, 2));
-
-	units.forEach((unit) => {
-		const inventoryUnit = faction.inventory.groundUnits[unit.id];
-
-		if (inventoryUnit == null) {
-			return;
-		}
-
-		inventoryUnit.state = "on objective";
-		templateVehicles.push(unit);
-	});
-
 	faction.sams = selectedTargets.map((sam) => {
 		const objectiveTarget = Object.entries(strikeTargets).find(([, targets]) =>
 			targets.some((target) => target.name === sam.name)
@@ -117,7 +120,7 @@ export const generateSams = (
 			id: createUniqueId(),
 			position: sam.position,
 			range: samTemplate.range,
-			units: templateVehicles,
+			units: templateVehicles(),
 			operational: true,
 			fireInterval: samTemplate.fireInterval,
 			weaponReadyTimer: 0,

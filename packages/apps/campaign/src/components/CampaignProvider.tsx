@@ -11,12 +11,18 @@ import {
 	repairScoreUpdate,
 	updateFactionState,
 } from "../logic";
-import { getClientMissionStartTime } from "../utils";
+import { getClientMissionStartTime, getFlightGroups } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
 	{
-		activate?: (dataStore: DataStore, blueFactionName: string, redFactionName: string) => void;
+		activate?: (
+			dataStore: DataStore,
+			blueFactionName: string,
+			redFactionName: string,
+			aiSkill: DcsJs.AiSkill,
+			hardcore: boolean
+		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
@@ -51,6 +57,8 @@ export const initState: CampaignState = {
 	redFaction: undefined,
 	objectives: {},
 	winningCondition: { type: "ground units" },
+	aiSkill: "Average",
+	name: "",
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -64,8 +72,8 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFactionName, redFactionName) {
-				setState(produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName)));
+			activate(dataStore, blueFactionName, redFactionName, aiSkill, hardcore) {
+				setState(produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName, aiSkill, hardcore)));
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
@@ -162,6 +170,24 @@ export function CampaignProvider(props: {
 				setState(
 					produce((s) => {
 						s.timer = state.time;
+
+						if (s.hardcore) {
+							const fgs = getFlightGroups(s.blueFaction?.packages);
+							const clientAircraftNames: Array<string> = [];
+
+							fgs.forEach((fg) => {
+								fg.units.filter((u) => u.client).forEach((u) => clientAircraftNames.push(u.name));
+							});
+
+							const clientKilled = state.killed_aircrafts.some((killedAc) =>
+								clientAircraftNames.some((name) => name === killedAc)
+							);
+
+							if (clientKilled) {
+								s.hardcore = "killed";
+								s.winner = "red";
+							}
+						}
 
 						if (s.blueFaction != null) {
 							updateFactionState(s.blueFaction, s, state);

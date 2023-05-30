@@ -153,7 +153,7 @@ export const unitIdsToGroundUnit = (faction: DcsJs.CampaignFaction, ids: Array<s
 export function isCampaignStructureUnitCamp(
 	structure: DcsJs.CampaignStructure | undefined
 ): structure is DcsJs.CampaignStructureUnitCamp {
-	return (structure as DcsJs.CampaignStructureUnitCamp).unitIds != null;
+	return (structure as DcsJs.CampaignStructureUnitCamp).deploymentScore != null;
 }
 
 export function getLoadoutForAircraftType(

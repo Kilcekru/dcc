@@ -25,7 +25,12 @@ export const Header = () => {
 
 	return (
 		<div class={Styles.header}>
-			<h1 class={Styles.title}>Red Waters</h1>
+			<div>
+				<h1 class={Styles.title}>{state.name}</h1>
+				<Show when={state.hardcore}>
+					<p class={Styles.hardcore}>Hardcore</p>
+				</Show>
+			</div>
 			<div>
 				<TimerClock />
 			</div>

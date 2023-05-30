@@ -26,7 +26,7 @@ importers:
 
   packages/apps/campaign:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
       '@kilcekru/dcc-lib-components': workspace:*
       '@kilcekru/dcc-lib-rpc': workspace:*
       '@kilcekru/dcs-coordinates': 0.5.0
@@ -58,7 +58,7 @@ importers:
       milsymbol: 2.0.0
       solid-js: 1.6.2
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
       '@types/leaflet': 1.9.0
 
   packages/apps/home:
@@ -73,7 +73,7 @@ importers:
 
   packages/chief/core:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
       '@kilcekru/dcc-shared-rpc-types': workspace:*
       '@types/fs-extra': ^9.0.13
       '@types/node': ^18.11.10
@@ -83,7 +83,7 @@ importers:
       fs-extra: ^11.1.0
       regedit: ^5.1.1
     dependencies:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
       chokidar: 3.5.3
       electron-squirrel-startup: 1.0.0
       fs-extra: 11.1.0
@@ -104,13 +104,15 @@ importers:
 
   packages/libs/components:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
       '@zag-js/checkbox': 0.8.0
       '@zag-js/dialog': 0.8.0
       '@zag-js/editable': 0.8.0
       '@zag-js/hover-card': 0.8.0
       '@zag-js/pressable': 0.8.0
+      '@zag-js/radio-group': 0.8.0
       '@zag-js/solid': 0.8.0
+      '@zag-js/switch': 0.8.0
       '@zag-js/toast': 0.8.0
       '@zag-js/tooltip': 0.8.0
       cnbuilder: 3.1.0
@@ -121,13 +123,15 @@ importers:
       '@zag-js/editable': 0.8.0
       '@zag-js/hover-card': 0.8.0
       '@zag-js/pressable': 0.8.0
+      '@zag-js/radio-group': 0.8.0
       '@zag-js/solid': 0.8.0_solid-js@1.6.2
+      '@zag-js/switch': 0.8.0
       '@zag-js/toast': 0.8.0
       '@zag-js/tooltip': 0.8.0
       cnbuilder: 3.1.0
       solid-js: 1.6.2
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
 
   packages/libs/rpc:
     specifiers:
@@ -137,9 +141,9 @@ importers:
 
   packages/shared/rpc-types:
     specifiers:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
     devDependencies:
-      '@foxdelta2/dcsjs': 0.2.219
+      '@foxdelta2/dcsjs': 0.2.221
 
   utils/build:
     specifiers:
@@ -537,8 +541,8 @@ packages:
       '@floating-ui/core': 1.2.6
     dev: false
 
-  /@foxdelta2/dcsjs/0.2.219:
-    resolution: {integrity: sha512-XSfTdeyhd5T/XP6OUg6xTe1XrVDaLBf8IqouP+idfa8QPWzv6O8QeNcNitIxJjMBpR3CKAFxmqEem9pUILYmfg==}
+  /@foxdelta2/dcsjs/0.2.221:
+    resolution: {integrity: sha512-Ni7+N/nH3YNwo3m9guOWWfJzui2RBFkspDzK9zvJNd9G2K6pj9uiiJx3A3IOSu02zevIf9fGYfya+skWfpH7BQ==}
     dependencies:
       '@kilcekru/lua-table': 1.0.0
       adm-zip: 0.5.10
@@ -1081,6 +1085,19 @@ packages:
       '@zag-js/utils': 0.3.4
     dev: false
 
+  /@zag-js/radio-group/0.8.0:
+    resolution: {integrity: sha512-qi7NYAC817sRrPRXZVR9rVgqDzfeDvyrEnd6EUkmapMK60pDz6zZFOoC70kIwmoykmOzjb514RuU/8BcSJQk3g==}
+    dependencies:
+      '@zag-js/anatomy': 0.1.4
+      '@zag-js/core': 0.7.0
+      '@zag-js/dom-query': 0.1.4
+      '@zag-js/element-rect': 0.8.0
+      '@zag-js/form-utils': 0.2.5
+      '@zag-js/types': 0.5.0
+      '@zag-js/utils': 0.3.4
+      '@zag-js/visually-hidden': 0.0.1
+    dev: false
+
   /@zag-js/remove-scroll/0.2.1:
     resolution: {integrity: sha512-rfVer38ZvE5+1MoCF88+44zGILRTLIriVOh663IlH2cSKBAQcS5z/6BT7y342/5h30Tz96QTVaCNytjammdl1g==}
     dev: false
@@ -1125,6 +1142,18 @@ packages:
     resolution: {integrity: sha512-QgBnbYjb5jvcTt0+JCoPJ9YKM9vP1/RR78mkT6fWCIM0N8hnZu4MzQPVKxiopxZ8XIrDbUjFWlJLzL83uiYv2g==}
     dependencies:
       proxy-compare: 2.5.0
+    dev: false
+
+  /@zag-js/switch/0.8.0:
+    resolution: {integrity: sha512-7iMYNm5IRLtPf5K+DRyjbHXwx+KvLO3J7TTZaCkwP98/AzwCIQCfwJm4LD7xIhtS2sFSIRADygTMWsdUFiEWdA==}
+    dependencies:
+      '@zag-js/anatomy': 0.1.4
+      '@zag-js/core': 0.7.0
+      '@zag-js/dom-query': 0.1.4
+      '@zag-js/form-utils': 0.2.5
+      '@zag-js/types': 0.5.0
+      '@zag-js/utils': 0.3.4
+      '@zag-js/visually-hidden': 0.0.1
     dev: false
 
   /@zag-js/tabbable/0.8.0:
@@ -2669,7 +2698,7 @@ packages:
     dev: true
 
   /image-size/0.5.5:
-    resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
+    resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
     engines: {node: '>=0.10.0'}
     hasBin: true
     requiresBuild: true
@@ -2928,7 +2957,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.10
 
   /jsx-ast-utils/3.3.3:
     resolution: {integrity: sha512-fYQHZTZ8jSfmWZ0iyzfwiU4WDX4HpHbMCZ3gPlWYiCl3BoeOTsqKBqnTVfH2rYT7eP5c3sVbeSPHnnJOaTrWiw==}

@@ -22,7 +22,12 @@ export const GameOverModal = () => {
 					<div class={Styles.description}>You Won!</div>
 				</Show>
 				<Show when={state.winner === "red"}>
-					<div class={Styles.description}>You Lost!</div>
+					<Show when={state.hardcore === "killed"}>
+						<div class={Styles.description}>Killed in Action!</div>
+					</Show>
+					<Show when={state.hardcore !== "killed"}>
+						<div class={Styles.description}>You Lost!</div>
+					</Show>
 				</Show>
 				<div class={Styles.buttons}>
 					<Components.Button onPress={onConfirm}>New Campaign</Components.Button>

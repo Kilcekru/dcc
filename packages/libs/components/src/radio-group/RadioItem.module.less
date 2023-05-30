@@ -1,0 +1,26 @@
+.radio {
+	display: flex;
+	gap: 10px;
+	cursor: pointer;
+	align-items: center;
+
+	&[data-checked] {
+		div[data-part="radio-control"] {
+			background-color: white;
+		}
+	}
+}
+
+.control {
+	height: 16px;
+	border-radius: 8px;
+	width: 16px;
+	background-color: var(--background-hover);
+	cursor: pointer;
+	transition: background-color 100ms ease-in-out;
+}
+
+.label {
+	font-size: 16px;
+	font-weight: 300;
+}

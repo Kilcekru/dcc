@@ -8,11 +8,16 @@ import { unwrap } from "solid-js/store";
 import { CampaignContext, Clock } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { useSave } from "../../../../hooks";
+import { ClientList } from "./ClientList";
+import { HowToStartModal } from "./HowToStartModal";
 import Styles from "./MissionOverlay.module.less";
+import { PersistenceModal } from "./PersistenceModal";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [state, { submitMissionState, pause }] = useContext(CampaignContext);
 	const [forwarding, setForwarding] = createSignal<boolean | undefined>(undefined);
+	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
+	const [isPersistenceOpen, setIsPersistenceOpen] = createSignal(false);
 	const onSave = useSave();
 
 	const missionTime = createMemo(() => {
@@ -97,6 +102,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 		submitMissionState?.(missionState, dataStore);
 
+		onSave();
 		props.onClose();
 	};
 
@@ -112,53 +118,24 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					<Clock value={state.timer} />
 				</div>
 				<div class={cnb(Styles["help-text"], forwarding() === false ? Styles["help-text--show"] : null)}>
-					<p>You can now start the Mission from within DCS.</p>
-					<p>Make sure DCC is able to persist the mission state</p>
-					<p>
-						Change the following lines in the file <strong>'DCS World/Scripts/MissionScripting.lua'</strong>
-					</p>
-					<p>From:</p>
-					<p>
-						do
-						<br />
-						sanitizeModule('os')
-						<br />
-						sanitizeModule('io')
-						<br />
-						sanitizeModule('lfs')
-						<br />
-						_G['require'] = nil
-						<br />
-						_G['loadlib'] = nil
-						<br />
-						_G['package'] = nil
-						<br />
-						end
-					</p>
-					<p>To:</p>
-					<p>
-						do
-						<br />
-						sanitizeModule('os')
-						<br />
-						<strong>
-							--sanitizeModule('io')
-							<br />
-							--sanitizeModule('lfs')
-							<br />
-						</strong>
-						_G['require'] = nil
-						<br />
-						_G['loadlib'] = nil
-						<br />
-						_G['package'] = nil
-						<br />
-						end
-					</p>
-					<p>
-						The Mission location is <strong>'Saved Games/DCS.openbeta/Missions/dcc_mission.miz'</strong>.
-					</p>
-					<p>After the Mission you can submit the Result with the button below.</p>
+					<div>
+						<h2>
+							You can now start the Mission from within DCS.{" "}
+							<Components.Button onPress={() => setIsHowToStartOpen(true)} unstyled>
+								<Components.Icons.QuestionCircle />
+							</Components.Button>
+						</h2>
+						<p>After the Mission you can submit the Result with the button below.</p>
+						<div class={Styles["persistent-hint"]}>
+							Make sure DCC is able to persist the mission state
+							<Components.Tooltip text="Learn more">
+								<Components.Button onPress={() => setIsPersistenceOpen(true)} unstyled>
+									<Components.Icons.QuestionCircle />
+								</Components.Button>
+							</Components.Tooltip>
+						</div>
+					</div>
+					<ClientList />
 				</div>
 
 				<div class={cnb(Styles["buttons"], forwarding() === false ? Styles["buttons--show"] : null)}>
@@ -170,6 +147,8 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					</Components.Button>
 				</div>
 			</div>
+			<PersistenceModal isOpen={isPersistenceOpen()} onClose={() => setIsPersistenceOpen(false)} />
+			<HowToStartModal isOpen={isHowToStartOpen()} onClose={() => setIsHowToStartOpen(false)} />
 		</div>
 	);
 }
