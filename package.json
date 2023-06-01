@@ -17,7 +17,7 @@
 	"bugs": "https://github.com/Kilcekru/dcc/issues",
 	"engines": {
 		"node": ">=18.12.0",
-		"pnpm": ">=7.15.0 <=7.18.2"
+		"pnpm": ">=8.6.0"
 	},
 	"scripts": {
 		"build": "pnpm build:ts && pnpm forge:package",
