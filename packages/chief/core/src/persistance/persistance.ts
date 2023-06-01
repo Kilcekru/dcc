@@ -18,7 +18,7 @@ export class Persistance<T> {
 		this.#tmp = Path.join(app.getPath("userData"), "persistance", `${options.path}.tmp.json`);
 		this.#path = Path.join(app.getPath("userData"), "persistance", `${options.path}.json`);
 		this.#default = options.default ?? {};
-		this.#data = this.#default;
+		this.#data = structuredClone(this.#default);
 	}
 
 	public get data() {
@@ -30,7 +30,7 @@ export class Persistance<T> {
 	}
 
 	public reset() {
-		this.#data = this.#default;
+		this.#data = structuredClone(this.#default);
 	}
 
 	public async load() {
