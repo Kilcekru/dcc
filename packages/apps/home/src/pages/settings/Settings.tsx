@@ -7,7 +7,7 @@ import { PathSelector } from "./PathSelector";
 import Styles from "./Settings.module.less";
 
 interface Path {
-	value?: string;
+	value: string;
 	valid: boolean;
 }
 
@@ -21,11 +21,16 @@ export const Settings = () => {
 	const setError = useSetError();
 	const setAction = useSetAction();
 	const loadUserConfig = useLoadUserConfig();
-	const [withoutLocalDCS, setWithoutLocalDCS] = createSignal(false);
 
-	const [dcsPaths, setDcsPaths] = createSignal<DcsPaths>({ install: { valid: false }, savedGames: { valid: false } });
+	const [withoutLocalDCS, setWithoutLocalDCS] = createSignal(
+		userConfig?.dcs?.available == undefined ? false : !userConfig?.dcs?.available
+	);
+	const [dcsPaths, setDcsPaths] = createSignal<DcsPaths>({
+		install: { value: "", valid: false },
+		savedGames: { value: "", valid: false },
+	});
 	const [downloadsPath, setDownloadsPaths] = createSignal<Path>({
-		value: userConfig?.downloadsPath,
+		value: userConfig?.downloadsPath ?? "",
 		valid: userConfig?.downloadsPath != undefined,
 	});
 
@@ -62,25 +67,21 @@ export const Settings = () => {
 	const onContinue = async () => {
 		try {
 			const paths = dcsPaths();
-			if (
-				!userConfig?.dcs?.available ||
-				paths.install.value !== userConfig?.dcs?.paths.install ||
-				paths.savedGames.value !== userConfig?.dcs?.paths.savedGames
-			) {
-				if (
-					paths.install.valid &&
-					paths.install.value != undefined &&
-					paths.savedGames.valid &&
-					paths.savedGames.value != undefined
-				) {
+			if (withoutLocalDCS()) {
+				await rpc.home.setDcsNotAvailable();
+			} else {
+				if (paths.install.valid && paths.savedGames.valid) {
 					await rpc.home.setDcsPaths({ install: paths.install.value, savedGames: paths.savedGames.value });
 				} else {
-					await rpc.home.setDcsNotAvailable();
+					throw new Error("Invalid DCS Directories");
 				}
 			}
+
 			const dPath = downloadsPath();
-			if (dPath.value !== userConfig?.downloadsPath && dPath.valid && dPath.value != undefined) {
+			if (dPath.valid) {
 				await rpc.home.setDownloadsPath(dPath.value);
+			} else {
+				throw new Error("Invalid Downloads Directory");
 			}
 			await loadUserConfig();
 			setAction(undefined);
@@ -101,11 +102,11 @@ export const Settings = () => {
 				const paths = await rpc.home.findDcsPaths();
 				setDcsPaths({
 					install: {
-						value: paths.install,
+						value: paths.install ?? "",
 						valid: paths.install != undefined,
 					},
 					savedGames: {
-						value: paths.savedGames,
+						value: paths.savedGames ?? "",
 						valid: paths.savedGames != undefined,
 					},
 				});
@@ -138,10 +139,13 @@ export const Settings = () => {
 					onChange={onChangeSavedGames}
 					disabled={withoutLocalDCS()}
 				/>
-				<PathSelector label="Downloads" value={downloadsPath()} onChange={onChangeDownloads} />
+				<PathSelector label="Downloads Directory" value={downloadsPath()} onChange={onChangeDownloads} />
 				<div class={Styles.buttons}>
 					<Components.Button
-						disabled={!dcsPaths().install.valid || !dcsPaths().savedGames.valid || !downloadsPath().valid}
+						disabled={
+							!downloadsPath().valid ||
+							(!withoutLocalDCS() && (!dcsPaths().install.valid || !dcsPaths().savedGames.valid))
+						}
 						onPress={onContinue}
 						large
 					>

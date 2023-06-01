@@ -2,12 +2,12 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { Show } from "solid-js";
 
-import Styles from "./_PathSelector.module.less";
+import Styles from "./PathSelector.module.less";
 
 interface PathSelectorProps {
 	label: string;
 	value: {
-		value?: string;
+		value: string;
 		valid: boolean;
 	};
 	onChange: (path: string) => void;
