@@ -1,1 +1,1 @@
-export * from "./_Settings";
+export * from "./Settings";

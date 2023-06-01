@@ -3,7 +3,7 @@ import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { createSignal, onMount } from "solid-js";
 
 import { useLoadUserConfig, useSetAction, useSetError, useUserConfig } from "../../store";
-import { PathSelector } from "./_PathSelector";
+import { PathSelector } from "./PathSelector";
 import Styles from "./Settings.module.less";
 
 interface Path {
