@@ -10,6 +10,7 @@ export function RadioGroup(props: { children?: JSX.Element; id?: string; onChang
 	const [state, send] = useMachine(
 		radio.machine({
 			id: createUniqueId(),
+			// eslint-disable-next-line solid/reactivity
 			value: props.id,
 			onChange({ value }) {
 				props.onChange(value);
@@ -21,7 +22,9 @@ export function RadioGroup(props: { children?: JSX.Element; id?: string; onChang
 
 	return (
 		<div {...api().rootProps} class={Styles.group}>
-			<RadioContext.Provider value={api()}>{props.children}</RadioContext.Provider>
+			<RadioContext.Provider value={api() /* eslint-disable-line solid/reactivity */}>
+				{props.children}
+			</RadioContext.Provider>
 		</div>
 	);
 }

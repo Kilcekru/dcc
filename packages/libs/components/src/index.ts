@@ -8,6 +8,7 @@ export * from "./scroll-container";
 export * from "./stat";
 export * from "./switch";
 export * from "./task-label";
+export * from "./text-field";
 export * from "./toast";
 export * from "./tooltip";
 export * as Utils from "./utils";

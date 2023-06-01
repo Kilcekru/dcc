@@ -1,4 +1,5 @@
 import { ArrowBack } from "./ArrowBack";
+import { CheckCircleFill } from "./CheckCircleFill";
 import { Close } from "./close";
 import { FastForward } from "./FastForward";
 import { FastForwardFill } from "./FastForwardFill";
@@ -11,8 +12,11 @@ import { PlayFill } from "./PlayFill";
 import { Question } from "./Question";
 import { QuestionCircle } from "./QuestionCircle";
 import { SettingsFill } from "./SettingsFill";
+import { XCircleFill } from "./XCircleFill";
+
 export const Icons = {
 	ArrowBack,
+	CheckCircleFill,
 	Close,
 	FastForward,
 	FastForwardFill,
@@ -25,4 +29,5 @@ export const Icons = {
 	Question,
 	QuestionCircle,
 	SettingsFill,
+	XCircleFill,
 };

@@ -1,3 +1,3 @@
 export * from "./launcher";
-export * from "./onBoarding";
-export * from "./settings/settings";
+export * from "./on-boarding";
+export * from "./settings/_Settings";
