@@ -7,4 +7,5 @@ export const misc: Misc = {
 	getUserConfig: rpc<Misc["getUserConfig"]>("misc", "getUserConfig"),
 	getSystemConfig: rpc<Misc["getSystemConfig"]>("misc", "getSystemConfig"),
 	loadApp: rpc<Misc["loadApp"]>("misc", "loadApp"),
+	openExternalLink: rpc<Misc["openExternalLink"]>("misc", "openExternalLink"),
 };

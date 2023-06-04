@@ -11,7 +11,7 @@ function getAppMenuTemplate(): MenuItemConstructorOptions[] {
 
 	const template: MenuItemConstructorOptions[] = [
 		{
-			label: "File",
+			label: "DCC",
 			submenu: [
 				{
 					label: "Launcher",
@@ -25,6 +25,14 @@ function getAppMenuTemplate(): MenuItemConstructorOptions[] {
 					enabled: enableNavigation,
 					click: () => {
 						void loadApp("home", { action: "settings" });
+					},
+				},
+				{ type: "separator" },
+				{
+					label: "About",
+					enabled: enableNavigation,
+					click: () => {
+						void loadApp("home", { action: "about" });
 					},
 				},
 				{ type: "separator" },

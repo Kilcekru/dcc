@@ -4,6 +4,7 @@ import { Match, Switch } from "solid-js";
 import { render } from "solid-js/web";
 
 import { Launcher, OnBoarding, Settings } from "./pages";
+import { About } from "./pages/about/about";
 import { StoreProvider, useSetAction, useStore } from "./store";
 
 const App = () => {
@@ -24,6 +25,9 @@ const App = () => {
 				</Match>
 				<Match when={state.userConfig?.dcs == undefined || state.action === "settings"}>
 					<Settings />
+				</Match>
+				<Match when={state.action === "about"}>
+					<About />
 				</Match>
 			</Switch>
 		</>

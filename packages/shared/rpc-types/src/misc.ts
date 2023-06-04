@@ -1,8 +1,9 @@
 export interface Misc {
-	getVersions: () => Promise<{ electron: string; node: string; chrome: string }>;
+	getVersions: () => Promise<Versions>;
 	getUserConfig: () => Promise<Partial<UserConfig>>;
 	getSystemConfig: () => Promise<SystemConfig>;
 	loadApp: (name: "home" | "campaign") => Promise<void>;
+	openExternalLink: (url: string) => Promise<void>;
 }
 
 export interface SystemConfig {
@@ -24,4 +25,12 @@ export interface UserConfig {
 export interface DcsPaths {
 	install: string;
 	savedGames: string;
+}
+
+export interface Versions {
+	os: string;
+	app: string;
+	electron: string;
+	node: string;
+	chrome: string;
 }

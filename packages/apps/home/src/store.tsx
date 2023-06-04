@@ -3,7 +3,7 @@ import { UserConfig } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, JSX, onMount, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
-type Action = "settings";
+type Action = "settings" | "about";
 
 interface State {
 	loading?: boolean;
@@ -50,7 +50,7 @@ export function StoreProvider(props: { children?: JSX.Element }) {
 
 	onMount(() => {
 		const action = new URLSearchParams(window.location.search).get("action");
-		if (action === "settings") {
+		if (action === "settings" || action === "about") {
 			setState("action", action);
 		}
 

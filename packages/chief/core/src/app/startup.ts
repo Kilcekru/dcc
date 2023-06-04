@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 
-import { BrowserWindow } from "electron";
+import { BrowserWindow, shell } from "electron";
 
 import { dccState, userConfig } from "../persistance";
 import { getAppPath } from "../utils";
@@ -23,6 +23,10 @@ export async function startupApp() {
 		webPreferences: {
 			preload: Path.join(__dirname, "preload.js"),
 		},
+	});
+	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+		void shell.openExternal(url);
+		return { action: "deny" };
 	});
 
 	if (userConfig.data.dcs != undefined && userConfig.data.currentApp != undefined) {
