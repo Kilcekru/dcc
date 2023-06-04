@@ -78,9 +78,31 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const createToast = Components.useCreateErrorToast();
 
 	const onSubmit = async () => {
-		const missionState = await rpc.campaign.loadMissionState();
+		try {
+			const missionState = await rpc.campaign.loadMissionState();
 
-		if (missionState == null) {
+			if (missionState == null) {
+				// eslint-disable-next-line no-console
+				console.error("mission result not found");
+				return;
+			}
+
+			if (missionState.time < state.timer) {
+				createToast({
+					description: "Mission Result is in the past",
+					title: "Mission not saved",
+				});
+				return;
+			}
+
+			submitMissionState?.(missionState, dataStore);
+
+			onSave();
+			props.onClose();
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+
 			createToast({
 				description: "Mission Result not found",
 				title: "Mission not saved",
@@ -89,21 +111,6 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			console.error("mission result not found");
 			return;
 		}
-
-		if (missionState.time < state.timer) {
-			createToast({
-				description: "Mission Result is in the past",
-				title: "Mission not saved",
-			});
-			// eslint-disable-next-line no-console
-			console.error("mission is in the past");
-			return;
-		}
-
-		submitMissionState?.(missionState, dataStore);
-
-		onSave();
-		props.onClose();
 	};
 
 	const onCancel = () => {

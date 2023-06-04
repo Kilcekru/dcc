@@ -2,7 +2,7 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { createSignal, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import { getClientFlightGroups } from "../../../../utils";
+import { AiSkillMap, getClientFlightGroups } from "../../../../utils";
 import { MissionOverlay } from "../mission-overlay";
 import Styles from "./Header.module.less";
 import { TimerClock } from "./TimerClock";
@@ -27,9 +27,12 @@ export const Header = () => {
 		<div class={Styles.header}>
 			<div>
 				<h1 class={Styles.title}>{state.name}</h1>
-				<Show when={state.hardcore}>
-					<p class={Styles.hardcore}>Hardcore</p>
-				</Show>
+				<p class={Styles.hardcore}>
+					<Show when={state.hardcore}>
+						<span>Hardcore - </span>
+					</Show>
+					AI Skill: {AiSkillMap[state.aiSkill]}
+				</p>
 			</div>
 			<div>
 				<TimerClock />

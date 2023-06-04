@@ -82,8 +82,8 @@ importers:
         version: 1.6.2
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.221
-        version: 0.2.221
+        specifier: 0.2.222
+        version: 0.2.222
       '@types/leaflet':
         specifier: 1.9.0
         version: 1.9.0
@@ -103,8 +103,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.221
-        version: 0.2.221
+        specifier: 0.2.222
+        version: 0.2.222
       chokidar:
         specifier: ^3.5.3
         version: 3.5.3
@@ -180,8 +180,8 @@ importers:
         version: 1.6.2
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.221
-        version: 0.2.221
+        specifier: 0.2.222
+        version: 0.2.222
 
   packages/libs/rpc:
     devDependencies:
@@ -192,8 +192,8 @@ importers:
   packages/shared/rpc-types:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.221
-        version: 0.2.221
+        specifier: 0.2.222
+        version: 0.2.222
 
   utils/build:
     dependencies:
@@ -597,8 +597,8 @@ packages:
       '@floating-ui/core': 1.2.6
     dev: false
 
-  /@foxdelta2/dcsjs@0.2.221:
-    resolution: {integrity: sha512-Ni7+N/nH3YNwo3m9guOWWfJzui2RBFkspDzK9zvJNd9G2K6pj9uiiJx3A3IOSu02zevIf9fGYfya+skWfpH7BQ==}
+  /@foxdelta2/dcsjs@0.2.222:
+    resolution: {integrity: sha512-SereKkZkvnnFmC1t3jL/YC+1G2OsK+J1cwu9W679fmWPPbTXqn9khOHTwRtPXC6KT+QWvUrPzrbpndeiNbd0RA==}
     dependencies:
       '@kilcekru/lua-table': 1.0.0
       adm-zip: 0.5.10
@@ -2637,7 +2637,6 @@ packages:
   /graceful-fs@4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
     requiresBuild: true
-    dev: false
 
   /graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -2755,7 +2754,7 @@ packages:
     dev: true
 
   /image-size@0.5.5:
-    resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
+    resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
     engines: {node: '>=0.10.0'}
     hasBin: true
     requiresBuild: true
@@ -3014,7 +3013,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.10
 
   /jsx-ast-utils@3.3.3:
     resolution: {integrity: sha512-fYQHZTZ8jSfmWZ0iyzfwiU4WDX4HpHbMCZ3gPlWYiCl3BoeOTsqKBqnTVfH2rYT7eP5c3sVbeSPHnnJOaTrWiw==}

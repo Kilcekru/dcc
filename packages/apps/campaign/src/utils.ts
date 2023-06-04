@@ -470,3 +470,10 @@ export const getDeploymentCost = (
 	// Penalty for red frontline
 	return coalition === "red" ? cost * 3 : cost;
 };
+
+export const AiSkillMap: Record<DcsJs.AiSkill, string> = {
+	Average: "Rookie",
+	Good: "Trained",
+	High: "Veteran",
+	Excellent: "Ace",
+};
