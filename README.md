@@ -1,10 +1,26 @@
 # DCC - Digital Crew Chief
-### Why do I want to use DCC?
-100% flying, 0% configuration
+
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
+
+100% flying, 0% configuration.
+
+DCC is meant to be a toolkit offering simple apps to enhance your flying experience in [Digital Combat Simulator](https://www.digitalcombatsimulator.com/).\
+Still in early development we currently only offer a dynamic campaign, but more apps are planned (see [Roadmap](#roadmap)).
+
+- [Dynamic Campaign](#dynamic-campaign)
+  - [How does the Campaign work](#how-does-the-campaign-work)
+  - [Persistance](#persistance)
+  - [Upcoming Features](#upcoming-features)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+
 
 ## Dynamic Campaign
 Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liberation
 ---no configuration, just fly---
+
+![App Screenshot](docs/campaign-1.png)
 
 
 ### How does the Campaign work
@@ -71,15 +87,33 @@ do
    _G['package'] = nil
 end
 ```
-### Upcoming Features:
-*  Carrier
-*  More Maps
-*  More Scenarios
-*  More Factions
-*  More Package Types
-*  IADS
-*  In App customizing Scenarios and Factions
-*  Improved Frontline logic
-*  Kneeboard
-*  Warehouse
-*  Recon / Fog of War
+### Upcoming Features
+
+- Carrier
+- More Maps
+- More Scenarios
+- More Factions
+- More Package Types
+- IADS
+- In App customizing Scenarios and Factions
+- Improved Frontline logic
+- Kneeboard
+- Warehouse
+- Recon / Fog of War
+
+## Roadmap
+
+- Quick Mission: Create a simple mission that offers immersion into a battlefield
+- Patcher: Apply patches to DCS to easily configure your setup
+- Controls: Drag & Drop setup for your Joystick / Throttle
+- Mods: Install and Remove supported DCS mods with a simple click
+
+## Contributing
+
+Contributions are always welcome!\
+See [contributing](CONTRIBUTING.md) for ways to get started.\
+Please adhere to this project's [code of conduct](CODE_OF_CONDUCT.md).
+
+## Contributors
+- [@Kilcekru](https://github.com/kilcekru)
+- [@rhyver](https://github.com/rhyver)
