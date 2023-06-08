@@ -1,5 +1,7 @@
 import { createMemo, Show } from "solid-js";
 
+import { timerToDate } from "../utils";
+
 const formatTime = (value: number | undefined) => {
 	if (value == null) {
 		return;
@@ -18,14 +20,13 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 			return undefined;
 		}
 
-		const d = new Date(props.value * 1000);
-		d.setHours(d.getHours() - 1);
+		const d = timerToDate(props.value);
 
 		return d;
 	});
 
 	const hours = createMemo(() => {
-		const h = date()?.getHours() ?? 0;
+		const h = date()?.getUTCHours() ?? 0;
 
 		return h;
 	});

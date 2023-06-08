@@ -16,12 +16,17 @@ export const Config = {
 			fuel: 0.2,
 		},
 		frontline: {
-			barrack: 25_000,
-			depot: 30_000,
+			barrack: 50_000,
+			depot: 70_000,
+			initialFactor: 0.75,
 		},
 		repair: 100_000,
 	},
 	flight: {
 		speed: 170,
+	},
+	night: {
+		startHour: 20,
+		endHour: 6,
 	},
 };

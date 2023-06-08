@@ -14,6 +14,7 @@ import {
 	positionAfterDurationToPosition,
 	random,
 	randomList,
+	timerToDate,
 } from "../utils";
 import { conquerObjective, g2g, g2gBattle } from "./combat";
 import { RunningCampaignState } from "./types";
@@ -363,8 +364,15 @@ const updateCombat = (state: RunningCampaignState, dataStore: DataStore) => {
 export const updateFrontline = (state: RunningCampaignState, dataStore: DataStore) => {
 	updateObjectivesCoalition(state);
 	// captureNeutralObjectives(state, dataStore); TODO
-	moveFrontline(state, dataStore);
-	attackFrontline("blue", state, dataStore);
-	attackFrontline("red", state, dataStore);
-	updateCombat(state, dataStore);
+
+	const date = timerToDate(state.timer);
+	const dayHour = date.getUTCHours() ?? 0;
+
+	// Only create packages during the day
+	if (dayHour >= Config.night.endHour && dayHour < Config.night.startHour) {
+		moveFrontline(state, dataStore);
+		attackFrontline("blue", state, dataStore);
+		attackFrontline("red", state, dataStore);
+		updateCombat(state, dataStore);
+	}
 };

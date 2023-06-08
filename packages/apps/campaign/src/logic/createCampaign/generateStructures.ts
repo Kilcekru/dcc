@@ -2,10 +2,28 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { ScenarioCoalition } from "../../data";
+import { Config, ScenarioCoalition } from "../../data";
 import { randomItem } from "../../utils";
 
-export function generateStructures(scenarioCoalition: ScenarioCoalition, dataStore: DataStore) {
+function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureType: DcsJs.StructureType) {
+	if (coalition === "blue") {
+		switch (structureType) {
+			case "Barrack": {
+				return Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor;
+			}
+			case "Depot": {
+				return Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor;
+			}
+		}
+	}
+
+	return 0;
+}
+export function generateStructures(
+	coalition: DcsJs.CampaignCoalition,
+	scenarioCoalition: ScenarioCoalition,
+	dataStore: DataStore
+) {
 	const structures: Record<string, DcsJs.CampaignStructure> = {};
 
 	if (dataStore.strikeTargets == null) {
@@ -48,7 +66,7 @@ export function generateStructures(scenarioCoalition: ScenarioCoalition, dataSto
 					position: strikeTarget.position,
 					structureType: structureType,
 					state: "active",
-					deploymentScore: 0,
+					deploymentScore: calcInitDeploymentScore(coalition, structureType),
 				};
 
 				structures[structurePlan.structureName] = structure;

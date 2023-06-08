@@ -86,7 +86,7 @@ export const createCampaign = (
 		awacsFrequency: 285.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		structures: generateStructures(scenario.blue, dataStore),
+		structures: generateStructures("blue", scenario.blue, dataStore),
 	};
 
 	state.redFaction = {
@@ -112,7 +112,7 @@ export const createCampaign = (
 		awacsFrequency: 280.0,
 		downedPilots: [],
 		ews: [], // will be filled with addEWs()
-		structures: generateStructures(scenario.red, dataStore),
+		structures: generateStructures("red", scenario.red, dataStore),
 	};
 
 	state.objectives =
@@ -224,6 +224,7 @@ export const createCampaign = (
 	state.winningCondition = scenario["win-condition"];
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
+	state.winner = undefined;
 
 	return state;
 };

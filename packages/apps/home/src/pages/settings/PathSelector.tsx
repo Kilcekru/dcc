@@ -1,5 +1,6 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
+import { cnb } from "cnbuilder";
 import { Show } from "solid-js";
 
 import Styles from "./PathSelector.module.less";
@@ -27,7 +28,7 @@ export const PathSelector = (props: PathSelectorProps) => {
 
 	return (
 		<div class={Styles["path-selector"]}>
-			<label class={Styles.label}>{props.label}</label>
+			<label class={cnb(Styles.label, props.disabled ? Styles["label--disabled"] : null)}>{props.label}</label>
 			<div class={Styles.path}>
 				<Components.TextField
 					value={props.value.value ?? ""}
@@ -42,12 +43,12 @@ export const PathSelector = (props: PathSelectorProps) => {
 					<Show
 						when={props.value.valid}
 						fallback={
-							<div class={Styles["invalid-icon"]}>
+							<div class={cnb(Styles["invalid-icon"], props.disabled ? Styles["icon--disabled"] : null)}>
 								<Components.Icons.XCircleFill />
 							</div>
 						}
 					>
-						<div class={Styles["valid-icon"]}>
+						<div class={cnb(Styles["valid-icon"], props.disabled ? Styles["icon--disabled"] : null)}>
 							<Components.Icons.CheckCircleFill />
 						</div>
 					</Show>

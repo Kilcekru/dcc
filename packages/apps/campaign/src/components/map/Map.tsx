@@ -241,19 +241,24 @@ export const Map = () => {
 			}
 
 			if (groundGroupMarkers[gg.id] == null) {
-				const marker = createSymbol({
-					mapPosition: positionToMapPosition(gg.position),
-					hostile: coalition === "red",
-					air: false,
-					unitCode: gg.groupType === "armor" ? "armor" : "infantry",
-					onClick: () => onClickGroundGroup(gg, coalition),
-				});
+				try {
+					const marker = createSymbol({
+						mapPosition: positionToMapPosition(gg.position),
+						hostile: coalition === "red",
+						air: false,
+						unitCode: gg.groupType === "armor" ? "armor" : "infantry",
+						onClick: () => onClickGroundGroup(gg, coalition),
+					});
 
-				if (marker == null) {
-					return;
+					if (marker == null) {
+						return;
+					}
+
+					groundGroupMarkers[gg.id] = marker;
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e, coalition, gg);
 				}
-
-				groundGroupMarkers[gg.id] = marker;
 			} else {
 				groundGroupMarkers[gg.id]?.marker.setLatLng(positionToMapPosition(gg.position));
 			}

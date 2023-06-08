@@ -1,11 +1,10 @@
-import { createEffect, createMemo, onCleanup, useContext } from "solid-js";
+import { createEffect, createMemo, ErrorBoundary, onCleanup, useContext } from "solid-js";
 
 import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
 import { useSave } from "../../hooks";
 import { getClientMissionStartTime } from "../../utils";
-import { GameOverModal, Header, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
-import { ResetModal } from "./components/reset-modal";
+import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, ResetModal, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
@@ -79,10 +78,12 @@ export const Home = () => {
 				<Sidebar />
 				<OverlaySidebar />
 				<div class={styles.content}>
-					<Map />
-					<GameOverModal />
+					<ErrorBoundary fallback={<div>Something went terribly wrong</div>}>
+						<Map />
+					</ErrorBoundary>
 				</div>
 				<ResetModal />
+				<NextDayModal />
 			</div>
 		</OverlaySidebarProvider>
 	);

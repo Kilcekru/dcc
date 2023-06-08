@@ -149,7 +149,7 @@ export const Settings = () => {
 						onPress={onContinue}
 						large
 					>
-						{userConfig?.dcs?.available ? "Save" : "Continue"}
+						{userConfig?.setupComplete ? "Save" : "Continue"}
 					</Components.Button>
 				</div>
 			</div>

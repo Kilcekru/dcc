@@ -1,7 +1,8 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 
-import { calcFlightGroupPosition, Minutes, random } from "../../utils";
+import { Config } from "../../data";
+import { calcFlightGroupPosition, Minutes, random, timerToDate } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { generateAwacsPackage } from "./awacs";
@@ -202,11 +203,11 @@ const factionPackagesTick = (
 ) => {
 	updatePackagesState(faction.packages, state.timer, dataStore);
 
-	const date = new Date(state.timer * 1000);
-	const dayHour = date.getHours() ?? 0;
+	const date = timerToDate(state.timer);
+	const dayHour = date.getUTCHours() ?? 0;
 
 	// Only create packages during the day
-	if (dayHour >= 8 && dayHour < 19) {
+	if (dayHour >= Config.night.endHour && dayHour < Config.night.startHour) {
 		if (casPackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}

@@ -138,6 +138,7 @@ export const generateDeadPackage = (
 			deploymentTimer: 0,
 			incomingGroundGroups: {},
 		},
+		target: selectedObjective.id,
 		position: objectToPosition(airdrome),
 	};
 

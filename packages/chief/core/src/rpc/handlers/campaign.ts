@@ -65,6 +65,12 @@ const generateCampaignMission: Campaign["generateCampaignMission"] = async (camp
 		return { success: true };
 	}
 
+	if (config.downloadsPath) {
+		await DcsJs.generateCampaignMission(campaign, config.downloadsPath + "/dcc_mission.miz");
+
+		return { success: true };
+	}
+
 	return { success: false };
 };
 
@@ -75,9 +81,15 @@ const loadMissionState: Campaign["loadMissionState"] = async () => {
 		const file = (await fs.readJSON(config.dcs.paths.savedGames + "/Missions/dcc_state.json")) as MissionState;
 
 		return file;
-	} else {
-		return undefined;
 	}
+
+	if (config.downloadsPath) {
+		const file = (await fs.readJSON(config.downloadsPath + "/dcc_state.json")) as MissionState;
+
+		return file;
+	}
+
+	return undefined;
 };
 
 export const campaign: Campaign = {

@@ -9,7 +9,7 @@ Still in early development we currently only offer a dynamic campaign, but more 
 
 - [Dynamic Campaign](#dynamic-campaign)
   - [How does the Campaign work](#how-does-the-campaign-work)
-  - [Persistance](#persistance)
+  - [Persistence](#persistence)
   - [Upcoming Features](#upcoming-features)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
@@ -25,10 +25,10 @@ Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liber
 
 ### How does the Campaign work
 The campaign is defined by two definition, Scenario and faction.
-This two definitions are currently not editable but will be in the future.
+The two definitions are not editable at this time. But this will be possible in the future.
 Once the campaign is started each site/faction tries to archive the defined win condition automatically.
-The player can always chose the occupy one (or more) of the planned or active flight group/mission and play the mission out in DCS.
-After flying the mission in DCS the results are processed back in to the campaign.
+The player can always choose the occupy one (or more) of the planned or active flight group/mission and play the mission out in DCS.
+After flying the mission in DCS the results are processed back into the campaign.
 
 #### Scenario
 The scenario defines on which map and when the campaign takes place. It also says what the win condition is. And what objective and structures are allocated to which side at the start of the campaign.
@@ -37,7 +37,7 @@ The scenario defines on which map and when the campaign takes place. It also say
 This defines which planes, helicopters and ground units is available for the given faction. The aircrafts are categories into the different mission types available.
 
 #### Structures
-Structures are a collection of building which provide a service for the controlling faction. To prevent this services the opposite faction can destroy the buildings with a Strike mission or capture the structure with ground units.
+Structures are a collection of building which provide a service for the controlling faction. To prevent these services the opposite faction can destroy the buildings with a Strike mission or capture the structure with ground units.
 Is a building destroyed it will be repaired over a period of time.
 
 ##### Ammo Depot
@@ -61,9 +61,9 @@ Provides electricity to structures and SAMs(IADS - coming soon) nearby to improv
 ##### Fuel Storage
 Provides Fuel for Depots nearby to improve the deploy time of this structures.
 
-### Persistance
+### Persistence
 Make sure DCS allows DCC to save it state with the following step.
-This needs do be done after each DCS update.
+These needs do be done after each DCS update.
 Change the following lines in the file in the DCS installation folder 'DCS World/Scripts/MissionScripting.lua'
 From:
 ```
@@ -87,6 +87,12 @@ do
    _G['package'] = nil
 end
 ```
+
+### Current Limitation
+Many systems within the Campaign are currently implemented in a simplified way. 
+For example the ground battle currently doesn't distinguishes between the vehicle/infantry type.
+We will improve and expand these systems in the future.
+
 ### Upcoming Features
 
 - Carrier

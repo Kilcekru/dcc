@@ -3,6 +3,7 @@ import { createSignal, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import { AiSkillMap, getClientFlightGroups } from "../../../../utils";
+import { GameOverModal } from "../game-over-modal";
 import { MissionOverlay } from "../mission-overlay";
 import Styles from "./Header.module.less";
 import { TimerClock } from "./TimerClock";
@@ -44,8 +45,9 @@ export const Header = () => {
 					</Components.Button>
 				</Components.Tooltip>
 			</div>
-			<Show when={showOverlay()}>
-				<MissionOverlay show={showOverlay()} onClose={() => setShowOverlay(false)} />
+			<MissionOverlay show={showOverlay()} onClose={() => setShowOverlay(false)} />
+			<Show when={!showOverlay()}>
+				<GameOverModal />
 			</Show>
 		</div>
 	);

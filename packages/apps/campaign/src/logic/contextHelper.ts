@@ -9,6 +9,18 @@ export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircr
 	return flightGroups.find((fg) => fg.units.some((unit) => unit.id === aircraftId));
 };
 
+export const killedGroundUnitIds = (faction: DcsJs.CampaignFaction, killedGroundUnitNames: Array<string>) => {
+	const ids: Array<string> = [];
+
+	Object.values(faction.inventory.groundUnits).forEach((unit) => {
+		if (killedGroundUnitNames.some((name) => name === unit.displayName)) {
+			ids.push(unit.id);
+		}
+	});
+
+	return ids;
+};
+
 export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraftNames: Array<string>) => {
 	const fgs = getFlightGroups(faction.packages);
 
@@ -25,8 +37,39 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 	return ids;
 };
 
+export const killedBuildingNames = (faction: DcsJs.CampaignFaction, killedGroundUnitNames: Array<string>) => {
+	const ids: Array<string> = [];
+
+	Object.values(faction.structures).forEach((structure) => {
+		structure.buildings.forEach((building) => {
+			if (killedGroundUnitNames.some((name) => name === building.name)) {
+				ids.push(building.name);
+			}
+		});
+	});
+
+	return ids;
+};
+
+export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitNames: Array<string>) => {
+	const names: Array<string> = [];
+
+	faction.sams.forEach((sam) => {
+		const trackRadars = sam.units.filter((unit) => unit.vehicleTypes.some((vt) => vt === "Track Radar"));
+
+		const killed = trackRadars.some((radar) => killedGroundUnitNames.some((name) => name === radar.displayName));
+
+		if (killed) {
+			names.push(sam.name);
+		}
+	});
+
+	return names;
+};
+
 export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignState, missionState: MissionState) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
+	const killedGroundUnits = killedGroundUnitIds(faction, missionState.killed_ground_units);
 
 	killedAircrafts.forEach((id) => {
 		const aircraft = faction.inventory.aircrafts[id];
@@ -39,14 +82,8 @@ export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignSt
 		aircraft.destroyedTime = s.timer;
 	});
 
-	missionState.killed_ground_units.forEach((killedUnitName) => {
-		const inventoryValue = Object.values(faction.inventory.groundUnits).find((u) => u.displayName === killedUnitName);
-
-		if (inventoryValue == null) {
-			return;
-		}
-
-		const inventoryUnit = faction.inventory.groundUnits[inventoryValue.id];
+	killedGroundUnits.forEach((id) => {
+		const inventoryUnit = faction.inventory.groundUnits[id];
 
 		if (inventoryUnit == null) {
 			return;

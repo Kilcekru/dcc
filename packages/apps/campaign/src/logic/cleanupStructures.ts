@@ -6,7 +6,7 @@ import { getCoalitionFaction } from "./utils";
 function updateUnitCampState(
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	camp: DcsJs.CampaignStructureUnitCamp | undefined
+	camp: DcsJs.CampaignStructure | undefined
 ) {
 	if (camp == null) {
 		throw "cleanupFactionStructures: barrack not found";
@@ -41,9 +41,7 @@ function cleanupFactionStructures(coalition: DcsJs.CampaignCoalition, state: Run
 	Object.keys(faction.structures).forEach((key) => {
 		const structure = faction.structures[key];
 
-		if (structure?.structureType === "Barrack" || structure?.structureType === "Depot") {
-			updateUnitCampState(coalition, state, structure);
-		}
+		updateUnitCampState(coalition, state, structure);
 	});
 }
 export function cleanupStructures(state: RunningCampaignState) {

@@ -15,7 +15,7 @@ export const ResetModal = () => {
 
 	const onConfirm = () => {
 		reset?.();
-		rpc.campaign.save({ ...initState, loaded: true }).catch((err) => {
+		rpc.campaign.save({ ...initState, loaded: true, winner: undefined }).catch((err) => {
 			console.error("RPC error", err); // eslint-disable-line no-console
 		});
 	};

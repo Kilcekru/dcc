@@ -276,7 +276,7 @@ export const getFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefin
 export const getClientFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
 	const fgs = getFlightGroups(packages);
 
-	return fgs.filter((fg) => fg.units.some((unit) => unit.client));
+	return fgs.filter((fg) => fg.units.some((unit) => unit.client)) ?? [];
 };
 
 export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.CampaignAircraft> | undefined, task: Task) => {
@@ -477,3 +477,14 @@ export const AiSkillMap: Record<DcsJs.AiSkill, string> = {
 	High: "Veteran",
 	Excellent: "Ace",
 };
+
+export function timerToDate(value: number) {
+	const d = new Date(value * 1000);
+	// d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+
+	return d;
+}
+
+export function dateToTimer(value: Date) {
+	return value.valueOf() / 1000;
+}

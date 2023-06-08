@@ -3,15 +3,17 @@ import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
+import { Config } from "../data";
 import {
 	campaignRound,
+	clearPackages,
 	createCampaign,
 	deploymentScoreUpdate,
 	missionRound,
 	repairScoreUpdate,
 	updateFactionState,
 } from "../logic";
-import { getClientMissionStartTime, getFlightGroups } from "../utils";
+import { dateToTimer, getClientMissionStartTime, getFlightGroups, timerToDate } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
@@ -30,7 +32,6 @@ type CampaignStore = [
 		resume?: () => void;
 		reset?: () => void;
 
-		clearPackages?: (factionString: "blueFaction" | "redFaction") => void;
 		updatePackagesState?: (factionString: "blueFaction" | "redFaction") => void;
 		updateAircraftState?: () => void;
 		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
@@ -41,6 +42,8 @@ type CampaignStore = [
 		saveCampaignRound?: (dataStore: DataStore) => void;
 		updateDeploymentScore?: () => void;
 		updateRepairScore?: () => void;
+		skipToNextDay?: () => void;
+		resumeNextDay?: () => void;
 	}
 ];
 
@@ -59,6 +62,7 @@ export const initState: CampaignState = {
 	winningCondition: { type: "ground units" },
 	aiSkill: "Average",
 	name: "",
+	nextDay: false,
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -113,9 +117,7 @@ export function CampaignProvider(props: {
 			reset() {
 				setState(initState);
 				setState("loaded", true);
-			},
-			clearPackages(factionString) {
-				setState(factionString, "packages", () => []);
+				setState("winner", undefined);
 			},
 			destroySam(factionString, samId) {
 				setState(factionString, "sams", (sams) =>
@@ -209,6 +211,38 @@ export function CampaignProvider(props: {
 			},
 			updateRepairScore() {
 				setState(produce((s) => repairScoreUpdate(s)));
+			},
+			skipToNextDay() {
+				setState(
+					produce((s) => {
+						s.paused = true;
+						s.nextDay = true;
+
+						const d = timerToDate(s.timer);
+						d.setUTCDate(d.getUTCDate() + 1);
+						d.setUTCHours(Config.night.endHour);
+						d.setUTCMinutes(0);
+						d.setUTCSeconds(0);
+
+						s.timer = dateToTimer(d);
+
+						if (s.blueFaction) {
+							clearPackages(s.blueFaction);
+
+							s.blueFaction.groundGroups = s.blueFaction.groundGroups.filter((gg) => gg.state !== "on objective");
+						}
+
+						if (s.redFaction) {
+							clearPackages(s.redFaction);
+
+							s.redFaction.groundGroups = s.redFaction.groundGroups.filter((gg) => gg.state !== "on objective");
+						}
+					})
+				);
+			},
+			resumeNextDay() {
+				setState("nextDay", () => false);
+				setState("paused", () => false);
 			},
 		},
 	];

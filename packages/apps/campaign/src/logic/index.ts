@@ -29,6 +29,7 @@ export const campaignRound = (state: CampaignState, dataStore: DataStore) => {
 	combatRound(state as RunningCampaignState);
 	cleanupFlightGroups(state as RunningCampaignState);
 	cleanupGroundGroups(state as RunningCampaignState);
+	cleanupStructures(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
 	repairStructures(state as RunningCampaignState);
@@ -56,6 +57,7 @@ export const missionRound = (state: CampaignState, dataStore: DataStore) => {
 	return state;
 };
 
+export * from "./clearPackages";
 export * from "./contextHelper";
 export * from "./createCampaign";
 export * from "./deploymentScoreUpdate";
