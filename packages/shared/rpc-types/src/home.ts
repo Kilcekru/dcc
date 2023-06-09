@@ -16,4 +16,5 @@ export interface Home {
 	validateDcsSavedGamesPath: (path: string) => Promise<boolean>;
 	validateDirectoryPath: (path: string) => Promise<boolean>;
 	setDownloadsPath: (path: string) => Promise<void>;
+	createSupportZip: () => Promise<string | undefined>;
 }

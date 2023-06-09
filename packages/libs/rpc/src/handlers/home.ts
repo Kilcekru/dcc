@@ -13,4 +13,5 @@ export const home: Home = {
 	validateDcsSavedGamesPath: rpc<Home["validateDcsSavedGamesPath"]>("home", "validateDcsSavedGamesPath"),
 	validateDirectoryPath: rpc<Home["validateDirectoryPath"]>("home", "validateDirectoryPath"),
 	setDownloadsPath: rpc<Home["setDownloadsPath"]>("home", "setDownloadsPath"),
+	createSupportZip: rpc<Home["createSupportZip"]>("home", "createSupportZip"),
 };

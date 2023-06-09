@@ -68,6 +68,7 @@ We use GitHub issues to track bugs and errors. If you run into an issue with the
 - Explain the behavior you would expect and the actual behavior.
 - Please provide as much context as possible and describe the *reproduction steps* that someone else can follow to recreate the issue on their own. For good bug reports you should isolate the problem and create a reduced test case.
 - Provide the information you collected in the previous section.
+- Add a `dcc_support.zip` file. You can create this file withing DCC by clicking on DCC -> About -> Create Support Zip. This file contains anonymous information that may help us reproduce the issue.
 
 Once it's filed:
 
@@ -81,7 +82,7 @@ Once it's filed:
 This section guides you through submitting an enhancement suggestion for DCC, **including completely new features and minor improvements to existing functionality**. Following these guidelines will help maintainers and the community to understand your suggestion and find related suggestions.
 
 <!-- omit in toc -->
-#### Before Submitting an Enhancement
+#### Before Submitting an Enhancement Suggestion
 
 - Make sure that you are using the latest version.
 - Read the [documentation](https://github.com/Kilcekru/dcc#readme) carefully and find out if the functionality is already covered, maybe by an individual configuration.

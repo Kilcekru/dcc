@@ -1,47 +1,45 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { Campaign, CampaignState, MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import fs from "fs-extra";
 
-import { Persistance } from "../../persistance/persistance";
-import { misc } from "./misc";
+import { Campaign } from "../../domain";
+import { campaignState } from "../../persistance";
 
-const persistanceState = new Persistance<CampaignState>({ path: "app/campaign" });
+const save: Types.Campaign["save"] = async (campaign) => {
+	campaignState.data = campaign;
 
-const save: Campaign["save"] = async (campaign) => {
-	persistanceState.data = campaign;
-
-	await persistanceState.save();
+	await campaignState.save();
 
 	return { success: true };
 };
 
-const load: Campaign["load"] = async () => {
-	await persistanceState.load();
+const load: Types.Campaign["load"] = async () => {
+	await campaignState.load();
 
-	return persistanceState.data;
+	return campaignState.data;
 };
 
-const getAirdromes: Campaign["getAirdromes"] = async () => {
+const getAirdromes: Types.Campaign["getAirdromes"] = async () => {
 	return DcsJs.getAirdromes();
 };
 
-const getObjectives: Campaign["getObjectives"] = async () => {
+const getObjectives: Types.Campaign["getObjectives"] = async () => {
 	return DcsJs.getObjectives();
 };
 
-const getStrikeTargets: Campaign["getStrikeTargets"] = async () => {
+const getStrikeTargets: Types.Campaign["getStrikeTargets"] = async () => {
 	return DcsJs.getStrikeTargets();
 };
 
-const getSamTemplates: Campaign["getSamTemplates"] = async () => {
+const getSamTemplates: Types.Campaign["getSamTemplates"] = async () => {
 	return DcsJs.getSamTemplates();
 };
 
-const getVehicles: Campaign["getVehicles"] = async () => {
+const getVehicles: Types.Campaign["getVehicles"] = async () => {
 	return DcsJs.getVehicles();
 };
 
-const getDataStore: Campaign["getDataStore"] = async () => {
+const getDataStore: Types.Campaign["getDataStore"] = async () => {
 	return {
 		vehicles: DcsJs.getVehicles(),
 		airdromes: DcsJs.getAirdromes(),
@@ -56,43 +54,28 @@ const getDataStore: Campaign["getDataStore"] = async () => {
 	};
 };
 
-const generateCampaignMission: Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
-	const config = await misc.getUserConfig();
+const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
+	const path = Campaign.getMissionPath();
 
-	if (config.dcs?.available) {
-		await DcsJs.generateCampaignMission(campaign, config.dcs.paths.savedGames + "/Missions/dcc_mission.miz");
-
-		return { success: true };
+	if (path == undefined) {
+		return { success: false };
 	}
 
-	if (config.downloadsPath) {
-		await DcsJs.generateCampaignMission(campaign, config.downloadsPath + "/dcc_mission.miz");
-
-		return { success: true };
-	}
-
-	return { success: false };
+	await DcsJs.generateCampaignMission(campaign, path);
+	return { success: true };
 };
 
-const loadMissionState: Campaign["loadMissionState"] = async () => {
-	const config = await misc.getUserConfig();
+const loadMissionState: Types.Campaign["loadMissionState"] = async () => {
+	const path = Campaign.getMissionStatePath();
 
-	if (config.dcs?.available) {
-		const file = (await fs.readJSON(config.dcs.paths.savedGames + "/Missions/dcc_state.json")) as MissionState;
-
-		return file;
+	if (path == undefined) {
+		return undefined;
 	}
 
-	if (config.downloadsPath) {
-		const file = (await fs.readJSON(config.downloadsPath + "/dcc_state.json")) as MissionState;
-
-		return file;
-	}
-
-	return undefined;
+	return (await fs.readJSON(path)) as Types.MissionState;
 };
 
-export const campaign: Campaign = {
+export const campaign: Types.Campaign = {
 	generateCampaignMission,
 	getAirdromes,
 	getObjectives,

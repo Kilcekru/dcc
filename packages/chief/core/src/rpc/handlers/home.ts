@@ -11,6 +11,7 @@ import {
 	validateDcsInstallPath,
 	validateDcsSavedGamesPath,
 } from "../../utils/dcsPath";
+import { createSupportZip } from "../../utils/supportZip";
 
 async function setSetupComplete() {
 	if (!userConfig.data.setupComplete) {
@@ -67,5 +68,8 @@ export const home: Home = {
 	setDownloadsPath: async (path: string) => {
 		userConfig.data.downloadsPath = path;
 		await userConfig.save();
+	},
+	createSupportZip: async () => {
+		return await createSupportZip();
 	},
 };
