@@ -37,6 +37,23 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 	return ids;
 };
 
+export const killedAircraftIdsByFlightGroups = (
+	flightGroups: Array<DcsJs.CampaignFlightGroup>,
+	killedAircraftNames: Array<string>
+) => {
+	const ids: Array<string> = [];
+
+	flightGroups.forEach((fg) => {
+		fg.units.forEach((unit) => {
+			if (killedAircraftNames.some((name) => name === unit.name)) {
+				ids.push(unit.id);
+			}
+		});
+	});
+
+	return ids;
+};
+
 export const killedBuildingNames = (faction: DcsJs.CampaignFaction, killedGroundUnitNames: Array<string>) => {
 	const ids: Array<string> = [];
 

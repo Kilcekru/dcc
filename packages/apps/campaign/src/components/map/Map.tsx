@@ -24,6 +24,7 @@ const sidcUnitCode = {
 	fuelStorage: "IRP---",
 	powerPlant: "IUE---",
 	depot: "IMV---",
+	ammoDepot: "IME---",
 	attack: "MFA---",
 	aew: "MFRW--",
 	fighter: "MFF---",
@@ -89,6 +90,8 @@ export const Map = () => {
 		unitCode,
 		specialPrefix,
 		onClick,
+		color,
+		riseOnHover = false,
 	}: {
 		mapPosition: MapPosition;
 		hostile: boolean;
@@ -96,6 +99,8 @@ export const Map = () => {
 		unitCode: SidcUnitCodeKey;
 		specialPrefix?: string;
 		onClick?: () => void;
+		color?: string;
+		riseOnHover?: boolean;
 	}) => {
 		const map = leaftletMap();
 
@@ -107,6 +112,18 @@ export const Map = () => {
 			: `S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`;
 		const symbol = new Symbol(symbolCode, {
 			size: 20,
+			...(color == null
+				? {}
+				: {
+						iconColor: color,
+						colorMode: {
+							Civilian: color,
+							Friend: color,
+							Hostile: color,
+							Neutral: color,
+							Unknown: color,
+						},
+				  }),
 		});
 
 		const icon = L.icon({
@@ -114,7 +131,7 @@ export const Map = () => {
 			iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
 		});
 
-		const marker = L.marker(mapPosition, { icon }).addTo(map);
+		const marker = L.marker(mapPosition, { icon, riseOnHover, zIndexOffset: riseOnHover ? 100 : 0 }).addTo(map);
 
 		if (onClick != null) {
 			marker.addEventListener("click", onClick);
@@ -164,6 +181,8 @@ export const Map = () => {
 				air: false,
 				unitCode: "airport",
 				onClick: () => onClickAirdrome(airdromeName, "blue"),
+				color: "rgb(0, 193, 255)",
+				riseOnHover: true,
 			});
 
 			if (marker == null) {
@@ -188,6 +207,8 @@ export const Map = () => {
 				air: false,
 				unitCode: "airport",
 				onClick: () => onClickAirdrome(airdromeName, "red"),
+				color: "rgb(255, 31, 31)",
+				riseOnHover: true,
 			});
 
 			if (marker == null) {
@@ -305,12 +326,36 @@ export const Map = () => {
 	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
 			if (objectiveMarkers[structure.id] == null) {
+				let unitCode: SidcUnitCodeKey = "militaryBase";
+
+				switch (structure.structureType) {
+					case "Fuel Storage":
+						unitCode = "fuelStorage";
+						break;
+					case "Power Plant":
+						unitCode = "powerPlant";
+						break;
+					case "Depot":
+						unitCode = "depot";
+						break;
+					case "Ammo Depot":
+						unitCode = "ammoDepot";
+						break;
+				}
+
 				const marker = createSymbol({
 					mapPosition: positionToMapPosition(structure.position),
 					hostile: coalition === "red",
 					air: false,
-					unitCode: "militaryBase",
+					unitCode,
 					onClick: () => openStructure?.(structure.name, coalition),
+					color:
+						structure.structureType === "Farp"
+							? coalition === "red"
+								? "rgb(255, 31, 31)"
+								: "rgb(0, 193, 255)"
+							: undefined,
+					riseOnHover: structure.structureType === "Farp",
 				});
 
 				if (marker != null) {
@@ -543,13 +588,13 @@ export const Map = () => {
 
 		const symbol = new Symbol(marker.symbolCode, {
 			size: 25,
-			iconColor: "rgba(255, 205, 0)",
+			iconColor: "rgb(255, 205, 0)",
 			colorMode: {
-				Civilian: "rgba(255, 205, 0)",
-				Friend: "rgba(255, 205, 0)",
-				Hostile: "rgba(255, 205, 0)",
-				Neutral: "rgba(255, 205, 0)",
-				Unknown: "rgba(255, 205, 0)",
+				Civilian: "rgb(255, 205, 0)",
+				Friend: "rgb(255, 205, 0)",
+				Hostile: "rgb(255, 205, 0)",
+				Neutral: "rgb(255, 205, 0)",
+				Unknown: "rgb(255, 205, 0)",
 			},
 		});
 

@@ -467,8 +467,7 @@ export const getDeploymentCost = (
 	const cost =
 		structureType === "Depot" ? Config.deploymentScore.frontline.depot : Config.deploymentScore.frontline.barrack;
 
-	// Penalty for red frontline
-	return coalition === "red" ? cost * 3 : cost;
+	return cost * Config.deploymentScore.coalitionMultiplier[coalition === "blue" ? "blue" : "red"];
 };
 
 export const AiSkillMap: Record<DcsJs.AiSkill, string> = {
@@ -487,4 +486,18 @@ export function timerToDate(value: number) {
 
 export function dateToTimer(value: Date) {
 	return value.valueOf() / 1000;
+}
+
+export function calcTakeoffTime(packages: Array<DcsJs.CampaignPackage> | undefined) {
+	return packages?.reduce((prev, pkg) => {
+		const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
+
+		if (hasClients) {
+			if (prev == null || pkg.startTime < prev) {
+				return pkg.startTime;
+			}
+		}
+
+		return prev;
+	}, undefined as number | undefined);
 }

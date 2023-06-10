@@ -178,6 +178,16 @@
 				"groundUnitTypes": []
 			},
 			{
+				"objectiveName": "Dzhumi",
+				"structures": [
+					{
+						"structureName": "Dzhumi|Structure|1",
+						"structureType": "Farp"
+					}
+				],
+				"groundUnitTypes": []
+			},
+			{
 				"objectiveName": "Okhvamekari",
 				"structures": [
 					{

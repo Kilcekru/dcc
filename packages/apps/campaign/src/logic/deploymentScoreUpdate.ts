@@ -1,18 +1,17 @@
-import { CampaignFaction } from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 
 import { Config } from "../data";
-import { hasAmmoDepotInRange, hasFuelStorageInRange, hasPowerInRange } from "../utils";
+import { getDeploymentCost, hasAmmoDepotInRange, hasFuelStorageInRange, hasPowerInRange } from "../utils";
 import { RunningCampaignState } from "./types";
-import { isCampaignStructureUnitCamp } from "./utils";
+import { getCoalitionFaction, isCampaignStructureUnitCamp } from "./utils";
 
-function updateFactionDeploymentScore(faction: CampaignFaction, state: RunningCampaignState) {
+function updateFactionDeploymentScore(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
+	const faction = getCoalitionFaction(coalition, state);
 	Object.values(faction.structures).forEach((structure) => {
 		if (isCampaignStructureUnitCamp(structure)) {
-			const maxScore =
-				structure.structureType === "Depot"
-					? Config.deploymentScore.frontline.depot
-					: Config.deploymentScore.frontline.barrack;
+			const maxScore = getDeploymentCost(coalition, structure.structureType);
+
 			if (structure.state === "active" && structure.deploymentScore < maxScore) {
 				const totalBuildings = structure.buildings.length;
 				const aliveBuildings = structure.buildings.filter((building) => building.alive).length;
@@ -61,8 +60,8 @@ export function deploymentScoreUpdate(s: CampaignState) {
 
 	const state = s as RunningCampaignState;
 
-	updateFactionDeploymentScore(state.blueFaction, state);
-	updateFactionDeploymentScore(state.redFaction, state);
+	updateFactionDeploymentScore("blue", state);
+	updateFactionDeploymentScore("red", state);
 
 	return s;
 }

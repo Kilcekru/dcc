@@ -82,7 +82,7 @@ export const generateCapPackage = (
 
 					if (nearestObjective == null) {
 						// eslint-disable-next-line no-console
-						console.error("no nearest objective found");
+						console.warn("no nearest objective found");
 						return [undefined, undefined];
 					} else {
 						const airdromes = faction.airdromeNames.map((name) => {
@@ -103,7 +103,9 @@ export const generateCapPackage = (
 			  ];
 
 	if (objectiveName == null || airdrome == null || objectivePosition == null) {
-		throw `airdrome not found: ${objectiveName ?? ""}`;
+		// eslint-disable-next-line no-console
+		console.warn(`airdrome not found: ${objectiveName ?? ""}`);
+		return;
 	}
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, objectivePosition);

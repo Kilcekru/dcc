@@ -4,7 +4,12 @@ import { MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import { killedAircraftIds, killedBuildingNames, killedGroundUnitIds, killedSamNames } from "../../../../logic";
+import {
+	killedAircraftIdsByFlightGroups,
+	killedBuildingNames,
+	killedGroundUnitIds,
+	killedSamNames,
+} from "../../../../logic";
 import Styles from "./Debrief.module.less";
 
 function useFlightGroupMissionState(
@@ -26,7 +31,9 @@ function useFlightGroupMissionState(
 			const targetGg = state.redFaction?.groundGroups.find((gg) => gg.id === flightGroup.target);
 
 			if (targetGg == null) {
-				throw "CAS Ground Group not found";
+				// eslint-disable-next-line no-console
+				console.error("CAS Ground Group not found");
+				return "Success";
 			}
 
 			const killedUnits = targetGg.unitIds.some((targetUnitId) =>
@@ -46,7 +53,9 @@ function useFlightGroupMissionState(
 			const targetFg = targetPkg?.flightGroups.find((fg) => fg.name === flightGroup.target);
 
 			if (targetFg == null) {
-				throw "Escort Target Flight Group not found";
+				// eslint-disable-next-line no-console
+				console.error("Escort Target Flight Group not found");
+				return "Incomplete";
 			}
 
 			const targetKilled = targetFg.units.some((unit) => killedBlueAircrafts.some((id) => unit.id === id));
@@ -61,7 +70,9 @@ function useFlightGroupMissionState(
 			const targetStructure = state.redFaction?.structures[flightGroup.target ?? ""];
 
 			if (targetStructure == undefined) {
-				throw "Strike Target Structure not found";
+				// eslint-disable-next-line no-console
+				console.error("Strike Target Structure not found");
+				return "Success";
 			}
 
 			const buildingAlive = targetStructure.buildings.some(
@@ -78,7 +89,9 @@ function useFlightGroupMissionState(
 			const targetSam = state.redFaction?.sams.find((sam) => sam.id === flightGroup.target);
 
 			if (targetSam == null) {
-				throw "DEAD Target not found";
+				// eslint-disable-next-line no-console
+				console.error("DEAD Target not found");
+				return "Success";
 			}
 
 			if (targetSam.operational) {
@@ -132,7 +145,10 @@ function FlightGroup(props: {
 
 export function Debrief(props: {
 	missionState: MissionState | undefined;
-	clientFlightGroups: Array<DcsJs.CampaignFlightGroup>;
+	flightGroups: {
+		blue: Array<DcsJs.CampaignFlightGroup>;
+		red: Array<DcsJs.CampaignFlightGroup>;
+	};
 	onClose: () => void;
 }) {
 	const [state] = useContext(CampaignContext);
@@ -146,8 +162,14 @@ export function Debrief(props: {
 			throw "red faction not found";
 		}
 
-		const blueAircrafts = killedAircraftIds(state.blueFaction, props.missionState?.killed_aircrafts ?? []);
-		const redAircrafts = killedAircraftIds(state.redFaction, props.missionState?.killed_aircrafts ?? []);
+		const blueAircrafts = killedAircraftIdsByFlightGroups(
+			props.flightGroups.blue,
+			props.missionState?.killed_aircrafts ?? []
+		);
+		const redAircrafts = killedAircraftIdsByFlightGroups(
+			props.flightGroups.red,
+			props.missionState?.killed_aircrafts ?? []
+		);
 
 		const blueGroundUnits = killedGroundUnitIds(state.blueFaction, props.missionState?.killed_ground_units ?? []);
 		const redGroundUnits = killedGroundUnitIds(state.redFaction, props.missionState?.killed_ground_units ?? []);
@@ -178,13 +200,17 @@ export function Debrief(props: {
 		};
 	});
 
+	const clientFlightGroups = createMemo(() => {
+		return props.flightGroups.blue.filter((fg) => fg.units.some((u) => u.client));
+	});
+
 	return (
 		<div class={Styles.wrapper}>
 			<div class={Styles.content}>
 				<h1 class={Styles.title}>Debrief</h1>
 				<Components.ScrollContainer>
-					<h2 class={Styles.subtitle}>{props.clientFlightGroups.length > 1 ? "Flight Groups" : "Flight Group"}</h2>
-					<For each={props.clientFlightGroups}>
+					<h2 class={Styles.subtitle}>{props.flightGroups.blue.length > 1 ? "Flight Groups" : "Flight Group"}</h2>
+					<For each={clientFlightGroups()}>
 						{(fg) => (
 							<FlightGroup
 								flightGroup={fg}
@@ -193,30 +219,36 @@ export function Debrief(props: {
 							/>
 						)}
 					</For>
-					<h2 class={Styles.subtitle}>Result</h2>
-					<div class={Styles["stats-row"]}>
-						<p class={Styles.country}>{state.blueFaction?.countryName}</p>
-						<p class={Styles.country}>{state.redFaction?.countryName}</p>
-					</div>
-					<h3 class={Styles["stats-title"]}>Destroyed Aircrafts</h3>
-					<div class={Styles["stats-row"]}>
-						<p class={Styles.stat}>{stats().aircrafts.blue.length}</p>
-						<p class={Styles.stat}>{stats().aircrafts.red.length}</p>
-					</div>
-					<h3 class={Styles["stats-title"]}>Destroyed Ground Units</h3>
-					<div class={Styles["stats-row"]}>
-						<p class={Styles.stat}>{stats().groundUnits.blue.length}</p>
-						<p class={Styles.stat}>{stats().groundUnits.red.length}</p>
-					</div>
-					<h3 class={Styles["stats-title"]}>Destroyed Buildings</h3>
-					<div class={Styles["stats-row"]}>
-						<p class={Styles.stat}>{stats().buildings.blue.length}</p>
-						<p class={Styles.stat}>{stats().buildings.red.length}</p>
-					</div>
-					<h3 class={Styles["stats-title"]}>Destroyed SAMs</h3>
-					<div class={Styles["stats-row"]}>
-						<p class={Styles.stat}>{stats().sams.blue.length}</p>
-						<p class={Styles.stat}>{stats().sams.red.length}</p>
+					<div class={Styles.stats}>
+						<div class={Styles["stats-row"]}>
+							<p class={Styles.country}>{state.blueFaction?.countryName}</p>
+							<div />
+							<p class={Styles.country}>{state.redFaction?.countryName}</p>
+						</div>
+
+						<div class={Styles["stats-row"]}>
+							<p class={Styles.stat}>{stats().aircrafts.blue.length}</p>
+							<h3 class={Styles["stats-title"]}>Lost Aircrafts</h3>
+							<p class={Styles.stat}>{stats().aircrafts.red.length}</p>
+						</div>
+
+						<div class={Styles["stats-row"]}>
+							<p class={Styles.stat}>{stats().groundUnits.blue.length}</p>
+							<h3 class={Styles["stats-title"]}>Lost Ground Units</h3>
+							<p class={Styles.stat}>{stats().groundUnits.red.length}</p>
+						</div>
+
+						<div class={Styles["stats-row"]}>
+							<p class={Styles.stat}>{stats().buildings.blue.length}</p>
+							<h3 class={Styles["stats-title"]}>Lost Buildings</h3>
+							<p class={Styles.stat}>{stats().buildings.red.length}</p>
+						</div>
+
+						<div class={Styles["stats-row"]}>
+							<p class={Styles.stat}>{stats().sams.blue.length}</p>
+							<h3 class={Styles["stats-title"]}>Lost SAMs</h3>
+							<p class={Styles.stat}>{stats().sams.red.length}</p>
+						</div>
 					</div>
 				</Components.ScrollContainer>
 				<div class={Styles.buttons}>

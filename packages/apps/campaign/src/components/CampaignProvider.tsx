@@ -229,14 +229,24 @@ export function CampaignProvider(props: {
 						if (s.blueFaction) {
 							clearPackages(s.blueFaction);
 
-							s.blueFaction.groundGroups = s.blueFaction.groundGroups.filter((gg) => gg.state !== "on objective");
+							s.blueFaction.groundGroups = s.blueFaction.groundGroups.filter((gg) => gg.state === "on objective");
 						}
 
 						if (s.redFaction) {
 							clearPackages(s.redFaction);
 
-							s.redFaction.groundGroups = s.redFaction.groundGroups.filter((gg) => gg.state !== "on objective");
+							s.redFaction.groundGroups = s.redFaction.groundGroups.filter((gg) => gg.state === "on objective");
 						}
+
+						Object.values(s.objectives).forEach((obj) => {
+							const storeObjective = s.objectives[obj.name];
+
+							if (storeObjective == null) {
+								return;
+							}
+
+							storeObjective.incomingGroundGroups = {};
+						});
 					})
 				);
 			},

@@ -12,21 +12,24 @@ function getFrontlineFarp(
 	objectivePlans: Array<ObjectivePlan>,
 	frontlineObjective: DcsJs.CampaignObjective
 ) {
-	const farps = objectivePlans.reduce((prev, plan) => {
-		const isFarp = plan.structures.some((str) => str.structureType === "Farp");
+	const farps: Array<{ name: string; position: Position }> = [];
 
-		if (isFarp) {
+	objectivePlans.forEach((plan) => {
+		const farp = plan.structures.find((str) => str.structureType === "Farp");
+
+		if (farp) {
 			const objective = objectives.find((obj) => obj.name === plan.objectiveName);
 
 			if (objective == null) {
-				return prev;
+				// eslint-disable-next-line no-console
+				console.error(`getFrontlineFarp: objective ${plan.objectiveName} not found`);
+
+				return;
 			}
 
-			return [...prev, objective];
+			farps.push({ name: farp.structureName, position: objective.position });
 		}
-
-		return prev;
-	}, [] as Array<{ name: string; position: Position }>);
+	});
 
 	return findNearest(farps, frontlineObjective.position, (farp) => farp.position);
 }

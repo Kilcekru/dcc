@@ -233,12 +233,14 @@ const moveFactionGroundGroups = (
 	});
 };
 
-const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState, dataStore: DataStore) => {
+const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
 	const faction = getCoalitionFaction(coalition, state);
 
-	const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
+	const oppObjectives = Object.values(state.objectives).filter(
+		(obj) => obj.coalition === oppCoalition || obj.coalition === "neutral"
+	);
 
 	Object.keys(faction.structures).forEach((id) => {
 		const structure = faction.structures[id];
@@ -292,7 +294,6 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 			const deploymentCost = getDeploymentCost(coalition, structure.structureType);
 
 			if (structure.deploymentScore >= deploymentCost && structure.state === "active") {
-				const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
 				const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
 				const objectivesInRange = findInside(
 					freeOppObjectives,
@@ -301,12 +302,15 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 					Config.structureRange.frontline.barrack
 				);
 
-				const vehicleObjectives = objectivesInRange.filter((obj) =>
-					dataStore.strikeTargets?.[obj.name]?.some((target) => target.type === "Vehicle")
-				);
+				const validObjectives = objectivesInRange.filter((obj) => {
+					return (
+						Object.values(oppFaction.structures).some((structure) => structure.objectiveName === obj.name) ||
+						oppFaction.groundGroups.some((gg) => gg.objective.name === obj.name)
+					);
+				});
 
-				if (vehicleObjectives.length > 0) {
-					const targetObjective = findNearest(vehicleObjectives, structure.position, (obj) => obj.position);
+				if (validObjectives.length > 0) {
+					const targetObjective = findNearest(validObjectives, structure.position, (obj) => obj.position);
 
 					if (targetObjective == null) {
 						return;
@@ -371,8 +375,8 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: DataStor
 	// Only create packages during the day
 	if (dayHour >= Config.night.endHour && dayHour < Config.night.startHour) {
 		moveFrontline(state, dataStore);
-		attackFrontline("blue", state, dataStore);
-		attackFrontline("red", state, dataStore);
+		attackFrontline("blue", state);
+		attackFrontline("red", state);
 		updateCombat(state, dataStore);
 	}
 };

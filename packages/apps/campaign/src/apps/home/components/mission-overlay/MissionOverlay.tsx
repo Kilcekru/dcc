@@ -3,13 +3,13 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { cnb } from "cnbuilder";
-import { createEffect, createMemo, createSignal, Show, useContext } from "solid-js";
+import { createEffect, createSignal, Show, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CampaignContext, Clock } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { useSave } from "../../../../hooks";
-import { getClientFlightGroups } from "../../../../utils";
+import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
 import { ClientList } from "./ClientList";
 import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
@@ -22,23 +22,12 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
 	const [isPersistenceOpen, setIsPersistenceOpen] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<MissionState | undefined>(undefined);
-	const [clientFlightGroups, setClientFlightGroups] = createSignal<Array<DcsJs.CampaignFlightGroup>>([]);
+	const [flightGroups, setFlightGroups] = createSignal<{
+		blue: Array<DcsJs.CampaignFlightGroup>;
+		red: Array<DcsJs.CampaignFlightGroup>;
+	}>({ blue: [], red: [] });
 
 	const onSave = useSave();
-
-	const missionTime = createMemo(() => {
-		return state.blueFaction?.packages.reduce((prev, pkg) => {
-			const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
-
-			if (hasClients) {
-				if (pkg.startTime < prev) {
-					return pkg.startTime;
-				}
-			}
-
-			return prev;
-		}, 99999999999);
-	});
 
 	const onGenerateMission = async () => {
 		pause?.();
@@ -70,9 +59,9 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	};
 
 	createEffect(() => {
-		const missTime = missionTime();
-		if (missTime != null) {
-			if (state.timer >= missTime) {
+		const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
+		if (takeoffTime != null && props.show) {
+			if (state.timer >= takeoffTime) {
 				void onGenerateMission();
 			} else {
 				setForwarding(true);
@@ -101,7 +90,14 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				return;
 			}
 
-			setClientFlightGroups(JSON.parse(JSON.stringify(getClientFlightGroups(state.blueFaction?.packages))));
+			setFlightGroups({
+				blue: structuredClone(
+					unwrap(getFlightGroups(state.blueFaction?.packages))
+				) as unknown as Array<DcsJs.CampaignFlightGroup>,
+				red: structuredClone(
+					unwrap(getFlightGroups(state.redFaction?.packages))
+				) as unknown as Array<DcsJs.CampaignFlightGroup>,
+			});
 
 			submitMissionState?.(loadedMissionState, dataStore);
 			// onSave();
@@ -164,11 +160,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					</div>
 				</Show>
 				<Show when={missionState() != undefined}>
-					<Debrief
-						missionState={missionState()}
-						clientFlightGroups={clientFlightGroups()}
-						onClose={() => props.onClose()}
-					/>
+					<Debrief missionState={missionState()} flightGroups={flightGroups()} onClose={() => props.onClose()} />
 				</Show>
 			</div>
 

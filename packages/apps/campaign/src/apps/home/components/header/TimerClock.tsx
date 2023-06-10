@@ -4,7 +4,7 @@ import { createEffect, useContext } from "solid-js";
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { Clock } from "../../../../components/Clock";
 import { useSave } from "../../../../hooks";
-import { getClientFlightGroups } from "../../../../utils";
+import { calcTakeoffTime } from "../../../../utils";
 import Styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
@@ -18,10 +18,14 @@ export const TimerClock = () => {
 		}
 	};
 
-	const hasClientFlightGroup = () => {
-		const clientFlightGroups = getClientFlightGroups(state.blueFaction?.packages);
+	const takeoffTimeReached = () => {
+		const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
 
-		return clientFlightGroups.length > 0;
+		if (takeoffTime == null) {
+			return false;
+		}
+
+		return takeoffTime <= state.timer;
 	};
 
 	createEffect(() => {
@@ -43,31 +47,33 @@ export const TimerClock = () => {
 				<Clock value={state.timer} withDay />
 			</div>
 
-			<div class={Styles.buttons}>
-				<Components.Button onPress={onPause} unstyled class={Styles.icon}>
-					{state.paused ? <Components.Icons.PauseFill /> : <Components.Icons.Pause />}
-				</Components.Button>
-				<Components.Button
-					onPress={() => onPressMultiplier?.(1)}
-					unstyled
-					class={Styles.icon}
-					disabled={hasClientFlightGroup()}
-				>
-					{!state.paused && state.multiplier === 1 ? <Components.Icons.PlayFill /> : <Components.Icons.Play />}
-				</Components.Button>
-				<Components.Button
-					onPress={() => onPressMultiplier?.(300)}
-					unstyled
-					class={Styles.icon}
-					disabled={hasClientFlightGroup()}
-				>
-					{!state.paused && state.multiplier > 1 ? (
-						<Components.Icons.FastForwardFill />
-					) : (
-						<Components.Icons.FastForward />
-					)}
-				</Components.Button>
-			</div>
+			<Components.Tooltip text="Takeoff Time reached" disabled={!takeoffTimeReached()}>
+				<div class={Styles.buttons}>
+					<Components.Button onPress={onPause} unstyled class={Styles.icon}>
+						{state.paused ? <Components.Icons.PauseFill /> : <Components.Icons.Pause />}
+					</Components.Button>
+					<Components.Button
+						onPress={() => onPressMultiplier?.(1)}
+						unstyled
+						class={Styles.icon}
+						disabled={takeoffTimeReached()}
+					>
+						{!state.paused && state.multiplier === 1 ? <Components.Icons.PlayFill /> : <Components.Icons.Play />}
+					</Components.Button>
+					<Components.Button
+						onPress={() => onPressMultiplier?.(300)}
+						unstyled
+						class={Styles.icon}
+						disabled={takeoffTimeReached()}
+					>
+						{!state.paused && state.multiplier > 1 ? (
+							<Components.Icons.FastForwardFill />
+						) : (
+							<Components.Icons.FastForward />
+						)}
+					</Components.Button>
+				</div>
+			</Components.Tooltip>
 		</div>
 	);
 };

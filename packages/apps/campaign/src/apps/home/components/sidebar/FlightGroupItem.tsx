@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
-import { createMemo, For, useContext } from "solid-js";
+import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext, Clock, FlightGroupButtons } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
@@ -50,6 +50,11 @@ export const FlightGroupItem = (props: {
 		<Components.ListItem class={Styles.item}>
 			<Components.Card class={Styles.card} onPress={onPress} selected={props.flightGroup.startTime < state.timer}>
 				<div class={Styles.name}>{props.flightGroup.name}</div>
+				<Show when={props.flightGroup.startTime < state.timer}>
+					<div class={Styles["in-air-wrapper"]}>
+						<p class={Styles["in-air"]}>In Air</p>
+					</div>
+				</Show>
 				<FlightGroupButtons coalition="blue" flightGroup={props.flightGroup} />
 				<Components.TaskLabel task={props.flightGroup.task} class={Styles.task} />
 				<div class={Styles.stats}>

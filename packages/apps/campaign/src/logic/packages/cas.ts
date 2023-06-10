@@ -53,12 +53,11 @@ export const generateCasPackage = (
 	let startPosition =
 		firstAircraft.homeBase.type === "airdrome"
 			? dataStore.airdromes[firstAircraft.homeBase.name as DcsJs.AirdromeName]
-			: firstItem(Object.values(faction.structures).filter((structure) => structure.structureType === "Farp"))
-					?.position;
+			: faction.structures[firstAircraft.homeBase.name]?.position;
 
 	if (startPosition == null) {
 		// eslint-disable-next-line no-console
-		console.warn("generateCasPackage: no startPosition found");
+		console.warn("generateCasPackage: no startPosition found", firstAircraft.homeBase.name);
 		return;
 	}
 
