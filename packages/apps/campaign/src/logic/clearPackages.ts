@@ -8,17 +8,53 @@ export function clearPackages(faction: DcsJs.CampaignFaction) {
 			case "idle":
 				return;
 			default: {
-				const inventoryAc = faction.inventory.aircrafts[ac.id];
-
-				if (inventoryAc == null) {
-					return;
-				}
-
-				inventoryAc.state = "idle";
-				inventoryAc.maintenanceEndTime = undefined;
-				inventoryAc.a2AWeaponReadyTimer = undefined;
-				inventoryAc.a2GWeaponReadyTimer = undefined;
+				resetAircraft(faction, ac.id);
 			}
 		}
 	});
+}
+
+/**
+ * Removes the package from the faction and resets all affected aircraft states
+ *
+ * @param faction
+ * @param pkg
+ */
+export function clearPackage(faction: DcsJs.CampaignFaction, pkg: DcsJs.CampaignPackage) {
+	// Remove the package from the faction
+	faction.packages = faction.packages.filter((p) => p.id !== pkg.id);
+
+	// Get all aircraft units within the package
+	const aircraftUnits: Array<DcsJs.CampaignFlightGroupUnit> = [];
+
+	pkg.flightGroups.forEach((fg) => {
+		fg.units.forEach((u) => {
+			aircraftUnits.push(u);
+		});
+	});
+
+	// Reset all aircraft in the package
+	aircraftUnits.forEach((unit) => {
+		resetAircraft(faction, unit.id);
+	});
+}
+
+/**
+ * Reset the aircraft state in the faction inventory
+ *
+ * @param faction
+ * @param aircraftId
+ * @returns
+ */
+export function resetAircraft(faction: DcsJs.CampaignFaction, aircraftId: string) {
+	const inventoryAc = faction.inventory.aircrafts[aircraftId];
+
+	if (inventoryAc == null) {
+		return;
+	}
+
+	inventoryAc.state = "idle";
+	inventoryAc.maintenanceEndTime = undefined;
+	inventoryAc.a2AWeaponReadyTimer = undefined;
+	inventoryAc.a2GWeaponReadyTimer = undefined;
 }

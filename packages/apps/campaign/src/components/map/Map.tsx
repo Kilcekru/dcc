@@ -38,13 +38,13 @@ type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	let selectedMarkerId: string;
-	const airdromeMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
-	const objectiveMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
-	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
-	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
-	const ewMarkers: Record<string, { marker: L.Marker; symbolCode: string }> = {};
+	const airdromeMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const objectiveMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const ewMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
-	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string }> = {};
+	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
@@ -136,7 +136,7 @@ export const Map = () => {
 		if (onClick != null) {
 			marker.addEventListener("click", onClick);
 		}
-		return { marker, symbolCode };
+		return { marker, symbolCode, color };
 	};
 
 	const removeSymbol = (marker: L.Marker | L.Circle | L.Polyline | undefined) => {
@@ -490,6 +490,18 @@ export const Map = () => {
 		if (oldMarker != null) {
 			const symbol = new Symbol(oldMarker.symbolCode, {
 				size: 20,
+				...(oldMarker.color == null
+					? {}
+					: {
+							iconColor: oldMarker.color,
+							colorMode: {
+								Civilian: oldMarker.color,
+								Friend: oldMarker.color,
+								Hostile: oldMarker.color,
+								Neutral: oldMarker.color,
+								Unknown: oldMarker.color,
+							},
+					  }),
 			});
 
 			oldMarker.marker.setIcon(

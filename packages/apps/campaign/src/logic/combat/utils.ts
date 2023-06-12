@@ -10,3 +10,19 @@ export const destroyAircraft = (faction: DcsJs.CampaignFaction, id: string, time
 	aircraft.alive = false;
 	aircraft.destroyedTime = timer;
 };
+
+export function getPackagesWithTarget(faction: DcsJs.CampaignFaction, target: string) {
+	const pkgsWithTarget: Array<DcsJs.CampaignPackage> = [];
+
+	faction.packages.forEach((pkg) => {
+		const hasTargetFg = pkg.flightGroups.some((fg) => {
+			fg.target === target;
+		});
+
+		if (hasTargetFg) {
+			pkgsWithTarget.push(pkg);
+		}
+	});
+
+	return pkgsWithTarget;
+}

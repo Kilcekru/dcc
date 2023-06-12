@@ -117,8 +117,9 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 		}
 	};
 
-	const onCancel = () => {
+	const onClose = () => {
 		props.onClose();
+		setMissionState(undefined);
 	};
 
 	return (
@@ -151,7 +152,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					</div>
 
 					<div class={cnb(Styles["buttons"], forwarding() === false ? Styles["buttons--show"] : null)}>
-						<Components.Button onPress={onCancel} class={Styles.button} large>
+						<Components.Button onPress={onClose} class={Styles.button} large>
 							Cancel
 						</Components.Button>
 						<Components.Button onPress={onSubmit} class={Styles.button} large>
@@ -160,7 +161,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					</div>
 				</Show>
 				<Show when={missionState() != undefined}>
-					<Debrief missionState={missionState()} flightGroups={flightGroups()} onClose={() => props.onClose()} />
+					<Debrief missionState={missionState()} flightGroups={flightGroups()} onClose={onClose} />
 				</Show>
 			</div>
 
