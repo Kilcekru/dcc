@@ -3,7 +3,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction } from "./utils";
 
-function updateUnitCampState(
+function updateStructureState(
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	camp: DcsJs.CampaignStructure | undefined
@@ -41,9 +41,10 @@ function cleanupFactionStructures(coalition: DcsJs.CampaignCoalition, state: Run
 	Object.keys(faction.structures).forEach((key) => {
 		const structure = faction.structures[key];
 
-		updateUnitCampState(coalition, state, structure);
+		updateStructureState(coalition, state, structure);
 	});
 }
+
 export function cleanupStructures(state: RunningCampaignState) {
 	cleanupFactionStructures("blue", state);
 	cleanupFactionStructures("red", state);

@@ -23,7 +23,7 @@ export const Config = {
 		repair: 100_000,
 		coalitionMultiplier: {
 			blue: 1,
-			red: 5,
+			red: 4,
 		},
 	},
 	flight: {

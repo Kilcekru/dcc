@@ -18,7 +18,7 @@ import {
 } from "../utils";
 import { conquerObjective, g2g, g2gBattle } from "./combat";
 import { RunningCampaignState } from "./types";
-import { getCoalitionFaction, unitIdsToGroundUnit } from "./utils";
+import { getCoalitionFaction, transferObjectiveStructures, unitIdsToGroundUnit } from "./utils";
 
 export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 	const blueFaction = state.blueFaction;
@@ -214,6 +214,8 @@ const moveFactionGroundGroups = (
 					objective.incomingGroundGroups[coalition] = undefined;
 
 					gg.state = "on objective";
+
+					transferObjectiveStructures(objective, coalition, state, dataStore);
 				} else if (objective.coalition === coalition) {
 					gg.state = "on objective";
 					gg.position = objective.position;

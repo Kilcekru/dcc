@@ -1,12 +1,9 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
-import { createUniqueId } from "solid-js";
 
-import { findNearest, Minutes, oppositeCoalition, random } from "../../utils";
-import { clearPackage } from "../clearPackages";
+import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
-import { getCoalitionFaction } from "../utils";
-import { getPackagesWithTarget } from "./utils";
+import { getCoalitionFaction, transferObjectiveStructures } from "../utils";
 
 const hasStillAliveUnits = (groundGroup: DcsJs.CampaignGroundGroup, faction: DcsJs.CampaignFaction) => {
 	return groundGroup.unitIds.some((unitId) => {
@@ -16,68 +13,12 @@ const hasStillAliveUnits = (groundGroup: DcsJs.CampaignGroundGroup, faction: Dcs
 	});
 };
 
-function moveFarpAircraftsToNearestFarp(
-	aircrafts: Array<DcsJs.CampaignAircraft>,
-	faction: DcsJs.CampaignFaction,
-	sourceStructure: DcsJs.CampaignStructure,
-	dataStore: DataStore
-) {
-	// Has the opposite faction aircrafts on the farp
-	if (aircrafts.length > 0) {
-		const alternativeFarps = Object.values(faction.structures).filter(
-			(str) => str.structureType === "Farp" && str.id !== sourceStructure.id
-		);
-
-		if (alternativeFarps.length > 0) {
-			const nearestFarp = findNearest(alternativeFarps, sourceStructure.position, (farp) => farp.position);
-
-			if (nearestFarp != null) {
-				aircrafts.forEach((ac) => {
-					const inventoryAc = faction.inventory.aircrafts[ac.id];
-
-					if (inventoryAc == null) {
-						return;
-					}
-
-					inventoryAc.homeBase.type = "farp";
-					inventoryAc.homeBase.name = nearestFarp.name;
-				});
-			}
-		}
-
-		const dataAirdromes = dataStore.airdromes;
-
-		if (dataAirdromes == null) {
-			return;
-		}
-
-		const airdromes = faction.airdromeNames.map((name) => dataAirdromes[name]);
-
-		const nearestAirdromes = findNearest(airdromes, sourceStructure.position, (ad) => ad);
-
-		if (nearestAirdromes != null) {
-			aircrafts.forEach((ac) => {
-				const inventoryAc = faction.inventory.aircrafts[ac.id];
-
-				if (inventoryAc == null) {
-					return;
-				}
-
-				inventoryAc.homeBase.type = "farp";
-				inventoryAc.homeBase.name = nearestAirdromes.name;
-			});
-		}
-	}
-}
 export const conquerObjective = (
 	attackingGroundGroup: DcsJs.CampaignGroundGroup,
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: DataStore
 ) => {
-	const faction = getCoalitionFaction(coalition, state);
-	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
-
 	const objective = state.objectives[attackingGroundGroup.objective.name];
 
 	if (objective == null) {
@@ -92,73 +33,7 @@ export const conquerObjective = (
 	objective.incomingGroundGroups["blue"] = undefined;
 	objective.incomingGroundGroups["red"] = undefined;
 
-	const oppObjectiveStructures = Object.values(oppFaction.structures).filter(
-		(str) => str.objectiveName === objective.name
-	);
-
-	// Remove all packages which targets this objective
-	oppObjectiveStructures.forEach((structure) => {
-		const packages = getPackagesWithTarget(faction, structure.name);
-
-		packages.forEach((pkg) => {
-			clearPackage(faction, pkg);
-		});
-	});
-
-	oppObjectiveStructures.forEach((structure) => {
-		switch (structure.structureType) {
-			case "Barrack":
-			case "Depot": {
-				faction.structures[structure.name] = {
-					...structure,
-					id: createUniqueId(),
-					deploymentScore: 0,
-					buildings: structure.buildings.map((building) => ({
-						...building,
-						alive: true,
-						destroyedTime: undefined,
-					})),
-				};
-				break;
-			}
-			case "Farp": {
-				faction.structures[structure.name] = {
-					...structure,
-					id: createUniqueId(),
-				};
-
-				const farpAircrafts = Object.values(faction.inventory.aircrafts).filter((ac) => ac.homeBase.type === "farp");
-
-				farpAircrafts.forEach((ac) => {
-					const inventoryAc = faction.inventory.aircrafts[ac.id];
-
-					if (inventoryAc == null) {
-						return;
-					}
-
-					inventoryAc.homeBase.type = "farp";
-					inventoryAc.homeBase.name = structure.name;
-				});
-
-				const oppFarpAircrafts = Object.values(oppFaction.inventory.aircrafts).filter(
-					(ac) => ac.homeBase.name === structure.name
-				);
-
-				moveFarpAircraftsToNearestFarp(oppFarpAircrafts, oppFaction, structure, dataStore);
-				break;
-			}
-			default: {
-				faction.structures[structure.name] = {
-					...structure,
-					id: createUniqueId(),
-				};
-			}
-		}
-	});
-
-	oppObjectiveStructures.forEach((structure) => {
-		delete oppFaction.structures[structure.name];
-	});
+	transferObjectiveStructures(objective, coalition, state, dataStore);
 };
 
 export const g2gBattle = (
