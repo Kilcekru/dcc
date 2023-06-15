@@ -32,6 +32,7 @@ export async function buildChief({ env, watch }) {
 				".lua": "text",
 			},
 			external: ["electron"],
+			legalComments: "external",
 			watch: watch && {
 				onRebuild: (err) => {
 					if (err) {

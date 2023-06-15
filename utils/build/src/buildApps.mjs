@@ -30,6 +30,7 @@ export async function buildApps({ env, watch }) {
 				},
 				assetNames: "[name]",
 				plugins: [solidPlugin(), cssExtraPlugin()],
+				legalComments: "external",
 				watch: watch && {
 					onRebuild: (err) => {
 						if (err) {
