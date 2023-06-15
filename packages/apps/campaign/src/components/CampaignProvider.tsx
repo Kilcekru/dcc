@@ -13,7 +13,7 @@ import {
 	repairScoreUpdate,
 	updateFactionState,
 } from "../logic";
-import { dateToTimer, getClientMissionStartTime, getFlightGroups, timerToDate } from "../utils";
+import { dateToTimer, getClientMissionStartTime, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 
 type CampaignStore = [
 	CampaignState,
@@ -171,7 +171,7 @@ export function CampaignProvider(props: {
 			submitMissionState(state, dataStore) {
 				setState(
 					produce((s) => {
-						s.timer = state.time;
+						s.timer = getMissionStateTimer(state, s.timer);
 
 						if (s.hardcore) {
 							const fgs = getFlightGroups(s.blueFaction?.packages);

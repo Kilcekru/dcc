@@ -9,7 +9,7 @@ import { unwrap } from "solid-js/store";
 import { CampaignContext, Clock } from "../../../../components";
 import { DataContext } from "../../../../components/DataProvider";
 import { useSave } from "../../../../hooks";
-import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
+import { calcTakeoffTime, getFlightGroups, getMissionStateTimer } from "../../../../utils";
 import { ClientList } from "./ClientList";
 import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
@@ -82,7 +82,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				return;
 			}
 
-			if (loadedMissionState.time < state.timer) {
+			if (getMissionStateTimer(loadedMissionState, state.timer) < state.timer) {
 				createToast({
 					description: "Mission Result is in the past",
 					title: "Mission not saved",

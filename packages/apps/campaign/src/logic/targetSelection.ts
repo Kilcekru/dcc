@@ -146,7 +146,7 @@ export const getStrikeTarget = (
 	return selectedStructure?.structure;
 };
 
-export const awacsTarget = (
+export const getAwacsTarget = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: DataStore
@@ -184,4 +184,32 @@ export const awacsTarget = (
 	const racetrackEnd = positionFromHeading(centerPosition, addHeading(heading, 90), 40_000);
 
 	return [racetrackStart, racetrackEnd];
+};
+
+export const getFrontlineTarget = (
+	coalition: DcsJs.CampaignCoalition,
+	sourcePosition: Position,
+	range: number,
+	state: RunningCampaignState
+) => {
+	const oppCoalition = oppositeCoalition(coalition);
+
+	const oppObjectives = Object.values(state.objectives).filter(
+		(obj) => obj.coalition === oppCoalition || obj.coalition === "neutral"
+	);
+
+	const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
+	const objectivesInRange = findInside(freeOppObjectives, sourcePosition, (obj) => obj.position, range);
+
+	if (objectivesInRange.length > 0) {
+		const targetObjective = findNearest(objectivesInRange, sourcePosition, (obj) => obj.position);
+
+		if (targetObjective == null) {
+			return null;
+		}
+
+		return targetObjective;
+	}
+
+	return null;
 };

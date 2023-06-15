@@ -290,12 +290,12 @@
 						"structureType": "Depot"
 					}
 				],
-				"groundUnitTypes": ["ewr"]
+				"groundUnitTypes": []
 			},
 			{
 				"objectiveName": "Bedia",
 				"structures": [],
-				"groundUnitTypes": ["ewr"]
+				"groundUnitTypes": []
 			},
 			{
 				"objectiveName": "Martvili",

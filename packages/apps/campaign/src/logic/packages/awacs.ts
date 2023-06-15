@@ -11,7 +11,7 @@ import {
 	Minutes,
 	objectToPosition,
 } from "../../utils";
-import { awacsTarget } from "../targetSelection";
+import { getAwacsTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
 import { updateAircraftForFlightGroup } from "./utils";
@@ -44,7 +44,7 @@ export const generateAwacsPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
-	const raceTracks = awacsTarget(coalition, state, dataStore);
+	const raceTracks = getAwacsTarget(coalition, state, dataStore);
 
 	if (raceTracks == null) {
 		return;

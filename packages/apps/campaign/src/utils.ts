@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
 import { Config, Scenario } from "./data";
@@ -500,4 +500,13 @@ export function calcTakeoffTime(packages: Array<DcsJs.CampaignPackage> | undefin
 
 		return prev;
 	}, undefined as number | undefined);
+}
+
+export function getMissionStateTimer(missionState: MissionState, timer: number) {
+	const timerDate = timerToDate(timer);
+
+	const additionalDays = timerDate.getDate() - 1;
+	const additionalTimer = additionalDays * 86400;
+
+	return missionState.time + additionalTimer;
 }

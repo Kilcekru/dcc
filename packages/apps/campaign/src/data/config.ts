@@ -16,8 +16,8 @@ export const Config = {
 			fuel: 0.2,
 		},
 		frontline: {
-			barrack: 35_000,
-			depot: 50_000,
+			barrack: 40_000,
+			depot: 57_000,
 			initialFactor: 0.75,
 		},
 		repair: 100_000,

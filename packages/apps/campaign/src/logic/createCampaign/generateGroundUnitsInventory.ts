@@ -60,7 +60,7 @@ export const generateGroundUnitsInventory = (
 	const groundUnits: Record<string, DcsJs.CampaignUnit> = {};
 
 	if (vehicles.length > 0) {
-		const unitCount = 80 / vehicles.length;
+		const unitCount = 140 / vehicles.length;
 
 		vehicles.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {
@@ -76,7 +76,7 @@ export const generateGroundUnitsInventory = (
 	}
 
 	if (infantries.length > 0) {
-		const unitCount = 120 / infantries.length;
+		const unitCount = 200 / infantries.length;
 
 		infantries.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {
@@ -92,7 +92,7 @@ export const generateGroundUnitsInventory = (
 	}
 
 	if (shoradVehicles.length > 0) {
-		const unitCount = 30 / shoradVehicles.length;
+		const unitCount = 60 / shoradVehicles.length;
 
 		shoradVehicles.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {
@@ -108,7 +108,7 @@ export const generateGroundUnitsInventory = (
 	}
 
 	if (shoradInfantries.length > 0) {
-		const unitCount = 30 / shoradVehicles.length;
+		const unitCount = 50 / shoradVehicles.length;
 
 		shoradInfantries.forEach((unit) => {
 			Array.from({ length: unitCount }, () => {

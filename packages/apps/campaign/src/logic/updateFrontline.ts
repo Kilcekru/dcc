@@ -5,18 +5,16 @@ import { createUniqueId } from "solid-js";
 import { Config } from "../data";
 import {
 	distanceToPosition,
-	findInside,
-	findNearest,
 	getDeploymentCost,
 	getUsableGroundUnits,
 	Minutes,
-	oppositeCoalition,
 	positionAfterDurationToPosition,
 	random,
 	randomList,
 	timerToDate,
 } from "../utils";
 import { conquerObjective, g2g, g2gBattle } from "./combat";
+import { getFrontlineTarget } from "./targetSelection";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction, transferObjectiveStructures, unitIdsToGroundUnit } from "./utils";
 
@@ -236,13 +234,7 @@ const moveFactionGroundGroups = (
 };
 
 const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
-	const oppCoalition = oppositeCoalition(coalition);
-	const oppFaction = getCoalitionFaction(oppCoalition, state);
 	const faction = getCoalitionFaction(coalition, state);
-
-	const oppObjectives = Object.values(state.objectives).filter(
-		(obj) => obj.coalition === oppCoalition || obj.coalition === "neutral"
-	);
 
 	Object.keys(faction.structures).forEach((id) => {
 		const structure = faction.structures[id];
@@ -253,42 +245,27 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 
 		if (structure.structureType === "Depot") {
 			const deploymentCost = getDeploymentCost(coalition, structure.structureType);
+
 			if (structure.deploymentScore >= deploymentCost && structure.state === "active") {
-				const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
-				const objectivesInRange = findInside(
-					freeOppObjectives,
+				const targetObjective = getFrontlineTarget(
+					coalition,
 					structure.position,
-					(obj) => obj.position,
-					Config.structureRange.frontline.depot
+					Config.structureRange.frontline.depot,
+					state
 				);
 
-				const validObjectives = objectivesInRange.filter((obj) => {
-					return (
-						Object.values(oppFaction.structures).some((structure) => structure.objectiveName === obj.name) ||
-						oppFaction.groundGroups.some((gg) => gg.objective.name === obj.name)
-					);
-				});
-
-				if (validObjectives.length > 0) {
-					const targetObjective = findNearest(validObjectives, structure.position, (obj) => obj.position);
-
-					if (targetObjective == null) {
-						return;
-					}
-
-					const objective = state.objectives[structure.objectiveName];
-
-					// console.log("deploy vehicle", { source: objective, structure });
-
-					if (objective == null) {
-						// eslint-disable-next-line no-console
-						console.warn("attackFrontline: source objective not found");
-						return;
-					}
-
-					deployFrontline({ targetObjective, startObjective: objective, state, groupType: "armor", depot: structure });
-					structure.deploymentScore -= deploymentCost;
+				if (targetObjective == null) {
+					return;
 				}
+
+				const objective = state.objectives[structure.objectiveName];
+
+				if (objective == null) {
+					return;
+				}
+
+				deployFrontline({ targetObjective, startObjective: objective, state, groupType: "armor", depot: structure });
+				structure.deploymentScore -= deploymentCost;
 			}
 		}
 
@@ -296,47 +273,31 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 			const deploymentCost = getDeploymentCost(coalition, structure.structureType);
 
 			if (structure.deploymentScore >= deploymentCost && structure.state === "active") {
-				const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
-				const objectivesInRange = findInside(
-					freeOppObjectives,
+				const targetObjective = getFrontlineTarget(
+					coalition,
 					structure.position,
-					(obj) => obj.position,
-					Config.structureRange.frontline.barrack
+					Config.structureRange.frontline.barrack,
+					state
 				);
 
-				const validObjectives = objectivesInRange.filter((obj) => {
-					return (
-						Object.values(oppFaction.structures).some((structure) => structure.objectiveName === obj.name) ||
-						oppFaction.groundGroups.some((gg) => gg.objective.name === obj.name)
-					);
-				});
-
-				if (validObjectives.length > 0) {
-					const targetObjective = findNearest(validObjectives, structure.position, (obj) => obj.position);
-
-					if (targetObjective == null) {
-						return;
-					}
-
-					const objective = state.objectives[structure.objectiveName];
-
-					// console.log("deploy infantry", { source: objective, structure });
-
-					if (objective == null) {
-						// eslint-disable-next-line no-console
-						console.warn("attackFrontline: source objective not found");
-						return;
-					}
-
-					deployFrontline({
-						targetObjective,
-						startObjective: objective,
-						state,
-						groupType: "infantry",
-						barrack: structure,
-					});
-					structure.deploymentScore -= deploymentCost;
+				if (targetObjective == null) {
+					return;
 				}
+
+				const objective = state.objectives[structure.objectiveName];
+
+				if (objective == null) {
+					return;
+				}
+
+				deployFrontline({
+					targetObjective,
+					startObjective: objective,
+					state,
+					groupType: "infantry",
+					barrack: structure,
+				});
+				structure.deploymentScore -= deploymentCost;
 			}
 		}
 	});
