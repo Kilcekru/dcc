@@ -2,7 +2,7 @@ import "./Map.less";
 import "leaflet/dist/leaflet.css";
 
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import L from "leaflet";
+import L, { Content } from "leaflet";
 import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
@@ -45,6 +45,7 @@ export const Map = () => {
 	const ewMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
+	let winConditionCircle: L.CircleMarker | undefined = undefined;
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
@@ -415,6 +416,59 @@ export const Map = () => {
 			}
 		});
 	};
+
+	createEffect(() => {
+		if (state.winningCondition.type === "objective") {
+			const map = leaftletMap();
+
+			if (map == null) {
+				return;
+			}
+
+			const objectivePosition = state.objectives[state.winningCondition.value]?.position;
+
+			if (objectivePosition == null) {
+				return;
+			}
+
+			map.addEventListener("zoom", () => {
+				if (winConditionCircle != null && map.hasLayer(winConditionCircle)) {
+					map.removeLayer(winConditionCircle);
+				}
+
+				if (state.winningCondition.type === "objective") {
+					winConditionCircle = L.circleMarker(mapPosition, {
+						radius: 20,
+						color: "#FFB91F",
+					})
+						.addTo(map)
+						.bindTooltip(
+							(
+								<span>
+									Capture <strong>{state.winningCondition.value}</strong>
+								</span>
+							) as Content,
+							{ permanent: map.getZoom() >= 10 }
+						);
+				}
+			});
+
+			const mapPosition = positionToMapPosition(objectivePosition);
+
+			winConditionCircle = L.circleMarker(mapPosition, {
+				radius: 20,
+				color: "#FFB91F",
+			})
+				.addTo(map)
+				.bindTooltip(
+					(
+						<span>
+							Capture <strong>{state.winningCondition.value}</strong>
+						</span>
+					) as Content
+				);
+		}
+	});
 
 	// Selected Flight Group
 	createEffect(() => {

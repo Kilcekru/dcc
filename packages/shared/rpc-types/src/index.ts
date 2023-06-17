@@ -35,6 +35,7 @@ export type MissionState = {
 	killed_ground_units: Array<string>;
 	mission_ended: boolean;
 	time: number;
+	mission_id: string;
 };
 
 export interface Campaign {

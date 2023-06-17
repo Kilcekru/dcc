@@ -40,6 +40,7 @@
 	&--forwarding {
 		left: 0;
 		bottom: 0;
+		pointer-events: none;
 	}
 }
 
@@ -48,6 +49,7 @@
 	font-weight: 800;
 	text-transform: uppercase;
 	opacity: 0;
+	position: absolute;
 
 	&--show {
 		opacity: 1;
@@ -60,6 +62,9 @@
 	gap: 20px;
 	opacity: 0;
 	pointer-events: none;
+	position: absolute;
+	bottom: 0;
+	right: 0;
 
 	&--show {
 		opacity: 1;
@@ -80,6 +85,11 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
 
 	&--show {
 		opacity: 1;
@@ -125,4 +135,16 @@
 	background-color: var(--background-hover);
 	padding: 10px;
 	font-family: "Courier New", Courier, monospace;
+}
+
+.client-list-wrapper {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	justify-content: center;
+	align-items: flex-end;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	pointer-events: none;
 }

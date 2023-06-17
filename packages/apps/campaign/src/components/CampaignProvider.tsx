@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
+import { v4 as uuid } from "uuid";
 
 import { Config } from "../data";
 import {
@@ -44,6 +45,8 @@ type CampaignStore = [
 		updateRepairScore?: () => void;
 		skipToNextDay?: () => void;
 		resumeNextDay?: () => void;
+		generateMissionId?: () => void;
+		resetMissionId?: () => void;
 	}
 ];
 
@@ -63,6 +66,7 @@ export const initState: CampaignState = {
 	aiSkill: "Average",
 	name: "",
 	nextDay: false,
+	missionId: undefined,
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -165,6 +169,7 @@ export function CampaignProvider(props: {
 								unit.client = i < count;
 							});
 						});
+						s.missionId = undefined;
 					})
 				);
 			},
@@ -172,6 +177,7 @@ export function CampaignProvider(props: {
 				setState(
 					produce((s) => {
 						s.timer = getMissionStateTimer(state, s.timer);
+						s.missionId = undefined;
 
 						if (s.hardcore) {
 							const fgs = getFlightGroups(s.blueFaction?.packages);
@@ -253,6 +259,12 @@ export function CampaignProvider(props: {
 			resumeNextDay() {
 				setState("nextDay", () => false);
 				setState("paused", () => false);
+			},
+			generateMissionId() {
+				setState("missionId", uuid());
+			},
+			resetMissionId() {
+				setState("missionId", undefined);
 			},
 		},
 	];

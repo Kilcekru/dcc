@@ -14,7 +14,7 @@
 	},
 	"template": {
 		"sams": ["Hawk"],
-		"vehicles": ["M-2 Bradley"],
+		"vehicles": ["M-2 Bradley", "M-1 Abrams"],
 		"infantries": ["Soldier M4"],
 		"shoradVehicles": ["M6 Linebacker"],
 		"shoradInfantries": ["Soldier stinger"],

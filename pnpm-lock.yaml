@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: false
@@ -80,13 +80,19 @@ importers:
       solid-js:
         specifier: 1.6.2
         version: 1.6.2
+      uuid:
+        specifier: 9.0.0
+        version: 9.0.0
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.226
-        version: 0.2.226
+        specifier: 0.2.227
+        version: 0.2.227
       '@types/leaflet':
         specifier: 1.9.0
         version: 1.9.0
+      '@types/uuid':
+        specifier: 9.0.2
+        version: 9.0.2
 
   packages/apps/home:
     dependencies:
@@ -103,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.226
-        version: 0.2.226
+        specifier: 0.2.227
+        version: 0.2.227
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -186,8 +192,8 @@ importers:
         version: 1.6.2
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.226
-        version: 0.2.226
+        specifier: 0.2.227
+        version: 0.2.227
 
   packages/libs/rpc:
     devDependencies:
@@ -198,8 +204,8 @@ importers:
   packages/shared/rpc-types:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.226
-        version: 0.2.226
+        specifier: 0.2.227
+        version: 0.2.227
 
   utils/build:
     dependencies:
@@ -603,8 +609,8 @@ packages:
       '@floating-ui/core': 1.2.6
     dev: false
 
-  /@foxdelta2/dcsjs@0.2.226:
-    resolution: {integrity: sha512-sMS8ZWMflkCt0lc6efhZw+4zx+Hry7mgU25Iq8qbOq+V1TGWu97JzWh7NeVB4ST89Z1QlfEuBzg6JIxzuEr4lA==}
+  /@foxdelta2/dcsjs@0.2.227:
+    resolution: {integrity: sha512-XNmTSqhY0WH+LDo7K037bZxGigYDr0K1lz2cw+F+2bqiPBCX24Jq2kkH4ZpWWI9N/OP5k+vRTn8DqoOMDAp19A==}
     dependencies:
       '@kilcekru/lua-table': 1.0.0
       adm-zip: 0.5.10
@@ -820,6 +826,10 @@ packages:
 
   /@types/semver@7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: true
+
+  /@types/uuid@9.0.2:
+    resolution: {integrity: sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==}
     dev: true
 
   /@types/yauzl@2.10.0:
@@ -4283,6 +4293,11 @@ packages:
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+    dev: false
+
+  /uuid@9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
     dev: false
 
   /validate-npm-package-license@3.0.4:

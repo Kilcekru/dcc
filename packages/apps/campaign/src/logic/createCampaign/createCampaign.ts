@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 
 import { factionList } from "../../data";
 import { scenarioList } from "../../data/scenarios";
-import { firstItem, getUsableUnit, Minutes, random } from "../../utils";
+import { firstItem, getUsableUnit, Minutes, random, randomList } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
@@ -132,7 +132,8 @@ export const createCampaign = (
 
 			const inventory = faction.inventory;
 			const groupType = random(1, 100) > 40 ? "armor" : "infantry";
-			const units = Object.values(inventory.groundUnits)
+
+			const validGroundUnits = Object.values(inventory.groundUnits)
 				.filter((unit) => unit.category !== "Air Defence")
 				.filter((unit) => {
 					if (groupType === "infantry") {
@@ -140,8 +141,9 @@ export const createCampaign = (
 					} else {
 						return unit.category !== "Infantry" && unit.state === "idle";
 					}
-				})
-				.slice(0, random(4, 8));
+				});
+
+			const units = randomList(validGroundUnits, random(4, 8));
 
 			if (groupType === "armor") {
 				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
