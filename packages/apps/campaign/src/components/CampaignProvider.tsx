@@ -47,6 +47,7 @@ type CampaignStore = [
 		resumeNextDay?: () => void;
 		generateMissionId?: () => void;
 		resetMissionId?: () => void;
+		clearToastMessages?: (ids: Array<string>) => void;
 	}
 ];
 
@@ -67,6 +68,7 @@ export const initState: CampaignState = {
 	name: "",
 	nextDay: false,
 	missionId: undefined,
+	toastMessages: [],
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -265,6 +267,9 @@ export function CampaignProvider(props: {
 			},
 			resetMissionId() {
 				setState("missionId", undefined);
+			},
+			clearToastMessages(ids) {
+				setState("toastMessages", (s) => s.filter((msg) => !ids.some((id) => id === msg.id)));
 			},
 		},
 	];

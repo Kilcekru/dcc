@@ -1,4 +1,5 @@
-import { createEffect, createMemo, ErrorBoundary, onCleanup, useContext } from "solid-js";
+import { useCreateErrorToast, useCreateToast } from "@kilcekru/dcc-lib-components";
+import { createEffect, createMemo, ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
 
 import { CampaignContext, Map } from "../../components";
 import { DataContext } from "../../components/DataProvider";
@@ -8,14 +9,18 @@ import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, ResetModa
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [state, { tick, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore }] =
-		useContext(CampaignContext);
+	const [
+		state,
+		{ tick, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore, togglePause, clearToastMessages },
+	] = useContext(CampaignContext);
 	const dataStore = useContext(DataContext);
 	let inter: number;
 	let longInter: number;
 	let tickFinished = true;
 	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
 	const save = useSave();
+	const createToast = useCreateToast();
+	const createErrorToast = useCreateErrorToast();
 
 	const interval = () => {
 		if (tickFinished === true) {
@@ -67,9 +72,44 @@ export const Home = () => {
 		}
 	});
 
+	createEffect(() => {
+		const ids: Array<string> = [];
+		state.toastMessages.forEach((msg) => {
+			switch (msg.type) {
+				case "error": {
+					createErrorToast({
+						description: msg.description,
+						title: msg.title,
+					});
+					break;
+				}
+				default: {
+					createToast({
+						description: msg.description,
+						title: msg.title,
+					});
+				}
+			}
+			ids.push(msg.id);
+		});
+
+		if (ids.length > 0) {
+			clearToastMessages?.(ids);
+		}
+	});
 	onCleanup(() => {
 		stopInterval();
 	});
+
+	const onKeydown = (e: KeyboardEvent) => {
+		if (e.code === "Space") {
+			togglePause?.();
+		}
+	};
+
+	onMount(() => document.addEventListener("keydown", onKeydown));
+
+	onCleanup(() => document.removeEventListener("keydown", onKeydown));
 
 	return (
 		<OverlaySidebarProvider>

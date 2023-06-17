@@ -15,9 +15,7 @@ export function getPackagesWithTarget(faction: DcsJs.CampaignFaction, target: st
 	const pkgsWithTarget: Array<DcsJs.CampaignPackage> = [];
 
 	faction.packages.forEach((pkg) => {
-		const hasTargetFg = pkg.flightGroups.some((fg) => {
-			fg.target === target;
-		});
+		const hasTargetFg = pkg.flightGroups.some((fg) => fg.target === target);
 
 		if (hasTargetFg) {
 			pkgsWithTarget.push(pkg);

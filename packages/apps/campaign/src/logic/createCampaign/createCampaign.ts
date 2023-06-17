@@ -227,6 +227,7 @@ export const createCampaign = (
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
 	state.winner = undefined;
+	state.toastMessages = [];
 
 	return state;
 };

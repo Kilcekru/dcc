@@ -9,6 +9,7 @@ import {
 	distanceToPosition,
 	findInside,
 	findNearest,
+	getClientFlightGroups,
 	getDurationEnRoute,
 	getFlightGroups,
 	headingToPosition,
@@ -382,16 +383,27 @@ export function transferObjectiveStructures(
 		(str) => str.objectiveName === objective.name
 	);
 
-	// Remove all packages which targets this objective
 	oppObjectiveStructures.forEach((structure) => {
+		// Remove all packages which targets this structure
 		const packages = getPackagesWithTarget(faction, structure.name);
 
+		// eslint-disable-next-line no-console
+		console.log("transfer structures", structure.name);
+
+		const clientFgs = getClientFlightGroups(packages);
+
+		if (clientFgs.length > 0) {
+			state.toastMessages.push({
+				id: createUniqueId(),
+				type: "info",
+				description: "Strike Target was captured",
+				title: "Flight Group removed",
+			});
+		}
 		packages.forEach((pkg) => {
 			clearPackage(faction, pkg);
 		});
-	});
 
-	oppObjectiveStructures.forEach((structure) => {
 		switch (structure.structureType) {
 			case "Barrack":
 			case "Depot": {

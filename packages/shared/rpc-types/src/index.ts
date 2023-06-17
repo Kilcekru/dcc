@@ -28,6 +28,7 @@ export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> &
 	redFaction: DcsJs.CampaignFaction | undefined;
 	winningCondition: { type: "ground units" } | { type: "objective"; value: string };
 	nextDay: boolean;
+	toastMessages: Array<{ id: string; title?: string; description?: string; type: "error" | "info" }>;
 };
 
 export type MissionState = {
