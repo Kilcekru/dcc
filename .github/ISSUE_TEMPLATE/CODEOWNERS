@@ -1,0 +1,4 @@
+# This is a CODEOWNERS file. https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @Kilcekru
+/packages/apps/campaign/ @Kilcekru @rhyver
