@@ -1,5 +1,4 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { createUniqueId } from "solid-js";
 
 import { distanceToPosition, getFlightGroups, Minutes, random } from "../../utils";
 import { RunningCampaignState } from "../types";
