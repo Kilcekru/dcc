@@ -101,15 +101,15 @@ export const Home = () => {
 		stopInterval();
 	});
 
-	const onKeydown = (e: KeyboardEvent) => {
+	const onKeyUp = (e: KeyboardEvent) => {
 		if (e.code === "Space") {
 			togglePause?.();
 		}
 	};
 
-	onMount(() => document.addEventListener("keydown", onKeydown));
+	onMount(() => document.addEventListener("keyup", onKeyUp));
 
-	onCleanup(() => document.removeEventListener("keydown", onKeydown));
+	onCleanup(() => document.removeEventListener("keyup", onKeyUp));
 
 	return (
 		<OverlaySidebarProvider>

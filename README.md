@@ -9,59 +9,79 @@ Still in early development we currently only offer a dynamic campaign, but more 
 
 - [Dynamic Campaign](#dynamic-campaign)
   - [How does the Campaign work](#how-does-the-campaign-work)
+  - [Structures](#structures)
+  - [Mission Types](#mission-types)
   - [Persistence](#persistence)
   - [Upcoming Features](#upcoming-features)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 
-
-## Dynamic Campaign
+# Dynamic Campaign
 Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liberation
 ---no configuration, just fly---
 
 ![App Screenshot](docs/campaign-1.png)
 
-
-### How does the Campaign work
+## How does the Campaign work
 The campaign is defined by two definition, Scenario and faction.
 The two definitions are not editable at this time. But this will be possible in the future.
 Once the campaign is started each site/faction tries to archive the defined win condition automatically.
 The player can always choose the occupy one (or more) of the planned or active flight group/mission and play the mission out in DCS.
 After flying the mission in DCS the results are processed back into the campaign.
 
-#### Scenario
+### Scenario
 The scenario defines on which map and when the campaign takes place. It also says what the win condition is. And what objective and structures are allocated to which side at the start of the campaign.
 
-#### Faction
+### Faction
 This defines which planes, helicopters and ground units is available for the given faction. The aircrafts are categories into the different mission types available.
 
-#### Structures
+### Hardcore
+You can choose at campaign start to activate the hardcore mode. Hardcore means if you(or a client in multiplayer) dies in a mission the campaign fails.
+
+## Structures
 Structures are a collection of building which provide a service for the controlling faction. To prevent these services the opposite faction can destroy the buildings with a Strike mission or capture the structure with ground units.
 Is a building destroyed it will be repaired over a period of time.
 
-##### Ammo Depot
+### Ammo Depot
 Provides Ammo for Barracks and Depots nearby to improve the deploy time of this structures.
 
-##### Barrack
+### Barrack
 Deploys periodically infantry units to enemy objectives.
 
-##### Command Center
+### Command Center
 Controls the SAM Network(IADS) - coming coon
 
-##### Depot
+### Depot
 Deploys periodically vehicle units to enemy objectives.
 
-##### Farp
+### Farp
 Allows the use Helicopters near the frontline
 
-##### Power Plant
+### Power Plant
 Provides electricity to structures and SAMs(IADS - coming soon) nearby to improve the deploy time of this structures.
 
-##### Fuel Storage
+### Fuel Storage
 Provides Fuel for Depots nearby to improve the deploy time of this structures.
 
-### Persistence
+## Mission Types
+
+### DEAD
+Destruction Enemy Air Defense. The SAM is destroyed if the track radar is destroyed.
+
+### CAP
+Combat Air Patrol. Flight between the given waypoints and attack all enemy aircraft in range.
+
+### Strike
+Destroy all buildings at the given waypoint.
+
+### Escort
+Protect the designated Strike Group from enemy air threads.
+
+### CAS
+Close Air Support. Destroy enemy ground units between the given waypoints. You can use the Moose Designation tool (Communication Menu -> F10) to find targets via smoke or laser.
+
+## Persistence
 Make sure DCS allows DCC to save it state with the following step.
 These needs do be done after each DCS update.
 Change the following lines in the file in the DCS installation folder 'DCS World/Scripts/MissionScripting.lua'
@@ -123,3 +143,4 @@ Please adhere to this project's [code of conduct](CODE_OF_CONDUCT.md).
 ## Contributors
 - [@Kilcekru](https://github.com/kilcekru)
 - [@rhyver](https://github.com/rhyver)
+
