@@ -8,6 +8,7 @@
 DCC is meant to be a toolkit offering simple apps to enhance your flying experience in [Digital Combat Simulator](https://www.digitalcombatsimulator.com/).\
 Still in early development we currently only offer a dynamic campaign, but more apps are planned (see [Roadmap](#roadmap)).
 
+- [Installation](#installation)
 - [How does the Campaign work](#how-does-the-campaign-work)
   - [Scenario](#scenario)
   - [Faction](#faction)
@@ -33,6 +34,14 @@ Still in early development we currently only offer a dynamic campaign, but more 
 - [Discord](#discord)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
+
+## Installation
+- Download the latest release `Setup.zip` from github
+- Extract the zip and run the `Setup.exe` (The Installer is not yet signed, so Windows might warn you about an unknown source)
+- The installer installs all necessary files, creates a Desktop Shortcut and launches the app. You can delete the Setup afterwards
+- Inside DCC you can setup the paths to your DCS folders and then start the campaign app
+- To allow DCS persistance, follow the steps described at [Persistance](#persistence)
+- You are ready to go, have fun
 
 # Dynamic Campaign
 Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liberation
