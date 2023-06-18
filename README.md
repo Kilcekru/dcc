@@ -1,19 +1,36 @@
 # DCC - Digital Crew Chief
 
-![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Discord](https://img.shields.io/discord/1110123808356040734?label=Discord&logo=discord)](https://discord.gg/jZZ3pFpY3e)
 
 100% flying, 0% configuration.
 
 DCC is meant to be a toolkit offering simple apps to enhance your flying experience in [Digital Combat Simulator](https://www.digitalcombatsimulator.com/).\
 Still in early development we currently only offer a dynamic campaign, but more apps are planned (see [Roadmap](#roadmap)).
 
-- [Dynamic Campaign](#dynamic-campaign)
-  - [How does the Campaign work](#how-does-the-campaign-work)
-  - [Structures](#structures)
-  - [Mission Types](#mission-types)
-  - [Persistence](#persistence)
+- [How does the Campaign work](#how-does-the-campaign-work)
+  - [Scenario](#scenario)
+  - [Faction](#faction)
+  - [Hardcore](#hardcore)
+- [Structures](#structures)
+  - [Ammo Depot](#ammo-depot)
+  - [Barrack](#barrack)
+  - [Command Center](#command-center)
+  - [Depot](#depot)
+  - [Farp](#farp)
+  - [Power Plant](#power-plant)
+  - [Fuel Storage](#fuel-storage)
+- [Mission Types](#mission-types)
+  - [DEAD](#dead)
+  - [CAP](#cap)
+  - [Strike](#strike)
+  - [Escort](#escort)
+  - [CAS](#cas)
+- [Persistence](#persistence)
+  - [Current Limitation](#current-limitation)
   - [Upcoming Features](#upcoming-features)
 - [Roadmap](#roadmap)
+- [Discord](#discord)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 
@@ -133,6 +150,9 @@ We will improve and expand these systems in the future.
 - Patcher: Apply patches to DCS to easily configure your setup
 - Controls: Drag & Drop setup for your Joystick / Throttle
 - Mods: Install and Remove supported DCS mods with a simple click
+
+## Discord
+[Join our Discord server and stay connected.](https://discord.gg/jZZ3pFpY3e)
 
 ## Contributing
 
