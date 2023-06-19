@@ -77,6 +77,10 @@ const escortFlightGroup = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
+	if (airdrome == null) {
+		throw `escortFlightGroup: airdrome not found: ${airdromeName ?? ""}`;
+	}
+
 	let cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	while (cs.flightGroupName === targetFlightGroup.name) {
@@ -150,6 +154,10 @@ export const generateStrikePackage = (
 	}
 
 	const airdrome = dataStore.airdromes[airdromeName];
+
+	if (airdrome == null) {
+		throw `generateStrikePackage: airdrome not found: ${airdromeName ?? ""}`;
+	}
 
 	const targetStructure = getStrikeTarget(airdrome, state.objectives, coalition, faction, oppFaction);
 

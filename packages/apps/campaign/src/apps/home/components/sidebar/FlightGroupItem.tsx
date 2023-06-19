@@ -4,7 +4,7 @@ import { cnb } from "cnbuilder";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext, Clock, FlightGroupButtons } from "../../../../components";
-import { DataContext } from "../../../../components/DataProvider";
+import { useDataStore } from "../../../../components/DataProvider";
 import { OverlaySidebarContext } from "../overlay-sidebar";
 import Styles from "./FlightGroupItem.module.less";
 
@@ -13,7 +13,7 @@ export const FlightGroupItem = (props: {
 	faction: DcsJs.CampaignFaction | undefined;
 }) => {
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
 	const [, { openFlightGroup }] = useContext(OverlaySidebarContext);
 
 	const aircrafts = createMemo(() => {

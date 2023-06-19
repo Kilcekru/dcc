@@ -19,18 +19,6 @@ const load: Types.Campaign["load"] = async () => {
 	return campaignState.data;
 };
 
-const getAirdromes: Types.Campaign["getAirdromes"] = async () => {
-	return DcsJs.getAirdromes();
-};
-
-const getObjectives: Types.Campaign["getObjectives"] = async () => {
-	return DcsJs.getObjectives();
-};
-
-const getStrikeTargets: Types.Campaign["getStrikeTargets"] = async () => {
-	return DcsJs.getStrikeTargets();
-};
-
 const getSamTemplates: Types.Campaign["getSamTemplates"] = async () => {
 	return DcsJs.getSamTemplates();
 };
@@ -39,14 +27,17 @@ const getVehicles: Types.Campaign["getVehicles"] = async () => {
 	return DcsJs.getVehicles();
 };
 
-const getDataStore: Types.Campaign["getDataStore"] = async () => {
+const getDataStore: Types.Campaign["getDataStore"] = async (map) => {
+	const mapData: DcsJs.GetMapData = DcsJs.getMapData(map);
+
 	return {
+		map,
+		airdromes: mapData.airdromes,
+		objectives: mapData.objectives,
+		strikeTargets: mapData.strikeTargets,
 		vehicles: DcsJs.getVehicles(),
-		airdromes: DcsJs.getAirdromes(),
 		aircrafts: DcsJs.getAircrafts(),
-		objectives: DcsJs.getObjectives(),
 		samTemplates: DcsJs.getSamTemplates(),
-		strikeTargets: DcsJs.getStrikeTargets(),
 		structures: DcsJs.getStructures(),
 		callSigns: DcsJs.getCallSigns(),
 		launchers: DcsJs.getLaunchers(),
@@ -77,9 +68,6 @@ const loadMissionState: Types.Campaign["loadMissionState"] = async () => {
 
 export const campaign: Types.Campaign = {
 	generateCampaignMission,
-	getAirdromes,
-	getObjectives,
-	getStrikeTargets,
 	getSamTemplates,
 	getVehicles,
 	getDataStore,

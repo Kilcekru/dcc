@@ -6,7 +6,7 @@ import { unwrap } from "solid-js/store";
 
 import { CreateCampaign, Home } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
-import { DataProvider } from "./components/DataProvider";
+import { DataProvider, useSetDataMap } from "./components/DataProvider";
 import { isEmpty } from "./utils";
 
 const App = () => {
@@ -32,6 +32,7 @@ const App = () => {
 
 const AppWithContext = () => {
 	const [campaignState, setCampaignState] = createSignal<Partial<CampaignState> | null | undefined>(undefined);
+	const setDataMap = useSetDataMap();
 
 	onMount(() => {
 		rpc.campaign
@@ -43,6 +44,9 @@ const AppWithContext = () => {
 						loaded: true,
 					});
 				} else {
+					if (loadedState.map != null) {
+						setDataMap(loadedState.map);
+					}
 					setCampaignState({
 						...loadedState,
 						loaded: true,
@@ -56,15 +60,21 @@ const AppWithContext = () => {
 
 	return (
 		<Show when={campaignState !== undefined} fallback={<div>Loading...</div>}>
-			<DataProvider>
-				<CampaignProvider campaignState={campaignState()}>
-					<Components.ToastProvider>
-						<App />
-					</Components.ToastProvider>
-				</CampaignProvider>
-			</DataProvider>
+			<CampaignProvider campaignState={campaignState()}>
+				<Components.ToastProvider>
+					<App />
+				</Components.ToastProvider>
+			</CampaignProvider>
 		</Show>
 	);
 };
 
-export { AppWithContext as App };
+const AppWithData = () => {
+	return (
+		<DataProvider>
+			<AppWithContext />
+		</DataProvider>
+	);
+};
+
+export { AppWithData as App };

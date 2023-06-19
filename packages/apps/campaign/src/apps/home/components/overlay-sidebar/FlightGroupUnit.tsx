@@ -3,14 +3,14 @@ import { cnb } from "cnbuilder";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import { DataContext } from "../../../../components/DataProvider";
+import { useDataStore } from "../../../../components/DataProvider";
 import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction, getWeaponsForFlightGroupUnit } from "../../../../logic/utils";
 import Styles from "./Item.module.less";
 
 export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; coalition: DcsJs.CampaignCoalition }) {
 	const [state] = useContext(CampaignContext);
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
 
 	const aircraft = createMemo(() => {
 		const faction = getCoalitionFaction(props.coalition, state as RunningCampaignState);

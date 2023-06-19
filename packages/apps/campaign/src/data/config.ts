@@ -1,4 +1,13 @@
 export const Config = {
+	inventory: {
+		aircraft: {
+			cap: 10,
+			cas: 4,
+			awacs: 3,
+			strike: 6,
+			dead: 4,
+		},
+	},
 	structureRange: {
 		power: 50_000,
 		ammo: 50_000,

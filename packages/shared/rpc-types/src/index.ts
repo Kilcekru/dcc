@@ -5,10 +5,11 @@ export * from "./home";
 export * from "./misc";
 
 export type DataStore = {
+	map: DcsJs.MapName;
 	aircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.Aircraft>> | undefined;
-	airdromes: DcsJs.GetAirdromes | undefined;
-	objectives: DcsJs.GetObjectives | undefined;
-	strikeTargets: DcsJs.GetStrikeTargets | undefined;
+	airdromes: DcsJs.GetMapData["airdromes"] | undefined;
+	objectives: DcsJs.GetMapData["objectives"] | undefined;
+	strikeTargets: DcsJs.GetMapData["strikeTargets"] | undefined;
 	samTemplates: DcsJs.GetSamTemplates | undefined;
 	vehicles: DcsJs.GetVehicles | undefined;
 	structures: DcsJs.GetStructures | undefined;
@@ -40,12 +41,9 @@ export type MissionState = {
 };
 
 export interface Campaign {
-	getAirdromes: () => Promise<DcsJs.GetAirdromes>;
-	getObjectives: () => Promise<DcsJs.GetObjectives>;
-	getStrikeTargets: () => Promise<DcsJs.GetStrikeTargets>;
 	getSamTemplates: () => Promise<DcsJs.GetSamTemplates>;
 	getVehicles: () => Promise<DcsJs.GetVehicles>;
-	getDataStore: () => Promise<DataStore>;
+	getDataStore: (map: DcsJs.MapName) => Promise<DataStore>;
 	generateCampaignMission: (campaign: DcsJs.Campaign) => Promise<{ success: boolean }>;
 	save: (campaign: CampaignState) => Promise<{ success: boolean }>;
 	load: () => Promise<Partial<CampaignState>>;

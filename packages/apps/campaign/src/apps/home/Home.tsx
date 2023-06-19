@@ -2,7 +2,7 @@ import { useCreateErrorToast, useCreateToast } from "@kilcekru/dcc-lib-component
 import { createEffect, createMemo, ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
 
 import { CampaignContext, Map } from "../../components";
-import { DataContext } from "../../components/DataProvider";
+import { useDataStore } from "../../components/DataProvider";
 import { useSave } from "../../hooks";
 import { getClientMissionStartTime } from "../../utils";
 import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, ResetModal, Sidebar } from "./components";
@@ -13,7 +13,7 @@ export const Home = () => {
 		state,
 		{ tick, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore, togglePause, clearToastMessages },
 	] = useContext(CampaignContext);
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
 	let inter: number;
 	let longInter: number;
 	let tickFinished = true;

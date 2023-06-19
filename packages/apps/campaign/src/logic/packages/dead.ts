@@ -46,6 +46,10 @@ export const generateDeadPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
+	if (airdrome == null) {
+		throw `generateDeadPackage: airdrome not found: ${airdromeName ?? ""}`;
+	}
+
 	const selectedObjective = getDeadTarget(airdrome, oppFaction);
 
 	if (selectedObjective == null) {

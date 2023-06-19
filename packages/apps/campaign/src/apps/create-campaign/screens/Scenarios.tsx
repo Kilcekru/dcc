@@ -5,7 +5,7 @@ import { For, Show } from "solid-js";
 import { Scenario, scenarioList } from "../../../data";
 import Styles from "./Scenarios.module.less";
 
-const ScenarioItem = (props: { scenario: Scenario; onPress: (name: string) => void }) => {
+const ScenarioItem = (props: { scenario: Scenario; onPress: (name: Scenario) => void }) => {
 	const scenarioImage = () => {
 		switch (props.scenario.id) {
 			case "red-bullet":
@@ -31,7 +31,7 @@ const ScenarioItem = (props: { scenario: Scenario; onPress: (name: string) => vo
 	};
 
 	return (
-		<Components.ListItem onPress={() => props.onPress(props.scenario.name)} class={Styles.item}>
+		<Components.ListItem onPress={() => props.onPress(props.scenario)} class={Styles.item}>
 			<Components.Card class={Styles.scenario} disabled={!props.scenario.available}>
 				<div class={cnb(Styles.background, scenarioImage())} />
 				<h2 class={Styles.name}>{props.scenario.name}</h2>
@@ -56,13 +56,13 @@ const ScenarioItem = (props: { scenario: Scenario; onPress: (name: string) => vo
 		</Components.ListItem>
 	);
 };
-export const Scenarios = (props: { next: () => void }) => {
+export const Scenarios = (props: { next: (scenario: Scenario) => void }) => {
 	return (
 		<div>
 			<h1 class={Styles.title}>Select a Scenario</h1>
 			<Components.List>
 				<For each={scenarioList} fallback={<div>Loading...</div>}>
-					{(scenario) => <ScenarioItem scenario={scenario} onPress={() => props.next()} />}
+					{(scenario) => <ScenarioItem scenario={scenario} onPress={(scenario) => props.next(scenario)} />}
 				</For>
 			</Components.List>
 		</div>
