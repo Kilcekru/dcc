@@ -4,6 +4,7 @@ import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
+import { scenarioList } from "../data";
 import { Config } from "../data";
 import {
 	campaignRound,
@@ -24,7 +25,8 @@ type CampaignStore = [
 			blueFactionName: string,
 			redFactionName: string,
 			aiSkill: DcsJs.AiSkill,
-			hardcore: boolean
+			hardcore: boolean,
+			scenario: string
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
@@ -69,6 +71,7 @@ export const initState: CampaignState = {
 	nextDay: false,
 	missionId: undefined,
 	toastMessages: [],
+	map: "caucasus",
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -82,8 +85,14 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFactionName, redFactionName, aiSkill, hardcore) {
-				setState(produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName, aiSkill, hardcore)));
+			activate(dataStore, blueFactionName, redFactionName, aiSkill, hardcore, scenarioName) {
+				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
+
+				setState("map", (scenario?.map ?? "caucasus") as DcsJs.MapName);
+
+				setState(
+					produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName, aiSkill, hardcore, scenarioName))
+				);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);

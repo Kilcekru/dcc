@@ -2,18 +2,35 @@
 	"map": "syria",
 	"id": "desert-thunder",
 	"name": "Desert Thunder",
-	"available": false,
+	"available": true,
 	"date": "1972-09-20",
 	"era": "Cold War",
 	"win-condition": {
 		"type": "ground units"
 	},
 	"blue": {
-		"airdromeNames": [],
-		"objectivePlans": []
+		"airdromeNames": ["Hatay"],
+		"objectivePlans": [
+			{
+				"objectiveName": "Hama Center",
+				"structures": [],
+				"groundUnitTypes": []
+			}
+		]
 	},
 	"red": {
-		"airdromeNames": [],
-		"objectivePlans": []
+		"airdromeNames": ["Aleppo", "Tiyas"],
+		"objectivePlans": [
+			{
+				"objectiveName": "Hama East",
+				"structures": [
+					{
+						"structureName": "Hama East|Structure|1",
+						"structureType": "Ammo Depot"
+					}
+				],
+				"groundUnitTypes": []
+			}
+		]
 	}
 }

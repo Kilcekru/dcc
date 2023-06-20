@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
+import { useDataStore } from "./components/DataProvider";
 import { Config, Scenario } from "./data";
 import { RunningCampaignState } from "./logic/types";
 import { getCoalitionFaction } from "./logic/utils";
@@ -15,17 +16,25 @@ export const isEmpty = (object: object) => {
 	return Object.keys(object).length === 0;
 };
 
-export const positionToMapPosition = (pos: { x: number; y: number }): MapPosition => {
-	try {
-		const latLng = LOtoLL({ map: "caucasus", x: pos.x, z: pos.y });
+export function usePositionToMapPosition() {
+	const dataStore = useDataStore();
 
-		return [latLng.lat, latLng.lng];
-	} catch (e: unknown) {
-		// eslint-disable-next-line no-console
-		console.error(e, pos);
-		throw new Error("invalid map position");
-	}
-};
+	return positionToMapPosition(dataStore.map);
+}
+
+export const positionToMapPosition =
+	(map: DcsJs.MapName) =>
+	(pos: { x: number; y: number }): MapPosition => {
+		try {
+			const latLng = LOtoLL({ map, x: pos.x, z: pos.y });
+
+			return [latLng.lat, latLng.lng];
+		} catch (e: unknown) {
+			// eslint-disable-next-line no-console
+			console.error(e, pos);
+			throw new Error("invalid map position");
+		}
+	};
 
 export const headingToPosition = (position1: Position, position2: Position) => {
 	return (Math.atan2(position2.y - position1.y, position2.x - position1.x) * 180) / Math.PI;

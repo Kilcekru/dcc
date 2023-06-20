@@ -59,6 +59,10 @@ export const generateCapPackage = (
 
 					const nearestObjective = oppAirdromes.reduce(
 						(prev, airdrome) => {
+							if (airdrome == null) {
+								throw `generateCapPackage: airdrome not found`;
+							}
+
 							const obj = findNearest(
 								Object.values(state.objectives).filter((obj) => obj.coalition === coalition),
 								airdrome,
@@ -86,10 +90,11 @@ export const generateCapPackage = (
 						return [undefined, undefined];
 					} else {
 						const airdromes = faction.airdromeNames.map((name) => {
-							if (dataStore.airdromes == null) {
+							const airdrome = dataStore.airdromes?.[name];
+							if (airdrome == null) {
 								throw "undefined airdromes";
 							}
-							return dataStore.airdromes?.[name];
+							return airdrome;
 						});
 
 						const airdrome = findNearest(airdromes, nearestObjective.position, (ad) => ad);
@@ -98,7 +103,8 @@ export const generateCapPackage = (
 					}
 			  })()
 			: [
-					objectToPosition(airdromes[objectiveName as DcsJs.AirdromeName]),
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+					objectToPosition(airdromes[objectiveName as DcsJs.AirdromeName]!),
 					airdromes[objectiveName as DcsJs.AirdromeName],
 			  ];
 

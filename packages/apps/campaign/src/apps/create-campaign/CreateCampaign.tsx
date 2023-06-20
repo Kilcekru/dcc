@@ -2,7 +2,8 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { createSignal, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { DataContext } from "../../components/DataProvider";
+import { useDataStore, useSetDataMap } from "../../components/DataProvider";
+import { Scenario } from "../../data";
 import styles from "./CreateCampaign.module.less";
 import { Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
 
@@ -12,12 +13,20 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
+	const [scenario, setScenario] = createSignal("");
 	const [factions, setFactions] = createSignal<[string, string]>(["", ""]);
 	const [, { activate }] = useContext(CampaignContext);
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
+	const setDataMap = useSetDataMap();
 
 	const onActivate = (aiSkill: DcsJs.AiSkill, hardcore: boolean) => {
-		activate?.(dataStore, factions()[0], factions()[1], aiSkill, hardcore);
+		activate?.(dataStore, factions()[0], factions()[1], aiSkill, hardcore, scenario());
+	};
+
+	const onSelectScenario = (scenario: Scenario) => {
+		setScenario(scenario.name);
+		setCurrentScreen("Start");
+		setDataMap(scenario.map as DcsJs.MapName);
 	};
 
 	return (
@@ -25,7 +34,7 @@ export const CreateCampaign = () => {
 			<div class={styles["create-campaign__content"]}>
 				<Switch fallback={<div>Not Found</div>}>
 					<Match when={currentScreen() === "Scenarios"}>
-						<Scenarios next={() => setCurrentScreen("Start")} />
+						<Scenarios next={onSelectScenario} />
 					</Match>
 					<Match when={currentScreen() === "Start"}>
 						<ScenarioDescription next={() => setCurrentScreen("Factions")} prev={() => setCurrentScreen("Scenarios")} />

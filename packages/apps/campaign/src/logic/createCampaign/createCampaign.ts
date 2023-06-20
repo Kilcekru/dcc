@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 
 import { factionList } from "../../data";
 import { scenarioList } from "../../data/scenarios";
-import { firstItem, getUsableUnit, Minutes, random, randomList } from "../../utils";
+import { getUsableUnit, Minutes, random, randomList } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
@@ -23,9 +23,10 @@ export const createCampaign = (
 	blueFactionName: string,
 	redFactionName: string,
 	aiSkill: DcsJs.AiSkill,
-	hardcore: boolean
+	hardcore: boolean,
+	scenarioName: string
 ) => {
-	const scenario = firstItem(scenarioList);
+	const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 	const blueBaseFaction = factionList.find((f) => f.name === blueFactionName);
 
 	if (scenario == null) {
@@ -40,12 +41,6 @@ export const createCampaign = (
 
 	if (redBaseFaction == null) {
 		throw "unknown faction: " + blueFactionName;
-	}
-
-	const firstBlueAirdrome = dataStore.airdromes?.[(firstItem(scenario.blue.airdromeNames) ?? "") as DcsJs.AirdromeName];
-
-	if (firstBlueAirdrome == null) {
-		throw "unknown airdrome";
 	}
 
 	const blueObjectives: DataStore["objectives"] = [];

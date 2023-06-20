@@ -4,7 +4,7 @@ import { cnb } from "cnbuilder";
 import { createMemo, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../CampaignProvider";
-import { DataContext } from "../DataProvider";
+import { useDataStore } from "../DataProvider";
 import { useFaction } from "../utils";
 import Styles from "./FlightGroupButtons.module.less";
 
@@ -16,7 +16,7 @@ export function FlightGroupButtons(props: {
 	const [, { setClient }] = useContext(CampaignContext);
 	// eslint-disable-next-line solid/reactivity
 	const faction = useFaction(props.coalition);
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
 
 	const aircrafts = createMemo(() => {
 		const list: Array<{ name: string; aircraftType: string; isClient: boolean }> = [];

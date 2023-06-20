@@ -10,9 +10,9 @@ import { OverlaySidebarContext } from "../../apps/home/components";
 import { RunningCampaignState } from "../../logic/types";
 import { getCoalitionFaction } from "../../logic/utils";
 import { MapPosition } from "../../types";
-import { getFlightGroups, positionToMapPosition } from "../../utils";
+import { getFlightGroups, usePositionToMapPosition } from "../../utils";
 import { CampaignContext } from "../CampaignProvider";
-import { DataContext } from "../DataProvider";
+import { useDataStore } from "../DataProvider";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -49,18 +49,25 @@ export const Map = () => {
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
+	const positionToMapPosition = usePositionToMapPosition();
 	const [overlaySidebarState, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openEWR, openSam }] =
 		useContext(OverlaySidebarContext);
 
-	const kobuleti = createMemo(() => {
-		const position = dataStore.airdromes?.["Kobuleti"];
+	const centerAirdrome = createMemo(() => {
+		const airdromeName = state.blueFaction?.airdromeNames[0];
 
-		if (position == null) {
+		if (airdromeName == null) {
 			return;
 		}
 
-		return positionToMapPosition(position);
+		const airdrome = dataStore.airdromes?.[airdromeName];
+
+		if (airdrome == null) {
+			return;
+		}
+
+		return positionToMapPosition(airdrome);
 	});
 
 	const onClickFlightGroup = (flightGroup: DcsJs.CampaignFlightGroup, coalition: DcsJs.CampaignCoalition) => {
@@ -153,7 +160,7 @@ export const Map = () => {
 	};
 
 	createEffect(() => {
-		const blueAirport = kobuleti();
+		const blueAirport = centerAirdrome();
 
 		if (blueAirport == null) {
 			return;

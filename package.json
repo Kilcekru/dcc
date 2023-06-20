@@ -25,6 +25,7 @@
 		"clean": "pnpm -sr --parallel clean && pnpm forge:clean",
 		"clean:all": "pnpm -r --parallel clean:all && rm -rf node_modules && pnpm forge:clean:all",
 		"dcsjs:latest": "pnpm up -r @foxdelta2/dcsjs@latest",
+		"dcsjs:next": "pnpm up -r @foxdelta2/dcsjs@next",
 		"dev": "run-p -r dev:build forge:start",
 		"dev:build": "cd utils/build && pnpm watch",
 		"forge:clean": "cd forge && pnpm -s clean",

@@ -5,6 +5,8 @@
 		"module": "ES2020",
 		"target": "ES2021",
 		"paths": {
+			// for easier development of campaign using dcsjs, uncomment following line
+			// "@foxdelta2/dcsjs": ["../../../dcsjs/src/index.ts"],
 			"@kilcekru/dcc-shared-*": ["../../packages/libs-shared/*/src/index.ts"]
 		}
 	}

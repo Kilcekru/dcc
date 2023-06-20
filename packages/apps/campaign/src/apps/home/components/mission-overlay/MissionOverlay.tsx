@@ -7,7 +7,7 @@ import { createEffect, createMemo, createSignal, Show, useContext } from "solid-
 import { unwrap } from "solid-js/store";
 
 import { CampaignContext, Clock } from "../../../../components";
-import { DataContext } from "../../../../components/DataProvider";
+import { useDataStore } from "../../../../components/DataProvider";
 import { useSave } from "../../../../hooks";
 import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
 import { ClientList } from "./ClientList";
@@ -63,7 +63,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 		}
 	});
 
-	const dataStore = useContext(DataContext);
+	const dataStore = useDataStore();
 	const createToast = Components.useCreateErrorToast();
 
 	const onSubmit = async () => {

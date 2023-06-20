@@ -44,6 +44,10 @@ export const generateAwacsPackage = (
 
 	const airdrome = dataStore.airdromes[airdromeName];
 
+	if (airdrome == null) {
+		throw `generateAwacsPackage: airdrome not found: ${airdromeName ?? ""}`;
+	}
+
 	const raceTracks = getAwacsTarget(coalition, state, dataStore);
 
 	if (raceTracks == null) {

@@ -126,11 +126,16 @@ export const calcNearestOppositeAirdrome = (
 ) => {
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
+	const dataAirdromes = dataStore.airdromes;
+
 	const airdromes = oppFaction.airdromeNames.map((name) => {
-		if (dataStore.airdromes == null) {
-			throw "undefined airdromes";
+		const airdrome = dataAirdromes?.[name];
+
+		if (airdrome == null) {
+			throw Error("calcNearestOppositeAirdrome: airdrome not found");
 		}
-		return dataStore.airdromes?.[name];
+
+		return airdrome;
 	});
 
 	const airdrome = findNearest(airdromes, position, (ad) => ad);
@@ -245,7 +250,7 @@ export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.CampaignAircraft)
 
 export function getFrontlineObjective(
 	objectives: Array<{ position: Position }>,
-	oppositeAirdromeNames: Array<DcsJs.AirdromeName>,
+	oppositeAirdromeNames: Array<string>,
 	dataStore: DataStore
 ) {
 	const dataAirdromes = dataStore.airdromes;
@@ -260,6 +265,9 @@ export function getFrontlineObjective(
 
 	const nearestObjective = oppAirdromes.reduce(
 		(prev, airdrome) => {
+			if (airdrome == null) {
+				throw "getFrontlineObjective: airdrome not found";
+			}
 			const obj = findNearest(objectives, airdrome, (obj) => obj.position);
 
 			if (obj == null) {
@@ -282,7 +290,7 @@ export function getFrontlineObjective(
 
 export function getFarthestAirdromeFromPosition(
 	position: Position,
-	airdromeNames: Array<DcsJs.AirdromeName>,
+	airdromeNames: Array<string>,
 	dataStore: DataStore
 ) {
 	const dataAirdromes = dataStore.airdromes;
@@ -291,7 +299,13 @@ export function getFarthestAirdromeFromPosition(
 		return undefined;
 	}
 	const airdromes = airdromeNames.map((name) => {
-		return dataAirdromes[name];
+		const airdrome = dataAirdromes[name];
+
+		if (airdrome == null) {
+			throw Error("getFarthestAirdromeFromPosition: airdrome not found");
+		}
+
+		return airdrome;
 	});
 
 	const airdromesInRange = findInside(airdromes, position, (airdrome) => airdrome, 280_000);
@@ -351,7 +365,15 @@ function moveFarpAircraftsToNearestFarp(
 			return;
 		}
 
-		const airdromes = faction.airdromeNames.map((name) => dataAirdromes[name]);
+		const airdromes = faction.airdromeNames.map((name) => {
+			const airdrome = dataAirdromes[name];
+
+			if (airdrome == null) {
+				throw Error("getFarthestAirdromeFromPosition: airdrome not found");
+			}
+
+			return airdrome;
+		});
 
 		const nearestAirdromes = findNearest(airdromes, sourceStructure.position, (ad) => ad);
 
