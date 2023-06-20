@@ -63,7 +63,7 @@ const escortFlightGroup = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.cap, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.CAP, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -140,7 +140,7 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.strike, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes["Pinpoint Strike"], 2);
 	// console.log("usable aircrafts", usableAircrafts);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {

@@ -28,7 +28,7 @@ export const generateAwacsPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.awacs, 1);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.AWACS, 1);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;

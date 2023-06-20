@@ -4,8 +4,7 @@ import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
-import { scenarioList } from "../data";
-import { Config } from "../data";
+import { Config, scenarioList } from "../data";
 import {
 	campaignRound,
 	clearPackages,
@@ -22,8 +21,8 @@ type CampaignStore = [
 	{
 		activate?: (
 			dataStore: DataStore,
-			blueFactionName: string,
-			redFactionName: string,
+			blueFaction: DcsJs.FactionDefinition,
+			redFaction: DcsJs.FactionDefinition,
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
 			scenario: string
@@ -85,13 +84,13 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFactionName, redFactionName, aiSkill, hardcore, scenarioName) {
+			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 
 				setState("map", (scenario?.map ?? "caucasus") as DcsJs.MapName);
 
 				setState(
-					produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName, aiSkill, hardcore, scenarioName))
+					produce((s) => createCampaign(s, dataStore, blueFaction, redFaction, aiSkill, hardcore, scenarioName))
 				);
 			},
 			setMultiplier(multiplier: number) {

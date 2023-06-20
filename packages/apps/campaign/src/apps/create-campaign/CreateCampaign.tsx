@@ -5,7 +5,7 @@ import { CampaignContext } from "../../components";
 import { useDataStore, useSetDataMap } from "../../components/DataProvider";
 import { Scenario } from "../../data";
 import styles from "./CreateCampaign.module.less";
-import { Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
+import { CustomFaction, Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
@@ -14,13 +14,37 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
 	const [scenario, setScenario] = createSignal("");
-	const [factions, setFactions] = createSignal<[string, string]>(["", ""]);
+	const [blueFaction, setBlueFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
+	const [redFaction, setRedFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
 	const [, { activate }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	const setDataMap = useSetDataMap();
 
 	const onActivate = (aiSkill: DcsJs.AiSkill, hardcore: boolean) => {
-		activate?.(dataStore, factions()[0], factions()[1], aiSkill, hardcore, scenario());
+		const blue = blueFaction();
+		const red = redFaction();
+		if (blue == null || red == null) {
+			return;
+		}
+
+		activate?.(dataStore, blue, red, aiSkill, hardcore, scenario());
+	};
+
+	const customFactionPrev = () => {
+		if (blueFaction() == null) {
+			setCurrentScreen("Blue Faction");
+		} else {
+			setCurrentScreen("Red Faction");
+		}
+	};
+	const onCustomFactionNext = (faction: DcsJs.FactionDefinition) => {
+		if (blueFaction() == null) {
+			setBlueFaction(faction);
+			setCurrentScreen("Red Faction");
+		} else {
+			setRedFaction(faction);
+			setCurrentScreen("Settings");
+		}
 	};
 
 	const onSelectScenario = (scenario: Scenario) => {
@@ -37,19 +61,38 @@ export const CreateCampaign = () => {
 						<Scenarios next={onSelectScenario} />
 					</Match>
 					<Match when={currentScreen() === "Start"}>
-						<ScenarioDescription next={() => setCurrentScreen("Factions")} prev={() => setCurrentScreen("Scenarios")} />
+						<ScenarioDescription
+							next={() => setCurrentScreen("Blue Faction")}
+							prev={() => setCurrentScreen("Scenarios")}
+						/>
 					</Match>
-					<Match when={currentScreen() === "Factions"}>
+					<Match when={currentScreen() === "Blue Faction"}>
 						<Factions
-							next={(blueId, redId) => {
-								setFactions([blueId, redId]);
+							next={(faction) => {
+								setBlueFaction(faction);
+								setCurrentScreen("Red Faction");
+							}}
+							prev={() => setCurrentScreen("Blue Faction")}
+							customFaction={() => setCurrentScreen("Custom Faction")}
+							coalition="blue"
+						/>
+					</Match>
+					<Match when={currentScreen() === "Red Faction"}>
+						<Factions
+							next={(faction) => {
+								setRedFaction(faction);
 								setCurrentScreen("Settings");
 							}}
 							prev={() => setCurrentScreen("Start")}
+							customFaction={() => setCurrentScreen("Custom Faction")}
+							coalition="red"
 						/>
 					</Match>
+					<Match when={currentScreen() === "Custom Faction"}>
+						<CustomFaction prev={customFactionPrev} next={onCustomFactionNext} />
+					</Match>
 					<Match when={currentScreen() === "Settings"}>
-						<Settings next={onActivate} prev={() => setCurrentScreen("Factions")} />
+						<Settings next={onActivate} prev={() => setCurrentScreen("Red Faction")} />
 					</Match>
 				</Switch>
 			</div>

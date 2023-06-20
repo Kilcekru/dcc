@@ -4,20 +4,46 @@
 	"year": 2004,
 	"playable": false,
 	"aircraftTypes": {
-		"cap": ["MiG-31", "Su-30"],
-		"cas": ["Su-25T"],
-		"awacs": ["A-50"],
-		"dead": ["Su-25T"],
-		"strike": ["Su-25T", "Su-34"],
-		"lightAttack": [],
-		"heliHunt": []
+		"CAP": [
+			"MiG-31",
+			"Su-30"
+		],
+		"CAS": [
+			"Su-25T"
+		],
+		"AWACS": [
+			"A-50"
+		],
+		"DEAD": [
+			"Su-25T"
+		],
+		"Pinpoint Strike": [
+			"Su-25T",
+			"Su-34"
+		],
+		"Light Attack": []
 	},
 	"template": {
-		"sams": ["SA-2"],
-		"infantries": ["Infantry AK"],
-		"vehicles": ["BMP-2", "BMP-3", "T-90"],
-		"shoradVehicles": ["ZSU-23-4 Shilka", "Osa 9A33 ln"],
-		"shoradInfantries": ["SA-18 Igla manpad"],
-		"ews": ["1L13 EWR"]
+		"sams": [
+			"SA-2"
+		],
+		"infantries": [
+			"Infantry AK"
+		],
+		"vehicles": [
+			"BMP-2",
+			"BMP-3",
+			"T-90"
+		],
+		"shoradVehicles": [
+			"ZSU-23-4 Shilka",
+			"Osa 9A33 ln"
+		],
+		"shoradInfantries": [
+			"SA-18 Igla manpad"
+		],
+		"ews": [
+			"1L13 EWR"
+		]
 	}
 }
