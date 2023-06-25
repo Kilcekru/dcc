@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { BaseJsonSchema, read, remove, stringify, write } from "./utils";
+import { BaseJsonSchema, read, remove, stringify, write } from "../utils";
 
 export type WriteJsonArgs<Schema extends BaseJsonSchema> = {
 	name: string;

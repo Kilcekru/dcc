@@ -1,4 +1,4 @@
-import { FileArgs, read, remove, write, WriteArgs } from "./utils";
+import { FileArgs, read, remove, write, WriteArgs } from "../utils";
 
 export type WriteFileArgs = Omit<WriteArgs, "namespace">;
 export async function writeFile(args: WriteFileArgs) {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { read, remove, stringify, write } from "./utils";
+import { read, remove, stringify, write } from "../utils";
 
 export class MultiJson<ItemSchema extends BaseItemSchema, SynopsisSchema extends BaseSynopsisSchema> {
 	#options: MultiJsonOptions<ItemSchema, SynopsisSchema>;
