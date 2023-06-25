@@ -336,7 +336,7 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: DataStor
 	const dayHour = date.getUTCHours() ?? 0;
 
 	// Only create packages during the day
-	if (dayHour >= Config.night.endHour && dayHour < Config.night.startHour) {
+	if ((dayHour >= Config.night.endHour && dayHour < Config.night.startHour) || state.allowNightMissions) {
 		moveFrontline(state, dataStore);
 		attackFrontline("blue", state);
 		attackFrontline("red", state);

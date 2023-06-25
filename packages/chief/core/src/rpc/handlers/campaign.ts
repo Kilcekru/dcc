@@ -35,6 +35,7 @@ const getDataStore: Types.Campaign["getDataStore"] = async (map) => {
 		airdromes: mapData.airdromes,
 		objectives: mapData.objectives,
 		strikeTargets: mapData.strikeTargets,
+		groundUnitsTemplates: DcsJs.GetGroundUnitsTemplates(),
 		vehicles: DcsJs.getVehicles(),
 		aircrafts: DcsJs.getAircrafts(),
 		samTemplates: DcsJs.getSamTemplates(),

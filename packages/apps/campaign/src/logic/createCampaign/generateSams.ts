@@ -14,7 +14,14 @@ export const generateSams = (
 	if (coalition === "neutral") {
 		return;
 	}
-	const samType = (firstItem(faction.template.sams) ?? "SA-2") as DcsJs.SamType;
+
+	const template = dataStore.groundUnitsTemplates?.find((t) => faction.templateName === t.name);
+
+	if (template == null) {
+		throw new Error(`generateSams: ground units template: ${faction.templateName} not found`);
+	}
+
+	const samType = (firstItem(template.sams) ?? "SA-2") as DcsJs.SamType;
 
 	const samTemplate = dataStore.samTemplates?.[samType];
 

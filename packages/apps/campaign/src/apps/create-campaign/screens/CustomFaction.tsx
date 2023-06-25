@@ -1,3 +1,4 @@
+/* eslint-disable solid/reactivity */
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createMemo, createSignal, For, Setter } from "solid-js";
@@ -32,6 +33,8 @@ const AircraftList = (props: {
 						onPress={() => props.toggle(aircraft.name)}
 					>
 						{aircraft.display_name}
+						{aircraft.controllable ? "" : "(AI)"}
+						{aircraft.isMod ? "(Mod)" : ""}
 					</Components.Button>
 				)}
 			</For>
@@ -39,34 +42,59 @@ const AircraftList = (props: {
 	);
 };
 
-export const CustomFaction = (props: { next: (faction: DcsJs.FactionDefinition) => void; prev: () => void }) => {
-	/* const [faction, setFaction] = createSignal<DcsJs.FactionDefinition>({
-		aircraftTypes: {
-			AWACS: [],
-			CAP: [],
-			CAS: [],
-			DEAD: [],
-			"Pinpoint Strike": [],
-		},
-		countryName: "USA",
-		name: "Custom",
-		playable: true,
-		template: {
-			ews: [],
-			infantries: [],
-			sams: [],
-			shoradInfantries: [],
-			shoradVehicles: [],
-			vehicles: [],
-		},
-		year: 2000,
-	}); */
-	const [name, setName] = createSignal("Custom");
-	const [cap, setCap] = createSignal<Array<string>>([]);
-	const [cas, setCas] = createSignal<Array<string>>([]);
-	const [awacs, setAwacs] = createSignal<Array<string>>([]);
-	const [dead, setDead] = createSignal<Array<string>>([]);
-	const [strike, setStrike] = createSignal<Array<string>>([]);
+const TemplateList = (props: { selectedTemplateName: string; toggle: (name: string) => void }) => {
+	const dataStore = useDataStore();
+
+	return (
+		<div class={Styles["aircraft-list"]}>
+			<For each={dataStore.groundUnitsTemplates}>
+				{(template) => (
+					<Components.Button
+						class={Styles.aircraft}
+						unstyled={props.selectedTemplateName !== template.name}
+						onPress={() => props.toggle(template.name)}
+					>
+						{template.name}
+					</Components.Button>
+				)}
+			</For>
+		</div>
+	);
+};
+
+const countries = ["USA", "Russia", "France", "Germany", "Austria", "Iraq", "Iran", "Syria"];
+
+const CountryList = (props: { selectedCountry: string; toggle: (name: string) => void }) => {
+	return (
+		<div class={Styles["aircraft-list"]}>
+			<For each={countries}>
+				{(country) => (
+					<Components.Button
+						class={Styles.aircraft}
+						unstyled={props.selectedCountry !== country}
+						onPress={() => props.toggle(country)}
+					>
+						{country}
+					</Components.Button>
+				)}
+			</For>
+		</div>
+	);
+};
+
+export const CustomFaction = (props: {
+	template?: DcsJs.FactionDefinition;
+	next: (faction: DcsJs.FactionDefinition) => void;
+	prev: () => void;
+}) => {
+	const [name, setName] = createSignal(props.template?.name ?? "Custom");
+	const [cap, setCap] = createSignal<Array<string>>(props.template?.aircraftTypes.CAP ?? []);
+	const [cas, setCas] = createSignal<Array<string>>(props.template?.aircraftTypes.CAS ?? []);
+	const [awacs, setAwacs] = createSignal<Array<string>>(props.template?.aircraftTypes.AWACS ?? []);
+	const [dead, setDead] = createSignal<Array<string>>(props.template?.aircraftTypes.DEAD ?? []);
+	const [strike, setStrike] = createSignal<Array<string>>(props.template?.aircraftTypes["Pinpoint Strike"] ?? []);
+	const [templateName, setTemplateName] = createSignal(props.template?.templateName ?? "USA - Modern");
+	const [country, setCountry] = createSignal(props.template?.countryName ?? "USA");
 
 	const toggleAircraft = (task: DcsJs.Task, name: string) => {
 		let list: Array<string> = [];
@@ -120,39 +148,51 @@ export const CustomFaction = (props: { next: (faction: DcsJs.FactionDefinition) 
 				DEAD: dead(),
 				"Pinpoint Strike": strike(),
 			},
-			countryName: "USA",
+			countryName: country(),
 			name: name(),
 			playable: true,
-			year: 2000,
-			template: {
-				sams: ["Hawk"],
-				vehicles: ["M-2 Bradley", "M-1 Abrams"],
-				infantries: ["Soldier M4"],
-				shoradVehicles: ["M6 Linebacker"],
-				shoradInfantries: ["Soldier stinger"],
-				ews: ["FPS-117"],
-			},
+			year: 2023,
+			templateName: templateName(),
 		});
 	};
 	return (
-		<div class={Styles.wrapper}>
-			<h2>Name</h2>
-			<Components.TextField value={name()} onChange={setName} />
-			<h2>CAP</h2>
-			<AircraftList missionTask="CAP" selectedAircrafts={cap()} toggle={(name) => toggleAircraft("CAP", name)} />
-			<h2>CAS</h2>
-			<AircraftList missionTask="CAS" selectedAircrafts={cas()} toggle={(name) => toggleAircraft("CAS", name)} />
-			<h2>AWACS</h2>
-			<AircraftList missionTask="AWACS" selectedAircrafts={awacs()} toggle={(name) => toggleAircraft("AWACS", name)} />
-			<h2>DEAD</h2>
-			<AircraftList missionTask="DEAD" selectedAircrafts={dead()} toggle={(name) => toggleAircraft("DEAD", name)} />
-			<h2>Strike</h2>
-			<AircraftList
-				missionTask="Pinpoint Strike"
-				selectedAircrafts={strike()}
-				toggle={(name) => toggleAircraft("Pinpoint Strike", name)}
-			/>
-			<Components.Button onPress={onNext}>Next</Components.Button>
-		</div>
+		<>
+			<Components.Button large unstyled class={Styles["back-button"]} onPress={() => props.prev()}>
+				<Components.Icons.ArrowBack />
+			</Components.Button>
+			<div class={Styles.wrapper}>
+				<Components.ScrollContainer>
+					<h2>Name</h2>
+					<Components.TextField value={name()} onChange={setName} />
+					<h2 class={Styles["mission-task"]}>Countries</h2>
+					<CountryList selectedCountry={country()} toggle={setCountry} />
+					<h2 class={Styles["mission-task"]}>CAP</h2>
+					<AircraftList missionTask="CAP" selectedAircrafts={cap()} toggle={(name) => toggleAircraft("CAP", name)} />
+					<h2 class={Styles["mission-task"]}>CAS</h2>
+					<AircraftList missionTask="CAS" selectedAircrafts={cas()} toggle={(name) => toggleAircraft("CAS", name)} />
+					<h2 class={Styles["mission-task"]}>AWACS</h2>
+					<AircraftList
+						missionTask="AWACS"
+						selectedAircrafts={awacs()}
+						toggle={(name) => toggleAircraft("AWACS", name)}
+					/>
+					<h2 class={Styles["mission-task"]}>DEAD</h2>
+					<AircraftList missionTask="DEAD" selectedAircrafts={dead()} toggle={(name) => toggleAircraft("DEAD", name)} />
+					<h2 class={Styles["mission-task"]}>Strike</h2>
+					<AircraftList
+						missionTask="Pinpoint Strike"
+						selectedAircrafts={strike()}
+						toggle={(name) => toggleAircraft("Pinpoint Strike", name)}
+					/>
+					<h2 class={Styles["mission-task"]}>Ground Units</h2>
+					<TemplateList selectedTemplateName={templateName()} toggle={setTemplateName} />
+					<div class={Styles.buttons}>
+						<Components.Button large onPress={onNext}>
+							Next
+						</Components.Button>
+					</div>
+				</Components.ScrollContainer>
+			</div>
+		</>
 	);
 };

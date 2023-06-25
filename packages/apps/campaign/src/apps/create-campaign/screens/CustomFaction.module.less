@@ -1,5 +1,7 @@
 .wrapper {
+	position: relative;
 	width: 1000px;
+	left: -250px;
 }
 
 .aircraft-list {
@@ -10,4 +12,27 @@
 
 .aircraft {
 	min-width: fit-content;
+}
+
+.mission-task {
+	margin-top: 20px;
+}
+
+.buttons {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 40px;
+}
+
+.back-button {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+
+	svg {
+		height: 32px;
+		width: 32px;
+		position: relative;
+		top: 2px;
+	}
 }

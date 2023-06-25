@@ -12,12 +12,5 @@
 		"lightAttack": ["SA342L"],
 		"heliHunt": ["SA342Mistral"]
 	},
-	"template": {
-		"sams": ["Hawk"],
-		"vehicles": ["LAV-25"],
-		"infantries": ["Soldier M4"],
-		"shoradVehicles": ["Gepard"],
-		"shoradInfantries": ["Soldier stinger"],
-		"ews": ["FPS-117"]
-	}
+	"template": "USA - Cold War"
 }

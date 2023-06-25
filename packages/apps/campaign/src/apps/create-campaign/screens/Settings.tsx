@@ -5,8 +5,12 @@ import { createSignal } from "solid-js";
 import { AiSkillMap } from "../../../utils";
 import Styles from "./Settings.module.less";
 
-export const Settings = (props: { next: (aiSkill: DcsJs.AiSkill, hardcore: boolean) => void; prev: () => void }) => {
+export const Settings = (props: {
+	next: (aiSkill: DcsJs.AiSkill, hardcore: boolean, nightMissions: boolean) => void;
+	prev: () => void;
+}) => {
 	const [hardcore, setHardcore] = createSignal(false);
+	const [nightMissions, setNightMissions] = createSignal(false);
 	const [aiSkill, setAiSkill] = createSignal<DcsJs.AiSkill>("Average");
 	return (
 		<div>
@@ -19,6 +23,9 @@ export const Settings = (props: { next: (aiSkill: DcsJs.AiSkill, hardcore: boole
 				Hardcore
 			</Components.Switch>
 			<p class={Styles["hardcore-description"]}>You have one life. When you die the campaign is over</p>
+			<Components.Switch checked={nightMissions()} onChange={(value) => setNightMissions(value)}>
+				Allow Night Missions
+			</Components.Switch>
 			<h2 class={Styles["radio-title"]}>AI Skill Level</h2>
 			<Components.RadioGroup id={aiSkill()} onChange={(value) => setAiSkill(value as DcsJs.AiSkill)}>
 				<Components.RadioItem id="Average">{AiSkillMap["Average"]}</Components.RadioItem>
@@ -28,7 +35,7 @@ export const Settings = (props: { next: (aiSkill: DcsJs.AiSkill, hardcore: boole
 			</Components.RadioGroup>
 
 			<div class={Styles.buttons}>
-				<Components.Button large onPress={() => props.next(aiSkill(), hardcore())}>
+				<Components.Button large onPress={() => props.next(aiSkill(), hardcore(), nightMissions())}>
 					Next
 				</Components.Button>
 			</div>

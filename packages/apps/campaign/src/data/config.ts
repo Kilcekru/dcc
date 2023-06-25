@@ -25,14 +25,14 @@ export const Config = {
 			fuel: 0.2,
 		},
 		frontline: {
-			barrack: 40_000,
-			depot: 57_000,
+			barrack: 55_000,
+			depot: 70_000,
 			initialFactor: 0.75,
 		},
 		repair: 100_000,
 		coalitionMultiplier: {
 			blue: 1,
-			red: 4,
+			red: 3.5,
 		},
 	},
 	flight: {

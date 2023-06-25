@@ -1,7 +1,5 @@
-import * as pressable from "@zag-js/pressable";
-import { normalizeProps, useMachine } from "@zag-js/solid";
 import { cnb } from "cnbuilder";
-import { createMemo, createUniqueId, JSX, Match, Switch } from "solid-js";
+import { JSX, Match, Switch } from "solid-js";
 
 import style from "./ListItem.module.less";
 
@@ -14,19 +12,8 @@ const Item = (props: { children: JSX.Element; class?: string } & JSX.HTMLAttribu
 };
 
 const PressableItem = (props: { children: JSX.Element; class?: string; onPress: () => void }) => {
-	const [state, send] = useMachine(
-		pressable.machine({
-			id: createUniqueId(),
-			onPress() {
-				props.onPress();
-			},
-		})
-	);
-
-	const api = createMemo(() => pressable.connect(state, send, normalizeProps));
-
 	return (
-		<Item {...api().pressableProps} class={cnb(style["list-item--pressable"], props.class)}>
+		<Item onClick={() => props.onPress()} class={cnb(style["list-item--pressable"], props.class)}>
 			{props.children}
 		</Item>
 	);

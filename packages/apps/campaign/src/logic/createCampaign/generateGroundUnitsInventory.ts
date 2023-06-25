@@ -1,4 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data";
@@ -7,9 +8,16 @@ import { randomItem } from "../../utils";
 export const generateGroundUnitsInventory = (
 	faction: DcsJs.FactionDefinition,
 	coalition: DcsJs.CampaignCoalition,
-	scenario: Scenario
+	scenario: Scenario,
+	dataStore: DataStore
 ) => {
-	const vehicles: Array<DcsJs.CampaignUnit> = faction.template.vehicles.map((name) => {
+	const template = dataStore.groundUnitsTemplates?.find((t) => faction.templateName === t.name);
+
+	if (template == null) {
+		throw new Error(`generateGroundUnitsInventory: ground units template: ${faction.templateName} not found`);
+	}
+
+	const vehicles: Array<DcsJs.CampaignUnit> = template.vehicles.map((name) => {
 		return {
 			id: "",
 			name: name,
@@ -21,7 +29,7 @@ export const generateGroundUnitsInventory = (
 		};
 	});
 
-	const infantries: Array<DcsJs.CampaignUnit> = faction.template.infantries.map((name) => {
+	const infantries: Array<DcsJs.CampaignUnit> = template.infantries.map((name) => {
 		return {
 			id: "",
 			name: name,
@@ -33,7 +41,7 @@ export const generateGroundUnitsInventory = (
 		};
 	});
 
-	const shoradVehicles: Array<DcsJs.CampaignUnit> = faction.template.shoradVehicles.map((name) => {
+	const shoradVehicles: Array<DcsJs.CampaignUnit> = template.shoradVehicles.map((name) => {
 		return {
 			id: "",
 			name,
@@ -45,7 +53,7 @@ export const generateGroundUnitsInventory = (
 		};
 	});
 
-	const shoradInfantries: Array<DcsJs.CampaignUnit> = faction.template.shoradInfantries.map((name) => {
+	const shoradInfantries: Array<DcsJs.CampaignUnit> = template.shoradInfantries.map((name) => {
 		return {
 			id: "",
 			name,
@@ -130,7 +138,7 @@ export const generateGroundUnitsInventory = (
 			return;
 		}
 
-		const name = randomItem(faction.template.ews);
+		const name = randomItem(template.ews);
 
 		if (name == null) {
 			return;

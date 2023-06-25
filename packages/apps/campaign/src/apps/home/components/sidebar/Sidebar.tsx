@@ -26,7 +26,9 @@ export const Sidebar = () => {
 		<div class={Styles.sidebar}>
 			<Show when={isNight()}>
 				<div class={Styles["night-wrapper"]}>
-					<p class={Styles["night-description"]}>No flight groups are planned during the night.</p>
+					<Show when={!state.allowNightMissions}>
+						<p class={Styles["night-description"]}>No flight groups are planned during the night.</p>
+					</Show>
 					<div class={Styles["night-buttons"]}>
 						<Components.Button onPress={() => skipToNextDay?.()}>Jump to Day {date().getDate() + 1}</Components.Button>
 					</div>

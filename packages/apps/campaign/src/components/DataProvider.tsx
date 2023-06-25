@@ -9,6 +9,7 @@ const initState: DataStore = {
 	airdromes: undefined,
 	objectives: undefined,
 	strikeTargets: undefined,
+	groundUnitsTemplates: undefined,
 	samTemplates: undefined,
 	vehicles: undefined,
 	aircrafts: undefined,

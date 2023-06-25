@@ -23,6 +23,7 @@ export const createCampaign = (
 	redFaction: DcsJs.FactionDefinition,
 	aiSkill: DcsJs.AiSkill,
 	hardcore: boolean,
+	nightMissions: boolean,
 	scenarioName: string
 ) => {
 	const scenario = scenarioList.find((sc) => sc.name === scenarioName);
@@ -76,7 +77,7 @@ export const createCampaign = (
 				dataStore,
 				objectives: blueObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario),
+			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
 		},
 		packages: [],
 		sams: [], // will be filled later
@@ -102,7 +103,7 @@ export const createCampaign = (
 				dataStore,
 				objectives: redObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario),
+			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
 		},
 		packages: [],
 		sams: [], // will be filled later
@@ -218,14 +219,17 @@ export const createCampaign = (
 		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
 
 	addEWs(state, scenario);
+
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
 
 	state.name = scenario.name;
 	state.active = true;
+	state.loaded = true;
 	state.winningCondition = scenario["win-condition"];
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
+	state.allowNightMissions = nightMissions;
 	state.winner = undefined;
 	state.toastMessages = [];
 

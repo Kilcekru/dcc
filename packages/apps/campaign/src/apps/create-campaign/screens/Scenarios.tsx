@@ -31,8 +31,12 @@ const ScenarioItem = (props: { scenario: Scenario; onPress: (name: Scenario) => 
 	};
 
 	return (
-		<Components.ListItem onPress={() => props.onPress(props.scenario)} class={Styles.item}>
-			<Components.Card class={Styles.scenario} disabled={!props.scenario.available}>
+		<Components.ListItem class={Styles.item}>
+			<Components.Card
+				class={Styles.scenario}
+				disabled={!props.scenario.available}
+				onPress={() => props.onPress(props.scenario)}
+			>
 				<div class={cnb(Styles.background, scenarioImage())} />
 				<h2 class={Styles.name}>{props.scenario.name}</h2>
 				<div class={Styles.stats}>

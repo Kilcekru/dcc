@@ -25,6 +25,7 @@ type CampaignStore = [
 			redFaction: DcsJs.FactionDefinition,
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
+			nightMissions: boolean,
 			scenario: string
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
@@ -68,6 +69,7 @@ export const initState: CampaignState = {
 	aiSkill: "Average",
 	name: "",
 	nextDay: false,
+	allowNightMissions: false,
 	missionId: undefined,
 	toastMessages: [],
 	map: "caucasus",
@@ -79,19 +81,25 @@ export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore({ ...initState });
+	const [state, setState] = createStore<CampaignState>(structuredClone(initState) as CampaignState);
 
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, scenarioName) {
+			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
-
-				setState("map", (scenario?.map ?? "caucasus") as DcsJs.MapName);
-
-				setState(
-					produce((s) => createCampaign(s, dataStore, blueFaction, redFaction, aiSkill, hardcore, scenarioName))
+				const newState = createCampaign(
+					structuredClone(initState) as CampaignState,
+					dataStore,
+					blueFaction,
+					redFaction,
+					aiSkill,
+					hardcore,
+					nightMissions,
+					scenarioName
 				);
+				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
+				setState(newState);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
