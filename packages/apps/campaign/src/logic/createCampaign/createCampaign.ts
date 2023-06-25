@@ -2,9 +2,8 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { factionList } from "../../data";
 import { scenarioList } from "../../data/scenarios";
-import { getUsableUnit, Minutes, random, randomList } from "../../utils";
+import { firstItem, getUsableUnit, Minutes, random, randomList } from "../../utils";
 import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
@@ -20,27 +19,34 @@ import { claimsObjective } from "./utils";
 export const createCampaign = (
 	state: CampaignState,
 	dataStore: DataStore,
-	blueFactionName: string,
-	redFactionName: string,
+	blueFaction: DcsJs.FactionDefinition,
+	redFaction: DcsJs.FactionDefinition,
 	aiSkill: DcsJs.AiSkill,
 	hardcore: boolean,
+	nightMissions: boolean,
 	scenarioName: string
 ) => {
 	const scenario = scenarioList.find((sc) => sc.name === scenarioName);
-	const blueBaseFaction = factionList.find((f) => f.name === blueFactionName);
+	const airdromes = dataStore.airdromes;
 
 	if (scenario == null) {
-		throw "unknown scenario";
+		throw "createCampaign: unknown scenario";
 	}
 
-	if (blueBaseFaction == null) {
-		throw "unknown faction: " + blueFactionName;
+	if (airdromes == null) {
+		throw "createCampaign: unknown airdromes";
 	}
 
-	const redBaseFaction = factionList.find((f) => f.name === redFactionName);
+	const firstBlueAirdromeName = firstItem(scenario.blue.airdromeNames) as DcsJs.AirdromeName | undefined;
 
-	if (redBaseFaction == null) {
-		throw "unknown faction: " + blueFactionName;
+	if (firstBlueAirdromeName == null) {
+		throw "createCampaign: unknown firstBlueAirdromeName";
+	}
+
+	const firstBlueAirdrome = airdromes[firstBlueAirdromeName];
+
+	if (firstBlueAirdrome == null) {
+		throw "unknown airdrome";
 	}
 
 	const blueObjectives: DataStore["objectives"] = [];
@@ -60,18 +66,18 @@ export const createCampaign = (
 	});
 
 	state.blueFaction = {
-		...blueBaseFaction,
-		countryName: blueBaseFaction.countryName as DcsJs.CountryName,
+		...blueFaction,
+		countryName: blueFaction.countryName as DcsJs.CountryName,
 		airdromeNames: scenario.blue.airdromeNames as DcsJs.AirdromeName[],
 		inventory: {
 			aircrafts: generateAircraftInventory({
 				coalition: "blue",
-				faction: blueBaseFaction,
+				faction: blueFaction,
 				scenario,
 				dataStore,
 				objectives: blueObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(blueBaseFaction, "blue", scenario),
+			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
 		},
 		packages: [],
 		sams: [], // will be filled later
@@ -85,19 +91,19 @@ export const createCampaign = (
 	};
 
 	state.redFaction = {
-		...redBaseFaction,
-		countryName: redBaseFaction.countryName as DcsJs.CountryName,
+		...redFaction,
+		countryName: redFaction.countryName as DcsJs.CountryName,
 		airdromeNames: scenario.red.airdromeNames as DcsJs.AirdromeName[],
 
 		inventory: {
 			aircrafts: generateAircraftInventory({
 				coalition: "red",
-				faction: redBaseFaction,
+				faction: redFaction,
 				scenario,
 				dataStore,
 				objectives: redObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(redBaseFaction, "red", scenario),
+			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
 		},
 		packages: [],
 		sams: [], // will be filled later
@@ -213,14 +219,17 @@ export const createCampaign = (
 		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
 
 	addEWs(state, scenario);
+
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
 
 	state.name = scenario.name;
 	state.active = true;
+	state.loaded = true;
 	state.winningCondition = scenario["win-condition"];
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
+	state.allowNightMissions = nightMissions;
 	state.winner = undefined;
 	state.toastMessages = [];
 

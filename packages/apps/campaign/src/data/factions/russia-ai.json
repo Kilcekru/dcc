@@ -1,14 +1,14 @@
 {
 	"countryName": "Russia",
 	"name": "Russia",
-	"year": 1985,
-	"playable": true,
+	"year": 2004,
+	"playable": false,
 	"aircraftTypes": {
-		"CAP": ["MiG-29S", "Su-27"],
-		"CAS": ["Ka-50_3"],
+		"CAP": ["MiG-31", "Su-30"],
+		"CAS": ["Su-25T"],
 		"AWACS": ["A-50"],
 		"DEAD": ["Su-25T"],
-		"Pinpoint Strike": ["Su-25T", "Su-27"]
+		"Pinpoint Strike": ["Su-25T", "Su-34"]
 	},
 	"templateName": "Russia - Modern"
 }

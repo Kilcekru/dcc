@@ -32,7 +32,7 @@ export const generateDeadPackage = (
 	if (faction == null || dataStore.airdromes == null) {
 		return;
 	}
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.dead, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.DEAD, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;

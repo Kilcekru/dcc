@@ -1,11 +1,12 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { createSignal, Match, Switch, useContext } from "solid-js";
+import { useCreateErrorToast } from "@kilcekru/dcc-lib-components";
+import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { useDataStore, useSetDataMap } from "../../components/DataProvider";
 import { Scenario } from "../../data";
 import styles from "./CreateCampaign.module.less";
-import { Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
+import { CustomFaction, Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
 
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
@@ -14,13 +15,48 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
 	const [scenario, setScenario] = createSignal("");
-	const [factions, setFactions] = createSignal<[string, string]>(["", ""]);
+	const [blueFaction, setBlueFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
+	const [redFaction, setRedFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
+	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
 	const [, { activate }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	const setDataMap = useSetDataMap();
+	const createToast = useCreateErrorToast();
 
-	const onActivate = (aiSkill: DcsJs.AiSkill, hardcore: boolean) => {
-		activate?.(dataStore, factions()[0], factions()[1], aiSkill, hardcore, scenario());
+	const onActivate = (aiSkill: DcsJs.AiSkill, hardcore: boolean, nightMissions: boolean) => {
+		const blue = blueFaction();
+		const red = redFaction();
+		if (blue == null || red == null) {
+			return;
+		}
+
+		try {
+			activate?.(dataStore, blue, red, aiSkill, hardcore, nightMissions, scenario());
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+			createToast({
+				title: "Campaign not created",
+				description: e instanceof Error ? e.message : "Unknown Error",
+			});
+		}
+	};
+
+	const customFactionPrev = () => {
+		if (blueFaction() == null) {
+			setCurrentScreen("Blue Faction");
+		} else {
+			setCurrentScreen("Red Faction");
+		}
+	};
+	const onCustomFactionNext = (faction: DcsJs.FactionDefinition) => {
+		if (blueFaction() == null) {
+			setBlueFaction(faction);
+			setCurrentScreen("Red Faction");
+		} else {
+			setRedFaction(faction);
+			setCurrentScreen("Settings");
+		}
 	};
 
 	const onSelectScenario = (scenario: Scenario) => {
@@ -29,30 +65,64 @@ export const CreateCampaign = () => {
 		setDataMap(scenario.map as DcsJs.MapName);
 	};
 
+	const onCustomFaction = (template?: DcsJs.FactionDefinition) => {
+		if (template != null) {
+			setTemplateFaction(template);
+		} else {
+			setTemplateFaction(undefined);
+		}
+
+		setCurrentScreen("Custom Faction");
+	};
 	return (
-		<div class={styles["create-campaign"]}>
-			<div class={styles["create-campaign__content"]}>
-				<Switch fallback={<div>Not Found</div>}>
-					<Match when={currentScreen() === "Scenarios"}>
-						<Scenarios next={onSelectScenario} />
-					</Match>
-					<Match when={currentScreen() === "Start"}>
-						<ScenarioDescription next={() => setCurrentScreen("Factions")} prev={() => setCurrentScreen("Scenarios")} />
-					</Match>
-					<Match when={currentScreen() === "Factions"}>
-						<Factions
-							next={(blueId, redId) => {
-								setFactions([blueId, redId]);
-								setCurrentScreen("Settings");
-							}}
-							prev={() => setCurrentScreen("Start")}
-						/>
-					</Match>
-					<Match when={currentScreen() === "Settings"}>
-						<Settings next={onActivate} prev={() => setCurrentScreen("Factions")} />
-					</Match>
-				</Switch>
+		<ErrorBoundary fallback={<div>Something went wrong during campaign creation</div>}>
+			<div class={styles["create-campaign"]}>
+				<div class={styles["create-campaign__content"]}>
+					<Switch fallback={<div>Not Found</div>}>
+						<Match when={currentScreen() === "Scenarios"}>
+							<Scenarios next={onSelectScenario} />
+						</Match>
+						<Match when={currentScreen() === "Start"}>
+							<ScenarioDescription
+								next={() => setCurrentScreen("Blue Faction")}
+								prev={() => setCurrentScreen("Scenarios")}
+							/>
+						</Match>
+						<Match when={currentScreen() === "Blue Faction"}>
+							<Factions
+								next={(faction) => {
+									setBlueFaction(faction);
+									setCurrentScreen("Red Faction");
+								}}
+								prev={() => setCurrentScreen("Blue Faction")}
+								customFaction={onCustomFaction}
+								coalition="blue"
+							/>
+						</Match>
+						<Match when={currentScreen() === "Red Faction"}>
+							<Factions
+								next={(faction) => {
+									setRedFaction(faction);
+									setCurrentScreen("Settings");
+								}}
+								prev={() => {
+									setBlueFaction(undefined);
+									setCurrentScreen("Blue Faction");
+								}}
+								customFaction={onCustomFaction}
+								coalition="red"
+								blueCountry={blueFaction()?.countryName}
+							/>
+						</Match>
+						<Match when={currentScreen() === "Custom Faction"}>
+							<CustomFaction prev={customFactionPrev} next={onCustomFactionNext} template={templateFaction()} />
+						</Match>
+						<Match when={currentScreen() === "Settings"}>
+							<Settings next={onActivate} prev={() => setCurrentScreen("Red Faction")} />
+						</Match>
+					</Switch>
+				</div>
 			</div>
-		</div>
+		</ErrorBoundary>
 	);
 };

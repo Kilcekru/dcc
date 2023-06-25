@@ -5,6 +5,7 @@ import { FastForward } from "./FastForward";
 import { FastForwardFill } from "./FastForwardFill";
 import { Pause } from "./Pause";
 import { PauseFill } from "./PauseFill";
+import { PencilFill } from "./PencilFill";
 import { PersonAdd } from "./person-add";
 import { PersonRemove } from "./person-remove";
 import { Play } from "./Play";
@@ -22,6 +23,7 @@ export const Icons = {
 	FastForwardFill,
 	Pause,
 	PauseFill,
+	PencilFill,
 	PersonAdd,
 	PersonRemove,
 	Play,

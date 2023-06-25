@@ -4,8 +4,7 @@ import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
-import { scenarioList } from "../data";
-import { Config } from "../data";
+import { Config, scenarioList } from "../data";
 import {
 	campaignRound,
 	clearPackages,
@@ -22,10 +21,11 @@ type CampaignStore = [
 	{
 		activate?: (
 			dataStore: DataStore,
-			blueFactionName: string,
-			redFactionName: string,
+			blueFaction: DcsJs.FactionDefinition,
+			redFaction: DcsJs.FactionDefinition,
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
+			nightMissions: boolean,
 			scenario: string
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
@@ -69,6 +69,7 @@ export const initState: CampaignState = {
 	aiSkill: "Average",
 	name: "",
 	nextDay: false,
+	allowNightMissions: false,
 	missionId: undefined,
 	toastMessages: [],
 	map: "caucasus",
@@ -80,19 +81,25 @@ export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore({ ...initState });
+	const [state, setState] = createStore<CampaignState>(structuredClone(initState) as CampaignState);
 
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFactionName, redFactionName, aiSkill, hardcore, scenarioName) {
+			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
-
-				setState("map", (scenario?.map ?? "caucasus") as DcsJs.MapName);
-
-				setState(
-					produce((s) => createCampaign(s, dataStore, blueFactionName, redFactionName, aiSkill, hardcore, scenarioName))
+				const newState = createCampaign(
+					structuredClone(initState) as CampaignState,
+					dataStore,
+					blueFaction,
+					redFaction,
+					aiSkill,
+					hardcore,
+					nightMissions,
+					scenarioName
 				);
+				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
+				setState(newState);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);

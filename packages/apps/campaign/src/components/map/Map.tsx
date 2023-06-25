@@ -243,9 +243,18 @@ export const Map = () => {
 
 			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
 
+			let position: MapPosition = [0, 0];
+
+			try {
+				position = positionToMapPosition(fg.position);
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error("invalid position for fg ", fg.name);
+			}
+
 			if (flightGroupMarkers[fg.id] == null) {
 				const marker = createSymbol({
-					mapPosition: positionToMapPosition(fg.position),
+					mapPosition: position,
 					hostile: coalition === "red",
 					air: true,
 					unitCode: code as SidcUnitCodeKey,
@@ -258,7 +267,7 @@ export const Map = () => {
 
 				flightGroupMarkers[fg.id] = marker;
 			} else {
-				flightGroupMarkers[fg.id]?.marker.setLatLng(positionToMapPosition(fg.position));
+				flightGroupMarkers[fg.id]?.marker.setLatLng(position);
 			}
 		});
 	};

@@ -7,6 +7,7 @@ export * from "./misc";
 export type DataStore = {
 	map: DcsJs.MapName;
 	aircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.Aircraft>> | undefined;
+	groundUnitsTemplates: DcsJs.GetGroundUnitsTemplates | undefined;
 	airdromes: DcsJs.GetMapData["airdromes"] | undefined;
 	objectives: DcsJs.GetMapData["objectives"] | undefined;
 	strikeTargets: DcsJs.GetMapData["strikeTargets"] | undefined;
@@ -29,6 +30,7 @@ export type CampaignState = Omit<DcsJs.Campaign, "blueFaction" | "redFaction"> &
 	redFaction: DcsJs.CampaignFaction | undefined;
 	winningCondition: { type: "ground units" } | { type: "objective"; value: string };
 	nextDay: boolean;
+	allowNightMissions?: boolean;
 	toastMessages: Array<{ id: string; title?: string; description?: string; type: "error" | "info" }>;
 };
 

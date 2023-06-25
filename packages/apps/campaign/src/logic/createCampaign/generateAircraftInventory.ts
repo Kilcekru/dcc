@@ -82,8 +82,8 @@ export const generateAircraftInventory = ({
 		frontlineObjective
 	);
 
-	faction.aircraftTypes.awacs.forEach((acType) => {
-		const count = Math.max(2, Config.inventory.aircraft.awacs * faction.aircraftTypes.cap.length);
+	faction.aircraftTypes.AWACS?.forEach((acType) => {
+		const count = Math.max(2, Config.inventory.aircraft.awacs * (faction.aircraftTypes.AWACS?.length ?? 0));
 		const aircraftType = acType as DcsJs.AircraftType;
 
 		Array.from({ length: count }, () => {
@@ -110,8 +110,8 @@ export const generateAircraftInventory = ({
 			throw "airdrome not found";
 		}
 
-		faction.aircraftTypes.cap.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.cap * faction.aircraftTypes.cap.length);
+		faction.aircraftTypes.CAP?.forEach((acType) => {
+			const count = Math.max(2, Config.inventory.aircraft.cap * (faction.aircraftTypes.CAP?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 
 			Array.from({ length: count }, () => {
@@ -131,8 +131,8 @@ export const generateAircraftInventory = ({
 			});
 		});
 
-		faction.aircraftTypes.cas.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.cas * faction.aircraftTypes.cap.length);
+		faction.aircraftTypes.CAS?.forEach((acType) => {
+			const count = Math.max(2, Config.inventory.aircraft.cas * (faction.aircraftTypes.CAS?.length ?? 0));
 			const aircraft = dataStore.aircrafts?.[acType as DcsJs.AircraftType];
 			const aircraftType = acType as DcsJs.AircraftType;
 
@@ -159,8 +159,11 @@ export const generateAircraftInventory = ({
 			});
 		});
 
-		faction.aircraftTypes.strike.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.strike * faction.aircraftTypes.strike.length);
+		faction.aircraftTypes["Pinpoint Strike"]?.forEach((acType) => {
+			const count = Math.max(
+				2,
+				Config.inventory.aircraft.strike * (faction.aircraftTypes["Pinpoint Strike"]?.length ?? 0)
+			);
 			const aircraftType = acType as DcsJs.AircraftType;
 
 			Array.from({ length: count }, () => {
@@ -180,8 +183,8 @@ export const generateAircraftInventory = ({
 			});
 		});
 
-		faction.aircraftTypes.dead.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.dead * faction.aircraftTypes.strike.length);
+		faction.aircraftTypes.DEAD?.forEach((acType) => {
+			const count = Math.max(2, Config.inventory.aircraft.dead * (faction.aircraftTypes.DEAD?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 
 			Array.from({ length: count }, () => {

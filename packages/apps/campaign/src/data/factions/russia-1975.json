@@ -4,20 +4,11 @@
 	"year": 1975,
 	"playable": true,
 	"aircraftTypes": {
-		"cap": ["MiG-21Bis"],
-		"cas": ["Su-25", "Mi-24P"],
-		"awacs": ["A-50"],
-		"dead": ["Su-25T"],
-		"strike": ["Su-17M4", "Su-24M"],
-		"lightAttack": [],
-		"heliHunt": []
+		"CAP": ["MiG-21Bis"],
+		"CAS": ["Su-25", "Mi-24P"],
+		"AWACS": ["A-50"],
+		"DEAD": ["Su-25T"],
+		"Pinpoint Strike": ["Su-17M4", "Su-24M"]
 	},
-	"template": {
-		"sams": ["SA-2"],
-		"infantries": ["Infantry AK"],
-		"vehicles": ["BMP-2"],
-		"shoradVehicles": ["ZSU-23-4 Shilka"],
-		"shoradInfantries": [],
-		"ews": ["1L13 EWR"]
-	}
+	"templateName": "Russia - Cold War"
 }

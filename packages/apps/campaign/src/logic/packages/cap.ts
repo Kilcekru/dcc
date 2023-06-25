@@ -37,7 +37,7 @@ export const generateCapPackage = (
 
 	const aircraftCount = random(2, 4);
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.cap, aircraftCount);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, aircraftCount);
 	const airdromes = dataStore.airdromes;
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {

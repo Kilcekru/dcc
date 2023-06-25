@@ -1,7 +1,7 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
-import { createSignal, Match, onMount, Show, Switch, useContext } from "solid-js";
+import { createSignal, ErrorBoundary, Match, onMount, Show, Switch, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CreateCampaign, Home } from "./apps";
@@ -61,9 +61,9 @@ const AppWithContext = () => {
 	return (
 		<Show when={campaignState !== undefined} fallback={<div>Loading...</div>}>
 			<CampaignProvider campaignState={campaignState()}>
-				<Components.ToastProvider>
+				<ErrorBoundary fallback={<div>Something went wrong</div>}>
 					<App />
-				</Components.ToastProvider>
+				</ErrorBoundary>
 			</CampaignProvider>
 		</Show>
 	);
@@ -71,9 +71,11 @@ const AppWithContext = () => {
 
 const AppWithData = () => {
 	return (
-		<DataProvider>
-			<AppWithContext />
-		</DataProvider>
+		<Components.ToastProvider>
+			<DataProvider>
+				<AppWithContext />
+			</DataProvider>
+		</Components.ToastProvider>
 	);
 };
 

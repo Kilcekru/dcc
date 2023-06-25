@@ -34,7 +34,7 @@ export const generateCasPackage = (
 		return;
 	}
 
-	let usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.cas, 2);
+	let usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAS, 2);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		return;
@@ -68,7 +68,7 @@ export const generateCasPackage = (
 	}
 
 	if (groundGroupTarget.groupType === "infantry") {
-		const usableLightAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.lightAttack, 2);
+		const usableLightAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes["Light Attack"], 2);
 
 		if (usableLightAircrafts.length >= 2) {
 			const firstLightAircraft = firstItem(usableAircrafts);
