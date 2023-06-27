@@ -2,6 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
+	z-index: 110000;
 }
 
 .description {
@@ -25,5 +26,17 @@
 		&:hover {
 			background-color: var(--secondary-hover);
 		}
+	}
+}
+
+.reset-modal {
+	z-index: 110000;
+
+	&.modal__backdrop {
+		z-index: 110000;
+	}
+
+	&.modal__container {
+		z-index: 110001;
 	}
 }

@@ -16,21 +16,6 @@ const Faction = (props: {
 }) => {
 	const dataStore = useDataStore();
 
-	const flagCountry = () => {
-		switch (props.faction.countryName) {
-			case "USA":
-				return Styles.usa;
-			case "France":
-				return Styles.france;
-			case "Russia":
-				return Styles.russia;
-			case "Spain":
-				return Styles.spain;
-			default:
-				return;
-		}
-	};
-
 	const aircrafts = createMemo(() => {
 		const aircraftTypes: Array<string> = [];
 
@@ -54,7 +39,7 @@ const Faction = (props: {
 	return (
 		<Components.ListItem class={Styles.item}>
 			<Components.Card class={Styles.faction} onPress={() => props.onPress(props.faction.name)}>
-				<div class={cnb(Styles.flag, flagCountry())} />
+				<Components.Flag class={cnb(Styles.flag)} countryName={props.faction.countryName} />
 				<h2 class={Styles.name}>{props.faction.name}</h2>
 				<h3 class={Styles.year}>{props.faction.year}</h3>
 				<div class={Styles["aircraft-list"]}>

@@ -59,6 +59,8 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				setOverlayState("ready");
 				pause?.();
 				onSave();
+			} else {
+				setOverlayState("forwarding");
 			}
 		}
 	});

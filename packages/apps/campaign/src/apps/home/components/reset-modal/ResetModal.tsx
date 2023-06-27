@@ -21,7 +21,7 @@ export const ResetModal = () => {
 	};
 
 	return (
-		<Components.Modal isOpen={isOpen()} onClose={() => setIsOpen(false)}>
+		<Components.Modal isOpen={isOpen()} onClose={() => setIsOpen(false)} class={Styles["reset-modal"]}>
 			<div class={Styles.content}>
 				<p class={Styles.description}>Are you sure you want to reset the campaign?</p>
 				<div class={Styles.buttons}>
