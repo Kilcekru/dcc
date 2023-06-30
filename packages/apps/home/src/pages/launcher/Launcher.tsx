@@ -51,16 +51,14 @@ const AppItem = (props: { app: App }) => {
 	};
 
 	return (
-		<Components.ListItem onPress={() => onPress()} class={Styles.item}>
-			<Components.Card class={Styles.app} disabled={!props.app.available}>
-				<div class={cnb(Styles.background, appImage())} />
-				<h2 class={Styles.name}>{props.app.name}</h2>
-				<p class={Styles.description}>{props.app.description}</p>
-				<Show when={!props.app.available}>
-					<div class={Styles["coming-soon"]}>Coming Soon</div>
-				</Show>
-			</Components.Card>
-		</Components.ListItem>
+		<Components.Card onPress={() => onPress()} class={Styles.app} disabled={!props.app.available}>
+			<div class={cnb(Styles.background, appImage())} />
+			<h2 class={Styles.name}>{props.app.name}</h2>
+			<p class={Styles.description}>{props.app.description}</p>
+			<Show when={!props.app.available}>
+				<div class={Styles["coming-soon"]}>Coming Soon</div>
+			</Show>
+		</Components.Card>
 	);
 };
 export const Launcher = (props: { onSettings: () => void }) => {

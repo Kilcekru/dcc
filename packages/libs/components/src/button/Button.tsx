@@ -14,10 +14,12 @@ export const Button = (props: {
 	tooltipLabel?: string;
 }) => {
 	const onClick = (e: MouseEvent) => {
-		e.stopPropagation();
-		e.preventDefault();
+		if (props.onPress != undefined) {
+			e.stopPropagation();
+			e.preventDefault();
 
-		props.onPress?.();
+			props.onPress();
+		}
 	};
 
 	return (
