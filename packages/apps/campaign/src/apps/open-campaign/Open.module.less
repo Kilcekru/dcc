@@ -1,0 +1,107 @@
+.open {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	overflow: hidden;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	max-height: 100%;
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 10px;
+}
+
+.title {
+	font-weight: 300;
+	font-size: 45px;
+	text-align: center;
+	margin-block: 20px;
+}
+
+.name {
+	font-weight: 300;
+	font-size: 40px;
+	text-align: center;
+	text-transform: none;
+}
+
+.year {
+	font-weight: 300;
+	font-size: 20px;
+	opacity: 0.8;
+	text-align: center;
+}
+
+.faction {
+	position: relative;
+	width: 600px;
+
+	&:hover {
+		.customize-button {
+			opacity: 1;
+		}
+	}
+}
+
+.flag {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	opacity: 0.1;
+}
+
+.back-button {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+
+	svg {
+		height: 32px;
+		width: 32px;
+		position: relative;
+		top: 2px;
+	}
+}
+
+.edited {
+	margin-top: 20px;
+	font-weight: 300;
+	font-size: 20px;
+	opacity: 0.8;
+}
+
+.customize-button {
+	opacity: 0;
+	&-wrapper {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 10px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}
+
+.buttons {
+	display: flex;
+	justify-content: flex-end;
+	margin-block: 20px;
+}

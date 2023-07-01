@@ -1,29 +1,56 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
-import { createSignal, ErrorBoundary, Match, onMount, Show, Switch, useContext } from "solid-js";
+import { createEffect, createSignal, Match, onMount, Show, Switch, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { CreateCampaign, Home } from "./apps";
+import { CreateCampaign, Home, Open } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
 import { DataProvider, useSetDataMap } from "./components/DataProvider";
-import { isEmpty } from "./utils";
+import { useSave } from "./hooks";
 
-const App = () => {
-	const [state] = useContext(CampaignContext);
+const App = (props: { open: boolean }) => {
+	const [state, { closeCampaign }] = useContext(CampaignContext);
+	const save = useSave();
+	const [open, setOpen] = createSignal(false);
+
+	createEffect(() => setOpen(props.open));
 
 	onEvent("menu.dev.logState", () => {
 		console.log(unwrap(state)); // eslint-disable-line no-console
 	});
 
+	onEvent("menu.campaign.new", () => {
+		setOpen(false);
+		closeCampaign?.();
+		save();
+	});
+
+	onEvent("menu.campaign.open", () => {
+		setOpen(true);
+		closeCampaign?.();
+		save();
+	});
+
+	function onOpenCreateCampaign() {
+		setOpen(false);
+	}
+
 	return (
-		<Show when={state.loaded}>
+		<Show when={state.loaded} fallback={<div>Loading Campaigns...</div>}>
 			<Switch fallback={<div>Not Found</div>}>
 				<Match when={state.active === true}>
 					<Home />
 				</Match>
 				<Match when={state.active === false}>
-					<CreateCampaign />
+					<Switch fallback={<div>Not Found</div>}>
+						<Match when={open()}>
+							<Open onOpenCreateCampaign={onOpenCreateCampaign} />
+						</Match>
+						<Match when={!open()}>
+							<CreateCampaign />
+						</Match>
+					</Switch>
 				</Match>
 			</Switch>
 		</Show>
@@ -33,37 +60,44 @@ const App = () => {
 const AppWithContext = () => {
 	const [campaignState, setCampaignState] = createSignal<Partial<DcsJs.CampaignState> | null | undefined>(undefined);
 	const setDataMap = useSetDataMap();
+	const [open, setOpen] = createSignal(false);
 
 	onMount(() => {
 		rpc.campaign
-			.load()
+			.resumeCampaign()
 			.then((loadedState) => {
 				console.log("load", loadedState); // eslint-disable-line no-console
-				if (isEmpty(loadedState)) {
+
+				if (loadedState == null) {
 					setCampaignState({
 						loaded: true,
 					});
-				} else {
-					if (loadedState.map != null) {
-						setDataMap(loadedState.map);
+
+					if (loadedState === undefined) {
+						setOpen(true);
 					}
-					setCampaignState({
-						...loadedState,
-						loaded: true,
-					});
+					return;
 				}
+
+				if (loadedState.map != null) {
+					setDataMap(loadedState.map);
+				}
+				setCampaignState({
+					...loadedState,
+					loaded: true,
+				});
+
+				setOpen(false);
 			})
-			.catch((err) => {
-				console.log("RPC error", err); // eslint-disable-line no-console
+			.catch((e) => {
+				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
 			});
 	});
 
 	return (
 		<Show when={campaignState !== undefined} fallback={<div>Loading...</div>}>
 			<CampaignProvider campaignState={campaignState()}>
-				<ErrorBoundary fallback={<div>Something went wrong</div>}>
-					<App />
-				</ErrorBoundary>
+				<App open={open()} />
 			</CampaignProvider>
 		</Show>
 	);

@@ -30,18 +30,10 @@ export async function save(faction: DcsJs.Faction) {
 
 	const custom = await customList();
 
-	const next =
-		custom == null
-			? []
-			: custom.map((c) => {
-					if (c.created === faction.created) {
-						return faction;
-					}
+	const next = custom == null ? [faction] : [...custom.filter((c) => c.created !== faction.created), faction];
 
-					return c;
-			  });
-
-	await rpc.campaign.saveCustomFactions(next);
+	// eslint-disable-next-line no-console
+	rpc.campaign.saveCustomFactions(next).catch((e) => console.error(e instanceof Error ? e.message : "unknown error"));
 }
 
 export async function remove(faction: DcsJs.Faction) {

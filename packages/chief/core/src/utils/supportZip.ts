@@ -4,7 +4,7 @@ import * as os from "os";
 import * as Path from "path";
 
 import { Campaign } from "../domain";
-import { campaignState, userConfig } from "../persistance";
+import { userConfig } from "../persistance";
 
 export async function createSupportZip(): Promise<string | undefined> {
 	if (userConfig.data.downloadsPath == undefined) {
@@ -27,10 +27,11 @@ export async function createSupportZip(): Promise<string | undefined> {
 		)
 	);
 
-	await campaignState.load();
+	// TODO
+	/* await campaignState.load();
 	if (campaignState.data != undefined) {
 		archive.addFile("campaign.json", Buffer.from(JSON.stringify(campaignState.data), "utf-8"));
-	}
+	} */
 
 	const missionPath = Campaign.getMissionPath();
 	if (missionPath != undefined) {

@@ -74,7 +74,7 @@ export const Factions = (props: {
 	const sortedList = createMemo(() => {
 		const list = props.coalition === "blue" ? playableFactions() : enemyFactions();
 
-		list.sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+		list.sort((a, b) => Domain.Sort.Number.asc(a.year ?? 0, b.year ?? 0));
 
 		return list;
 	});

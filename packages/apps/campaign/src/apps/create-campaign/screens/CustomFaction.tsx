@@ -21,7 +21,9 @@ const AircraftList = (props: {
 			return [];
 		}
 
-		return Object.values(dataAircrafts).filter((ac) => ac.availableTasks.some((t) => t === props.missionTask));
+		return Object.values(dataAircrafts)
+			.filter((ac) => ac.availableTasks.some((t) => t === props.missionTask))
+			.sort((a, b) => Domain.Sort.String.asc(a.display_name, b.display_name));
 	});
 
 	return (
@@ -154,15 +156,20 @@ export const CustomFaction = (props: {
 			countryName: country(),
 			name: name() == "" ? "Custom" : name(),
 			playable: true,
-			year: 2023,
+			year: year(),
 			templateName: templateName(),
 			created: props.template?.created,
 		};
 
-		void Domain.Faction.save(f);
+		Domain.Faction.save(f).catch(Domain.Utils.catchAwait);
 
 		props.next(f);
 	};
+
+	const validFaction = createMemo(
+		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && dead().length > 0 && strike().length > 0
+	);
+
 	return (
 		<div class={Styles.wrapper}>
 			<Components.Button large unstyled class={Styles["back-button"]} onPress={() => props.prev()}>
@@ -171,10 +178,16 @@ export const CustomFaction = (props: {
 			<h1 class={Styles.title}>Create Custom Faction</h1>
 			<Components.ScrollContainer>
 				<div class={Styles["scroll-container"]}>
-					<h2 class={Styles["mission-task"]}>Name</h2>
-					<Components.TextField value={name()} onChange={setName} />
-					<h2 class={Styles["mission-task"]}>Year</h2>
-					<Components.NumberField value={year()} onChange={setYear} />
+					<div class={Styles.inputs}>
+						<div>
+							<h2 class={Styles["mission-task"]}>Name</h2>
+							<Components.TextField value={name()} onChange={setName} />
+						</div>
+						<div>
+							<h2 class={Styles["mission-task"]}>Year</h2>
+							<Components.NumberField value={year()} onChange={setYear} />
+						</div>
+					</div>
 					<h2 class={Styles["mission-task"]}>Countries</h2>
 					<CountryList selectedCountry={country()} toggle={setCountry} />
 					<h2 class={Styles["mission-task"]}>CAP</h2>
@@ -200,7 +213,7 @@ export const CustomFaction = (props: {
 				</div>
 			</Components.ScrollContainer>
 			<div class={Styles.buttons}>
-				<Components.Button large onPress={onNext}>
+				<Components.Button large onPress={onNext} disabled={!validFaction()}>
 					Next
 				</Components.Button>
 			</div>

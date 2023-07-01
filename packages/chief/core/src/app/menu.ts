@@ -142,15 +142,15 @@ function getAppMenuTemplate(): MenuItemConstructorOptions[] {
 			label: "Campaign",
 			submenu: [
 				{
-					label: "Reset Campaign",
-					click: () => {
-						Events.send("menu.campaign.reset", undefined);
-					},
-				},
-				{
 					label: "New Campaign",
 					click: () => {
 						Events.send("menu.campaign.new", undefined);
+					},
+				},
+				{
+					label: "Open Campaign",
+					click: () => {
+						Events.send("menu.campaign.open", undefined);
 					},
 				},
 			],

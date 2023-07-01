@@ -2,17 +2,16 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { Show, useContext } from "solid-js";
 
-import { CampaignContext, initState } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import Styles from "./GameOverModal.module.less";
 
 export const GameOverModal = () => {
-	const [state, { reset }] = useContext(CampaignContext);
+	const [state, { closeCampaign }] = useContext(CampaignContext);
 
-	const onConfirm = () => {
-		reset?.();
-		rpc.campaign.save({ ...initState, loaded: true }).catch((err) => {
-			console.error("RPC error", err); // eslint-disable-line no-console
-		});
+	const onConfirm = async () => {
+		const id = state.id;
+		await rpc.campaign.removeCampaign(id);
+		closeCampaign?.();
 	};
 
 	return (

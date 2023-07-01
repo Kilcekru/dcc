@@ -8,7 +8,7 @@ import { useDataStore } from "../../components/DataProvider";
 import * as Domain from "../../domain";
 import { useSave } from "../../hooks";
 import { getClientMissionStartTime } from "../../utils";
-import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, ResetModal, Sidebar } from "./components";
+import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
@@ -129,7 +129,6 @@ export const Home = () => {
 						<Map />
 					</ErrorBoundary>
 				</div>
-				<ResetModal />
 				<NextDayModal />
 			</div>
 		</OverlaySidebarProvider>

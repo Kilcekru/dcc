@@ -12,10 +12,6 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
 };
 
-export const isEmpty = (object: object) => {
-	return Object.keys(object).length === 0;
-};
-
 export function usePositionToMapPosition() {
 	const dataStore = useDataStore();
 

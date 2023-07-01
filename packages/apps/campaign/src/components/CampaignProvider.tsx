@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
@@ -49,6 +49,8 @@ type CampaignStore = [
 		generateMissionId?: () => void;
 		resetMissionId?: () => void;
 		clearToastMessages?: (ids: Array<string>) => void;
+		replaceCampaignState?: (next: DcsJs.CampaignState) => void;
+		closeCampaign?: () => void;
 	}
 ];
 
@@ -73,6 +75,8 @@ export const initState: DcsJs.CampaignState = {
 	missionId: undefined,
 	toastMessages: [],
 	map: "caucasus",
+	created: new Date(),
+	edited: new Date(),
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -261,6 +265,15 @@ export function CampaignProvider(props: {
 			},
 			clearToastMessages(ids) {
 				setState("toastMessages", (s) => s.filter((msg) => !ids.some((id) => id === msg.id)));
+			},
+			replaceCampaignState(next) {
+				setState({
+					...next,
+					active: true,
+				});
+			},
+			closeCampaign() {
+				setState("active", false);
 			},
 		},
 	];

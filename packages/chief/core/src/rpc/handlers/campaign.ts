@@ -3,20 +3,35 @@ import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import fs from "fs-extra";
 
 import * as Domain from "../../domain";
-import { campaignState } from "../../persistance";
 
-const save: Types.Campaign["save"] = async (campaign) => {
-	campaignState.data = campaign;
-
-	await campaignState.save();
-
-	return { success: true };
+const saveCampaign: Types.Campaign["saveCampaign"] = async (campaign) => {
+	return Domain.Persistance.CampaignPersistance.put({
+		...campaign,
+		edited: new Date(),
+	});
 };
 
-const load: Types.Campaign["load"] = async () => {
-	await campaignState.load();
+const resumeCampaign: Types.Campaign["resumeCampaign"] = async () => {
+	const list = await Domain.Persistance.CampaignPersistance.list();
 
-	return campaignState.data;
+	const activeSynopsis = Object.values(list).find((syn) => syn.active);
+
+	if (activeSynopsis == null) {
+		return Object.values(list).length > 0 ? undefined : null;
+	}
+	return await Domain.Persistance.CampaignPersistance.get(activeSynopsis.id);
+};
+
+const openCampaign: Types.Campaign["openCampaign"] = async (id) => {
+	return Domain.Persistance.CampaignPersistance.get(id);
+};
+
+const removeCampaign: Types.Campaign["removeCampaign"] = async (id) => {
+	return Domain.Persistance.CampaignPersistance.remove(id);
+};
+
+const loadCampaignList: Types.Campaign["loadCampaignList"] = async () => {
+	return Domain.Persistance.CampaignPersistance.list();
 };
 
 const getSamTemplates: Types.Campaign["getSamTemplates"] = async () => {
@@ -99,23 +114,17 @@ export async function saveCustomFactions(factions: Array<DcsJs.Faction>) {
 	}
 }
 
-export async function saveCampaign(campaign: DcsJs.CampaignState) {
-	try {
-		await Domain.Persistance.CampaignPersistance.put(campaign);
-	} catch (e) {
-		// eslint-disable-next-line no-console
-		console.warn(e instanceof Error ? e.message : "unknown error");
-	}
-}
 export const campaign: Types.Campaign = {
 	generateCampaignMission,
 	getSamTemplates,
 	getVehicles,
 	getDataStore,
-	save,
-	load,
+	saveCampaign,
+	resumeCampaign,
+	openCampaign,
+	removeCampaign,
+	loadCampaignList,
 	loadMissionState,
 	loadFactions,
 	saveCustomFactions,
-	saveCampaign,
 };
