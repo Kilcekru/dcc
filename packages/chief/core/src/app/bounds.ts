@@ -1,17 +1,15 @@
 import { BrowserWindow, Rectangle, screen } from "electron";
 
-import { dccState } from "../persistance";
+import * as Domain from "../domain";
 
 async function saveBounds(win: BrowserWindow) {
-	dccState.data.win ??= {};
-	dccState.data.win.bounds = win.getBounds();
-	await dccState.save();
+	Domain.Persistance.State.dccConfig.data.win.bounds = win.getBounds();
+	await Domain.Persistance.State.dccConfig.save();
 }
 
 async function saveMaximized(win: BrowserWindow) {
-	dccState.data.win ??= {};
-	dccState.data.win.maximized = win.isMaximized() ? true : undefined;
-	await dccState.save();
+	Domain.Persistance.State.dccConfig.data.win.maximized = win.isMaximized();
+	await Domain.Persistance.State.dccConfig.save();
 }
 
 export function registerBoundsEvents(win: BrowserWindow) {
@@ -22,15 +20,19 @@ export function registerBoundsEvents(win: BrowserWindow) {
 }
 
 export function getWindowBounds(): Partial<Rectangle> {
-	const saved = dccState.data.win?.bounds;
-	if (saved == undefined) {
-		return {
-			width: 1200,
-			height: 800,
-		};
+	const saved = Domain.Persistance.State.dccConfig.data.win?.bounds;
+
+	if (saved.x === undefined || saved.y === undefined) {
+		return saved;
 	}
+
+	const display = screen.getDisplayMatching({
+		width: saved.width,
+		height: saved.height,
+		x: saved.x,
+		y: saved.y,
+	}).bounds;
 	const bounds: Partial<Rectangle> = {};
-	const display = screen.getDisplayMatching(saved).bounds;
 	bounds.width = saved.width <= display.width ? saved.width : display.width;
 	bounds.height = saved.height <= display.height ? saved.height : display.height;
 

@@ -214,6 +214,8 @@ importers:
         specifier: 0.2.229-next.13
         version: 0.2.229-next.13
 
+  packages/shared/utils: {}
+
   utils/build:
     dependencies:
       '@kilcekru/esbuild-plugin-css-extra':
