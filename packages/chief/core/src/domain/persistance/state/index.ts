@@ -1,0 +1,1 @@
+export { dccConfig } from "./dccConfig";
