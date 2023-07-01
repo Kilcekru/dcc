@@ -180,11 +180,11 @@ export const CustomFaction = (props: {
 				<div class={Styles["scroll-container"]}>
 					<div class={Styles.inputs}>
 						<div>
-							<h2 class={Styles["mission-task"]}>Name</h2>
+							<h2 class={Styles["input-label"]}>Name</h2>
 							<Components.TextField value={name()} onChange={setName} />
 						</div>
 						<div>
-							<h2 class={Styles["mission-task"]}>Year</h2>
+							<h2 class={Styles["input-label"]}>Year</h2>
 							<Components.NumberField value={year()} onChange={setYear} />
 						</div>
 					</div>
