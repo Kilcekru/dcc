@@ -1,0 +1,11 @@
+{
+	"name": "@kilcekru/dcc-shared-utils",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"clean": "rm -rf .turbo",
+		"clean:all": "rm -rf .turbo node_modules",
+		"validate:lint": "eslint src",
+		"validate:ts": "tsc --noEmit"
+	}
+}
