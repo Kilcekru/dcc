@@ -1,3 +1,4 @@
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createEffect, createMemo, For, Show, useContext } from "solid-js";
 
@@ -27,7 +28,7 @@ export function Sam() {
 	const sam = createMemo(() => {
 		const groundGroupId = overlayStore.groundGroupId;
 
-		return faction()?.sams.find((gg) => gg.id === groundGroupId);
+		return faction()?.groundGroups.find((gg) => gg.id === groundGroupId) as DcsJs.SamGroup;
 	});
 
 	// Close if the sam is removed
@@ -52,7 +53,9 @@ export function Sam() {
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>
-					<For each={sam()?.units}>{(unit) => <SamUnit unit={unit} />}</For>
+					<For each={sam()?.unitIds}>
+						{(id) => <SamUnit unitId={id} coalition={overlayStore.coalition ?? "blue"} />}
+					</For>
 				</Components.List>
 			</Components.ScrollContainer>
 		</Show>

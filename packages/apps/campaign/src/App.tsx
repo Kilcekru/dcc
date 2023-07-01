@@ -1,6 +1,6 @@
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
 import { createSignal, ErrorBoundary, Match, onMount, Show, Switch, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
@@ -31,7 +31,7 @@ const App = () => {
 };
 
 const AppWithContext = () => {
-	const [campaignState, setCampaignState] = createSignal<Partial<CampaignState> | null | undefined>(undefined);
+	const [campaignState, setCampaignState] = createSignal<Partial<DcsJs.CampaignState> | null | undefined>(undefined);
 	const setDataMap = useSetDataMap();
 
 	onMount(() => {

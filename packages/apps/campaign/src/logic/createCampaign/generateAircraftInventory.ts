@@ -1,19 +1,18 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Config } from "../../data";
 import { ObjectivePlan, Scenario } from "../../data/scenarios";
-import { Position } from "../../types";
 import { findNearest, onboardNumber } from "../../utils";
 import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAircraftType } from "../utils";
 
 function getFrontlineFarp(
-	objectives: Array<{ name: string; position: Position }>,
+	objectives: Array<{ name: string; position: DcsJs.Position }>,
 	objectivePlans: Array<ObjectivePlan>,
 	frontlineObjective: DcsJs.CampaignObjective
 ) {
-	const farps: Array<{ name: string; position: Position }> = [];
+	const farps: Array<{ name: string; position: DcsJs.Position }> = [];
 
 	objectivePlans.forEach((plan) => {
 		const farp = plan.structures.find((str) => str.structureType === "Farp");
@@ -43,10 +42,10 @@ export const generateAircraftInventory = ({
 	dataStore,
 }: {
 	coalition: DcsJs.CampaignCoalition;
-	faction: DcsJs.FactionDefinition;
-	objectives: Array<{ name: string; position: Position }>;
+	faction: DcsJs.Faction;
+	objectives: Array<{ name: string; position: DcsJs.Position }>;
 	scenario: Scenario;
-	dataStore: DataStore;
+	dataStore: Types.DataStore;
 }) => {
 	const airdromes = dataStore.airdromes;
 	const airdromeNames: Array<DcsJs.AirdromeName> = (
@@ -75,7 +74,7 @@ export const generateAircraftInventory = ({
 		throw "faction not found";
 	}
 
-	const aircrafts: Array<DcsJs.CampaignAircraft> = [];
+	const aircrafts: Array<DcsJs.Aircraft> = [];
 	const farpObjective = getFrontlineFarp(
 		objectives,
 		scenario[coalition === "blue" ? "blue" : "red"].objectivePlans,
@@ -205,7 +204,7 @@ export const generateAircraftInventory = ({
 		});
 	});
 
-	const aircraftRecord: Record<string, DcsJs.CampaignAircraft> = {};
+	const aircraftRecord: Record<string, DcsJs.Aircraft> = {};
 
 	aircrafts.forEach((ac) => {
 		aircraftRecord[ac.id] = ac;

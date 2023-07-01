@@ -10,4 +10,7 @@ export const campaign: Campaign = {
 	save: rpc<Campaign["save"]>("campaign", "save"),
 	load: rpc<Campaign["load"]>("campaign", "load"),
 	loadMissionState: rpc<Campaign["loadMissionState"]>("campaign", "loadMissionState"),
+	loadFactions: rpc<Campaign["loadFactions"]>("campaign", "loadFactions"),
+	saveCustomFactions: rpc<Campaign["saveCustomFactions"]>("campaign", "saveCustomFactions"),
+	saveCampaign: rpc<Campaign["saveCampaign"]>("campaign", "saveCampaign"),
 };

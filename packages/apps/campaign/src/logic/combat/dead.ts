@@ -1,14 +1,20 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
+import * as Domain from "../../domain";
 import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
 const destroySam = (faction: DcsJs.CampaignFaction, id: string, timer: number) => {
-	faction.sams.forEach((sam) => {
-		if (sam.id === id) {
-			sam.operational = false;
-			sam.units.forEach((unit) => {
+	faction.groundGroups.forEach((gg) => {
+		if (gg.id === id && Domain.Faction.isSamGroup(gg)) {
+			gg.operational = false;
+			gg.unitIds.forEach((id) => {
+				const unit = faction.inventory.groundUnits[id];
+				if (unit == null) {
+					return;
+				}
+
 				if (unit.vehicleTypes.some((vt) => vt === "Track Radar" || vt === "Search Radar")) {
 					unit.alive = false;
 					unit.destroyedTime = timer;
@@ -29,14 +35,14 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 		}
 
 		pkg.flightGroups.forEach((fg) => {
-			if (fg.task === "DEAD") {
-				const objective = fg.objective;
+			if (fg.task === "DEAD" && fg.target != null) {
+				const sam = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
 
-				if (objective == null) {
+				if (sam == null) {
 					return;
 				}
 
-				if (distanceToPosition(fg.position, objective.position) < 90_000 && fg.startTime + Minutes(1) < state.timer) {
+				if (distanceToPosition(fg.position, sam.position) < 90_000 && fg.startTime + Minutes(1) < state.timer) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
 
@@ -47,10 +53,10 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 						if (aircraft.a2GWeaponReadyTimer == null || aircraft.a2GWeaponReadyTimer <= state.timer) {
 							// Is the attack successful
 							if (random(1, 100) <= 50) {
-								destroySam(oppFaction, objective.name, state.timer);
-								console.log(`DEAD: ${aircraft.id} destroyed SAM in objective ${objective.name}`); // eslint-disable-line no-console
+								destroySam(oppFaction, sam.id, state.timer);
+								console.log(`DEAD: ${aircraft.id} destroyed SAM in objective ${sam.id}`); // eslint-disable-line no-console
 							} else {
-								console.log(`DEAD: ${aircraft.id} missed SAM in objective ${objective.name}`); // eslint-disable-line no-console
+								console.log(`DEAD: ${aircraft.id} missed SAM in objective ${sam.id}`); // eslint-disable-line no-console
 							}
 
 							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(60);

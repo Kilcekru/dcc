@@ -27,9 +27,6 @@ export function GroundGroup() {
 	const groundGroup = createMemo(() => {
 		const groundGroupId = overlayStore.groundGroupId;
 
-		if (overlayStore.state === "ewr") {
-			return faction()?.ews.find((gg) => gg.id === groundGroupId);
-		}
 		return faction()?.groundGroups.find((gg) => gg.id === groundGroupId);
 	});
 
@@ -44,7 +41,7 @@ export function GroundGroup() {
 		<Show when={groundGroup() != null}>
 			<div>
 				<Flag countryName={faction()?.countryName} />
-				<h2 class={Styles.title}>{groundGroup()?.objective.name}</h2>
+				<h2 class={Styles.title}>{groundGroup()?.objectiveName}</h2>
 				<Show when={overlayStore.state === "ewr"}>
 					<h3 class={Styles.subtitle}>Early Warning Radar</h3>
 				</Show>

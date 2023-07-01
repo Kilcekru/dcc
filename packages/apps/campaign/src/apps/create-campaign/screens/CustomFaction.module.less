@@ -1,7 +1,20 @@
 .wrapper {
-	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
 	width: 1000px;
-	left: -250px;
+}
+
+.title {
+	font-weight: 300;
+	font-size: 45px;
+	text-align: center;
+	margin-block: 20px;
+}
+
+.scroll-container {
+	padding-inline: 10px;
 }
 
 .aircraft-list {
@@ -21,7 +34,7 @@
 .buttons {
 	display: flex;
 	justify-content: flex-end;
-	margin-top: 40px;
+	margin-block: 20px;
 }
 
 .back-button {

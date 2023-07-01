@@ -2,7 +2,7 @@
 	"map": "syria",
 	"id": "desert-thunder",
 	"name": "Desert Thunder",
-	"available": true,
+	"available": false,
 	"date": "1972-09-20",
 	"era": "Cold War",
 	"win-condition": {

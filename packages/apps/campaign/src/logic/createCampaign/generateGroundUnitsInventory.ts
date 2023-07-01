@@ -1,15 +1,15 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Scenario } from "../../data";
 import { randomItem } from "../../utils";
 
 export const generateGroundUnitsInventory = (
-	faction: DcsJs.FactionDefinition,
+	faction: DcsJs.Faction,
 	coalition: DcsJs.CampaignCoalition,
 	scenario: Scenario,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ) => {
 	const template = dataStore.groundUnitsTemplates?.find((t) => faction.templateName === t.name);
 

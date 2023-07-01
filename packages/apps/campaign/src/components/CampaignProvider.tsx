@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState, DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
@@ -17,12 +17,12 @@ import {
 import { dateToTimer, getClientMissionStartTime, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 
 type CampaignStore = [
-	CampaignState,
+	DcsJs.CampaignState,
 	{
 		activate?: (
 			dataStore: DataStore,
-			blueFaction: DcsJs.FactionDefinition,
-			redFaction: DcsJs.FactionDefinition,
+			blueFaction: DcsJs.Faction,
+			redFaction: DcsJs.Faction,
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
 			nightMissions: boolean,
@@ -37,7 +37,6 @@ type CampaignStore = [
 
 		updatePackagesState?: (factionString: "blueFaction" | "redFaction") => void;
 		updateAircraftState?: () => void;
-		destroySam?: (factionString: "blueFaction" | "redFaction", id: string) => void;
 		destroyStructure?: (objectiveName: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup | undefined) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
@@ -53,7 +52,8 @@ type CampaignStore = [
 	}
 ];
 
-export const initState: CampaignState = {
+export const initState: DcsJs.CampaignState = {
+	id: "",
 	active: false,
 	loaded: false,
 	campaignTime: new Date("2022-06-01").getTime(),
@@ -79,9 +79,9 @@ export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {
 
 export function CampaignProvider(props: {
 	children?: JSX.Element;
-	campaignState: Partial<CampaignState> | null | undefined;
+	campaignState: Partial<DcsJs.CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore<CampaignState>(structuredClone(initState) as CampaignState);
+	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState) as DcsJs.CampaignState);
 
 	const store: CampaignStore = [
 		state,
@@ -89,7 +89,7 @@ export function CampaignProvider(props: {
 			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
-					structuredClone(initState) as CampaignState,
+					structuredClone(initState) as DcsJs.CampaignState,
 					dataStore,
 					blueFaction,
 					redFaction,
@@ -140,31 +140,6 @@ export function CampaignProvider(props: {
 				setState(initState);
 				setState("loaded", true);
 				setState("winner", undefined);
-			},
-			destroySam(factionString, samId) {
-				setState(factionString, "sams", (sams) =>
-					sams.map((sam) => {
-						if (sam.id === samId) {
-							return {
-								...sam,
-								operational: false,
-								units: sam.units.map((unit) => {
-									if (unit.vehicleTypes.some((vt) => vt === "Track Radar" || vt === "Search Radar")) {
-										return {
-											...unit,
-											alive: false,
-											destroyedTime: state.timer,
-										};
-									} else {
-										return unit;
-									}
-								}),
-							};
-						} else {
-							return sam;
-						}
-					})
-				);
 			},
 			selectFlightGroup(flightGroup) {
 				setState("selectedFlightGroup", () => flightGroup);

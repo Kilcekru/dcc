@@ -1,9 +1,10 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { MissionState } from "@kilcekru/dcc-shared-rpc-types";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
+import * as Domain from "../../../../domain";
 import {
 	killedAircraftIdsByFlightGroups,
 	killedBuildingNames,
@@ -86,9 +87,9 @@ function useFlightGroupMissionState(
 			}
 		}
 		case "DEAD": {
-			const targetSam = state.redFaction?.sams.find((sam) => sam.id === flightGroup.target);
+			const targetSam = state.redFaction?.groundGroups.find((sam) => sam.id === flightGroup.target);
 
-			if (targetSam == null) {
+			if (targetSam == null || !Domain.Faction.isSamGroup(targetSam)) {
 				// eslint-disable-next-line no-console
 				console.error("DEAD Target not found");
 				return "Success";

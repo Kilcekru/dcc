@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { Show } from "solid-js";
@@ -6,7 +6,7 @@ import { Show } from "solid-js";
 import { Config } from "../../../../data";
 import Styles from "./Item.module.less";
 
-const staticTypeName: Record<DcsJs.StaticType, string> = {
+const staticTypeName: Record<string, string> = {
 	"Garage B": "Garage",
 	"Tech hangar A": "Hangar",
 	"Electric power box": "Power Box",
@@ -26,7 +26,7 @@ const staticTypeName: Record<DcsJs.StaticType, string> = {
 	"Small werehouse 2": "Small Warehouse",
 };
 
-const staticTypeImage: Record<DcsJs.StaticType, keyof typeof Styles> = {
+const staticTypeImage: Record<string, keyof typeof Styles> = {
 	"Garage B": "image-garage-b",
 	"Tech hangar A": "image-tech-hangar-a",
 	"Electric power box": "image-electric-power-box",
@@ -46,10 +46,7 @@ const staticTypeImage: Record<DcsJs.StaticType, keyof typeof Styles> = {
 	"Small werehouse 2": "image-small-werehouse-2",
 };
 
-export function StructureBuilding(props: {
-	building: DcsJs.CampaignStructureBuilding;
-	coalition: DcsJs.CampaignCoalition;
-}) {
+export function StructureBuilding(props: { building: DcsJs.Building; coalition: DcsJs.CampaignCoalition }) {
 	return (
 		<div>
 			<div class={Styles.header}>

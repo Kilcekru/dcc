@@ -20,7 +20,7 @@ export function clearPackages(faction: DcsJs.CampaignFaction) {
  * @param faction
  * @param pkg
  */
-export function clearPackage(faction: DcsJs.CampaignFaction, pkg: DcsJs.CampaignPackage) {
+export function clearPackage(faction: DcsJs.CampaignFaction, pkg: DcsJs.FlightPackage) {
 	// Remove the package from the faction
 	faction.packages = faction.packages.filter((p) => p.id !== pkg.id);
 

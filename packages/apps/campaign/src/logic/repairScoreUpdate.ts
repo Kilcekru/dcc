@@ -1,5 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { RunningCampaignState } from "./types";
 
@@ -14,7 +13,7 @@ const updateFactionRepairScore = (faction: DcsJs.CampaignFaction, state: Running
 	});
 };
 
-export function repairScoreUpdate(s: CampaignState) {
+export function repairScoreUpdate(s: DcsJs.CampaignState) {
 	if (s.blueFaction == null || s.redFaction == null) {
 		return s;
 	}

@@ -1,10 +1,10 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState, DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
+import { v4 as uuid } from "uuid";
 
 import { scenarioList } from "../../data/scenarios";
 import { firstItem, getUsableUnit, Minutes, random, randomList } from "../../utils";
-import { addEWs } from "./addEWs";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
@@ -17,10 +17,10 @@ import { claimsObjective } from "./utils";
  * @returns
  */
 export const createCampaign = (
-	state: CampaignState,
-	dataStore: DataStore,
-	blueFaction: DcsJs.FactionDefinition,
-	redFaction: DcsJs.FactionDefinition,
+	state: DcsJs.CampaignState,
+	dataStore: Types.DataStore,
+	blueFaction: DcsJs.Faction,
+	redFaction: DcsJs.Faction,
 	aiSkill: DcsJs.AiSkill,
 	hardcore: boolean,
 	nightMissions: boolean,
@@ -49,8 +49,8 @@ export const createCampaign = (
 		throw "unknown airdrome";
 	}
 
-	const blueObjectives: DataStore["objectives"] = [];
-	const redObjectives: DataStore["objectives"] = [];
+	const blueObjectives: Types.DataStore["objectives"] = [];
+	const redObjectives: Types.DataStore["objectives"] = [];
 
 	dataStore.objectives?.forEach((dataObjective) => {
 		const isBlue = claimsObjective(scenario.blue, dataObjective.name);
@@ -67,7 +67,7 @@ export const createCampaign = (
 
 	state.blueFaction = {
 		...blueFaction,
-		countryName: blueFaction.countryName as DcsJs.CountryName,
+		countryName: blueFaction.countryName,
 		airdromeNames: scenario.blue.airdromeNames as DcsJs.AirdromeName[],
 		inventory: {
 			aircrafts: generateAircraftInventory({
@@ -80,14 +80,11 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
 		},
 		packages: [],
-		sams: [], // will be filled later
 		groundGroups: [],
+		awacsFrequency: 285.0,
+		structures: generateStructures("blue", scenario.blue, dataStore),
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
-		awacsFrequency: 285.0,
-		downedPilots: [],
-		ews: [], // will be filled with addEWs()
-		structures: generateStructures("blue", scenario.blue, dataStore),
 	};
 
 	state.redFaction = {
@@ -106,14 +103,11 @@ export const createCampaign = (
 			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
 		},
 		packages: [],
-		sams: [], // will be filled later
 		groundGroups: [],
+		awacsFrequency: 280.0,
+		structures: generateStructures("red", scenario.red, dataStore),
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
-		awacsFrequency: 280.0,
-		downedPilots: [],
-		ews: [], // will be filled with addEWs()
-		structures: generateStructures("red", scenario.red, dataStore),
 	};
 
 	state.objectives =
@@ -202,15 +196,17 @@ export const createCampaign = (
 					inventoryUnit.state = "on objective";
 				});
 
+				const id = createUniqueId();
 				faction.groundGroups.push({
-					id: createUniqueId(),
-					objective,
-					startObjective: objective,
+					id,
+					name: objective.name + "-" + id,
+					objectiveName: objective.name,
+					startObjectiveName: objective.name,
 					position: objective.position,
 					state: "on objective",
 					unitIds: units.map((u) => u.id),
 					startTime: state.timer,
-					groupType,
+					type: groupType,
 				});
 			}
 
@@ -218,11 +214,10 @@ export const createCampaign = (
 			return prev;
 		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
 
-	addEWs(state, scenario);
-
 	generateSams("blue", state.blueFaction, dataStore, scenario);
 	generateSams("red", state.redFaction, dataStore, scenario);
 
+	state.id = uuid();
 	state.name = scenario.name;
 	state.active = true;
 	state.loaded = true;

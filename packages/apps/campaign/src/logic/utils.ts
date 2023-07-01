@@ -1,9 +1,8 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Config } from "../data";
-import { Position } from "../types";
 import {
 	addHeading,
 	distanceToPosition,
@@ -59,7 +58,7 @@ const calcNumber = (
 export const generateCallSign = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.DataStore,
 	type: "aircraft" | "helicopter" | "awacs"
 ) => {
 	const { name, index } = randomCallSign(dataStore, type);
@@ -82,14 +81,14 @@ export const generateCallSign = (
 	};
 };
 
-const landingNavPosition = (engressPosition: Position, airdromePosition: Position) => {
+const landingNavPosition = (engressPosition: DcsJs.Position, airdromePosition: DcsJs.Position) => {
 	const heading = headingToPosition(engressPosition, airdromePosition);
 	return positionFromHeading(airdromePosition, addHeading(heading, 180), 32000);
 };
 
 export const calcLandingWaypoints = (
-	engressPosition: Position,
-	airdromePosition: Position,
+	engressPosition: DcsJs.Position,
+	airdromePosition: DcsJs.Position,
 	startTime: number
 ): [Array<DcsJs.CampaignWaypoint>, number] => {
 	const navPosition = landingNavPosition(engressPosition, airdromePosition);
@@ -121,8 +120,8 @@ export const calcLandingWaypoints = (
 export const calcNearestOppositeAirdrome = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
-	position: Position
+	dataStore: Types.DataStore,
+	position: DcsJs.Position
 ) => {
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -159,17 +158,11 @@ export const unitIdsToGroundUnit = (faction: DcsJs.CampaignFaction, ids: Array<s
 	}, [] as Array<DcsJs.CampaignUnit>);
 };
 
-export function isCampaignStructureUnitCamp(
-	structure: DcsJs.CampaignStructure | undefined
-): structure is DcsJs.CampaignStructureUnitCamp {
-	return (structure as DcsJs.CampaignStructureUnitCamp).deploymentScore != null;
-}
-
 export function getLoadoutForAircraftType(
 	aircraftType: DcsJs.AircraftType,
 	task: DcsJs.Task | "default",
-	dataStore: DataStore
-): DcsJs.CampaignFlightGroupLoadout {
+	dataStore: Types.DataStore
+): DcsJs.Loadout {
 	const ac = dataStore.aircrafts?.[aircraftType];
 
 	if (ac == null) {
@@ -187,7 +180,8 @@ export function getLoadoutForAircraftType(
 
 	return {
 		...loadout,
-		pylons: loadout.pylons.map((p): DcsJs.CampaignPylon => {
+		task: loadout.task as DcsJs.Task,
+		pylons: loadout.pylons.map((p): DcsJs.Pylon => {
 			const launcher = Object.values(dataStore.launchers ?? {}).find((launcher) => p.CLSID === launcher.CLSID);
 			const weapon = launcher?.type === "Weapon" ? dataStore.weapons?.[launcher.weapon] : undefined;
 
@@ -214,7 +208,7 @@ export function getLoadoutForAircraftType(
 	};
 }
 
-export function getWeaponsForFlightGroupUnit(aircraft: DcsJs.CampaignAircraft) {
+export function getWeaponsForFlightGroupUnit(aircraft: DcsJs.Aircraft) {
 	const weapons: Map<string, { item: DcsJs.Weapon; count: number; total: number }> = new Map();
 
 	aircraft.loadout.pylons.forEach((pylon) => {
@@ -232,7 +226,7 @@ export function getWeaponsForFlightGroupUnit(aircraft: DcsJs.CampaignAircraft) {
 	return weapons;
 }
 
-export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.CampaignAircraft) {
+export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.Aircraft) {
 	const weapons = getWeaponsForFlightGroupUnit(aircraft);
 
 	const availableWeapons = Array.from(weapons.values()).filter((value) => value.count > 0);
@@ -249,9 +243,9 @@ export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.CampaignAircraft)
 }
 
 export function getFrontlineObjective(
-	objectives: Array<{ position: Position }>,
+	objectives: Array<{ position: DcsJs.Position }>,
 	oppositeAirdromeNames: Array<string>,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ) {
 	const dataAirdromes = dataStore.airdromes;
 
@@ -289,9 +283,9 @@ export function getFrontlineObjective(
 }
 
 export function getFarthestAirdromeFromPosition(
-	position: Position,
+	position: DcsJs.Position,
 	airdromeNames: Array<string>,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ) {
 	const dataAirdromes = dataStore.airdromes;
 
@@ -331,15 +325,15 @@ export function getCoalitionObjectives(coalition: DcsJs.CampaignCoalition, state
 }
 
 function moveFarpAircraftsToNearestFarp(
-	aircrafts: Array<DcsJs.CampaignAircraft>,
+	aircrafts: Array<DcsJs.Aircraft>,
 	faction: DcsJs.CampaignFaction,
-	sourceStructure: DcsJs.CampaignStructure,
-	dataStore: DataStore
+	sourceStructure: DcsJs.Structure,
+	dataStore: Types.DataStore
 ) {
 	// Has the opposite faction aircrafts on the farp
 	if (aircrafts.length > 0) {
 		const alternativeFarps = Object.values(faction.structures).filter(
-			(str) => str.structureType === "Farp" && str.id !== sourceStructure.id
+			(str) => str.type === "Farp" && str.id !== sourceStructure.id
 		);
 
 		if (alternativeFarps.length > 0) {
@@ -393,10 +387,10 @@ function moveFarpAircraftsToNearestFarp(
 }
 
 export function transferObjectiveStructures(
-	objective: DcsJs.CampaignObjective,
+	objective: DcsJs.Objective,
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ) {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
@@ -426,7 +420,7 @@ export function transferObjectiveStructures(
 			clearPackage(faction, pkg);
 		});
 
-		switch (structure.structureType) {
+		switch (structure.type) {
 			case "Barrack":
 			case "Depot": {
 				faction.structures[structure.name] = {

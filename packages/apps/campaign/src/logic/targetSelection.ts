@@ -1,8 +1,8 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 
 import { Config } from "../data";
-import { Position } from "../types";
+import * as Domain from "../domain";
 import {
 	addHeading,
 	distanceToPosition,
@@ -22,13 +22,13 @@ import {
 	getFrontlineObjective,
 } from "./utils";
 
-const isInSamRange = (position: Position, oppFaction: DcsJs.CampaignFaction) => {
-	return oppFaction?.sams
+const isInSamRange = (position: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
+	return Domain.Faction.getSamGroups(oppFaction)
 		.filter((sam) => sam.operational)
 		.some((sam) => distanceToPosition(position, sam.position) <= sam.range);
 };
 
-export const getCasTarget = (startPosition: Position, oppFaction: DcsJs.CampaignFaction) => {
+export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
 	const objectivesGroundGroups = oppFaction.groundGroups.filter((gg) => gg.state === "on objective");
 	const groundGroupsInRange = findInside(objectivesGroundGroups, startPosition, (obj) => obj?.position, 130_000);
 
@@ -46,8 +46,8 @@ export const getCasTarget = (startPosition: Position, oppFaction: DcsJs.Campaign
 	return findNearest(groundGroupsOutsideSamRange, startPosition, (group) => group.position);
 };
 
-export const getDeadTarget = (startPosition: Position, oppFaction: DcsJs.CampaignFaction) => {
-	const oppSams = oppFaction.sams.filter((sam) => sam.operational === true);
+export const getDeadTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
+	const oppSams = Domain.Faction.getSamGroups(oppFaction).filter((sam) => sam.operational === true);
 
 	const inRange = findInside(oppSams, startPosition, (sam) => sam.position, 150_000);
 
@@ -55,16 +55,16 @@ export const getDeadTarget = (startPosition: Position, oppFaction: DcsJs.Campaig
 };
 
 export const getStrikeTarget = (
-	startPosition: Position,
-	objectives: Record<string, DcsJs.CampaignObjective>,
+	startPosition: DcsJs.Position,
+	objectives: Record<string, DcsJs.Objective>,
 	coalition: DcsJs.CampaignCoalition,
 	faction: DcsJs.CampaignFaction,
 	oppFaction: DcsJs.CampaignFaction
-): DcsJs.CampaignStructure | undefined => {
+): DcsJs.Structure | undefined => {
 	const factionObjectives = Object.values(objectives).filter((obj) => obj.coalition === coalition);
 	const structures = Object.values(oppFaction.structures).filter((structure) => {
 		// don't attack Farps
-		if (structure.structureType === "Farp") {
+		if (structure.type === "Farp") {
 			return false;
 		}
 		const alreadyTarget = faction.packages.find((pkg) => pkg.flightGroups.find((fg) => fg.target === structure.name));
@@ -95,11 +95,9 @@ export const getStrikeTarget = (
 
 		let prio = 0;
 
-		switch (str.structureType) {
+		switch (str.type) {
 			case "Ammo Depot": {
-				const consumingStructures = structures.filter(
-					(str) => str.structureType === "Barrack" || str.structureType === "Depot"
-				);
+				const consumingStructures = structures.filter((str) => str.type === "Barrack" || str.type === "Depot");
 
 				const inRangeStructures = findInside(
 					consumingStructures,
@@ -113,9 +111,7 @@ export const getStrikeTarget = (
 				break;
 			}
 			case "Power Plant": {
-				const consumingStructures = structures.filter(
-					(str) => str.structureType === "Barrack" || str.structureType === "Depot"
-				);
+				const consumingStructures = structures.filter((str) => str.type === "Barrack" || str.type === "Depot");
 
 				const inRangeStructures = findInside(
 					consumingStructures,
@@ -149,8 +145,8 @@ export const getStrikeTarget = (
 export const getAwacsTarget = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore
-): [Position, Position] | undefined => {
+	dataStore: Types.DataStore
+): [DcsJs.Position, DcsJs.Position] | undefined => {
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
 	const faction = getCoalitionFaction(coalition, state);
@@ -188,7 +184,7 @@ export const getAwacsTarget = (
 
 export const getFrontlineTarget = (
 	coalition: DcsJs.CampaignCoalition,
-	sourcePosition: Position,
+	sourcePosition: DcsJs.Position,
 	range: number,
 	state: RunningCampaignState
 ) => {

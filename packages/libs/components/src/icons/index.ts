@@ -13,6 +13,7 @@ import { PlayFill } from "./PlayFill";
 import { Question } from "./Question";
 import { QuestionCircle } from "./QuestionCircle";
 import { SettingsFill } from "./SettingsFill";
+import { TrashFill } from "./TrashFill";
 import { XCircleFill } from "./XCircleFill";
 
 export const Icons = {
@@ -31,5 +32,6 @@ export const Icons = {
 	Question,
 	QuestionCircle,
 	SettingsFill,
+	TrashFill,
 	XCircleFill,
 };

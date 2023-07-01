@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
@@ -47,9 +47,9 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 
 							if (random(1, 100) <= 50) {
 								destroyUnit(oppFaction, aliveUnitId, state.timer);
-								console.log(`CAS: ${aircraft.id} destroyed ${aliveUnitId} in objective ${gg.objective.name}`); // eslint-disable-line no-console
+								console.log(`CAS: ${aircraft.id} destroyed ${aliveUnitId} in objective ${gg.objectiveName}`); // eslint-disable-line no-console
 							} else {
-								console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${gg.objective.name}`); // eslint-disable-line no-console
+								console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${gg.objectiveName}`); // eslint-disable-line no-console
 							}
 
 							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);

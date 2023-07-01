@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { cnb } from "cnbuilder";
 import { createMemo, For, Show, useContext } from "solid-js";
 
@@ -32,7 +32,10 @@ export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; co
 		<div>
 			<div class={cnb(Styles.header, props.unit.client ? Styles["header--with-client"] : "")}>
 				<h3 class={Styles["item-title"]}>{props.unit.name}</h3>
-				<p>{dataStore.aircrafts?.[aircraft().aircraftType]?.display_name ?? aircraft().aircraftType}</p>
+				<p>
+					{dataStore.aircrafts?.[aircraft().aircraftType as DcsJs.AircraftType]?.display_name ??
+						aircraft().aircraftType}
+				</p>
 				<Show when={props.unit.client}>
 					<p class={Styles.player}>Player</p>
 				</Show>

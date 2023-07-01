@@ -1,14 +1,14 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
 export const updateAircraftForFlightGroup = (
-	flightGroup: DcsJs.CampaignFlightGroup,
+	flightGroup: DcsJs.FlightGroup,
 	state: RunningCampaignState,
 	coalition: DcsJs.CampaignCoalition,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -20,6 +20,10 @@ export const updateAircraftForFlightGroup = (
 		}
 
 		aircraft.state = "waiting";
-		aircraft.loadout = getLoadoutForAircraftType(aircraft.aircraftType, flightGroup.task, dataStore);
+		aircraft.loadout = getLoadoutForAircraftType(
+			aircraft.aircraftType as DcsJs.AircraftType,
+			flightGroup.task,
+			dataStore
+		);
 	});
 };

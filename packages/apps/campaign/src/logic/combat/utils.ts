@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 export const destroyAircraft = (faction: DcsJs.CampaignFaction, id: string, timer: number) => {
 	const aircraft = faction.inventory.aircrafts[id];
@@ -12,7 +12,7 @@ export const destroyAircraft = (faction: DcsJs.CampaignFaction, id: string, time
 };
 
 export function getPackagesWithTarget(faction: DcsJs.CampaignFaction, target: string) {
-	const pkgsWithTarget: Array<DcsJs.CampaignPackage> = [];
+	const pkgsWithTarget: Array<DcsJs.FlightPackage> = [];
 
 	faction.packages.forEach((pkg) => {
 		const hasTargetFg = pkg.flightGroups.some((fg) => fg.target === target);

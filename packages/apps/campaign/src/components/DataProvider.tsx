@@ -24,6 +24,7 @@ type Store = [
 	{
 		getData?: () => void;
 		setMap?: (name: DcsJs.MapName) => void;
+		setFactions?: (factions: Array<DcsJs.FactionDefinition>) => void;
 	}
 ];
 
@@ -48,6 +49,16 @@ export function useSetDataMap() {
 	return setMap;
 }
 
+export function useSetFactions() {
+	const [, { setFactions }] = useContext(DataContext);
+
+	if (setFactions == null) {
+		throw Error("useSetFactions needs to be within the DataProvider");
+	}
+
+	return setFactions;
+}
+
 export function DataProvider(props: { children?: JSX.Element }) {
 	const [state, setState] = createStore<DataStore>(initState);
 
@@ -61,6 +72,7 @@ export function DataProvider(props: { children?: JSX.Element }) {
 	createEffect(() => {
 		const getData = async () => {
 			const data = await rpc.campaign.getDataStore(state.map);
+
 			setState(data);
 		};
 		void getData();

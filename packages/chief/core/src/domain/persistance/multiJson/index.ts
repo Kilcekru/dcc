@@ -1,3 +1,4 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { z } from "zod";
 
 import { MultiJson } from "./multiJson";
@@ -6,11 +7,16 @@ export const CampaignPersistance = new MultiJson({
 	name: "campaign/campaign",
 	version: 0,
 	schema: {
-		item: z.object({
+		item: DcsJs.Schema.campaign,
+		synopsis: z.object({
 			id: z.string(),
-			created: z.coerce.date(),
+			blueFaction: z.string(),
+			name: z.string(),
 		}),
-		synopsis: z.object({}),
 	},
-	getSynopsis: () => ({}),
+	getSynopsis: (item) => ({
+		id: item.id,
+		blueFaction: item.blueFaction?.name ?? "",
+		name: item.name,
+	}),
 });

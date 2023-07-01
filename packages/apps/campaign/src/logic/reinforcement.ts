@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { createUniqueId } from "solid-js";
 
 import { RunningCampaignState } from "./types";

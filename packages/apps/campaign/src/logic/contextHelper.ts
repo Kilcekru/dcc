@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState, MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import { MissionState } from "@kilcekru/dcc-shared-rpc-types";
 
+import * as Domain from "../domain";
 import { getFlightGroups } from "../utils";
 
 export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
@@ -71,20 +72,31 @@ export const killedBuildingNames = (faction: DcsJs.CampaignFaction, killedGround
 export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitNames: Array<string>) => {
 	const names: Array<string> = [];
 
-	faction.sams.forEach((sam) => {
-		const trackRadars = sam.units.filter((unit) => unit.vehicleTypes.some((vt) => vt === "Track Radar"));
+	faction.groundGroups.forEach((gg) => {
+		if (Domain.Faction.isSamGroup(gg)) {
+			// const trackRadars = sam.units.filter((unit) => unit.vehicleTypes.some((vt) => vt === "Track Radar"));
+			const trackRadars: Array<DcsJs.GroundUnit> = [];
+			gg.unitIds.forEach((id) => {
+				const inventoryUnit = faction.inventory.groundUnits[id];
+				return inventoryUnit != null && inventoryUnit.vehicleTypes.some((vt) => vt === "Track Radar");
+			});
 
-		const killed = trackRadars.some((radar) => killedGroundUnitNames.some((name) => name === radar.displayName));
+			const killed = trackRadars.some((radar) => killedGroundUnitNames.some((name) => name === radar.displayName));
 
-		if (killed) {
-			names.push(sam.name);
+			if (killed) {
+				names.push(gg.name);
+			}
 		}
 	});
 
 	return names;
 };
 
-export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignState, missionState: MissionState) => {
+export const updateFactionState = (
+	faction: DcsJs.CampaignFaction,
+	s: DcsJs.CampaignState,
+	missionState: MissionState
+) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 	const killedGroundUnits = killedGroundUnitIds(faction, missionState.killed_ground_units);
 
@@ -111,23 +123,6 @@ export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignSt
 	});
 
 	missionState.killed_ground_units.forEach((killedUnitName) => {
-		const sam = faction.sams.find((sam) => sam.units.some((unit) => unit.displayName === killedUnitName));
-
-		if (sam == null) {
-			return;
-		}
-
-		const unit = sam.units.find((unit) => unit.displayName === killedUnitName);
-
-		if (unit == null) {
-			return;
-		}
-
-		unit.alive = false;
-		unit.destroyedTime = s.timer;
-	});
-
-	missionState.killed_ground_units.forEach((killedUnitName) => {
 		const objectStructure = Object.values(faction.structures).find((structure) =>
 			structure.buildings.some((building) => building.name === killedUnitName)
 		);
@@ -148,15 +143,25 @@ export const updateFactionState = (faction: DcsJs.CampaignFaction, s: CampaignSt
 		building.destroyedTime = s.timer;
 	});
 
-	faction.sams.forEach((sam) => {
-		if (sam.operational) {
-			const trackRadarAlive = sam.units.some((u) => u.alive && u.vehicleTypes.some((vt) => vt === "Track Radar"));
+	faction.groundGroups.forEach((gg) => {
+		if (Domain.Faction.isSamGroup(gg)) {
+			if (gg.operational) {
+				const trackRadarAlive = gg.unitIds.some((id) => {
+					const inventoryUnit = faction.inventory.groundUnits[id];
 
-			if (trackRadarAlive) {
-				return;
+					return (
+						inventoryUnit != null &&
+						inventoryUnit.alive &&
+						inventoryUnit.vehicleTypes.some((vt) => vt === "Track Radar")
+					);
+				});
+
+				if (trackRadarAlive) {
+					return;
+				}
+
+				gg.operational = false;
 			}
-
-			sam.operational = false;
 		}
 	});
 

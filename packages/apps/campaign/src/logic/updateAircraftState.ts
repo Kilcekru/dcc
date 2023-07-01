@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { getAircraftStateFromFlightGroup, getFlightGroups, Minutes } from "../utils";
 import { RunningCampaignState } from "./types";

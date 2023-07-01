@@ -147,6 +147,12 @@ function getAppMenuTemplate(): MenuItemConstructorOptions[] {
 						Events.send("menu.campaign.reset", undefined);
 					},
 				},
+				{
+					label: "New Campaign",
+					click: () => {
+						Events.send("menu.campaign.new", undefined);
+					},
+				},
 			],
 		});
 	}

@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import fs from "fs-extra";
 
-import { Campaign } from "../../domain";
+import * as Domain from "../../domain";
 import { campaignState } from "../../persistance";
 
 const save: Types.Campaign["save"] = async (campaign) => {
@@ -47,7 +47,7 @@ const getDataStore: Types.Campaign["getDataStore"] = async (map) => {
 };
 
 const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
-	const path = Campaign.getMissionPath();
+	const path = Domain.Campaign.getMissionPath();
 
 	if (path == undefined) {
 		return { success: false };
@@ -58,7 +58,7 @@ const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async
 };
 
 const loadMissionState: Types.Campaign["loadMissionState"] = async () => {
-	const path = Campaign.getMissionStatePath();
+	const path = Domain.Campaign.getMissionStatePath();
 
 	if (path == undefined) {
 		return undefined;
@@ -67,6 +67,46 @@ const loadMissionState: Types.Campaign["loadMissionState"] = async () => {
 	return (await fs.readJSON(path)) as Types.MissionState;
 };
 
+export async function loadFactions() {
+	try {
+		const result = await Domain.Persistance.readJson({
+			schema: DcsJs.Schema.factions,
+			name: Domain.Persistance.campaignFactions,
+		});
+
+		return result.factions;
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.warn("load factions", e instanceof Error ? e.message : "unknown error");
+
+		return [];
+	}
+}
+
+export async function saveCustomFactions(factions: Array<DcsJs.Faction>) {
+	try {
+		await Domain.Persistance.writeJson({
+			schema: DcsJs.Schema.factions,
+			name: Domain.Persistance.campaignFactions,
+			data: {
+				version: 1,
+				factions,
+			},
+		});
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.warn(e instanceof Error ? e.message : "unknown error");
+	}
+}
+
+export async function saveCampaign(campaign: DcsJs.CampaignState) {
+	try {
+		await Domain.Persistance.CampaignPersistance.put(campaign);
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.warn(e instanceof Error ? e.message : "unknown error");
+	}
+}
 export const campaign: Types.Campaign = {
 	generateCampaignMission,
 	getSamTemplates,
@@ -75,4 +115,7 @@ export const campaign: Types.Campaign = {
 	save,
 	load,
 	loadMissionState,
+	loadFactions,
+	saveCustomFactions,
+	saveCampaign,
 };

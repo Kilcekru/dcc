@@ -4,11 +4,21 @@
 	"year": 2000,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": ["M-2000C"],
-		"CAS": ["SA342M"],
-		"AWACS": ["E-3A"],
-		"DEAD": ["F-16C_50"],
-		"Pinpoint Strike": ["M-2000C"]
+		"CAP": [
+			"M-2000C"
+		],
+		"CAS": [
+			"SA342M"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"DEAD": [
+			"F-16C_50"
+		],
+		"Pinpoint Strike": [
+			"M-2000C"
+		]
 	},
 	"templateName": "France - Modern"
 }

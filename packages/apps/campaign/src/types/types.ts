@@ -1,15 +1,13 @@
+import type * as DcsJs from "@foxdelta2/dcsjs";
+
 export type ObjectiveType = "Town" | "Terrain" | "Airport";
-export type Position = {
-	x: number;
-	y: number;
-};
 
 export type MapPosition = [number, number];
 
 export type Objective = {
 	name: string;
 	type: ObjectiveType;
-	position: Position;
+	position: DcsJs.Position;
 };
 
 export type Pylon = {
@@ -55,6 +53,6 @@ export type Era = "WW2" | "Korea" | "Early CW" | "Late CW" | "Modern";
 
 export type StrikeTargetType = "Vehicle" | "AAA" | "Artillery" | "SAM" | "Structure";
 
-export type UnitPosition = Position & {
+export type UnitPosition = DcsJs.Position & {
 	heading: number;
 };

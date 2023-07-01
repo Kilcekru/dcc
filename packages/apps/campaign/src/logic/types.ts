@@ -1,7 +1,6 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
-export type RunningCampaignState = Omit<CampaignState, "blueFaction" | "redFaction"> & {
+export type RunningCampaignState = Omit<DcsJs.CampaignState, "blueFaction" | "redFaction"> & {
 	blueFaction: DcsJs.CampaignFaction;
 	redFaction: DcsJs.CampaignFaction;
 };

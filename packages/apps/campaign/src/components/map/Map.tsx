@@ -7,6 +7,7 @@ import { Symbol } from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { OverlaySidebarContext } from "../../apps/home/components";
+import * as Domain from "../../domain";
 import { RunningCampaignState } from "../../logic/types";
 import { getCoalitionFaction } from "../../logic/utils";
 import { MapPosition } from "../../types";
@@ -51,7 +52,7 @@ export const Map = () => {
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useDataStore();
 	const positionToMapPosition = usePositionToMapPosition();
-	const [overlaySidebarState, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openEWR, openSam }] =
+	const [overlaySidebarState, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openSam }] =
 		useContext(OverlaySidebarContext);
 
 	const centerAirdrome = createMemo(() => {
@@ -75,13 +76,13 @@ export const Map = () => {
 		openFlightGroup?.(flightGroup.id, coalition);
 	};
 
-	const onClickGroundGroup = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
+	const onClickGroundGroup = (groundGroup: DcsJs.GroundGroup, coalition: DcsJs.CampaignCoalition) => {
 		openGroundGroup?.(groundGroup.id, coalition);
 	};
 
-	const onClickEWR = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
+	/* const onClickEWR = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
 		openEWR?.(groundGroup.id, coalition);
-	};
+	}; */
 
 	const onClickAirdrome = (airdromeName: string, coalition: DcsJs.CampaignCoalition) => {
 		openAirdrome?.(airdromeName, coalition);
@@ -274,7 +275,7 @@ export const Map = () => {
 
 	const createGroundGroupSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		faction.groundGroups.forEach((gg) => {
-			if (gg.position == null) {
+			if (gg.position == null || gg.type === "sam") {
 				return;
 			}
 
@@ -284,7 +285,7 @@ export const Map = () => {
 						mapPosition: positionToMapPosition(gg.position),
 						hostile: coalition === "red",
 						air: false,
-						unitCode: gg.groupType === "armor" ? "armor" : "infantry",
+						unitCode: gg.type === "armor" ? "armor" : "infantry",
 						onClick: () => onClickGroundGroup(gg, coalition),
 					});
 
@@ -303,7 +304,7 @@ export const Map = () => {
 		});
 	};
 
-	const createEWSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	/* const createEWSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		faction.ews.forEach((gg) => {
 			if (gg.position == null) {
 				return;
@@ -338,14 +339,14 @@ export const Map = () => {
 				delete ewMarkers[gg.id];
 			}
 		});
-	};
+	}; */
 
 	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
 			if (objectiveMarkers[structure.id] == null) {
 				let unitCode: SidcUnitCodeKey = "militaryBase";
 
-				switch (structure.structureType) {
+				switch (structure.type) {
 					case "Fuel Storage":
 						unitCode = "fuelStorage";
 						break;
@@ -367,12 +368,8 @@ export const Map = () => {
 					unitCode,
 					onClick: () => openStructure?.(structure.name, coalition),
 					color:
-						structure.structureType === "Farp"
-							? coalition === "red"
-								? "rgb(255, 31, 31)"
-								: "rgb(0, 193, 255)"
-							: undefined,
-					riseOnHover: structure.structureType === "Farp",
+						structure.type === "Farp" ? (coalition === "red" ? "rgb(255, 31, 31)" : "rgb(0, 193, 255)") : undefined,
+					riseOnHover: structure.type === "Farp",
 				});
 
 				if (marker != null) {
@@ -383,7 +380,7 @@ export const Map = () => {
 	};
 
 	const createSamSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
-		faction.sams.forEach((sam) => {
+		Domain.Faction.getSamGroups(faction).forEach((sam) => {
 			if (sam.operational) {
 				const mapPosition = positionToMapPosition(sam.position);
 				const map = leaftletMap();
@@ -624,24 +621,6 @@ export const Map = () => {
 			selectedMarkerId = structure.id;
 		}
 
-		if (overlaySidebarState.state === "ewr") {
-			const id = overlaySidebarState.groundGroupId;
-			const faction = getCoalitionFaction(overlaySidebarState.coalition ?? "blue", state as RunningCampaignState);
-
-			if (id == null) {
-				return;
-			}
-
-			const ewr = faction.ews.find((ew) => ew.id === id);
-
-			if (ewr == null) {
-				null;
-			}
-
-			marker = ewMarkers[id];
-			selectedMarkerId = id;
-		}
-
 		if (overlaySidebarState.state === "airdrome") {
 			const airdromeName = overlaySidebarState.airdromeName;
 
@@ -713,12 +692,12 @@ export const Map = () => {
 
 		createAircraftSymbols("blue", bluePackages);
 		createGroundGroupSymbols("blue", state.blueFaction);
-		createEWSymbols("blue", state.blueFaction);
+		// createEWSymbols("blue", state.blueFaction);
 		createStructureSymbols("blue", state.blueFaction);
 		createSamSymbols("blue", state.blueFaction);
 		createAircraftSymbols("red", redPackages);
 		createGroundGroupSymbols("red", state.redFaction);
-		createEWSymbols("red", state.redFaction);
+		// createEWSymbols("red", state.redFaction);
 		createStructureSymbols("red", state.redFaction);
 		createSamSymbols("red", state.redFaction);
 

@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useCreateErrorToast } from "@kilcekru/dcc-lib-components";
 import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js";
 
@@ -15,9 +15,9 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
 	const [scenario, setScenario] = createSignal("");
-	const [blueFaction, setBlueFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
-	const [redFaction, setRedFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
-	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.FactionDefinition | undefined>(undefined);
+	const [blueFaction, setBlueFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
+	const [redFaction, setRedFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
+	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [, { activate }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	const setDataMap = useSetDataMap();
@@ -49,7 +49,7 @@ export const CreateCampaign = () => {
 			setCurrentScreen("Red Faction");
 		}
 	};
-	const onCustomFactionNext = (faction: DcsJs.FactionDefinition) => {
+	const onCustomFactionNext = (faction: DcsJs.Faction) => {
 		if (blueFaction() == null) {
 			setBlueFaction(faction);
 			setCurrentScreen("Red Faction");
@@ -65,7 +65,7 @@ export const CreateCampaign = () => {
 		setDataMap(scenario.map as DcsJs.MapName);
 	};
 
-	const onCustomFaction = (template?: DcsJs.FactionDefinition) => {
+	const onCustomFaction = (template?: DcsJs.Faction) => {
 		if (template != null) {
 			setTemplateFaction(template);
 		} else {
@@ -94,7 +94,7 @@ export const CreateCampaign = () => {
 									setBlueFaction(faction);
 									setCurrentScreen("Red Faction");
 								}}
-								prev={() => setCurrentScreen("Blue Faction")}
+								prev={() => setCurrentScreen("Start")}
 								customFaction={onCustomFaction}
 								coalition="blue"
 							/>

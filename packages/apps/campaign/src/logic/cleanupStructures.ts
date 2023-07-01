@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction } from "./utils";
@@ -6,7 +6,7 @@ import { getCoalitionFaction } from "./utils";
 function updateStructureState(
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	camp: DcsJs.CampaignStructure | undefined
+	camp: DcsJs.Structure | undefined
 ) {
 	if (camp == null) {
 		throw "cleanupFactionStructures: barrack not found";

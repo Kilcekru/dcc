@@ -1,5 +1,5 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Config } from "../../data";
@@ -24,7 +24,7 @@ import { updateAircraftForFlightGroup } from "./utils";
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -48,7 +48,7 @@ export const generateCasPackage = (
 		return;
 	}
 
-	let isHelicopter = dataStore.aircrafts?.[firstAircraft.aircraftType]?.isHelicopter;
+	let isHelicopter = dataStore.aircrafts?.[firstAircraft.aircraftType as DcsJs.AircraftType]?.isHelicopter;
 
 	let startPosition =
 		firstAircraft.homeBase.type === "airdrome"
@@ -67,7 +67,7 @@ export const generateCasPackage = (
 		return;
 	}
 
-	if (groundGroupTarget.groupType === "infantry") {
+	if (groundGroupTarget.type === "infantry") {
 		const usableLightAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes["Light Attack"], 2);
 
 		if (usableLightAircrafts.length >= 2) {
@@ -84,14 +84,13 @@ export const generateCasPackage = (
 			const startLightPosition =
 				firstLightAircraft.homeBase.type === "airdrome"
 					? dataStore.airdromes[firstLightAircraft.homeBase.name as DcsJs.AirdromeName]
-					: firstItem(Object.values(faction.structures).filter((structure) => structure.structureType === "Farp"))
-							?.position;
+					: firstItem(Object.values(faction.structures).filter((structure) => structure.type === "Farp"))?.position;
 
 			if (startLightPosition == null) {
 				return;
 			}
 
-			isHelicopter = dataStore.aircrafts?.[firstLightAircraft.aircraftType]?.isHelicopter;
+			isHelicopter = dataStore.aircrafts?.[firstLightAircraft.aircraftType as DcsJs.AircraftType]?.isHelicopter;
 			usableAircrafts = usableLightAircrafts;
 			startPosition = startLightPosition;
 		}
@@ -113,7 +112,7 @@ export const generateCasPackage = (
 
 	const cs = generateCallSign(coalition, state, dataStore, isHelicopter ? "helicopter" : "aircraft");
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
 		airdromeName: firstAircraft.homeBase.name as DcsJs.AirdromeName,
 		units:
@@ -122,7 +121,7 @@ export const generateCasPackage = (
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
 				client: false,
-				loadout: getLoadoutForAircraftType(aircraft.aircraftType, "CAS", dataStore),
+				loadout: getLoadoutForAircraftType(aircraft.aircraftType as DcsJs.AircraftType, "CAS", dataStore),
 			})) ?? [],
 		name: cs.flightGroupName,
 		task: "CAS",

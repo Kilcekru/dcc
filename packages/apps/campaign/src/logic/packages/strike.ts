@@ -1,8 +1,7 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
-import { Position } from "../../types";
 import {
 	addHeading,
 	calcPackageEndTime,
@@ -24,10 +23,10 @@ import { updateAircraftForFlightGroup } from "./utils";
 const speed = 170;
 
 const calcHoldWaypoint = (
-	startPosition: Position,
-	targetPosition: Position,
+	startPosition: DcsJs.Position,
+	targetPosition: DcsJs.Position,
 	startTime: number
-): [DcsJs.CampaignWaypoint, Position, number] => {
+): [DcsJs.CampaignWaypoint, DcsJs.Position, number] => {
 	const targetHeading = headingToPosition(startPosition, targetPosition);
 
 	const holdPosition = positionFromHeading(startPosition, targetHeading, 20_000);
@@ -51,10 +50,10 @@ const calcHoldWaypoint = (
 const escortFlightGroup = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
-	targetFlightGroup: DcsJs.CampaignFlightGroup,
-	ingressPosition: Position,
-	engressPosition: Position,
+	dataStore: Types.DataStore,
+	targetFlightGroup: DcsJs.FlightGroup,
+	ingressPosition: DcsJs.Position,
+	engressPosition: DcsJs.Position,
 	engressTime: number
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
@@ -92,7 +91,7 @@ const escortFlightGroup = (
 
 	holdWaypoint.taskStart = true;
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(targetFlightGroup.startTime),
 		airdromeName,
 		units:
@@ -129,7 +128,7 @@ const escortFlightGroup = (
 export const generateStrikePackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ): DcsJs.CampaignPackage | undefined => {
 	// console.log("generate strike");
 	const faction = getCoalitionFaction(coalition, state);
@@ -203,7 +202,7 @@ export const generateStrikePackage = (
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:

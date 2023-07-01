@@ -1,16 +1,16 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { CampaignState } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { Config } from "../data";
+import * as Domain from "../domain";
 import { getDeploymentCost, hasAmmoDepotInRange, hasFuelStorageInRange, hasPowerInRange } from "../utils";
 import { RunningCampaignState } from "./types";
-import { getCoalitionFaction, isCampaignStructureUnitCamp } from "./utils";
+import { getCoalitionFaction } from "./utils";
 
 function updateFactionDeploymentScore(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
 	const faction = getCoalitionFaction(coalition, state);
 	Object.values(faction.structures).forEach((structure) => {
-		if (isCampaignStructureUnitCamp(structure)) {
-			const maxScore = getDeploymentCost(coalition, structure.structureType);
+		if (Domain.Structure.isCampaignStructureUnitCamp(structure)) {
+			const maxScore = getDeploymentCost(coalition, structure.type);
 
 			if (structure.state === "active" && structure.deploymentScore < maxScore) {
 				const totalBuildings = structure.buildings.length;
@@ -25,7 +25,7 @@ function updateFactionDeploymentScore(coalition: DcsJs.CampaignCoalition, state:
 					throw "updateFactionDeploymentScore: depot not found";
 				}
 
-				if (isCampaignStructureUnitCamp(factionStructure)) {
+				if (Domain.Structure.isCampaignStructureUnitCamp(factionStructure)) {
 					let scoreFactor = 1;
 
 					if (!hasPowerInRange(structure.position, faction)) {
@@ -36,7 +36,7 @@ function updateFactionDeploymentScore(coalition: DcsJs.CampaignCoalition, state:
 						scoreFactor -= Config.deploymentScore.penalty.ammo;
 					}
 
-					if (factionStructure.structureType === "Depot") {
+					if (factionStructure.type === "Depot") {
 						if (!hasFuelStorageInRange(structure.position, faction)) {
 							scoreFactor -= Config.deploymentScore.penalty.fuel;
 						}
@@ -53,7 +53,7 @@ function updateFactionDeploymentScore(coalition: DcsJs.CampaignCoalition, state:
 	});
 }
 
-export function deploymentScoreUpdate(s: CampaignState) {
+export function deploymentScoreUpdate(s: DcsJs.CampaignState) {
 	if (s.blueFaction == null || s.redFaction == null) {
 		return s;
 	}

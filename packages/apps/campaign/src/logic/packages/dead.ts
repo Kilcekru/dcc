@@ -1,5 +1,5 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import {
@@ -23,7 +23,7 @@ import { updateAircraftForFlightGroup } from "./utils";
 export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -86,7 +86,7 @@ export const generateDeadPackage = (
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:
@@ -134,14 +134,6 @@ export const generateDeadPackage = (
 			},
 			...landingWaypoints,
 		],
-		objective: {
-			name: selectedObjective.id,
-			coalition: oppositeCoalition(coalition),
-			position: selectedObjective.position,
-			deploymentDelay: 0,
-			deploymentTimer: 0,
-			incomingGroundGroups: {},
-		},
 		target: selectedObjective.id,
 		position: objectToPosition(airdrome),
 	};

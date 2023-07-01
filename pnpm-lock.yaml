@@ -85,8 +85,8 @@ importers:
         version: 9.0.0
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.229-next.4
-        version: 0.2.229-next.4
+        specifier: 0.2.229-next.13
+        version: 0.2.229-next.13
       '@types/leaflet':
         specifier: 1.9.0
         version: 1.9.0
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.229-next.4
-        version: 0.2.229-next.4
+        specifier: 0.2.229-next.13
+        version: 0.2.229-next.13
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -195,8 +195,8 @@ importers:
         version: 1.6.2
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.229-next.4
-        version: 0.2.229-next.4
+        specifier: 0.2.229-next.13
+        version: 0.2.229-next.13
 
   packages/libs/rpc:
     devDependencies:
@@ -205,10 +205,14 @@ importers:
         version: link:../../shared/rpc-types
 
   packages/shared/rpc-types:
+    dependencies:
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.229-next.4
-        version: 0.2.229-next.4
+        specifier: 0.2.229-next.13
+        version: 0.2.229-next.13
 
   utils/build:
     dependencies:
@@ -612,12 +616,13 @@ packages:
       '@floating-ui/core': 1.2.6
     dev: false
 
-  /@foxdelta2/dcsjs@0.2.229-next.4:
-    resolution: {integrity: sha512-UmW2Ixx/CfAH7offLLxE/IuvrgM4761i8OJ2tk6/I/cwYo/qadGW73+mxJXFuqFTfDn5fKRp61UUFreGCGUWkQ==}
+  /@foxdelta2/dcsjs@0.2.229-next.13:
+    resolution: {integrity: sha512-aq27kO5ODlD/LMUlw1otEzm0vFci4mWab7R16SisJxr7mkG0DVvYZrq2eLZg4GX7qas4YhfxRKIwUqRaZ43DAA==}
     dependencies:
-      '@kilcekru/lua-table': 1.0.0
+      '@kilcekru/lua-table': 1.1.0
       adm-zip: 0.5.10
       fs-extra: 11.1.1
+      zod: 3.21.4
 
   /@humanwhocodes/config-array@0.11.8:
     resolution: {integrity: sha512-UybHIJzJnR5Qc/MsD9Kr+RpO2h+/P1GhOwdiLPXK5TWk5sgTdu88bTD9UP+CKbPPh5Rni1u0GjAdYQLemG8g+g==}
@@ -696,9 +701,9 @@ packages:
       - supports-color
     dev: false
 
-  /@kilcekru/lua-table@1.0.0:
-    resolution: {integrity: sha512-ySHuhJasnwaExu2iAzp9vbmmJJyjPL8wf1qexeE70DDwjqDkMimnpEjfwMhw4/XAS/jhxdHOmPlrR7iZnQz1vA==}
-    engines: {pnpm: '>=7.15.0'}
+  /@kilcekru/lua-table@1.1.0:
+    resolution: {integrity: sha512-n9LavGu4AyElcF414SoUXua9us0KzbsDgftsar/+mv94sotfFNEGmmYowM5qtOA5E33o5/wCLDAqQMvasGnWKw==}
+    engines: {node: '>=18.12.0', pnpm: ^8.6.2}
 
   /@kilcekru/ts-basics@3.1.1(typescript@4.9.4):
     resolution: {integrity: sha512-dvqhEHuZrBXVSpOBHAh4eNuHjhKKEx9CmfW1RsxWrqqHE97K4EB9UpQnN3kxYEqUvcgkvKSHUV59B+wQ/jJYlA==}
@@ -4383,4 +4388,3 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
-    dev: false

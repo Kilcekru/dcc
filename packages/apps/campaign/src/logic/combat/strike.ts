@@ -1,10 +1,10 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
-const destroyStructure = (structure: DcsJs.CampaignStructure, timer: number) => {
+const destroyStructure = (structure: DcsJs.Structure, timer: number) => {
 	structure.buildings = structure.buildings.map((building) => ({
 		...building,
 		alive: false,

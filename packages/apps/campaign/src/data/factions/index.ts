@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import * as france from "./france.json";
 import * as russia from "./russia.json";
@@ -8,4 +8,4 @@ import * as usNavy from "./us-navy.json";
 import * as usNavy72 from "./us-navy-1972.json";
 import * as usa from "./usa.json";
 
-export const factionList: Array<DcsJs.FactionDefinition> = [russia, russiaAI, russia75, usa, usNavy, usNavy72, france];
+export const factionList: Array<DcsJs.Faction> = [russia, russiaAI, russia75, usa, usNavy, usNavy72, france];

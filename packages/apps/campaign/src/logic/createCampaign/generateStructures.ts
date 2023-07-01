@@ -1,5 +1,5 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-rpc-types";
 import { createUniqueId } from "solid-js";
 
 import { Config, ScenarioCoalition } from "../../data";
@@ -22,9 +22,9 @@ function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureTy
 export function generateStructures(
 	coalition: DcsJs.CampaignCoalition,
 	scenarioCoalition: ScenarioCoalition,
-	dataStore: DataStore
+	dataStore: Types.DataStore
 ) {
-	const structures: Record<string, DcsJs.CampaignStructure> = {};
+	const structures: Record<string, DcsJs.Structure> = {};
 
 	if (dataStore.strikeTargets == null) {
 		return structures;
@@ -52,7 +52,7 @@ export function generateStructures(
 			const structureTemplate = randomItem(dataStore.structures?.[structureType] ?? []);
 
 			if (structureType === "Barrack" || structureType === "Depot") {
-				const structure: DcsJs.CampaignStructureUnitCamp = {
+				const structure: DcsJs.StructureUnitCamp = {
 					name: structurePlan.structureName,
 					buildings:
 						structureTemplate?.buildings.map((building, i) => ({
@@ -64,14 +64,14 @@ export function generateStructures(
 					id: createUniqueId(),
 					objectiveName: strikeTarget.objectiveName,
 					position: strikeTarget.position,
-					structureType: structureType,
+					type: structureType,
 					state: "active",
 					deploymentScore: calcInitDeploymentScore(coalition, structureType),
 				};
 
 				structures[structurePlan.structureName] = structure;
 			} else {
-				const structure: DcsJs.CampaignStructureDefault = {
+				const structure: DcsJs.StructureDefault = {
 					name: structurePlan.structureName,
 					buildings:
 						structureTemplate?.buildings.map((building, i) => ({
@@ -83,7 +83,7 @@ export function generateStructures(
 					id: createUniqueId(),
 					objectiveName: strikeTarget.objectiveName,
 					position: strikeTarget.position,
-					structureType: structureType,
+					type: structureType,
 					state: "active",
 				};
 

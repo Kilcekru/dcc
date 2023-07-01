@@ -1,4 +1,4 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { distanceToPosition, getFlightGroups, Minutes, random } from "../../utils";
 import { RunningCampaignState } from "../types";
@@ -6,9 +6,9 @@ import { getMaxRangeA2AMissileAvailable } from "../utils";
 
 type BattleReportEntry = {
 	unit: DcsJs.CampaignFlightGroupUnit;
-	aircraft: DcsJs.CampaignAircraft;
+	aircraft: DcsJs.Aircraft;
 	weapon: DcsJs.Weapon & DcsJs.A2AWeapon;
-	targetAircraft?: DcsJs.CampaignAircraft;
+	targetAircraft?: DcsJs.Aircraft;
 };
 
 type BattleReport = Array<BattleReportEntry>;

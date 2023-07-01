@@ -1,8 +1,11 @@
 import { useCreateErrorToast, useCreateToast } from "@kilcekru/dcc-lib-components";
+import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import { createEffect, createMemo, ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
+import { unwrap } from "solid-js/store";
 
 import { CampaignContext, Map } from "../../components";
 import { useDataStore } from "../../components/DataProvider";
+import * as Domain from "../../domain";
 import { useSave } from "../../hooks";
 import { getClientMissionStartTime } from "../../utils";
 import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, ResetModal, Sidebar } from "./components";
@@ -110,6 +113,10 @@ export const Home = () => {
 	onMount(() => document.addEventListener("keyup", onKeyUp));
 
 	onCleanup(() => document.removeEventListener("keyup", onKeyUp));
+
+	onEvent("menu.campaign.new", () => {
+		rpc.campaign.saveCampaign(unwrap(state)).catch(Domain.Utils.catchAwait);
+	});
 
 	return (
 		<OverlaySidebarProvider>

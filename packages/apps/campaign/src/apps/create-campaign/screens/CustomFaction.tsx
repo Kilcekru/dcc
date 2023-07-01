@@ -1,9 +1,10 @@
 /* eslint-disable solid/reactivity */
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createMemo, createSignal, For, Setter } from "solid-js";
 
 import { useDataStore } from "../../../components/DataProvider";
+import * as Domain from "../../../domain";
 import Styles from "./CustomFaction.module.less";
 
 const AircraftList = (props: {
@@ -83,11 +84,12 @@ const CountryList = (props: { selectedCountry: string; toggle: (name: string) =>
 };
 
 export const CustomFaction = (props: {
-	template?: DcsJs.FactionDefinition;
-	next: (faction: DcsJs.FactionDefinition) => void;
+	template?: DcsJs.Faction;
+	next: (faction: DcsJs.Faction) => void;
 	prev: () => void;
 }) => {
 	const [name, setName] = createSignal(props.template?.name ?? "Custom");
+	const [year, setYear] = createSignal(props.template?.year ?? 2023);
 	const [cap, setCap] = createSignal<Array<string>>(props.template?.aircraftTypes.CAP ?? []);
 	const [cas, setCas] = createSignal<Array<string>>(props.template?.aircraftTypes.CAS ?? []);
 	const [awacs, setAwacs] = createSignal<Array<string>>(props.template?.aircraftTypes.AWACS ?? []);
@@ -95,6 +97,7 @@ export const CustomFaction = (props: {
 	const [strike, setStrike] = createSignal<Array<string>>(props.template?.aircraftTypes["Pinpoint Strike"] ?? []);
 	const [templateName, setTemplateName] = createSignal(props.template?.templateName ?? "USA - Modern");
 	const [country, setCountry] = createSignal(props.template?.countryName ?? "USA");
+	// const updateFactions = Domain.Faction.useUpdate();
 
 	const toggleAircraft = (task: DcsJs.Task, name: string) => {
 		let list: Array<string> = [];
@@ -140,7 +143,7 @@ export const CustomFaction = (props: {
 	};
 
 	const onNext = () => {
-		props.next({
+		const f = {
 			aircraftTypes: {
 				CAP: cap(),
 				CAS: cas(),
@@ -149,21 +152,29 @@ export const CustomFaction = (props: {
 				"Pinpoint Strike": strike(),
 			},
 			countryName: country(),
-			name: name(),
+			name: name() == "" ? "Custom" : name(),
 			playable: true,
 			year: 2023,
 			templateName: templateName(),
-		});
+			created: props.template?.created,
+		};
+
+		void Domain.Faction.save(f);
+
+		props.next(f);
 	};
 	return (
-		<>
+		<div class={Styles.wrapper}>
 			<Components.Button large unstyled class={Styles["back-button"]} onPress={() => props.prev()}>
 				<Components.Icons.ArrowBack />
 			</Components.Button>
-			<div class={Styles.wrapper}>
-				<Components.ScrollContainer>
-					<h2>Name</h2>
+			<h1 class={Styles.title}>Create Custom Faction</h1>
+			<Components.ScrollContainer>
+				<div class={Styles["scroll-container"]}>
+					<h2 class={Styles["mission-task"]}>Name</h2>
 					<Components.TextField value={name()} onChange={setName} />
+					<h2 class={Styles["mission-task"]}>Year</h2>
+					<Components.NumberField value={year()} onChange={setYear} />
 					<h2 class={Styles["mission-task"]}>Countries</h2>
 					<CountryList selectedCountry={country()} toggle={setCountry} />
 					<h2 class={Styles["mission-task"]}>CAP</h2>
@@ -186,13 +197,13 @@ export const CustomFaction = (props: {
 					/>
 					<h2 class={Styles["mission-task"]}>Ground Units</h2>
 					<TemplateList selectedTemplateName={templateName()} toggle={setTemplateName} />
-					<div class={Styles.buttons}>
-						<Components.Button large onPress={onNext}>
-							Next
-						</Components.Button>
-					</div>
-				</Components.ScrollContainer>
+				</div>
+			</Components.ScrollContainer>
+			<div class={Styles.buttons}>
+				<Components.Button large onPress={onNext}>
+					Next
+				</Components.Button>
 			</div>
-		</>
+		</div>
 	);
 };

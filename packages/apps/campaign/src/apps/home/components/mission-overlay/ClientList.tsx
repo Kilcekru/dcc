@@ -7,7 +7,7 @@ import { useDataStore } from "../../../../components/DataProvider";
 import { getClientFlightGroups } from "../../../../utils";
 import Styles from "./ClientList.module.less";
 
-function Item(props: { flightGroup: DcsJs.CampaignFlightGroup }) {
+function Item(props: { flightGroup: DcsJs.FlightGroup }) {
 	const [state] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 
@@ -23,7 +23,10 @@ function Item(props: { flightGroup: DcsJs.CampaignFlightGroup }) {
 				return;
 			}
 
-			acTypes.set(aircraft.aircraftType, (acTypes.get(aircraft.aircraftType) ?? 0) + 1);
+			acTypes.set(
+				aircraft.aircraftType as DcsJs.AircraftType,
+				(acTypes.get(aircraft.aircraftType as DcsJs.AircraftType) ?? 0) + 1
+			);
 		});
 
 		return Array.from(acTypes);
