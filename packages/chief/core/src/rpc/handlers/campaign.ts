@@ -107,7 +107,7 @@ export async function saveCustomFactions(factions: Array<DcsJs.Faction>) {
 			schema: DcsJs.Schema.factions,
 			name: Domain.Persistance.campaignFactions,
 			data: {
-				version: 1,
+				version: 0,
 				factions,
 			},
 		});

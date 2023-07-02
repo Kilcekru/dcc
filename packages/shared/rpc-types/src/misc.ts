@@ -19,7 +19,7 @@ export const DcsPathsSchema = z.object({
 export type DcsPaths = z.infer<typeof DcsPathsSchema>;
 
 export const UserConfigSchema = z.object({
-	version: z.number(),
+	version: z.literal(1),
 	setupComplete: z.boolean(),
 	dcs: z.discriminatedUnion("available", [
 		z.object({ available: z.undefined() }),

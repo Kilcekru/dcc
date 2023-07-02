@@ -90,4 +90,4 @@ const fileNameSchema = z
 		"Filename may only contain 'a-z0-9_-', must have an extension (1-5 chars), fileName and dirNames must me at least 1 char"
 	);
 
-export type BaseJsonSchema = z.ZodObject<{ version: z.ZodNumber }>;
+export type BaseJsonSchema = z.ZodObject<{ version: z.ZodLiteral<number> }>;

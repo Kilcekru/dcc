@@ -20,7 +20,7 @@ const dccConfigV0Schema = z.object({
 		.optional(),
 });
 const dccConfigV1Schema = z.object({
-	version: z.number(),
+	version: z.literal(1),
 	win: z.object({
 		bounds: z.object({
 			width: z.number().int(),
