@@ -40,7 +40,7 @@ export const dccConfig = new State({
 		win: { bounds: { width: 1280, height: 800 }, maximized: false },
 	},
 	migrations: [
-		async () => {
+		async (): Promise<z.infer<typeof dccConfigV1Schema> | undefined> => {
 			try {
 				const filePath = Path.join(app.getPath("userData"), "persistance/dcc/state.json");
 				const fileContent: unknown = await FS.readJSON(filePath);

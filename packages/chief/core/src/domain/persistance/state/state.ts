@@ -54,11 +54,16 @@ export class State<Schema extends BaseJsonSchema> {
 						if (migration != undefined) {
 							data = await migration(data);
 						}
+						if (data == undefined) {
+							break;
+						}
 						version++;
 					}
-					this.#data = this.#schema.parse(data);
-					await this.save();
-					return;
+					if (data != undefined) {
+						this.#data = this.#schema.parse(data);
+						await this.save();
+						return;
+					}
 				} catch (err) {
 					console.error(`Persistance.State migration failed: ${Utils.errMsg(err)}`); // eslint-disable-line no-console
 				}

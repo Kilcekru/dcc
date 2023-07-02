@@ -1,13 +1,16 @@
 import { BrowserWindow, Menu, MenuItemConstructorOptions } from "electron";
 
 import { config } from "../config";
-import { userConfig } from "../persistance";
+import * as Domain from "../domain";
 import * as Events from "../rpc/events";
 import { loadApp } from "./startup";
 
 function getAppMenuTemplate(): MenuItemConstructorOptions[] {
-	const currentApp = userConfig.data.currentApp ?? "home";
-	const enableNavigation = userConfig.data.setupComplete && userConfig.data.dcs != undefined ? true : false;
+	const currentApp = Domain.Persistance.State.userConfig.data.currentApp;
+	const enableNavigation =
+		Domain.Persistance.State.userConfig.data.setupComplete && Domain.Persistance.State.userConfig.data.dcs != undefined
+			? true
+			: false;
 
 	const template: MenuItemConstructorOptions[] = [
 		{
@@ -121,8 +124,8 @@ function getAppMenuTemplate(): MenuItemConstructorOptions[] {
 				{
 					label: "Reset user settings",
 					click: async () => {
-						userConfig.reset();
-						await userConfig.save();
+						Domain.Persistance.State.userConfig.reset();
+						await Domain.Persistance.State.userConfig.save();
 						void loadApp("home");
 					},
 				},

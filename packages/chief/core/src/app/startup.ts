@@ -3,7 +3,6 @@ import * as Path from "node:path";
 import { BrowserWindow, shell } from "electron";
 
 import * as Domain from "../domain";
-import { userConfig } from "../persistance";
 import { getAppPath } from "../utils";
 import { getWindowBounds, registerBoundsEvents } from "./bounds";
 import { setApplicationMenu } from "./menu";
@@ -11,11 +10,8 @@ import { setApplicationMenu } from "./menu";
 export let mainWindow: BrowserWindow | undefined;
 
 export async function startupApp() {
-	await Promise.all([Domain.Persistance.State.dccConfig.load(), userConfig.load()]);
+	await Promise.all([Domain.Persistance.State.dccConfig.load(), Domain.Persistance.State.userConfig.load()]);
 
-	if (!(["home", "campaign"] as Array<string | undefined>).includes(userConfig.data.currentApp)) {
-		userConfig.data.currentApp = "home";
-	}
 	setApplicationMenu();
 
 	mainWindow = new BrowserWindow({
@@ -32,8 +28,8 @@ export async function startupApp() {
 		return { action: "deny" };
 	});
 
-	if (userConfig.data.dcs != undefined && userConfig.data.currentApp != undefined) {
-		await loadApp(userConfig.data.currentApp);
+	if (Domain.Persistance.State.userConfig.data.dcs.available != undefined) {
+		await loadApp(Domain.Persistance.State.userConfig.data.currentApp);
 	} else {
 		await loadApp("home");
 	}
@@ -49,7 +45,7 @@ export async function startupApp() {
 
 export async function loadApp(name: "home" | "campaign", query?: Record<string, string>) {
 	await mainWindow?.loadFile(getAppPath(name), { query });
-	userConfig.data.currentApp = name;
+	Domain.Persistance.State.userConfig.data.currentApp = name;
 	setApplicationMenu();
-	await userConfig.save();
+	await Domain.Persistance.State.userConfig.save();
 }

@@ -3,14 +3,10 @@ import { app } from "electron";
 import * as os from "os";
 import * as Path from "path";
 
-import { Campaign } from "../domain";
-import { userConfig } from "../persistance";
+import * as Domain from "../domain";
+import { getBasePath } from "../domain/persistance";
 
 export async function createSupportZip(): Promise<string | undefined> {
-	if (userConfig.data.downloadsPath == undefined) {
-		return undefined;
-	}
-
 	const archive = new AdmZip();
 
 	archive.addFile(
@@ -27,13 +23,13 @@ export async function createSupportZip(): Promise<string | undefined> {
 		)
 	);
 
-	// TODO
-	/* await campaignState.load();
-	if (campaignState.data != undefined) {
-		archive.addFile("campaign.json", Buffer.from(JSON.stringify(campaignState.data), "utf-8"));
-	} */
+	try {
+		await archive.addLocalFolderPromise(getBasePath("multi"), {});
+	} catch {
+		// ignore
+	}
 
-	const missionPath = Campaign.getMissionPath();
+	const missionPath = Domain.Campaign.getMissionPath();
 	if (missionPath != undefined) {
 		try {
 			archive.addLocalFile(missionPath);
@@ -42,7 +38,7 @@ export async function createSupportZip(): Promise<string | undefined> {
 		}
 	}
 
-	const missionStatePath = Campaign.getMissionStatePath();
+	const missionStatePath = Domain.Campaign.getMissionStatePath();
 	if (missionStatePath != undefined) {
 		try {
 			archive.addLocalFile(missionStatePath);
@@ -51,7 +47,7 @@ export async function createSupportZip(): Promise<string | undefined> {
 		}
 	}
 
-	const filePath = Path.join(userConfig.data.downloadsPath, "dcc_support.zip");
+	const filePath = Path.join(Domain.Persistance.State.userConfig.data.downloadsPath, "dcc_support.zip");
 	await archive.writeZipPromise(filePath);
 	return filePath;
 }

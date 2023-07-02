@@ -4,7 +4,7 @@ import * as os from "os";
 
 import { loadApp } from "../../app/startup";
 import { config } from "../../config";
-import { userConfig } from "../../persistance";
+import * as Domain from "../../domain";
 
 const getVersions: Misc["getVersions"] = async () => {
 	return {
@@ -17,7 +17,7 @@ const getVersions: Misc["getVersions"] = async () => {
 };
 
 const getUserConfig: Misc["getUserConfig"] = async () => {
-	return userConfig.data;
+	return Domain.Persistance.State.userConfig.data;
 };
 
 const getSystemConfig: Misc["getSystemConfig"] = async () => {

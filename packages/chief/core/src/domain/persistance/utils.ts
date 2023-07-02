@@ -8,6 +8,10 @@ import { config } from "../../config";
 
 type Namespace = "state" | "json" | "file" | "multi";
 
+export function getBasePath(namespace: Namespace) {
+	return Path.join(app.getPath("userData"), "persistance", namespace);
+}
+
 export interface FileArgs {
 	namespace: Namespace;
 	fileName: string;

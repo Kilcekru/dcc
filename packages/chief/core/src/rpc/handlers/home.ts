@@ -4,7 +4,7 @@ import FS from "fs-extra";
 
 import { setApplicationMenu } from "../../app/menu";
 import { mainWindow } from "../../app/startup";
-import { userConfig } from "../../persistance";
+import * as Domain from "../../domain";
 import {
 	findDcsPaths,
 	findDcsSavedGamesPath,
@@ -14,9 +14,9 @@ import {
 import { createSupportZip } from "../../utils/supportZip";
 
 async function setSetupComplete() {
-	if (!userConfig.data.setupComplete) {
-		userConfig.data.setupComplete = true;
-		await userConfig.save();
+	if (!Domain.Persistance.State.userConfig.data.setupComplete) {
+		Domain.Persistance.State.userConfig.data.setupComplete = true;
+		await Domain.Persistance.State.userConfig.save();
 		setApplicationMenu();
 	}
 }
@@ -39,18 +39,18 @@ export const home: Home = {
 	findDcsPaths,
 	findDcsSavedGamesPath,
 	setDcsPaths: async (paths) => {
-		userConfig.data.dcs = {
+		Domain.Persistance.State.userConfig.data.dcs = {
 			available: true,
 			paths,
 		};
-		await userConfig.save();
+		await Domain.Persistance.State.userConfig.save();
 		setApplicationMenu();
 	},
 	setDcsNotAvailable: async () => {
-		userConfig.data.dcs = {
+		Domain.Persistance.State.userConfig.data.dcs = {
 			available: false,
 		};
-		await userConfig.save();
+		await Domain.Persistance.State.userConfig.save();
 		setApplicationMenu();
 	},
 	setSetupComplete,
@@ -66,8 +66,8 @@ export const home: Home = {
 		}
 	},
 	setDownloadsPath: async (path: string) => {
-		userConfig.data.downloadsPath = path;
-		await userConfig.save();
+		Domain.Persistance.State.userConfig.data.downloadsPath = path;
+		await Domain.Persistance.State.userConfig.save();
 	},
 	createSupportZip: async () => {
 		return await createSupportZip();
