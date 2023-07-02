@@ -1,5 +1,5 @@
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { UserConfig } from "@kilcekru/dcc-shared-rpc-types";
+import { UserConfig } from "@kilcekru/dcc-shared-types";
 import { createContext, JSX, onMount, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 

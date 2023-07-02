@@ -1,6 +1,6 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import * as Types from "@kilcekru/dcc-shared-rpc-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { createSignal, For, onMount, useContext } from "solid-js";
 

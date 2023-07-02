@@ -1,5 +1,5 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import * as Types from "@kilcekru/dcc-shared-rpc-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import Styles from "./RemoveModal.module.less";
 

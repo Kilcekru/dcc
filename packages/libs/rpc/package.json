@@ -10,6 +10,6 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"@kilcekru/dcc-shared-rpc-types": "workspace:*"
+		"@kilcekru/dcc-shared-types": "workspace:*"
 	}
 }

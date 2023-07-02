@@ -1,4 +1,4 @@
-import { Misc } from "@kilcekru/dcc-shared-rpc-types";
+import { Misc } from "@kilcekru/dcc-shared-types";
 
 import { rpc } from "../utils";
 

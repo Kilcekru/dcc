@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import { MissionState } from "@kilcekru/dcc-shared-types";
 
 import * as Domain from "../domain";
 import { getFlightGroups } from "../utils";

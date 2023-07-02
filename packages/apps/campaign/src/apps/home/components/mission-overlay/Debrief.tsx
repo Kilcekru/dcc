@@ -1,6 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import { MissionState } from "@kilcekru/dcc-shared-types";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";

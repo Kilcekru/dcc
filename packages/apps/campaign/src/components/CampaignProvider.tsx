@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore, MissionState } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore, MissionState } from "@kilcekru/dcc-shared-types";
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";

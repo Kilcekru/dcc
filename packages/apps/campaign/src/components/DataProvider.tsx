@@ -1,6 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore } from "@kilcekru/dcc-shared-types";
 import { createContext, createEffect, JSX, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 

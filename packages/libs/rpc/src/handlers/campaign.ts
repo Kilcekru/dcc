@@ -1,4 +1,4 @@
-import { Campaign } from "@kilcekru/dcc-shared-rpc-types";
+import { Campaign } from "@kilcekru/dcc-shared-types";
 
 import { rpc } from "../utils";
 

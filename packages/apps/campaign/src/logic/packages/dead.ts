@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import * as Types from "@kilcekru/dcc-shared-rpc-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
 import {

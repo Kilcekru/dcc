@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-rpc-types";
+import { DataStore } from "@kilcekru/dcc-shared-types";
 
 import { Config } from "../../data";
 import { calcFlightGroupPosition, Minutes, random, timerToDate } from "../../utils";

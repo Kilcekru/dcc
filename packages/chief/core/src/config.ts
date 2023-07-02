@@ -1,4 +1,4 @@
-import { SystemConfig } from "@kilcekru/dcc-shared-rpc-types";
+import { SystemConfig } from "@kilcekru/dcc-shared-types";
 
 declare const BUILD_ENV: "dev" | "pro";
 const debugMode = process.argv.includes("--debug");

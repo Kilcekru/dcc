@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 
-import { DcsPaths } from "@kilcekru/dcc-shared-rpc-types";
+import { DcsPaths } from "@kilcekru/dcc-shared-types";
 import { app } from "electron";
 import FS from "fs-extra";
 import { promisified as regedit, RegistryItem, setExternalVBSLocation } from "regedit";

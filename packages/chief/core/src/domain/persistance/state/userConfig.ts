@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 
-import * as Types from "@kilcekru/dcc-shared-rpc-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { app } from "electron";
 import FS from "fs-extra";
 import { z } from "zod";

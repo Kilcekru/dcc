@@ -1,4 +1,4 @@
-import { Events } from "@kilcekru/dcc-shared-rpc-types";
+import { Events } from "@kilcekru/dcc-shared-types";
 
 import { campaign, home, misc } from "./handlers";
 import * as Utils from "./utils";

@@ -1,4 +1,4 @@
-import { Home } from "@kilcekru/dcc-shared-rpc-types";
+import { Home } from "@kilcekru/dcc-shared-types";
 import { dialog } from "electron";
 import FS from "fs-extra";
 

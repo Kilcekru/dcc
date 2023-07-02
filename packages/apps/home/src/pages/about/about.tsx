@@ -1,6 +1,6 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { Versions } from "@kilcekru/dcc-shared-rpc-types";
+import { Versions } from "@kilcekru/dcc-shared-types";
 import { createSignal, onMount, Show } from "solid-js";
 
 import Styles from "./about.module.less";
