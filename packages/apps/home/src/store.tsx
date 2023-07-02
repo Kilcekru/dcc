@@ -9,7 +9,7 @@ interface State {
 	loading?: boolean;
 	error?: Error;
 	action?: Action;
-	userConfig?: Partial<UserConfig>;
+	userConfig?: UserConfig;
 }
 
 type Store = [

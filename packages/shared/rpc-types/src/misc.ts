@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export interface Misc {
 	getVersions: () => Promise<Versions>;
-	getUserConfig: () => Promise<Partial<UserConfig>>;
+	getUserConfig: () => Promise<UserConfig>;
 	getSystemConfig: () => Promise<SystemConfig>;
 	loadApp: (name: "home" | "campaign") => Promise<void>;
 	openExternalLink: (url: string) => Promise<void>;

@@ -23,7 +23,7 @@ const App = () => {
 				<Match when={!state.userConfig?.setupComplete}>
 					<OnBoarding />
 				</Match>
-				<Match when={state.userConfig?.dcs == undefined || state.action === "settings"}>
+				<Match when={state.userConfig?.dcs.available == undefined || state.action === "settings"}>
 					<Settings />
 				</Match>
 				<Match when={state.action === "about"}>

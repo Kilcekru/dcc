@@ -22,9 +22,7 @@ export const Settings = () => {
 	const setAction = useSetAction();
 	const loadUserConfig = useLoadUserConfig();
 
-	const [withoutLocalDCS, setWithoutLocalDCS] = createSignal(
-		userConfig?.dcs?.available == undefined ? false : !userConfig?.dcs?.available
-	);
+	const [withoutLocalDCS, setWithoutLocalDCS] = createSignal(userConfig?.dcs.available === false);
 	const [dcsPaths, setDcsPaths] = createSignal<DcsPaths>({
 		install: { value: "", valid: false },
 		savedGames: { value: "", valid: false },
@@ -92,7 +90,7 @@ export const Settings = () => {
 	};
 
 	onMount(async () => {
-		if (userConfig?.dcs?.available) {
+		if (userConfig?.dcs.available) {
 			setDcsPaths({
 				install: { value: userConfig.dcs.paths.install, valid: true },
 				savedGames: { value: userConfig.dcs.paths.savedGames, valid: true },
