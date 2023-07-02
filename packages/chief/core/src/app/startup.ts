@@ -20,8 +20,8 @@ export async function startupApp() {
 		webPreferences: {
 			preload: Path.join(__dirname, "preload.js"),
 		},
-		minWidth: 750,
-		minHeight: 550,
+		minWidth: 1024,
+		minHeight: 700,
 	});
 	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
 		void shell.openExternal(url);
