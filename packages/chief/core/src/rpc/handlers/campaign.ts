@@ -62,7 +62,7 @@ const getDataStore: Types.Campaign["getDataStore"] = async (map) => {
 	};
 };
 
-const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async (campaign: DcsJs.Campaign) => {
+const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async (campaign) => {
 	const path = Domain.Campaign.getMissionPath();
 
 	if (path == undefined) {

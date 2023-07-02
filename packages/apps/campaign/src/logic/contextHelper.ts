@@ -10,12 +10,22 @@ export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircr
 	return flightGroups.find((fg) => fg.units.some((unit) => unit.id === aircraftId));
 };
 
-export const killedGroundUnitIds = (faction: DcsJs.CampaignFaction, killedGroundUnitNames: Array<string>) => {
+export const killedGroundUnitIds = (
+	faction: DcsJs.CampaignFaction,
+	killedGroundUnitNames: Array<string>,
+	excludeSam?: boolean
+) => {
 	const ids: Array<string> = [];
 
 	Object.values(faction.inventory.groundUnits).forEach((unit) => {
 		if (killedGroundUnitNames.some((name) => name === unit.displayName)) {
-			ids.push(unit.id);
+			if (excludeSam) {
+				if (!unit.vehicleTypes.some((vt) => ["Track Radar", "Search Radar", "SAM Launcher"].includes(vt))) {
+					ids.push(unit.id);
+				}
+			} else {
+				ids.push(unit.id);
+			}
 		}
 	});
 
@@ -78,7 +88,9 @@ export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitN
 			const trackRadars: Array<DcsJs.GroundUnit> = [];
 			gg.unitIds.forEach((id) => {
 				const inventoryUnit = faction.inventory.groundUnits[id];
-				return inventoryUnit != null && inventoryUnit.vehicleTypes.some((vt) => vt === "Track Radar");
+				if (inventoryUnit != null && inventoryUnit.vehicleTypes.some((vt) => vt === "Track Radar")) {
+					trackRadars.push(inventoryUnit);
+				}
 			});
 
 			const killed = trackRadars.some((radar) => killedGroundUnitNames.some((name) => name === radar.displayName));

@@ -172,8 +172,8 @@ export function Debrief(props: {
 			props.missionState?.killed_aircrafts ?? []
 		);
 
-		const blueGroundUnits = killedGroundUnitIds(state.blueFaction, props.missionState?.killed_ground_units ?? []);
-		const redGroundUnits = killedGroundUnitIds(state.redFaction, props.missionState?.killed_ground_units ?? []);
+		const blueGroundUnits = killedGroundUnitIds(state.blueFaction, props.missionState?.killed_ground_units ?? [], true);
+		const redGroundUnits = killedGroundUnitIds(state.redFaction, props.missionState?.killed_ground_units ?? [], true);
 
 		const blueBuildings = killedBuildingNames(state.blueFaction, props.missionState?.killed_ground_units ?? []);
 		const redBuildings = killedBuildingNames(state.redFaction, props.missionState?.killed_ground_units ?? []);

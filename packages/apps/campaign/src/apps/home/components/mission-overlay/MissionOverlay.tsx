@@ -29,12 +29,12 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const isReady = createMemo(() => overlayState() === "ready");
 	const isGenerated = createMemo(() => overlayState() === "generated");
 
-	const onSave = useSave();
+	const save = useSave();
 
 	const onGenerateMission = async () => {
 		try {
 			generateMissionId?.();
-			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)) as DcsJs.Campaign);
+			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)) as DcsJs.CampaignState);
 			setOverlayState("generated");
 		} catch (e) {
 			const errorString = String(e).split("'rpc':")[1];
@@ -58,7 +58,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			if (state.timer >= takeoffTime) {
 				setOverlayState("ready");
 				pause?.();
-				onSave();
+				save();
 			} else {
 				setOverlayState("forwarding");
 			}
@@ -100,7 +100,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			});
 
 			submitMissionState?.(loadedMissionState, dataStore);
-			// onSave();
+			save();
 
 			setMissionState(loadedMissionState);
 		} catch (e) {
