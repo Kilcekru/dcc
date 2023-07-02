@@ -29,7 +29,7 @@ const userConfigV0Schema = z.object({
 
 export const userConfig = new State({
 	name: "userConfig",
-	schema: Types.UserConfigSchema,
+	schema: Types.Core.UserConfigSchema,
 	default: {
 		version: 1,
 		dcs: {
@@ -40,7 +40,7 @@ export const userConfig = new State({
 		currentApp: "home",
 	},
 	migrations: [
-		async (): Promise<Types.UserConfig | undefined> => {
+		async (): Promise<Types.Core.UserConfig | undefined> => {
 			try {
 				const filePath = Path.join(app.getPath("userData"), "persistance/dcc/userConfig.json");
 				const fileContent: unknown = await FS.readJSON(filePath);

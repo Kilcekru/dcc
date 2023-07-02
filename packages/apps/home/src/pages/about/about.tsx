@@ -1,12 +1,12 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { Versions } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createSignal, onMount, Show } from "solid-js";
 
 import Styles from "./about.module.less";
 
 export const About = () => {
-	const [versions, setVersions] = createSignal<Versions>();
+	const [versions, setVersions] = createSignal<Types.Core.Versions>();
 	/** undefined -> not created yet; null -> error while creating zip */
 	const [supportZipPath, setSupportZipPath] = createSignal<string | null>();
 

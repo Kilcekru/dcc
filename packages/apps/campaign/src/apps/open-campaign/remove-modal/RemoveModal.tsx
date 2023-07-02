@@ -5,7 +5,7 @@ import Styles from "./RemoveModal.module.less";
 
 export const RemoveModal = (props: {
 	isOpen: boolean;
-	synopsis: Types.CampaignSynopsis | undefined;
+	synopsis: Types.Campaign.CampaignSynopsis | undefined;
 	onConfirm: (id: string) => void;
 	onCancel: () => void;
 }) => {

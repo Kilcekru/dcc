@@ -45,7 +45,7 @@ export const generateAircraftInventory = ({
 	faction: DcsJs.Faction;
 	objectives: Array<{ name: string; position: DcsJs.Position }>;
 	scenario: Scenario;
-	dataStore: Types.DataStore;
+	dataStore: Types.Campaign.DataStore;
 }) => {
 	const airdromes = dataStore.airdromes;
 	const airdromeNames: Array<DcsJs.AirdromeName> = (

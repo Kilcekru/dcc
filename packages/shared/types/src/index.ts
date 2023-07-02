@@ -1,4 +1,4 @@
-export * from "./campaign";
-export * from "./events";
-export * from "./home";
-export * from "./misc";
+export * as Campaign from "./campaign";
+export * as Core from "./core";
+export * as Events from "./events";
+export * as Rpc from "./rpc";

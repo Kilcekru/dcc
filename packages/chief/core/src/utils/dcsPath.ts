@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 
-import { DcsPaths } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { app } from "electron";
 import FS from "fs-extra";
 import { promisified as regedit, RegistryItem, setExternalVBSLocation } from "regedit";
@@ -19,7 +19,7 @@ setExternalVBSLocation(vbsDir);
 const registryPath = "HKCU\\SOFTWARE\\Eagle Dynamics\\DCS World";
 const registryPathBeta = "HKCU\\SOFTWARE\\Eagle Dynamics\\DCS World OpenBeta";
 
-export async function findDcsPaths(): Promise<Partial<DcsPaths>> {
+export async function findDcsPaths(): Promise<Partial<Types.Core.DcsPaths>> {
 	const install = await findDcsInstallPath();
 	if (install == undefined) {
 		return {};

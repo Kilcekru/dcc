@@ -9,7 +9,7 @@ import * as Domain from "../../domain";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
 
-const Campaign = (props: { synopsis: Types.CampaignSynopsis; onRemove: () => void }) => {
+const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: () => void }) => {
 	const [, { replaceCampaignState }] = useContext(CampaignContext);
 
 	const onOpen = () => {
@@ -46,8 +46,8 @@ const Campaign = (props: { synopsis: Types.CampaignSynopsis; onRemove: () => voi
 	);
 };
 export const Open = (props: { onOpenCreateCampaign: () => void }) => {
-	const [removingSynopsis, setRemovingSynopsis] = createSignal<Types.CampaignSynopsis | undefined>(undefined);
-	const [campaigns, setCampaigns] = createSignal<Array<Types.CampaignSynopsis>>([]);
+	const [removingSynopsis, setRemovingSynopsis] = createSignal<Types.Campaign.CampaignSynopsis | undefined>(undefined);
+	const [campaigns, setCampaigns] = createSignal<Array<Types.Campaign.CampaignSynopsis>>([]);
 
 	async function loadCampaigns() {
 		try {

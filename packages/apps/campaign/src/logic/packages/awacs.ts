@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
 import {
@@ -19,7 +19,7 @@ import { updateAircraftForFlightGroup } from "./utils";
 export const generateAwacsPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	startTime: number
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);

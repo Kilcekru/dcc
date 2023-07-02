@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore, MissionState } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
@@ -20,7 +20,7 @@ type CampaignStore = [
 	DcsJs.CampaignState,
 	{
 		activate?: (
-			dataStore: DataStore,
+			dataStore: Types.Campaign.DataStore,
 			blueFaction: DcsJs.Faction,
 			redFaction: DcsJs.Faction,
 			aiSkill: DcsJs.AiSkill,
@@ -40,8 +40,8 @@ type CampaignStore = [
 		destroyStructure?: (objectiveName: string) => void;
 		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup | undefined) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
-		submitMissionState?: (state: MissionState, dataStore: DataStore) => void;
-		saveCampaignRound?: (dataStore: DataStore) => void;
+		submitMissionState?: (state: Types.Campaign.MissionState, dataStore: Types.Campaign.DataStore) => void;
+		saveCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
 		updateDeploymentScore?: () => void;
 		updateRepairScore?: () => void;
 		skipToNextDay?: () => void;

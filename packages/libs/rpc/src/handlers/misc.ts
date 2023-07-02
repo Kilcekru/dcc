@@ -1,11 +1,11 @@
-import { Misc } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import { rpc } from "../utils";
 
-export const misc: Misc = {
-	getVersions: rpc<Misc["getVersions"]>("misc", "getVersions"),
-	getUserConfig: rpc<Misc["getUserConfig"]>("misc", "getUserConfig"),
-	getSystemConfig: rpc<Misc["getSystemConfig"]>("misc", "getSystemConfig"),
-	loadApp: rpc<Misc["loadApp"]>("misc", "loadApp"),
-	openExternalLink: rpc<Misc["openExternalLink"]>("misc", "openExternalLink"),
+export const misc: Types.Rpc.Misc = {
+	getVersions: rpc<Types.Rpc.Misc["getVersions"]>("misc", "getVersions"),
+	getUserConfig: rpc<Types.Rpc.Misc["getUserConfig"]>("misc", "getUserConfig"),
+	getSystemConfig: rpc<Types.Rpc.Misc["getSystemConfig"]>("misc", "getSystemConfig"),
+	loadApp: rpc<Types.Rpc.Misc["loadApp"]>("misc", "loadApp"),
+	openExternalLink: rpc<Types.Rpc.Misc["openExternalLink"]>("misc", "openExternalLink"),
 };

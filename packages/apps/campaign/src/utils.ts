@@ -87,7 +87,7 @@ export const randomList = <T>(arr: Array<T>, length: number): Array<T> => {
 	return selected;
 };
 
-export const randomCallSign = (dataStore: Types.DataStore, type: "aircraft" | "helicopter" | "awacs") => {
+export const randomCallSign = (dataStore: Types.Campaign.DataStore, type: "aircraft" | "helicopter" | "awacs") => {
 	const callSigns = dataStore.callSigns?.[type];
 
 	if (callSigns == null) {
@@ -203,7 +203,7 @@ export const calcFlightGroupPosition = (
 	fg: DcsJs.CampaignFlightGroup,
 	timer: number,
 	speed: number,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) => {
 	if (fg.startTime >= timer) {
 		return;
@@ -513,7 +513,7 @@ export function calcTakeoffTime(packages: Array<DcsJs.CampaignPackage> | undefin
 	}, undefined as number | undefined);
 }
 
-export function getMissionStateTimer(missionState: Types.MissionState, timer: number) {
+export function getMissionStateTimer(missionState: Types.Campaign.MissionState, timer: number) {
 	const timerDate = timerToDate(timer);
 
 	const additionalDays = timerDate.getDate() - 1;

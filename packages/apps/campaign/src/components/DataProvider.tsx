@@ -1,10 +1,10 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { DataStore } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createContext, createEffect, JSX, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 
-const initState: DataStore = {
+const initState: Types.Campaign.DataStore = {
 	map: "caucasus",
 	airdromes: undefined,
 	objectives: undefined,
@@ -20,7 +20,7 @@ const initState: DataStore = {
 };
 
 type Store = [
-	DataStore,
+	Types.Campaign.DataStore,
 	{
 		getData?: () => void;
 		setMap?: (name: DcsJs.MapName) => void;
@@ -60,7 +60,7 @@ export function useSetFactions() {
 }
 
 export function DataProvider(props: { children?: JSX.Element }) {
-	const [state, setState] = createStore<DataStore>(initState);
+	const [state, setState] = createStore<Types.Campaign.DataStore>(initState);
 
 	const store: Store = [
 		state,

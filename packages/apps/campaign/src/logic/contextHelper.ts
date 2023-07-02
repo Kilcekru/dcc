@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { MissionState } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import * as Domain from "../domain";
 import { getFlightGroups } from "../utils";
@@ -107,7 +107,7 @@ export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitN
 export const updateFactionState = (
 	faction: DcsJs.CampaignFaction,
 	s: DcsJs.CampaignState,
-	missionState: MissionState
+	missionState: Types.Campaign.MissionState
 ) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 	const killedGroundUnits = killedGroundUnitIds(faction, missionState.killed_ground_units);

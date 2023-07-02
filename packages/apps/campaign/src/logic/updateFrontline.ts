@@ -194,7 +194,7 @@ const deployFrontline = (
 const moveFactionGroundGroups = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -321,12 +321,12 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 	});
 };
 
-const moveFrontline = (state: RunningCampaignState, dataStore: Types.DataStore) => {
+const moveFrontline = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	moveFactionGroundGroups("blue", state, dataStore);
 	moveFactionGroundGroups("red", state, dataStore);
 };
 
-const updateCombat = (state: RunningCampaignState, dataStore: Types.DataStore) => {
+const updateCombat = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	state.blueFaction.groundGroups.forEach((gg) => {
 		if (Domain.Faction.isGroundGroup(gg)) {
 			if (gg.state === "combat" && state.timer >= (gg.combatTimer ?? 0)) {
@@ -348,7 +348,7 @@ const updateCombat = (state: RunningCampaignState, dataStore: Types.DataStore) =
 	});
 };
 
-export const updateFrontline = (state: RunningCampaignState, dataStore: Types.DataStore) => {
+export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	updateObjectivesCoalition(state);
 	// captureNeutralObjectives(state, dataStore); TODO
 

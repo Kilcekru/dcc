@@ -145,7 +145,7 @@ export const getStrikeTarget = (
 export const getAwacsTarget = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ): [DcsJs.Position, DcsJs.Position] | undefined => {
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);

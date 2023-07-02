@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { MissionState } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { createEffect, createMemo, createSignal, Show, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
@@ -21,7 +21,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
 	const [isPersistenceOpen, setIsPersistenceOpen] = createSignal(false);
-	const [missionState, setMissionState] = createSignal<MissionState | undefined>(undefined);
+	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
 	const [flightGroups, setFlightGroups] = createSignal<{
 		blue: Array<DcsJs.CampaignFlightGroup>;
 		red: Array<DcsJs.CampaignFlightGroup>;

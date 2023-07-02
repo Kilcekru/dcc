@@ -5,14 +5,14 @@ import fs from "fs-extra";
 
 import * as Domain from "../../domain";
 
-const saveCampaign: Types.Campaign["saveCampaign"] = async (campaign) => {
+const saveCampaign: Types.Rpc.Campaign["saveCampaign"] = async (campaign) => {
 	return Domain.Persistance.CampaignPersistance.put({
 		...campaign,
 		edited: new Date(),
 	});
 };
 
-const resumeCampaign: Types.Campaign["resumeCampaign"] = async () => {
+const resumeCampaign: Types.Rpc.Campaign["resumeCampaign"] = async () => {
 	const list = await Domain.Persistance.CampaignPersistance.list();
 
 	const activeSynopsis = Object.values(list).find((syn) => syn.active);
@@ -23,27 +23,27 @@ const resumeCampaign: Types.Campaign["resumeCampaign"] = async () => {
 	return await Domain.Persistance.CampaignPersistance.get(activeSynopsis.id);
 };
 
-const openCampaign: Types.Campaign["openCampaign"] = async (id) => {
+const openCampaign: Types.Rpc.Campaign["openCampaign"] = async (id) => {
 	return Domain.Persistance.CampaignPersistance.get(id);
 };
 
-const removeCampaign: Types.Campaign["removeCampaign"] = async (id) => {
+const removeCampaign: Types.Rpc.Campaign["removeCampaign"] = async (id) => {
 	return Domain.Persistance.CampaignPersistance.remove(id);
 };
 
-const loadCampaignList: Types.Campaign["loadCampaignList"] = async () => {
+const loadCampaignList: Types.Rpc.Campaign["loadCampaignList"] = async () => {
 	return Domain.Persistance.CampaignPersistance.list();
 };
 
-const getSamTemplates: Types.Campaign["getSamTemplates"] = async () => {
+const getSamTemplates: Types.Rpc.Campaign["getSamTemplates"] = async () => {
 	return DcsJs.getSamTemplates();
 };
 
-const getVehicles: Types.Campaign["getVehicles"] = async () => {
+const getVehicles: Types.Rpc.Campaign["getVehicles"] = async () => {
 	return DcsJs.getVehicles();
 };
 
-const getDataStore: Types.Campaign["getDataStore"] = async (map) => {
+const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
 	const mapData: DcsJs.GetMapData = DcsJs.getMapData(map);
 
 	return {
@@ -62,7 +62,7 @@ const getDataStore: Types.Campaign["getDataStore"] = async (map) => {
 	};
 };
 
-const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async (campaign) => {
+const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = async (campaign) => {
 	const path = Domain.Campaign.getMissionPath();
 
 	if (path == undefined) {
@@ -73,14 +73,14 @@ const generateCampaignMission: Types.Campaign["generateCampaignMission"] = async
 	return { success: true };
 };
 
-const loadMissionState: Types.Campaign["loadMissionState"] = async () => {
+const loadMissionState: Types.Rpc.Campaign["loadMissionState"] = async () => {
 	const path = Domain.Campaign.getMissionStatePath();
 
 	if (path == undefined) {
 		return undefined;
 	}
 
-	return (await fs.readJSON(path)) as Types.MissionState;
+	return (await fs.readJSON(path)) as Types.Campaign.MissionState;
 };
 
 export async function loadFactions() {
@@ -117,7 +117,7 @@ export async function saveCustomFactions(factions: Array<DcsJs.Faction>) {
 	}
 }
 
-export const campaign: Types.Campaign = {
+export const campaign: Types.Rpc.Campaign = {
 	generateCampaignMission,
 	getSamTemplates,
 	getVehicles,

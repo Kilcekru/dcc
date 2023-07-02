@@ -18,7 +18,7 @@ import { claimsObjective } from "./utils";
  */
 export const createCampaign = (
 	state: DcsJs.CampaignState,
-	dataStore: Types.DataStore,
+	dataStore: Types.Campaign.DataStore,
 	blueFaction: DcsJs.Faction,
 	redFaction: DcsJs.Faction,
 	aiSkill: DcsJs.AiSkill,
@@ -49,8 +49,8 @@ export const createCampaign = (
 		throw "unknown airdrome";
 	}
 
-	const blueObjectives: Types.DataStore["objectives"] = [];
-	const redObjectives: Types.DataStore["objectives"] = [];
+	const blueObjectives: Types.Campaign.DataStore["objectives"] = [];
+	const redObjectives: Types.Campaign.DataStore["objectives"] = [];
 
 	dataStore.objectives?.forEach((dataObjective) => {
 		const isBlue = claimsObjective(scenario.blue, dataObjective.name);

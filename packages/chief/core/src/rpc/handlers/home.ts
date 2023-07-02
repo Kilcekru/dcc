@@ -1,4 +1,4 @@
-import { Home } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { dialog } from "electron";
 import FS from "fs-extra";
 
@@ -21,7 +21,7 @@ async function setSetupComplete() {
 	}
 }
 
-const showOpenFileDialog: Home["showOpenFileDialog"] = async (args) => {
+const showOpenFileDialog: Types.Rpc.Home["showOpenFileDialog"] = async (args) => {
 	if (mainWindow != undefined) {
 		const res = await dialog.showOpenDialog(mainWindow, {
 			title: args.title,
@@ -35,7 +35,7 @@ const showOpenFileDialog: Home["showOpenFileDialog"] = async (args) => {
 	return undefined;
 };
 
-export const home: Home = {
+export const home: Types.Rpc.Home = {
 	findDcsPaths,
 	findDcsSavedGamesPath,
 	setDcsPaths: async (paths) => {

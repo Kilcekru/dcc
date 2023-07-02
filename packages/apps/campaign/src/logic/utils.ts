@@ -58,7 +58,7 @@ const calcNumber = (
 export const generateCallSign = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore,
+	dataStore: Types.Campaign.DataStore,
 	type: "aircraft" | "helicopter" | "awacs"
 ) => {
 	const { name, index } = randomCallSign(dataStore, type);
@@ -120,7 +120,7 @@ export const calcLandingWaypoints = (
 export const calcNearestOppositeAirdrome = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore,
+	dataStore: Types.Campaign.DataStore,
 	position: DcsJs.Position
 ) => {
 	const oppCoalition = oppositeCoalition(coalition);
@@ -161,7 +161,7 @@ export const unitIdsToGroundUnit = (faction: DcsJs.CampaignFaction, ids: Array<s
 export function getLoadoutForAircraftType(
 	aircraftType: DcsJs.AircraftType,
 	task: DcsJs.Task | "default",
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ): DcsJs.Loadout {
 	const ac = dataStore.aircrafts?.[aircraftType];
 
@@ -245,7 +245,7 @@ export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.Aircraft) {
 export function getFrontlineObjective(
 	objectives: Array<{ position: DcsJs.Position }>,
 	oppositeAirdromeNames: Array<string>,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) {
 	const dataAirdromes = dataStore.airdromes;
 
@@ -285,7 +285,7 @@ export function getFrontlineObjective(
 export function getFarthestAirdromeFromPosition(
 	position: DcsJs.Position,
 	airdromeNames: Array<string>,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) {
 	const dataAirdromes = dataStore.airdromes;
 
@@ -328,7 +328,7 @@ function moveFarpAircraftsToNearestFarp(
 	aircrafts: Array<DcsJs.Aircraft>,
 	faction: DcsJs.CampaignFaction,
 	sourceStructure: DcsJs.Structure,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) {
 	// Has the opposite faction aircrafts on the farp
 	if (aircrafts.length > 0) {
@@ -390,7 +390,7 @@ export function transferObjectiveStructures(
 	objective: DcsJs.Objective,
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);

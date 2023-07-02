@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import { cleanupFlightGroups } from "./cleanupFlightGroups";
 import { cleanupGroundGroups } from "./cleanupGroundGroup";
@@ -19,7 +19,7 @@ import { updateFrontline } from "./updateFrontline";
  * @param state will be mutated
  * @returns
  */
-export const campaignRound = (state: DcsJs.CampaignState, dataStore: DataStore) => {
+export const campaignRound = (state: DcsJs.CampaignState, dataStore: Types.Campaign.DataStore) => {
 	if (state.blueFaction == null || state.redFaction == null) {
 		return state;
 	}
@@ -39,7 +39,7 @@ export const campaignRound = (state: DcsJs.CampaignState, dataStore: DataStore) 
 	return state;
 };
 
-export const missionRound = (state: DcsJs.CampaignState, dataStore: DataStore) => {
+export const missionRound = (state: DcsJs.CampaignState, dataStore: Types.Campaign.DataStore) => {
 	if (state.blueFaction == null || state.redFaction == null) {
 		return state;
 	}

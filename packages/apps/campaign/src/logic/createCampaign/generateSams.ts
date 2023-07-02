@@ -5,7 +5,7 @@ import { createUniqueId } from "solid-js";
 import { Scenario } from "../../data/scenarios";
 import { random, randomItem } from "../../utils";
 
-function getTemplate(faction: DcsJs.CampaignFaction, dataStore: Types.DataStore) {
+function getTemplate(faction: DcsJs.CampaignFaction, dataStore: Types.Campaign.DataStore) {
 	const template = dataStore.groundUnitsTemplates?.find((t) => faction.templateName === t.name);
 
 	if (template == null) {
@@ -70,7 +70,7 @@ function getTemplate(faction: DcsJs.CampaignFaction, dataStore: Types.DataStore)
 export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
 	faction: DcsJs.CampaignFaction,
-	dataStore: Types.DataStore,
+	dataStore: Types.Campaign.DataStore,
 	scenario: Scenario
 ) => {
 	if (coalition === "neutral") {

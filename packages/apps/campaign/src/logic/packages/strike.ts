@@ -50,7 +50,7 @@ const calcHoldWaypoint = (
 const escortFlightGroup = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore,
+	dataStore: Types.Campaign.DataStore,
 	targetFlightGroup: DcsJs.FlightGroup,
 	ingressPosition: DcsJs.Position,
 	engressPosition: DcsJs.Position,
@@ -128,7 +128,7 @@ const escortFlightGroup = (
 export const generateStrikePackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ): DcsJs.CampaignPackage | undefined => {
 	// console.log("generate strike");
 	const faction = getCoalitionFaction(coalition, state);

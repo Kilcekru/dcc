@@ -1,5 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
-import { DataStore } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Config } from "../../data";
 import { calcFlightGroupPosition, Minutes, random, timerToDate } from "../../utils";
@@ -11,7 +11,11 @@ import { generateCasPackage } from "./cas";
 import { generateDeadPackage } from "./dead";
 import { generateStrikePackage } from "./strike";
 
-const updatePackagesState = (packages: Array<DcsJs.CampaignPackage>, timer: number, dataStore: DataStore) => {
+const updatePackagesState = (
+	packages: Array<DcsJs.CampaignPackage>,
+	timer: number,
+	dataStore: Types.Campaign.DataStore
+) => {
 	packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
 			const position = calcFlightGroupPosition(fg, timer, 170, dataStore);
@@ -46,7 +50,7 @@ const addPackage = (packages: Array<DcsJs.CampaignPackage>, pkg: DcsJs.CampaignP
 const casPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.CampaignPackage>
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "CAS");
@@ -67,7 +71,7 @@ const casPackages = (
 const capPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.CampaignPackage>
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
@@ -120,7 +124,7 @@ const capPackages = (
 const awacsPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.CampaignPackage>
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "AWACS");
@@ -155,7 +159,7 @@ const awacsPackages = (
 const deadPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.CampaignPackage>
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "DEAD");
@@ -176,7 +180,7 @@ const deadPackages = (
 const strikePackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.CampaignPackage>
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "Pinpoint Strike");
@@ -198,7 +202,7 @@ const strikePackages = (
 const factionPackagesTick = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: DataStore,
+	dataStore: Types.Campaign.DataStore,
 	faction: DcsJs.CampaignFaction
 ) => {
 	updatePackagesState(faction.packages, state.timer, dataStore);
@@ -224,7 +228,7 @@ const factionPackagesTick = (
 	}
 };
 
-export const packagesRound = (state: RunningCampaignState, dataStore: DataStore) => {
+export const packagesRound = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	factionPackagesTick("blue", state, dataStore, state.blueFaction);
 	factionPackagesTick("red", state, dataStore, state.redFaction);
 };

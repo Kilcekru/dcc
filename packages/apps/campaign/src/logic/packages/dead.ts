@@ -23,7 +23,7 @@ import { updateAircraftForFlightGroup } from "./utils";
 export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);

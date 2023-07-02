@@ -1,6 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { MissionState } from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
@@ -145,7 +145,7 @@ function FlightGroup(props: {
 }
 
 export function Debrief(props: {
-	missionState: MissionState | undefined;
+	missionState: Types.Campaign.MissionState | undefined;
 	flightGroups: {
 		blue: Array<DcsJs.CampaignFlightGroup>;
 		red: Array<DcsJs.CampaignFlightGroup>;

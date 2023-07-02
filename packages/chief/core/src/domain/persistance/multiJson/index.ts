@@ -8,7 +8,7 @@ export const CampaignPersistance = new MultiJson({
 	version: 0,
 	schema: {
 		item: DcsJs.Schema.campaign,
-		synopsis: Types.Schema.campaignSynopsis,
+		synopsis: Types.Campaign.Schema.campaignSynopsis,
 	},
 	getSynopsis: (item) => ({
 		id: item.id,

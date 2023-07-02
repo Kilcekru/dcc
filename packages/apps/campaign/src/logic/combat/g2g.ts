@@ -17,7 +17,7 @@ export const conquerObjective = (
 	attackingGroundGroup: DcsJs.GroundGroup,
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) => {
 	const objective = state.objectives[attackingGroundGroup.objectiveName];
 
@@ -40,7 +40,7 @@ export const g2gBattle = (
 	blueGroundGroup: DcsJs.GroundGroup,
 	redGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) => {
 	if (random(1, 100) <= 50) {
 		console.log(`Ground: ${blueGroundGroup.id} destroyed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
@@ -107,7 +107,7 @@ export const g2g = (
 	attackingCoalition: DcsJs.CampaignCoalition,
 	attackingGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) => {
 	const defendingCoalition = oppositeCoalition(attackingCoalition);
 	const defendingFaction = getCoalitionFaction(defendingCoalition, state);

@@ -8,7 +8,7 @@ export const updateAircraftForFlightGroup = (
 	flightGroup: DcsJs.FlightGroup,
 	state: RunningCampaignState,
 	coalition: DcsJs.CampaignCoalition,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 

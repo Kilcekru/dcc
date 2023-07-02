@@ -22,7 +22,7 @@ function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureTy
 export function generateStructures(
 	coalition: DcsJs.CampaignCoalition,
 	scenarioCoalition: ScenarioCoalition,
-	dataStore: Types.DataStore
+	dataStore: Types.Campaign.DataStore
 ) {
 	const structures: Record<string, DcsJs.Structure> = {};
 

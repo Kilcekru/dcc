@@ -1,13 +1,5 @@
 import { z } from "zod";
 
-export interface Misc {
-	getVersions: () => Promise<Versions>;
-	getUserConfig: () => Promise<UserConfig>;
-	getSystemConfig: () => Promise<SystemConfig>;
-	loadApp: (name: "home" | "campaign") => Promise<void>;
-	openExternalLink: (url: string) => Promise<void>;
-}
-
 export interface SystemConfig {
 	env: "dev" | "pro";
 }
@@ -43,3 +35,5 @@ export interface Versions {
 	node: string;
 	chrome: string;
 }
+
+export type AppName = "home" | "campaign";
