@@ -14,7 +14,7 @@ import {
 	repairScoreUpdate,
 	updateFactionState,
 } from "../logic";
-import { dateToTimer, getClientMissionStartTime, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
+import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 
 type CampaignStore = [
 	DcsJs.CampaignState,
@@ -113,12 +113,12 @@ export function CampaignProvider(props: {
 					produce((s) => {
 						s.lastTickTimer = s.timer;
 
-						const missionTimer = getClientMissionStartTime(s);
+						const takeoffTime = calcTakeoffTime(s.blueFaction?.packages);
 
 						const newTimer = s.timer + multiplier;
 
-						if (missionTimer != null && newTimer > missionTimer) {
-							s.timer = missionTimer;
+						if (takeoffTime != null && takeoffTime <= state.timer) {
+							s.timer = takeoffTime;
 						} else {
 							s.timer = newTimer;
 						}

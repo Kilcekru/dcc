@@ -454,20 +454,6 @@ export const hasFuelStorageInRange = (
 	return hasStructureInRange(position, faction, "Fuel Storage", Config.structureRange.fuel);
 };
 
-export const getClientMissionStartTime = (state: DcsJs.CampaignState) => {
-	return state.blueFaction?.packages.reduce((prev, pkg) => {
-		const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
-
-		if (hasClients) {
-			if (pkg.startTime > (prev ?? 0)) {
-				return pkg.startTime;
-			}
-		}
-
-		return prev;
-	}, undefined as number | undefined);
-};
-
 export const getDeploymentCost = (
 	coalition: DcsJs.CampaignCoalition | undefined,
 	structureType: DcsJs.StructureType | undefined
