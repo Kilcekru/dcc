@@ -13,6 +13,7 @@ export type ObjectivePlan = {
 };
 export type ScenarioCoalition = {
 	airdromeNames: Array<string>;
+	carrierObjective?: string;
 	objectivePlans: Array<ObjectivePlan>;
 };
 export type Scenario = {

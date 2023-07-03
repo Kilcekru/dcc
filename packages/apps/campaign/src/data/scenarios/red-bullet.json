@@ -11,6 +11,7 @@
 	},
 	"blue": {
 		"airdromeNames": ["Kobuleti"],
+		"carrierObjective": "Alpha",
 		"objectivePlans": [
 			{
 				"objectiveName": "Poti",

@@ -65,6 +65,8 @@ export const createCampaign = (
 		}
 	});
 
+	// const blueHasCarrier = factionHasCarrier("blue", scenario, blueFaction, dataStore);
+
 	state.blueFaction = {
 		...blueFaction,
 		countryName: blueFaction.countryName,
