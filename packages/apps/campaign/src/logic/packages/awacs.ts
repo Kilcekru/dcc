@@ -116,7 +116,7 @@ export const generateAwacsPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: coalition === "blue" ? 285.0 : 280.0,
+		frequency: 251,
 		id: createUniqueId(),
 	};
 };

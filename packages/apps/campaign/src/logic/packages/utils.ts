@@ -34,6 +34,10 @@ export function calcFrequency(aircraftType: string | undefined, dataStore: Types
 		return random(310, 343);
 	}
 
+	if ((aircraftType as DcsJs.AircraftType) === "MiG-15bis") {
+		random(0, 50) * 0.025 + 3.75;
+	}
+
 	const aircraftDefinition = dataStore.aircrafts?.[aircraftType as DcsJs.AircraftType];
 
 	return aircraftDefinition?.allowedFrequency == null
