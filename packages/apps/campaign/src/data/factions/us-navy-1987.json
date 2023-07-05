@@ -4,23 +4,11 @@
 	"year": 1987,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": [
-			"F-14B",
-			"FA-18C_hornet"
-		],
-		"CAS": [
-			"AV8BNA"
-		],
-		"AWACS": [
-			"E-2C"
-		],
-		"DEAD": [
-			"FA-18C_hornet"
-		],
-		"Pinpoint Strike": [
-			"AV8BNA",
-			"FA-18C_hornet"
-		]
+		"CAP": ["F-14B", "FA-18C_hornet"],
+		"CAS": ["AV8BNA"],
+		"AWACS": ["E-2C"],
+		"DEAD": ["FA-18C_hornet"],
+		"Pinpoint Strike": ["AV8BNA", "FA-18C_hornet"]
 	},
 	"templateName": "USA - Modern"
 }

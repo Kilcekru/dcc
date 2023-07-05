@@ -4,24 +4,11 @@
 	"year": 2004,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": [
-			"F-16C_50",
-			"F-15ESE"
-		],
-		"CAS": [
-			"A-10C_2",
-			"AH-64D_BLK_II"
-		],
-		"AWACS": [
-			"E-3A"
-		],
-		"DEAD": [
-			"F-16C_50"
-		],
-		"Pinpoint Strike": [
-			"F-16C_50",
-			"F-15ESE"
-		]
+		"CAP": ["F-16C_50", "F-15ESE"],
+		"CAS": ["A-10C_2", "AH-64D_BLK_II"],
+		"AWACS": ["E-3A"],
+		"DEAD": ["F-16C_50"],
+		"Pinpoint Strike": ["F-16C_50", "F-15ESE"]
 	},
 	"templateName": "USA - Modern"
 }

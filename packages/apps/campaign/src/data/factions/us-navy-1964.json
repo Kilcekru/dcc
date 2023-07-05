@@ -4,21 +4,11 @@
 	"year": 1964,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": [
-			"VSN_F4B"
-		],
-		"CAS": [
-			"A-4E-C"
-		],
-		"AWACS": [
-			"E-2C"
-		],
-		"DEAD": [
-			"A-4E-C"
-		],
-		"Pinpoint Strike": [
-			"A-4E-C"
-		]
+		"CAP": ["VSN_F4B"],
+		"CAS": ["A-4E-C"],
+		"AWACS": ["E-2C"],
+		"DEAD": ["A-4E-C"],
+		"Pinpoint Strike": ["A-4E-C"]
 	},
 	"templateName": "USA - Cold War"
 }
