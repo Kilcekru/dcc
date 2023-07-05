@@ -19,7 +19,7 @@ import {
 } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCapPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -186,7 +186,7 @@ export const generateCapPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: random(310, 343),
+		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

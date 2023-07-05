@@ -19,7 +19,7 @@ import {
 import { getCasTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -166,7 +166,7 @@ export const generateCasPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: random(310, 343),
+		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

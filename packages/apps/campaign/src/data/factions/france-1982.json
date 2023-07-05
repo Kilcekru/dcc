@@ -1,0 +1,26 @@
+{
+	"countryName": "France",
+	"name": "France",
+	"year": 1982,
+	"playable": true,
+	"aircraftTypes": {
+		"CAP": [
+			"M-2000C",
+			"Mirage-F1EE"
+		],
+		"CAS": [
+			"SA342M"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"DEAD": [
+			"Tornado GR4"
+		],
+		"Pinpoint Strike": [
+			"M-2000C",
+			"Mirage-F1EE"
+		]
+	},
+	"templateName": "France - Modern"
+}

@@ -3,6 +3,7 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 
+import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
 import { useDataStore } from "../../../components/DataProvider";
 import * as Domain from "../../../domain";
 import Styles from "./Factions.module.less";
@@ -16,7 +17,7 @@ const Faction = (props: {
 	const dataStore = useDataStore();
 	// const updateFactions = Domain.Faction.useUpdate();
 
-	const aircrafts = createMemo(() => {
+	const aircraftTypes = createMemo(() => {
 		const aircraftTypes: Array<string> = [];
 
 		Object.values(props.faction.aircraftTypes).forEach((taskAircrafts) => {
@@ -33,7 +34,7 @@ const Faction = (props: {
 			return [];
 		}
 
-		return aircraftTypes.map((t) => aircrafts[t as DcsJs.AircraftType]?.display_name);
+		return aircraftTypes as Array<DcsJs.AircraftType>;
 	});
 
 	return (
@@ -42,7 +43,7 @@ const Faction = (props: {
 			<h2 class={Styles.name}>{props.faction.name}</h2>
 			<h3 class={Styles.year}>{props.faction.year}</h3>
 			<div class={Styles["aircraft-list"]}>
-				<For each={aircrafts()}>{(aircraftName) => <p>{aircraftName}</p>}</For>
+				<For each={aircraftTypes()}>{(aircraftType) => <AircraftLabel aircraftType={aircraftType} />}</For>
 			</div>
 			<div class={Styles["customize-button-wrapper"]}>
 				<Components.Tooltip text="Customize Faction">

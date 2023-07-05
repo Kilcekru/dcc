@@ -166,7 +166,7 @@ export function getLoadoutForAircraftType(
 	const ac = dataStore.aircrafts?.[aircraftType];
 
 	if (ac == null) {
-		throw "aircraft not found";
+		throw new Error("aircraft not found: " + aircraftType);
 	}
 
 	const loadout =

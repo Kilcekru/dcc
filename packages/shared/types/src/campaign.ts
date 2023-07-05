@@ -33,6 +33,7 @@ export namespace Schema {
 		countryName: z.string().optional(),
 		created: z.coerce.date(),
 		edited: z.coerce.date(),
+		timer: z.number(),
 	});
 }
 

@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
+import { random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
@@ -16,7 +17,7 @@ export const updateAircraftForFlightGroup = (
 		const aircraft = faction.inventory.aircrafts[unit.id];
 
 		if (aircraft == null) {
-			throw "aircraft not found";
+			throw new Error("aircraft not found: " + unit.id);
 		}
 
 		aircraft.state = "waiting";
@@ -27,3 +28,15 @@ export const updateAircraftForFlightGroup = (
 		);
 	});
 };
+
+export function calcFrequency(aircraftType: string | undefined, dataStore: Types.Campaign.DataStore) {
+	if (aircraftType == null) {
+		return random(310, 343);
+	}
+
+	const aircraftDefinition = dataStore.aircrafts?.[aircraftType as DcsJs.AircraftType];
+
+	return aircraftDefinition?.allowedFrequency == null
+		? random(310, 343)
+		: random(aircraftDefinition.allowedFrequency[0], aircraftDefinition.allowedFrequency[1]);
+}

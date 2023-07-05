@@ -18,5 +18,6 @@ export const CampaignPersistance = new MultiJson({
 		countryName: item.blueFaction?.countryName,
 		created: item.created,
 		edited: item.edited,
+		timer: item.timer,
 	}),
 });
