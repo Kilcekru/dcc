@@ -75,9 +75,14 @@ export const Factions = (props: {
 	const sortedList = createMemo(() => {
 		const list = props.coalition === "blue" ? playableFactions() : enemyFactions();
 
-		list.sort((a, b) => Domain.Sort.Number.asc(a.year ?? 0, b.year ?? 0));
+		const custom: Array<DcsJs.Faction> = [];
+		const predefined: Array<DcsJs.Faction> = [];
 
-		return list;
+		list.forEach((f) => (f.created == null ? predefined.push(f) : custom.push(f)));
+		custom.sort((a, b) => Domain.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
+		predefined.sort((a, b) => Domain.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
+
+		return [...custom, ...predefined];
 	});
 
 	onMount(async () => {

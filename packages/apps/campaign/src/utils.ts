@@ -100,7 +100,7 @@ export const randomCallSign = (dataStore: Types.Campaign.DataStore, type: "aircr
 
 	return {
 		name: selected,
-		index: callSigns.indexOf(selected) ?? 1,
+		index: (callSigns.indexOf(selected) ?? 1) + (type === "awacs" ? 1 : 0),
 	};
 };
 
