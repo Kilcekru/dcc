@@ -47,14 +47,12 @@ export const About = () => {
 						GitHub
 					</Components.Button>
 					<Components.Button
-						onPress={() => rpc.misc.openExternalLink("https://github.com/Kilcekru/dcc/blob/main/CONTRIBUTING.md")}
-					>
-						Report a Bug
-					</Components.Button>
-					<Components.Button
 						onPress={() => rpc.misc.openExternalLink("https://github.com/Kilcekru/dcc/blob/main/LICENSE")}
 					>
 						License
+					</Components.Button>
+					<Components.Button onPress={() => rpc.misc.openExternalLink("https://youtube.com/@DigitalCrewChief")}>
+						Youtube
 					</Components.Button>
 				</div>
 				<div class={Styles.header}>Bug Reporting</div>
