@@ -21,7 +21,7 @@ module.exports = {
 				title: "Digital Crew Chief",
 				exe: "DCC.exe",
 				setupIcon: iconPath,
-				iconUrl: "https://www.unkreativ.at/dcc/dcc.ico",
+				iconUrl: "https://www.digitalcrewchief.at/downloads/dcc.ico",
 			},
 		},
 	],

@@ -10,5 +10,5 @@ If you believe you have found a security vulnerability in DCC, we encourage you 
 
 ## Reporting a Vulnerability
 
-Report security bugs by sending an email to <kilcekru@unkreativ.at>.\
+Report security bugs by sending an email to <kilcekru@digitalcrewchief.at>.\
 To ensure the timely response to your report, please ensure that the entirety of the report is contained within the email body and not solely behind a web link or an attachment.

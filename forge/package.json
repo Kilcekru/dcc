@@ -8,7 +8,7 @@
 	"main": "dist/chief/index.js",
 	"author": {
 		"name": "Kilcekru",
-		"email": "kilcekru@unkreativ.at"
+		"email": "kilcekru@digitalcrewchief.at"
 	},
 	"engines": {
 		"node": ">=18.12.0",
