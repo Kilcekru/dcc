@@ -1,7 +1,7 @@
 {
 	"name": "@kilcekru/dcc-forge",
 	"productName": "DCC",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Digital Crew Chief",
 	"private": true,
 	"license": "MIT",
