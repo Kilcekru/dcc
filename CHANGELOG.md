@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.3.0 (2023-07-15)
+## 0.3.0 (2023-07-07)
 
 - More planes: Over 30 flyable planes & helicopters
 - Multi campaign support: Multiple campaigns can be run in parallel
