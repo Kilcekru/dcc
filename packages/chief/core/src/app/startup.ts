@@ -1,6 +1,6 @@
 import * as Path from "node:path";
 
-import { BrowserWindow, shell } from "electron";
+import { BrowserWindow, session } from "electron";
 
 import * as Domain from "../domain";
 import { getAppPath } from "../utils";
@@ -10,6 +10,11 @@ import { setApplicationMenu } from "./menu";
 export let mainWindow: BrowserWindow | undefined;
 
 export async function startupApp() {
+	const dccSession = session.fromPartition("dcc");
+	dccSession.setPermissionRequestHandler((webContents, permission, callback) => {
+		callback(false);
+	});
+
 	await Promise.all([Domain.Persistance.State.dccConfig.load(), Domain.Persistance.State.userConfig.load()]);
 
 	setApplicationMenu();
@@ -19,12 +24,15 @@ export async function startupApp() {
 		show: false,
 		webPreferences: {
 			preload: Path.join(__dirname, "preload.js"),
+			session: dccSession,
 		},
 		minWidth: 1024,
 		minHeight: 700,
 	});
-	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-		void shell.openExternal(url);
+	mainWindow.webContents.on("will-navigate", (event) => {
+		event.preventDefault();
+	});
+	mainWindow.webContents.setWindowOpenHandler(() => {
 		return { action: "deny" };
 	});
 
