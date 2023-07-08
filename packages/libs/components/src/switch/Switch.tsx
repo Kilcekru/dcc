@@ -22,7 +22,7 @@ export function Switch(props: {
 			onChange({ checked }) {
 				props.onChange?.(checked);
 			},
-		})
+		}),
 	);
 
 	const api = createMemo(() => zagSwitch.connect(state, send, normalizeProps));

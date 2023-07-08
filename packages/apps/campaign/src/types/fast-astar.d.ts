@@ -11,7 +11,7 @@ declare module "fast-astar" {
 		search(
 			[number, number],
 			[number, number],
-			{ rightAngle: boolean, optimalResult: boolean }?
+			{ rightAngle: boolean, optimalResult: boolean }?,
 		): Array<[number, number]>;
 	}
 }

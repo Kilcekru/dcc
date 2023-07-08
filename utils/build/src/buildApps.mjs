@@ -40,7 +40,7 @@ export async function buildApps({ env, watch }) {
 						}
 					},
 				},
-			})
+			}),
 		);
 		promises.push(copyAssets({ app }));
 	}

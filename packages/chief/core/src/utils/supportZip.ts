@@ -19,8 +19,8 @@ export async function createSupportZip(): Promise<string | undefined> {
 				node: process.versions.node,
 				chrome: process.versions.chrome,
 			}),
-			"utf-8"
-		)
+			"utf-8",
+		),
 	);
 
 	try {

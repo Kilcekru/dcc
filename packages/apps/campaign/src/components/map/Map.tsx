@@ -461,7 +461,7 @@ export const Map = () => {
 									Capture <strong>{state.winningCondition.value}</strong>
 								</span>
 							) as Content,
-							{ permanent: map.getZoom() >= 10 }
+							{ permanent: map.getZoom() >= 10 },
 						);
 				}
 			});
@@ -478,7 +478,7 @@ export const Map = () => {
 						<span>
 							Capture <strong>{state.winningCondition.value}</strong>
 						</span>
-					) as Content
+					) as Content,
 				);
 		}
 	});
@@ -575,7 +575,7 @@ export const Map = () => {
 				L.icon({
 					iconUrl: symbol.toDataURL(),
 					iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
-				})
+				}),
 			);
 		}
 
@@ -663,7 +663,7 @@ export const Map = () => {
 			L.icon({
 				iconUrl: symbol.toDataURL(),
 				iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
-			})
+			}),
 		);
 	});
 

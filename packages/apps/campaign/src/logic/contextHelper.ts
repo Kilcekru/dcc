@@ -13,7 +13,7 @@ export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircr
 export const killedGroundUnitIds = (
 	faction: DcsJs.CampaignFaction,
 	killedGroundUnitNames: Array<string>,
-	excludeSam?: boolean
+	excludeSam?: boolean,
 ) => {
 	const ids: Array<string> = [];
 
@@ -50,7 +50,7 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 
 export const killedAircraftIdsByFlightGroups = (
 	flightGroups: Array<DcsJs.CampaignFlightGroup>,
-	killedAircraftNames: Array<string>
+	killedAircraftNames: Array<string>,
 ) => {
 	const ids: Array<string> = [];
 
@@ -107,7 +107,7 @@ export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitN
 export const updateFactionState = (
 	faction: DcsJs.CampaignFaction,
 	s: DcsJs.CampaignState,
-	missionState: Types.Campaign.MissionState
+	missionState: Types.Campaign.MissionState,
 ) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 	const killedGroundUnits = killedGroundUnitIds(faction, missionState.killed_ground_units);
@@ -136,7 +136,7 @@ export const updateFactionState = (
 
 	missionState.killed_ground_units.forEach((killedUnitName) => {
 		const objectStructure = Object.values(faction.structures).find((structure) =>
-			structure.buildings.some((building) => building.name === killedUnitName)
+			structure.buildings.some((building) => building.name === killedUnitName),
 		);
 
 		if (objectStructure == null) {

@@ -26,7 +26,7 @@ type CampaignStore = [
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
 			nightMissions: boolean,
-			scenario: string
+			scenario: string,
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
@@ -51,7 +51,7 @@ type CampaignStore = [
 		clearToastMessages?: (ids: Array<string>) => void;
 		replaceCampaignState?: (next: DcsJs.CampaignState) => void;
 		closeCampaign?: () => void;
-	}
+	},
 ];
 
 export const initState: DcsJs.CampaignState = {
@@ -100,7 +100,7 @@ export function CampaignProvider(props: {
 					aiSkill,
 					hardcore,
 					nightMissions,
-					scenarioName
+					scenarioName,
 				);
 				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
 				setState(newState);
@@ -122,7 +122,7 @@ export function CampaignProvider(props: {
 						} else {
 							s.timer = newTimer;
 						}
-					})
+					}),
 				);
 			},
 			togglePause() {
@@ -167,7 +167,7 @@ export function CampaignProvider(props: {
 							});
 						});
 						s.missionId = undefined;
-					})
+					}),
 				);
 			},
 			submitMissionState(state, dataStore) {
@@ -185,7 +185,7 @@ export function CampaignProvider(props: {
 							});
 
 							const clientKilled = state.killed_aircrafts.some((killedAc) =>
-								clientAircraftNames.some((name) => name === killedAc)
+								clientAircraftNames.some((name) => name === killedAc),
 							);
 
 							if (clientKilled) {
@@ -203,7 +203,7 @@ export function CampaignProvider(props: {
 						}
 
 						missionRound(s, dataStore);
-					})
+					}),
 				);
 			},
 			saveCampaignRound(dataStore) {
@@ -250,7 +250,7 @@ export function CampaignProvider(props: {
 
 							storeObjective.incomingGroundGroups = {};
 						});
-					})
+					}),
 				);
 			},
 			resumeNextDay() {
@@ -285,7 +285,7 @@ export function CampaignProvider(props: {
 			} else {
 				return { ...state, ...props.campaignState };
 			}
-		})
+		}),
 	);
 
 	return <CampaignContext.Provider value={store}>{props.children}</CampaignContext.Provider>;

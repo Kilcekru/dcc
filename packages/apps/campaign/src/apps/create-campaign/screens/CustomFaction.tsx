@@ -166,7 +166,7 @@ export const CustomFaction = (props: {
 	};
 
 	const validFaction = createMemo(
-		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && dead().length > 0 && strike().length > 0
+		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && dead().length > 0 && strike().length > 0,
 	);
 
 	return (

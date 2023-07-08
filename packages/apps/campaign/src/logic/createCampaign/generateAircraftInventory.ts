@@ -10,7 +10,7 @@ import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAi
 function getFrontlineFarp(
 	objectives: Array<{ name: string; position: DcsJs.Position }>,
 	objectivePlans: Array<ObjectivePlan>,
-	frontlineObjective: DcsJs.CampaignObjective
+	frontlineObjective: DcsJs.CampaignObjective,
 ) {
 	const farps: Array<{ name: string; position: DcsJs.Position }> = [];
 
@@ -78,7 +78,7 @@ export const generateAircraftInventory = ({
 	const farpObjective = getFrontlineFarp(
 		objectives,
 		scenario[coalition === "blue" ? "blue" : "red"].objectivePlans,
-		frontlineObjective
+		frontlineObjective,
 	);
 
 	faction.aircraftTypes.AWACS?.forEach((acType) => {
@@ -161,7 +161,7 @@ export const generateAircraftInventory = ({
 		faction.aircraftTypes["Pinpoint Strike"]?.forEach((acType) => {
 			const count = Math.max(
 				2,
-				Config.inventory.aircraft.strike * (faction.aircraftTypes["Pinpoint Strike"]?.length ?? 0)
+				Config.inventory.aircraft.strike * (faction.aircraftTypes["Pinpoint Strike"]?.length ?? 0),
 			);
 			const aircraftType = acType as DcsJs.AircraftType;
 

@@ -11,7 +11,7 @@ export const rpc = {
 
 export function onEvent<Channel extends keyof Types.Events.Events>(
 	channel: Channel,
-	listener: (payload: Types.Events.Events[Channel]) => void
+	listener: (payload: Types.Events.Events[Channel]) => void,
 ) {
 	const dispose = Utils.onEvent(channel, listener as (payload: unknown) => void);
 	return { dispose };

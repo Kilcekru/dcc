@@ -9,7 +9,7 @@ export const updateAircraftForFlightGroup = (
 	flightGroup: DcsJs.FlightGroup,
 	state: RunningCampaignState,
 	coalition: DcsJs.CampaignCoalition,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -24,7 +24,7 @@ export const updateAircraftForFlightGroup = (
 		aircraft.loadout = getLoadoutForAircraftType(
 			aircraft.aircraftType as DcsJs.AircraftType,
 			flightGroup.task,
-			dataStore
+			dataStore,
 		);
 	});
 };

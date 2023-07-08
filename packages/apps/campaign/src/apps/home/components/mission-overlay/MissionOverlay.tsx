@@ -92,10 +92,10 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 			setFlightGroups({
 				blue: structuredClone(
-					unwrap(getFlightGroups(state.blueFaction?.packages))
+					unwrap(getFlightGroups(state.blueFaction?.packages)),
 				) as unknown as Array<DcsJs.CampaignFlightGroup>,
 				red: structuredClone(
-					unwrap(getFlightGroups(state.redFaction?.packages))
+					unwrap(getFlightGroups(state.redFaction?.packages)),
 				) as unknown as Array<DcsJs.CampaignFlightGroup>,
 			});
 

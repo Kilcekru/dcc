@@ -55,7 +55,7 @@ export function FlightGroupButtons(props: {
 			}
 
 			return aircraft.controllable;
-		})
+		}),
 	);
 
 	const updateClients = (value: number) => {

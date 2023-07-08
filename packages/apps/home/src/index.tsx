@@ -42,7 +42,7 @@ if (rootElement != undefined) {
 				<App />
 			</StoreProvider>
 		),
-		rootElement
+		rootElement,
 	);
 } else {
 	console.error("Missing root element"); // eslint-disable-line no-console
