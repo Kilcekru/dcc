@@ -34,7 +34,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const onGenerateMission = async () => {
 		try {
 			generateMissionId?.();
-			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)) as DcsJs.CampaignState);
+			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)));
 			setOverlayState("generated");
 		} catch (e) {
 			const errorString = String(e).split("'rpc':")[1];

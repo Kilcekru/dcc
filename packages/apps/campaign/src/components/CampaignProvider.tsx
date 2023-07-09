@@ -85,7 +85,7 @@ export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<DcsJs.CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState) as DcsJs.CampaignState);
+	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState));
 
 	const store: CampaignStore = [
 		state,
@@ -93,7 +93,7 @@ export function CampaignProvider(props: {
 			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
-					structuredClone(initState) as DcsJs.CampaignState,
+					structuredClone(initState),
 					dataStore,
 					blueFaction,
 					redFaction,
