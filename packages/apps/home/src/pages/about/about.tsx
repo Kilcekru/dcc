@@ -62,15 +62,13 @@ export const About = () => {
 						<br />
 						To make it easier for us to reproduce the issue, please attach a support zip to your report.
 					</p>
-					<p>
-						The support zip contains the following information:
-						<ul>
-							<li>App and OS version</li>
-							<li>Your current state of the campaign app</li>
-							<li>Your last generated mission</li>
-						</ul>
-						All the information is anonymous.
-					</p>
+					<p>The support zip contains the following information:</p>
+					<ul>
+						<li>App and OS version</li>
+						<li>Your current state of the campaign app</li>
+						<li>Your last generated mission</li>
+					</ul>
+					<p>All the information is anonymous.</p>
 				</div>
 				<div class={Styles.buttons}>
 					<Components.Button onPress={() => createSupportZip()}>Create support zip</Components.Button>

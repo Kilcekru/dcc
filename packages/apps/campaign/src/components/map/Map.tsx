@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import L, { Content } from "leaflet";
-import { Symbol } from "milsymbol";
+import MilSymbol from "milsymbol";
 import { createEffect, createMemo, createSignal, useContext } from "solid-js";
 
 import { OverlaySidebarContext } from "../../apps/home/components";
@@ -120,7 +120,7 @@ export const Map = () => {
 		const symbolCode = specialPrefix
 			? `G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`
 			: `S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`;
-		const symbol = new Symbol(symbolCode, {
+		const symbol = new MilSymbol.Symbol(symbolCode, {
 			size: 20,
 			...(color == null
 				? {}
@@ -462,7 +462,7 @@ export const Map = () => {
 									Capture <strong>{state.winningCondition.value}</strong>
 								</span>
 							) as Content,
-							{ permanent: map.getZoom() >= 10 }
+							{ permanent: map.getZoom() >= 10 },
 						);
 				}
 			});
@@ -479,7 +479,7 @@ export const Map = () => {
 						<span>
 							Capture <strong>{state.winningCondition.value}</strong>
 						</span>
-					) as Content
+					) as Content,
 				);
 		}
 	});
@@ -587,7 +587,7 @@ export const Map = () => {
 			samCircles[selectedMarkerId];
 
 		if (oldMarker != null) {
-			const symbol = new Symbol(oldMarker.symbolCode, {
+			const symbol = new MilSymbol.Symbol(oldMarker.symbolCode, {
 				size: 20,
 				...(oldMarker.color == null
 					? {}
@@ -607,7 +607,7 @@ export const Map = () => {
 				L.icon({
 					iconUrl: symbol.toDataURL(),
 					iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
-				})
+				}),
 			);
 		}
 
@@ -679,7 +679,7 @@ export const Map = () => {
 			return;
 		}
 
-		const symbol = new Symbol(marker.symbolCode, {
+		const symbol = new MilSymbol.Symbol(marker.symbolCode, {
 			size: 25,
 			iconColor: "rgb(255, 205, 0)",
 			colorMode: {
@@ -695,7 +695,7 @@ export const Map = () => {
 			L.icon({
 				iconUrl: symbol.toDataURL(),
 				iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
-			})
+			}),
 		);
 	});
 

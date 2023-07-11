@@ -12,12 +12,12 @@
 	"dependencies": {
 		"@kilcekru/esbuild-plugin-css-extra": "^0.1.2",
 		"chokidar": "^3.5.3",
-		"esbuild": "^0.15.16",
-		"esbuild-plugin-solid": "^0.4.2",
-		"fs-extra": "^11.1.0",
-		"solid-js": "1.6.2"
+		"esbuild": "^0.18.11",
+		"esbuild-plugin-solid": "^0.5.0",
+		"fs-extra": "^11.1.1",
+		"solid-js": "1.7.7"
 	},
 	"devDependencies": {
-		"regedit": "^5.1.1"
+		"regedit": "^5.1.2"
 	}
 }

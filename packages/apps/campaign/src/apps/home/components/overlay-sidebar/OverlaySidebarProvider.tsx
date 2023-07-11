@@ -21,7 +21,7 @@ type OverlayStore = [
 		openEWR?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
 		openSam?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
 		close?: () => void;
-	}
+	},
 ];
 
 const initState: OverlayContextState = {
@@ -42,7 +42,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "structure";
 						s.structureName = structureName;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openFlightGroup(flightGroupId, coalition) {
@@ -51,7 +51,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "flight group";
 						s.flightGroupId = flightGroupId;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openGroundGroup(groundGroupId, coalition) {
@@ -60,7 +60,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "ground group";
 						s.groundGroupId = groundGroupId;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openAirdrome(airdromeName, coalition) {
@@ -69,7 +69,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "airdrome";
 						s.airdromeName = airdromeName;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openEWR(id, coalition) {
@@ -78,7 +78,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "ewr";
 						s.groundGroupId = id;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openSam(id, coalition) {
@@ -87,7 +87,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "sam";
 						s.groundGroupId = id;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			close() {

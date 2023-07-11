@@ -8,7 +8,7 @@ export const findInside = <T>(
 	values: Array<T> | undefined,
 	sourcePosition: DcsJs.Position,
 	positionSelector: (value: T) => DcsJs.Position,
-	radius: number
+	radius: number,
 ): Array<T> => {
 	return (
 		values?.filter((v) => {
@@ -22,7 +22,7 @@ export const findInside = <T>(
 export const findNearest = <T>(
 	values: Array<T> | undefined,
 	sourcePosition: DcsJs.Position,
-	positionSelector: (value: T) => DcsJs.Position
+	positionSelector: (value: T) => DcsJs.Position,
 ) => {
 	return values?.reduce(
 		([prevObj, prevDistance], v) => {
@@ -35,6 +35,6 @@ export const findNearest = <T>(
 				return [prevObj, prevDistance] as [T, number];
 			}
 		},
-		[undefined, 10000000] as [T, number]
+		[undefined, 10000000] as [T, number],
 	)[0];
 };

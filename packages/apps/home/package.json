@@ -11,6 +11,6 @@
 	"dependencies": {
 		"@kilcekru/dcc-lib-rpc": "workspace:*",
 		"cnbuilder": "3.1.0",
-		"solid-js": "1.6.2"
+		"solid-js": "1.7.7"
 	}
 }

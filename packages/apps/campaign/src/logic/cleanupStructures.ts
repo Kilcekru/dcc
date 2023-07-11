@@ -6,7 +6,7 @@ import { getCoalitionFaction } from "./utils";
 function updateStructureState(
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	camp: DcsJs.Structure | undefined
+	camp: DcsJs.Structure | undefined,
 ) {
 	if (camp == null) {
 		throw "cleanupFactionStructures: barrack not found";

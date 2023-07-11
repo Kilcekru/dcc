@@ -24,7 +24,7 @@ import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -74,7 +74,7 @@ export const generateCasPackage = (
 			const firstLightAircraft = firstItem(usableAircrafts);
 
 			const selectedFirstAircrafts = usableLightAircrafts.filter(
-				(ac) => ac.aircraftType === firstLightAircraft?.aircraftType
+				(ac) => ac.aircraftType === firstLightAircraft?.aircraftType,
 			);
 
 			if (firstLightAircraft == null || selectedFirstAircrafts == null || selectedFirstAircrafts.length < 2) {
@@ -107,7 +107,7 @@ export const generateCasPackage = (
 	const [landingWaypoints, landingTime] = calcLandingWaypoints(
 		groundGroupTarget.position,
 		startPosition,
-		endOnStationTime + 1
+		endOnStationTime + 1,
 	);
 
 	const cs = generateCallSign(coalition, state, dataStore, isHelicopter ? "helicopter" : "aircraft");

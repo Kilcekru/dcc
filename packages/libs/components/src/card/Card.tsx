@@ -17,7 +17,7 @@ export const Card = (props: {
 				styles.card,
 				props.class,
 				props.disabled ? styles["card--disabled"] : null,
-				props.selected ? styles["card--selected"] : null
+				props.selected ? styles["card--selected"] : null,
 			)}
 			onPress={() => props.onPress?.()}
 		>

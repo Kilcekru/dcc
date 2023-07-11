@@ -40,7 +40,7 @@ export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.Ca
 		});
 	});
 	const groundGroupsOutsideSamRange = aliveGroundGroups.filter(
-		(objective) => !isInSamRange(objective.position, oppFaction)
+		(objective) => !isInSamRange(objective.position, oppFaction),
 	);
 
 	return findNearest(groundGroupsOutsideSamRange, startPosition, (group) => group.position);
@@ -59,7 +59,7 @@ export const getStrikeTarget = (
 	objectives: Record<string, DcsJs.Objective>,
 	coalition: DcsJs.CampaignCoalition,
 	faction: DcsJs.CampaignFaction,
-	oppFaction: DcsJs.CampaignFaction
+	oppFaction: DcsJs.CampaignFaction,
 ): DcsJs.Structure | undefined => {
 	const factionObjectives = Object.values(objectives).filter((obj) => obj.coalition === coalition);
 	const structures = Object.values(oppFaction.structures).filter((structure) => {
@@ -103,7 +103,7 @@ export const getStrikeTarget = (
 					consumingStructures,
 					str.position,
 					(s) => s.position,
-					Config.structureRange.ammo
+					Config.structureRange.ammo,
 				);
 
 				prio = 30 * inRangeStructures.length;
@@ -117,7 +117,7 @@ export const getStrikeTarget = (
 					consumingStructures,
 					str.position,
 					(s) => s.position,
-					Config.structureRange.ammo
+					Config.structureRange.ammo,
 				);
 
 				prio = 50 * inRangeStructures.length;
@@ -145,7 +145,7 @@ export const getStrikeTarget = (
 export const getAwacsTarget = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ): [DcsJs.Position, DcsJs.Position] | undefined => {
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -161,7 +161,7 @@ export const getAwacsTarget = (
 	const farthestAirdrome = getFarthestAirdromeFromPosition(
 		frontlineObjective.position,
 		faction.airdromeNames,
-		dataStore
+		dataStore,
 	);
 
 	if (farthestAirdrome == null) {
@@ -173,7 +173,7 @@ export const getAwacsTarget = (
 	const centerPosition = positionFromHeading(
 		frontlineObjective.position,
 		heading,
-		coalition === "blue" ? random(50_000, 70_000) : random(80_000, 120_000)
+		coalition === "blue" ? random(50_000, 70_000) : random(80_000, 120_000),
 	);
 
 	const racetrackStart = positionFromHeading(centerPosition, addHeading(heading, -90), 40_000);
@@ -186,12 +186,12 @@ export const getFrontlineTarget = (
 	coalition: DcsJs.CampaignCoalition,
 	sourcePosition: DcsJs.Position,
 	range: number,
-	state: RunningCampaignState
+	state: RunningCampaignState,
 ) => {
 	const oppCoalition = oppositeCoalition(coalition);
 
 	const oppObjectives = Object.values(state.objectives).filter(
-		(obj) => obj.coalition === oppCoalition || obj.coalition === "neutral"
+		(obj) => obj.coalition === oppCoalition || obj.coalition === "neutral",
 	);
 
 	const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);

@@ -18,7 +18,7 @@ type Store = [
 		setError?: (err: Error | undefined) => void;
 		setAction?: (action: Action | undefined) => void;
 		loadUserConfig?: () => Promise<void>;
-	}
+	},
 ];
 
 export const StoreContext = createContext<Store>([{}, {}]);

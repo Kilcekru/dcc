@@ -32,7 +32,7 @@ export class MultiJson<ItemSchema extends BaseItemSchema, SynopsisSchema extends
 			await read({
 				namespace: "multi",
 				fileName: `${this.#options.name}/${parsedId}.json`,
-			})
+			}),
 		);
 		return this.#options.schema.item.parse(data) as z.infer<ItemSchema>;
 	}
@@ -93,5 +93,5 @@ export const nameSchema = z
 type BaseItemSchema = z.ZodObject<{ id: z.ZodString }>;
 type BaseSynopsisSchema = z.ZodObject<Record<string, z.ZodTypeAny>>;
 type GetSynopsisFn<ItemSchema extends BaseItemSchema, SynopsisSchema extends BaseSynopsisSchema> = (
-	item: z.infer<ItemSchema>
+	item: z.infer<ItemSchema>,
 ) => z.infer<SynopsisSchema>;

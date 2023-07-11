@@ -17,7 +17,7 @@ export const conquerObjective = (
 	attackingGroundGroup: DcsJs.GroundGroup,
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const objective = state.objectives[attackingGroundGroup.objectiveName];
 
@@ -40,13 +40,13 @@ export const g2gBattle = (
 	blueGroundGroup: DcsJs.GroundGroup,
 	redGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	if (random(1, 100) <= 50) {
 		console.log(`Ground: ${blueGroundGroup.id} destroyed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
 
 		const aliveRedUnitId = redGroundGroup.unitIds.find(
-			(unitId) => state.redFaction.inventory.groundUnits[unitId]?.alive === true
+			(unitId) => state.redFaction.inventory.groundUnits[unitId]?.alive === true,
 		);
 
 		if (aliveRedUnitId == null) {
@@ -69,7 +69,7 @@ export const g2gBattle = (
 		console.log(`Ground: ${redGroundGroup.id} destroyed ground unit from group ${blueGroundGroup.id}`); // eslint-disable-line no-console
 
 		const aliveBlueUnitId = blueGroundGroup.unitIds.find(
-			(unitId) => state.blueFaction.inventory.groundUnits[unitId]?.alive === true
+			(unitId) => state.blueFaction.inventory.groundUnits[unitId]?.alive === true,
 		);
 
 		if (aliveBlueUnitId == null) {
@@ -107,13 +107,13 @@ export const g2g = (
 	attackingCoalition: DcsJs.CampaignCoalition,
 	attackingGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const defendingCoalition = oppositeCoalition(attackingCoalition);
 	const defendingFaction = getCoalitionFaction(defendingCoalition, state);
 
 	const defendingGroundGroup = defendingFaction.groundGroups.find(
-		(gg) => gg.state === "on objective" && gg.objectiveName === attackingGroundGroup.objectiveName
+		(gg) => gg.state === "on objective" && gg.objectiveName === attackingGroundGroup.objectiveName,
 	);
 
 	if (defendingGroundGroup == null) {

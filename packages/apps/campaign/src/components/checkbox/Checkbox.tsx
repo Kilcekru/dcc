@@ -8,7 +8,7 @@ export const Checkbox = (props: { children: JSX.Element; onChange: (value: boole
 	const [state, send] = useMachine(
 		checkbox.machine({
 			id: createUniqueId(),
-		})
+		}),
 	);
 
 	const api = createMemo(() => checkbox.connect(state, send, normalizeProps));

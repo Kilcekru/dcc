@@ -22,7 +22,7 @@ function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureTy
 export function generateStructures(
 	coalition: DcsJs.CampaignCoalition,
 	objectivePlans: Array<ObjectivePlan>,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) {
 	const structures: Record<string, DcsJs.Structure> = {};
 
@@ -34,15 +34,18 @@ export function generateStructures(
 
 	objectivePlans.forEach((plan) => {
 		plan.structures.forEach((structurePlan) => {
-			const strikeTarget = strikeTargets.reduce((prev, objectiveTargets) => {
-				const target = objectiveTargets.find((st) => st.name === structurePlan.structureName);
+			const strikeTarget = strikeTargets.reduce(
+				(prev, objectiveTargets) => {
+					const target = objectiveTargets.find((st) => st.name === structurePlan.structureName);
 
-				if (target == null) {
-					return prev;
-				} else {
-					return target;
-				}
-			}, undefined as DcsJs.StrikeTarget | undefined);
+					if (target == null) {
+						return prev;
+					} else {
+						return target;
+					}
+				},
+				undefined as DcsJs.StrikeTarget | undefined,
+			);
 
 			if (strikeTarget == null) {
 				return;

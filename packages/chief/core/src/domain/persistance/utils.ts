@@ -87,7 +87,7 @@ const fileNameSchema = z
 	.max(100, "Filename must be shorter than 100 characters")
 	.regex(
 		/^(?:[a-z0-9_-]+\/)*[a-z0-9_-]+\.[a-z0-9]{1,5}$/i,
-		"Filename may only contain 'a-z0-9_-', must have an extension (1-5 chars), fileName and dirNames must me at least 1 char"
+		"Filename may only contain 'a-z0-9_-', must have an extension (1-5 chars), fileName and dirNames must me at least 1 char",
 	);
 
 export type BaseJsonSchema = z.ZodObject<{ version: z.ZodLiteral<number> }>;

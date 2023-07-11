@@ -34,7 +34,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const onGenerateMission = async () => {
 		try {
 			generateMissionId?.();
-			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)) as DcsJs.CampaignState);
+			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)));
 			setOverlayState("generated");
 		} catch (e) {
 			const errorString = String(e).split("'rpc':")[1];
@@ -92,10 +92,10 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 			setFlightGroups({
 				blue: structuredClone(
-					unwrap(getFlightGroups(state.blueFaction?.packages))
+					unwrap(getFlightGroups(state.blueFaction?.packages)),
 				) as unknown as Array<DcsJs.CampaignFlightGroup>,
 				red: structuredClone(
-					unwrap(getFlightGroups(state.redFaction?.packages))
+					unwrap(getFlightGroups(state.redFaction?.packages)),
 				) as unknown as Array<DcsJs.CampaignFlightGroup>,
 			});
 

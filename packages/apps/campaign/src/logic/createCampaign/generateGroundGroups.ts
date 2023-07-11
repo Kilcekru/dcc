@@ -7,7 +7,7 @@ import { DynamicObjectivePlan } from "./utils";
 export function generateGroundGroups(
 	objectivePlans: Array<DynamicObjectivePlan>,
 	faction: DcsJs.CampaignFaction,
-	timer: number
+	timer: number,
 ) {
 	objectivePlans.forEach((op) => {
 		if (op.groundUnitTypes.some((gut) => gut === "vehicles")) {
