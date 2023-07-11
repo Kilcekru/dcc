@@ -2,7 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
-import { Config, ScenarioCoalition } from "../../data";
+import { Config, ObjectivePlan } from "../../data";
 import { randomItem } from "../../utils";
 
 function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureType: DcsJs.StructureType) {
@@ -21,7 +21,7 @@ function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureTy
 }
 export function generateStructures(
 	coalition: DcsJs.CampaignCoalition,
-	scenarioCoalition: ScenarioCoalition,
+	objectivePlans: Array<ObjectivePlan>,
 	dataStore: Types.Campaign.DataStore
 ) {
 	const structures: Record<string, DcsJs.Structure> = {};
@@ -32,7 +32,7 @@ export function generateStructures(
 
 	const strikeTargets = Object.values(dataStore.strikeTargets);
 
-	scenarioCoalition.objectivePlans.forEach((plan) => {
+	objectivePlans.forEach((plan) => {
 		plan.structures.forEach((structurePlan) => {
 			const strikeTarget = strikeTargets.reduce((prev, objectiveTargets) => {
 				const target = objectiveTargets.find((st) => st.name === structurePlan.structureName);

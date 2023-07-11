@@ -1,7 +1,8 @@
 import { RunningCampaignState } from "./types";
 
-export const gameOver = (state: RunningCampaignState) => {
-	const hasBlueUnitsAlive = Object.values(state.blueFaction.inventory.groundUnits).some(
+/** TODO */
+export const gameOver = (_: RunningCampaignState) => {
+	/* const hasBlueUnitsAlive = Object.values(state.blueFaction.inventory.groundUnits).some(
 		(unit) => unit.alive && unit.state !== "idle" && unit.category != "Air Defence"
 	);
 
@@ -26,5 +27,5 @@ export const gameOver = (state: RunningCampaignState) => {
 				state.winner = "blue";
 			}
 		}
-	}
+	} */
 };

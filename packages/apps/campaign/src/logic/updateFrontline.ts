@@ -62,7 +62,8 @@ export const updateObjectivesCoalition = (state: RunningCampaignState) => {
 			blueStructure === false &&
 			redStructure === false
 		) {
-			objective.coalition = "neutral";
+			/** TODO */
+			// objective.coalition = "neutral";
 
 			return;
 		}

@@ -2,35 +2,19 @@
 	"map": "syria",
 	"id": "desert-thunder",
 	"name": "Desert Thunder",
-	"available": false,
+	"available": true,
 	"date": "1972-09-20",
 	"era": "Cold War",
 	"win-condition": {
-		"type": "ground units"
+		"type": "objective",
+		"value": "Enguri Dam"
 	},
 	"blue": {
-		"airdromeNames": ["Hatay"],
-		"objectivePlans": [
-			{
-				"objectiveName": "Hama Center",
-				"structures": [],
-				"groundUnitTypes": []
-			}
-		]
+		"airdromeNames": ["Ramat David"],
+		"objectivePlans": []
 	},
 	"red": {
-		"airdromeNames": ["Aleppo", "Tiyas"],
-		"objectivePlans": [
-			{
-				"objectiveName": "Hama East",
-				"structures": [
-					{
-						"structureName": "Hama East|Structure|1",
-						"structureType": "Ammo Depot"
-					}
-				],
-				"groundUnitTypes": []
-			}
-		]
+		"airdromeNames": ["Damascus", "Tha'lah", "Hama"],
+		"objectivePlans": []
 	}
 }
