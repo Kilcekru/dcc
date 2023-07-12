@@ -123,7 +123,7 @@ const capPackages = (
 						pkg.task === "CAP" &&
 						pkg.flightGroups.some((fg) => {
 							return fg.target === ship.name;
-						})
+						}),
 				);
 
 				return airdromePackages.length < 1;

@@ -25,7 +25,7 @@ const speed = 170;
 const calcHoldWaypoint = (
 	startPosition: DcsJs.Position,
 	targetPosition: DcsJs.Position,
-	startTime: number
+	startTime: number,
 ): [DcsJs.CampaignWaypoint, DcsJs.Position, number] => {
 	const targetHeading = headingToPosition(startPosition, targetPosition);
 
@@ -54,7 +54,7 @@ const escortFlightGroup = (
 	targetFlightGroup: DcsJs.FlightGroup,
 	ingressPosition: DcsJs.Position,
 	engressPosition: DcsJs.Position,
-	engressTime: number
+	engressTime: number,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -122,7 +122,7 @@ const escortFlightGroup = (
 export const generateStrikePackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ): DcsJs.CampaignPackage | undefined => {
 	// console.log("generate strike");
 	const faction = getCoalitionFaction(coalition, state);
@@ -167,7 +167,7 @@ export const generateStrikePackage = (
 	const ingressPosition = positionFromHeading(
 		targetStructure.position,
 		headingToPosition(targetStructure.position, startPosition),
-		15000
+		15000,
 	);
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetStructure.position);
@@ -252,7 +252,7 @@ export const generateStrikePackage = (
 		flightGroup,
 		ingressPosition,
 		engressPosition,
-		endEngressTime
+		endEngressTime,
 	);
 
 	if (escort != null) {

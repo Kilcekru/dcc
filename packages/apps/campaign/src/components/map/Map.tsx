@@ -32,7 +32,7 @@ const sidcUnitCode = {
 	waypoint: "MGPI--",
 	militaryBase: "IB----",
 	radar: "ESR---",
-	carrier: "CLCV--"
+	carrier: "CLCV--",
 };
 
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
@@ -106,7 +106,7 @@ export const Map = () => {
 	}: {
 		mapPosition: MapPosition;
 		hostile: boolean;
-		domain: "air" |"ground" | "sea"
+		domain: "air" | "ground" | "sea";
 		unitCode: SidcUnitCodeKey;
 		specialPrefix?: string;
 		onClick?: () => void;
@@ -307,7 +307,6 @@ export const Map = () => {
 	};
 
 	const createShipGroupSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
-
 		faction.shipGroups?.forEach((sg) => {
 			if (sg.position == null) {
 				return;
@@ -315,7 +314,6 @@ export const Map = () => {
 
 			if (shipGroupMarkers[sg.name] == null) {
 				try {
-					
 					const marker = createSymbol({
 						mapPosition: positionToMapPosition(sg.position),
 						hostile: coalition === "red",

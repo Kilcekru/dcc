@@ -15,7 +15,7 @@ export function factionHasCarrier(
 	coalition: DcsJs.CoalitionSide,
 	scenario: Scenario,
 	faction: DcsJs.Faction,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) {
 	const scenarioSide = coalition === "red" ? scenario.red : scenario.blue;
 
