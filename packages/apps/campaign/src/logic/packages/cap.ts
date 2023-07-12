@@ -25,7 +25,7 @@ export const generateCapPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	objectiveName: string,
+	objectiveName: string
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -66,7 +66,7 @@ export const generateCapPackage = (
 							const obj = findNearest(
 								Object.values(state.objectives).filter((obj) => obj.coalition === coalition),
 								airdrome,
-								(obj) => obj.position,
+								(obj) => obj.position
 							);
 
 							if (obj == null) {
@@ -81,7 +81,7 @@ export const generateCapPackage = (
 								return prev;
 							}
 						},
-						[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number],
+						[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number]
 					)[0];
 
 					if (nearestObjective == null) {
@@ -99,7 +99,11 @@ export const generateCapPackage = (
 
 						const airdrome = findNearest(airdromes, nearestObjective.position, (ad) => ad);
 
-						return [nearestObjective.position, airdrome?.name];
+						if (airdrome == null) {
+							return [undefined, undefined];
+						}
+
+						return [objectToPosition(airdrome), airdrome.name];
 					}
 			  })()
 			: (() => {
