@@ -11,7 +11,7 @@
 			// for easier development of campaign using dcsjs, uncomment following line
 			// "@foxdelta2/dcsjs": ["../../../dcsjs/src/index.ts"],
 			"@kilcekru/dcc-shared-*": ["../../packages/shared/*/src/index.ts"],
-			"@kilcekru/dcc-lib-*": ["../../packages/libs/*/src/index.tsx", "../../packages/libs/*/src/index.ts"]
+			"@kilcekru/dcc-lib-*": ["../../packages/libs/*/src/index.ts"]
 		}
 	},
 	"files": ["./less.d.ts"]

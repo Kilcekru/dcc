@@ -24,11 +24,9 @@ export const Sidebar = () => {
 
 	return (
 		<div class={Styles.sidebar}>
-			<Show when={isNight()}>
+			<Show when={isNight() && !state.allowNightMissions}>
 				<div class={Styles["night-wrapper"]}>
-					<Show when={!state.allowNightMissions}>
-						<p class={Styles["night-description"]}>No flight groups are planned during the night.</p>
-					</Show>
+					<p class={Styles["night-description"]}>No flight groups are planned during the night.</p>
 					<div class={Styles["night-buttons"]}>
 						<Components.Button onPress={() => skipToNextDay?.()}>Jump to Day {date().getDate() + 1}</Components.Button>
 					</div>

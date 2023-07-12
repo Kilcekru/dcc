@@ -25,7 +25,7 @@ type Store = [
 		getData?: () => void;
 		setMap?: (name: DcsJs.MapName) => void;
 		setFactions?: (factions: Array<DcsJs.FactionDefinition>) => void;
-	}
+	},
 ];
 
 export const DataContext = createContext<Store>([initState, {}]);

@@ -71,7 +71,7 @@ export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
 	faction: DcsJs.CampaignFaction,
 	dataStore: Types.Campaign.DataStore,
-	scenario: Scenario
+	scenario: Scenario,
 ) => {
 	if (coalition === "neutral") {
 		return;

@@ -9,7 +9,7 @@ export const factionReinforcement = (coalition: DcsJs.CampaignCoalition, state: 
 
 	if (faction.reinforcementTimer + faction.reinforcementDelay <= state.timer) {
 		const destroyedAircrafts = Object.values(faction.inventory.aircrafts).filter(
-			(ac) => ac.alive === false && ac.destroyedTime != null && ac.destroyedTime > faction.reinforcementTimer
+			(ac) => ac.alive === false && ac.destroyedTime != null && ac.destroyedTime > faction.reinforcementTimer,
 		);
 
 		destroyedAircrafts.forEach((ac) => {
@@ -32,7 +32,7 @@ export const factionReinforcement = (coalition: DcsJs.CampaignCoalition, state: 
 
 		if (coalition === "blue") {
 			const destroyedGroundUnits = Object.values(faction.inventory.groundUnits).filter(
-				(gu) => gu.alive === false && gu.destroyedTime != null && gu.destroyedTime > faction.reinforcementTimer
+				(gu) => gu.alive === false && gu.destroyedTime != null && gu.destroyedTime > faction.reinforcementTimer,
 			);
 
 			destroyedGroundUnits.forEach((gu) => {

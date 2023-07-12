@@ -19,13 +19,13 @@ import {
 } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCapPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	objectiveName: string
+	objectiveName: string,
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -66,7 +66,7 @@ export const generateCapPackage = (
 							const obj = findNearest(
 								Object.values(state.objectives).filter((obj) => obj.coalition === coalition),
 								airdrome,
-								(obj) => obj.position
+								(obj) => obj.position,
 							);
 
 							if (obj == null) {
@@ -81,7 +81,7 @@ export const generateCapPackage = (
 								return prev;
 							}
 						},
-						[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number]
+						[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number],
 					)[0];
 
 					if (nearestObjective == null) {
@@ -196,7 +196,7 @@ export const generateCapPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: random(310, 343),
+		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

@@ -9,7 +9,7 @@ export const generateGroundUnitsInventory = (
 	faction: DcsJs.Faction,
 	coalition: DcsJs.CampaignCoalition,
 	scenario: Scenario,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const template = dataStore.groundUnitsTemplates?.find((t) => faction.templateName === t.name);
 

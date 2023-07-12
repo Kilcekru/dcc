@@ -7,7 +7,7 @@ import { CampaignContext, Map } from "../../components";
 import { useDataStore } from "../../components/DataProvider";
 import * as Domain from "../../domain";
 import { useSave } from "../../hooks";
-import { getClientMissionStartTime } from "../../utils";
+import { calcTakeoffTime } from "../../utils";
 import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
@@ -29,9 +29,9 @@ export const Home = () => {
 		if (tickFinished === true) {
 			tickFinished = false;
 			const tickValue = state.multiplier === 1 ? 1 : 10;
-			const clientMissionStartTime = getClientMissionStartTime(state);
+			const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
 
-			if (clientMissionStartTime == null || state.timer < clientMissionStartTime) {
+			if (takeoffTime == null || takeoffTime > state.timer) {
 				tick?.(tickValue);
 
 				try {
@@ -43,6 +43,7 @@ export const Home = () => {
 				}
 			} else {
 				pause?.();
+				save();
 			}
 			tickFinished = true;
 		} else {

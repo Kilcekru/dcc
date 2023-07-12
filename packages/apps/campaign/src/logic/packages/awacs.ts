@@ -20,7 +20,7 @@ export const generateAwacsPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	startTime: number
+	startTime: number,
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -116,7 +116,7 @@ export const generateAwacsPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: coalition === "blue" ? 285.0 : 280.0,
+		frequency: 251,
 		id: createUniqueId(),
 	};
 };

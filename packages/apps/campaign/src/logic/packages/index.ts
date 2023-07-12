@@ -14,7 +14,7 @@ import { generateStrikePackage } from "./strike";
 const updatePackagesState = (
 	packages: Array<DcsJs.CampaignPackage>,
 	timer: number,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
@@ -51,7 +51,7 @@ const casPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	packages: Array<DcsJs.CampaignPackage>
+	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "CAS");
 
@@ -72,7 +72,7 @@ const capPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	packages: Array<DcsJs.CampaignPackage>
+	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -83,7 +83,7 @@ const capPackages = (
 				pkg.task === "CAP" &&
 				pkg.flightGroups.some((fg) => {
 					return fg.target === airdromeName;
-				})
+				}),
 		);
 
 		return airdromePackages.length < 1;
@@ -104,7 +104,7 @@ const capPackages = (
 				pkg.task === "CAP" &&
 				pkg.flightGroups.some((fg) => {
 					return fg.target === "Frontline";
-				})
+				}),
 		);
 
 		if (frontlinePackages.length < 1) {
@@ -148,7 +148,7 @@ const awacsPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	packages: Array<DcsJs.CampaignPackage>
+	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "AWACS");
 
@@ -183,7 +183,7 @@ const deadPackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	packages: Array<DcsJs.CampaignPackage>
+	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "DEAD");
 
@@ -204,7 +204,7 @@ const strikePackages = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	packages: Array<DcsJs.CampaignPackage>
+	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "Pinpoint Strike");
 
@@ -226,7 +226,7 @@ const factionPackagesTick = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	faction: DcsJs.CampaignFaction
+	faction: DcsJs.CampaignFaction,
 ) => {
 	updatePackagesState(faction.packages, state.timer, dataStore);
 

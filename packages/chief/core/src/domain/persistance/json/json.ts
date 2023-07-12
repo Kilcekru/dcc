@@ -32,11 +32,11 @@ export type ReadJsonArgs<Schema extends BaseJsonSchema> = {
 };
 
 export async function readJson<Schema extends BaseJsonSchema>(
-	args: ReadJsonArgs<Schema> & { ignoreError: true }
+	args: ReadJsonArgs<Schema> & { ignoreError: true },
 ): Promise<z.infer<Schema> | undefined>;
 export async function readJson<Schema extends BaseJsonSchema>(args: ReadJsonArgs<Schema>): Promise<z.infer<Schema>>;
 export async function readJson<Schema extends BaseJsonSchema>(
-	args: ReadJsonArgs<Schema>
+	args: ReadJsonArgs<Schema>,
 ): Promise<z.infer<Schema> | undefined> {
 	try {
 		const fileContent = await read({

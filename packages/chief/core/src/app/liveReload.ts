@@ -71,6 +71,7 @@ export function enableLiveReload() {
 				if (path != watcher?.path) {
 					await watcher?.stop();
 					watcher = watch(path, () => {
+						console.log(`Reloading app '${Path.basename(path)}'`); // eslint-disable-line no-console
 						bw.webContents.reloadIgnoringCache();
 					});
 				}

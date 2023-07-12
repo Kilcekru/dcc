@@ -33,7 +33,7 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 
 	return (
 		<Show when={date != null}>
-			<Show when={props.withDay}>Day {date()?.getDate()} - </Show>
+			<Show when={props.withDay}>Day {date()?.getUTCDate()} - </Show>
 			{formatTime(hours())}:{formatTime(date()?.getMinutes())}:{formatTime(date()?.getSeconds())}
 		</Show>
 	);

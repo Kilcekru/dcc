@@ -18,12 +18,12 @@ import {
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
 
 export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ): DcsJs.CampaignPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -60,7 +60,7 @@ export const generateDeadPackage = (
 	const ingressPosition = positionFromHeading(
 		selectedObjective.position,
 		headingToPosition(selectedObjective.position, airdrome),
-		selectedObjective.range
+		selectedObjective.range,
 	);
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, selectedObjective.position);
 	const engressHeading =
@@ -70,7 +70,7 @@ export const generateDeadPackage = (
 	const engressPosition = positionFromHeading(
 		selectedObjective.position,
 		addHeading(engressHeading, 180),
-		selectedObjective.range
+		selectedObjective.range,
 	);
 
 	const durationEnRoute = getDurationEnRoute(airdrome, selectedObjective.position, speed);
@@ -97,7 +97,7 @@ export const generateDeadPackage = (
 						callSign: cs.unitCallSign(i),
 						name: cs.unitName(i),
 						client: false,
-					} as DcsJs.CampaignFlightGroupUnit)
+					}) as DcsJs.CampaignFlightGroupUnit,
 			) ?? [],
 		name: cs.flightGroupName,
 		task: "DEAD",
@@ -148,7 +148,7 @@ export const generateDeadPackage = (
 		taskEndTime: endEnRouteTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: random(310, 343),
+		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

@@ -15,7 +15,7 @@ export function RadioGroup(props: { children?: JSX.Element; id?: string; onChang
 			onChange({ value }) {
 				props.onChange(value);
 			},
-		})
+		}),
 	);
 
 	const api = createMemo(() => radio.connect(state, send, normalizeProps));

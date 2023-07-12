@@ -32,7 +32,7 @@ function _hasKey<Key extends string>(value: unknown, key: Key): value is { [k in
 export function hasKey<Key extends string>(
 	value: unknown,
 	key: Key,
-	type?: undefined
+	type?: undefined,
 ): value is { [k in Key]: unknown };
 export function hasKey<Key extends string>(value: unknown, key: Key, type: "boolean"): value is { [k in Key]: boolean };
 export function hasKey<Key extends string>(value: unknown, key: Key, type: "number"): value is { [k in Key]: number };
@@ -41,12 +41,12 @@ export function hasKey<Key extends string>(value: unknown, key: Key, type: "Date
 export function hasKey<Key extends string>(
 	value: unknown,
 	key: Key,
-	type: "array"
+	type: "array",
 ): value is { [k in Key]: Array<unknown> };
 export function hasKey<Key extends string>(
 	value: unknown,
 	key: Key,
-	type?: "boolean" | "number" | "string" | "Date" | "array"
+	type?: "boolean" | "number" | "string" | "Date" | "array",
 ): value is { [k in Key]: unknown } {
 	if (!_hasKey(value, key)) {
 		return false;

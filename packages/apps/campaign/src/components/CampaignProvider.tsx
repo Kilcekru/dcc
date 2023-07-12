@@ -14,7 +14,7 @@ import {
 	repairScoreUpdate,
 	updateFactionState,
 } from "../logic";
-import { dateToTimer, getClientMissionStartTime, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
+import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 
 type CampaignStore = [
 	DcsJs.CampaignState,
@@ -26,7 +26,7 @@ type CampaignStore = [
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
 			nightMissions: boolean,
-			scenario: string
+			scenario: string,
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
@@ -51,7 +51,7 @@ type CampaignStore = [
 		clearToastMessages?: (ids: Array<string>) => void;
 		replaceCampaignState?: (next: DcsJs.CampaignState) => void;
 		closeCampaign?: () => void;
-	}
+	},
 ];
 
 export const initState: DcsJs.CampaignState = {
@@ -85,7 +85,7 @@ export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<DcsJs.CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState) as DcsJs.CampaignState);
+	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState));
 
 	const store: CampaignStore = [
 		state,
@@ -93,14 +93,14 @@ export function CampaignProvider(props: {
 			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
-					structuredClone(initState) as DcsJs.CampaignState,
+					structuredClone(initState),
 					dataStore,
 					blueFaction,
 					redFaction,
 					aiSkill,
 					hardcore,
 					nightMissions,
-					scenarioName
+					scenarioName,
 				);
 				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
 				setState(newState);
@@ -113,16 +113,16 @@ export function CampaignProvider(props: {
 					produce((s) => {
 						s.lastTickTimer = s.timer;
 
-						const missionTimer = getClientMissionStartTime(s);
+						const takeoffTime = calcTakeoffTime(s.blueFaction?.packages);
 
 						const newTimer = s.timer + multiplier;
 
-						if (missionTimer != null && newTimer > missionTimer) {
-							s.timer = missionTimer;
+						if (takeoffTime != null && takeoffTime <= state.timer) {
+							s.timer = takeoffTime;
 						} else {
 							s.timer = newTimer;
 						}
-					})
+					}),
 				);
 			},
 			togglePause() {
@@ -167,7 +167,7 @@ export function CampaignProvider(props: {
 							});
 						});
 						s.missionId = undefined;
-					})
+					}),
 				);
 			},
 			submitMissionState(state, dataStore) {
@@ -185,7 +185,7 @@ export function CampaignProvider(props: {
 							});
 
 							const clientKilled = state.killed_aircrafts.some((killedAc) =>
-								clientAircraftNames.some((name) => name === killedAc)
+								clientAircraftNames.some((name) => name === killedAc),
 							);
 
 							if (clientKilled) {
@@ -203,7 +203,7 @@ export function CampaignProvider(props: {
 						}
 
 						missionRound(s, dataStore);
-					})
+					}),
 				);
 			},
 			saveCampaignRound(dataStore) {
@@ -250,7 +250,7 @@ export function CampaignProvider(props: {
 
 							storeObjective.incomingGroundGroups = {};
 						});
-					})
+					}),
 				);
 			},
 			resumeNextDay() {
@@ -285,7 +285,7 @@ export function CampaignProvider(props: {
 			} else {
 				return { ...state, ...props.campaignState };
 			}
-		})
+		}),
 	);
 
 	return <CampaignContext.Provider value={store}>{props.children}</CampaignContext.Provider>;

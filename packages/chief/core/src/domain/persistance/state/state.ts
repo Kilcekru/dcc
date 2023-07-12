@@ -42,7 +42,7 @@ export class State<Schema extends BaseJsonSchema> {
 				await read({
 					namespace: "state",
 					fileName: this.#fileName,
-				})
+				}),
 			);
 			this.#data = this.#schema.parse(data);
 		} catch {

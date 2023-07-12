@@ -16,11 +16,11 @@ import Styles from "./Debrief.module.less";
 function useFlightGroupMissionState(
 	flightGroup: DcsJs.CampaignFlightGroup,
 	killedBlueAircrafts: Array<string>,
-	killedRedGroundUnits: Array<string>
+	killedRedGroundUnits: Array<string>,
 ) {
 	const [state] = useContext(CampaignContext);
 	const clientsKilled = flightGroup.units.some(
-		(unit) => unit.client && killedBlueAircrafts.some((id) => id === unit.id)
+		(unit) => unit.client && killedBlueAircrafts.some((id) => id === unit.id),
 	);
 
 	if (clientsKilled) {
@@ -38,7 +38,7 @@ function useFlightGroupMissionState(
 			}
 
 			const killedUnits = targetGg.unitIds.some((targetUnitId) =>
-				killedRedGroundUnits.some((id) => targetUnitId === id)
+				killedRedGroundUnits.some((id) => targetUnitId === id),
 			);
 
 			if (killedUnits) {
@@ -49,7 +49,7 @@ function useFlightGroupMissionState(
 		}
 		case "Escort": {
 			const targetPkg = state.blueFaction?.packages.find((pkg) =>
-				pkg.flightGroups.some((fg) => fg.name === flightGroup.target)
+				pkg.flightGroups.some((fg) => fg.name === flightGroup.target),
 			);
 			const targetFg = targetPkg?.flightGroups.find((fg) => fg.name === flightGroup.target);
 
@@ -77,7 +77,7 @@ function useFlightGroupMissionState(
 			}
 
 			const buildingAlive = targetStructure.buildings.some(
-				(building) => building.alive && !killedRedGroundUnits.some((name) => name === building.name)
+				(building) => building.alive && !killedRedGroundUnits.some((name) => name === building.name),
 			);
 
 			if (buildingAlive) {
@@ -128,7 +128,7 @@ function FlightGroup(props: {
 		// eslint-disable-next-line solid/reactivity
 		props.killedBlueAircrafts,
 		// eslint-disable-next-line solid/reactivity
-		props.killedRedGroundUnits
+		props.killedRedGroundUnits,
 	);
 
 	return (
@@ -165,11 +165,11 @@ export function Debrief(props: {
 
 		const blueAircrafts = killedAircraftIdsByFlightGroups(
 			props.flightGroups.blue,
-			props.missionState?.killed_aircrafts ?? []
+			props.missionState?.killed_aircrafts ?? [],
 		);
 		const redAircrafts = killedAircraftIdsByFlightGroups(
 			props.flightGroups.red,
-			props.missionState?.killed_aircrafts ?? []
+			props.missionState?.killed_aircrafts ?? [],
 		);
 
 		const blueGroundUnits = killedGroundUnitIds(state.blueFaction, props.missionState?.killed_ground_units ?? [], true);

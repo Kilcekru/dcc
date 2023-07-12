@@ -3,6 +3,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createMemo, createSignal, For, Setter } from "solid-js";
 
+import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
 import { useDataStore } from "../../../components/DataProvider";
 import * as Domain from "../../../domain";
 import Styles from "./CustomFaction.module.less";
@@ -35,9 +36,7 @@ const AircraftList = (props: {
 						unstyled={!props.selectedAircrafts.some((ac) => ac === aircraft.name)}
 						onPress={() => props.toggle(aircraft.name)}
 					>
-						{aircraft.display_name}
-						{aircraft.controllable ? "" : "(AI)"}
-						{aircraft.isMod ? "(Mod)" : ""}
+						<AircraftLabel aircraftType={aircraft.name} />
 					</Components.Button>
 				)}
 			</For>
@@ -167,7 +166,7 @@ export const CustomFaction = (props: {
 	};
 
 	const validFaction = createMemo(
-		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && dead().length > 0 && strike().length > 0
+		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && dead().length > 0 && strike().length > 0,
 	);
 
 	return (

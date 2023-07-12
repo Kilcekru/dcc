@@ -1,10 +1,10 @@
 {
 	"countryName": "USA",
 	"name": "US Navy",
-	"year": 1972,
+	"year": 1964,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": ["F-14B"],
+		"CAP": ["VSN_F4B"],
 		"CAS": ["A-4E-C"],
 		"AWACS": ["E-2C"],
 		"DEAD": ["A-4E-C"],

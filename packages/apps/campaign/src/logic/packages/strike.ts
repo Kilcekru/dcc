@@ -18,7 +18,7 @@ import {
 import { getStrikeTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { getStartPosition, updateAircraftForFlightGroup } from "./utils";
+import { calcFrequency, getStartPosition, updateAircraftForFlightGroup } from "./utils";
 
 const speed = 170;
 
@@ -267,7 +267,7 @@ export const generateStrikePackage = (
 		taskEndTime: endIngressTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: random(310, 343),
+		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

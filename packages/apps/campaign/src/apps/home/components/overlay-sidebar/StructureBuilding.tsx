@@ -64,7 +64,7 @@ export function StructureBuilding(props: { building: DcsJs.Building; coalition: 
 							<p class={Styles["stat-label"]}>Repair</p>
 							<p class={Styles["stat-value"]}>
 								{Components.Utils.formatPercentage(
-									((props.building.repairScore ?? 0) / Config.deploymentScore.repair) * 100
+									((props.building.repairScore ?? 0) / Config.deploymentScore.repair) * 100,
 								)}
 							</p>
 						</div>

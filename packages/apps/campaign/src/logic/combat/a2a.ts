@@ -17,7 +17,7 @@ const saveBattleReport = (
 	report: BattleReport,
 	faction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
-	timer: number
+	timer: number,
 ) => {
 	if (report.length > 0) {
 		report.forEach((entry) => {
@@ -52,7 +52,7 @@ const saveBattleReport = (
 
 			// eslint-disable-next-line no-console
 			console.log(
-				`${aircraft.aircraftType}(${aircraft.id}) destroyed ${targetAircraft.aircraftType}(${targetAircraft.id}) with ${entry.weapon.name}`
+				`${aircraft.aircraftType}(${aircraft.id}) destroyed ${targetAircraft.aircraftType}(${targetAircraft.id}) with ${entry.weapon.name}`,
 			);
 
 			targetAircraft.alive = false;
@@ -67,7 +67,7 @@ const a2aRound = (
 	attackingFaction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
 	timer: number,
-	battleReport: BattleReport
+	battleReport: BattleReport,
 ) => {
 	attackingFg.units.forEach((attackingUnit) => {
 		const attackingAircraft = attackingFaction.inventory.aircrafts[attackingUnit.id];
@@ -127,7 +127,7 @@ const a2aFlightGroups = (
 	targetFgs: Array<DcsJs.CampaignFlightGroup>,
 	attackingFaction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
-	timer: number
+	timer: number,
 ) => {
 	const battleReport: BattleReport = [];
 
@@ -162,14 +162,14 @@ export const a2a = (state: RunningCampaignState) => {
 		flyingRedFgs,
 		state.blueFaction,
 		state.redFaction,
-		state.timer
+		state.timer,
 	);
 	const redBattleReport = a2aFlightGroups(
 		flyingRedFgs,
 		flyingBlueFgs,
 		state.redFaction,
 		state.blueFaction,
-		state.timer
+		state.timer,
 	);
 
 	if (blueBattleReport.length > 0) {

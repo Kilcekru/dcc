@@ -1,14 +1,14 @@
 {
 	"name": "@kilcekru/dcc-forge",
 	"productName": "DCC",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Digital Crew Chief",
 	"private": true,
 	"license": "MIT",
 	"main": "dist/chief/index.js",
 	"author": {
 		"name": "Kilcekru",
-		"email": "kilcekru@unkreativ.at"
+		"email": "kilcekru@digitalcrewchief.at"
 	},
 	"engines": {
 		"node": ">=18.12.0",
@@ -22,9 +22,9 @@
 		"make": "electron-forge make"
 	},
 	"devDependencies": {
-		"@electron-forge/cli": "^6.1.1",
-		"@electron-forge/maker-squirrel": "^6.1.1",
+		"@electron-forge/cli": "^6.2.1",
+		"@electron-forge/maker-squirrel": "^6.2.1",
 		"chokidar": "^3.5.3",
-		"electron": "25.0.1"
+		"electron": "25.2.0"
 	}
 }

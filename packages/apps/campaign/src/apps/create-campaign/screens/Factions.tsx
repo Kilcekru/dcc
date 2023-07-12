@@ -3,6 +3,7 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
 
+import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
 import { useDataStore } from "../../../components/DataProvider";
 import * as Domain from "../../../domain";
 import Styles from "./Factions.module.less";
@@ -16,7 +17,7 @@ const Faction = (props: {
 	const dataStore = useDataStore();
 	// const updateFactions = Domain.Faction.useUpdate();
 
-	const aircrafts = createMemo(() => {
+	const aircraftTypes = createMemo(() => {
 		const aircraftTypes: Array<string> = [];
 
 		Object.values(props.faction.aircraftTypes).forEach((taskAircrafts) => {
@@ -33,7 +34,7 @@ const Faction = (props: {
 			return [];
 		}
 
-		return aircraftTypes.map((t) => aircrafts[t as DcsJs.AircraftType]?.display_name);
+		return aircraftTypes as Array<DcsJs.AircraftType>;
 	});
 
 	return (
@@ -42,7 +43,7 @@ const Faction = (props: {
 			<h2 class={Styles.name}>{props.faction.name}</h2>
 			<h3 class={Styles.year}>{props.faction.year}</h3>
 			<div class={Styles["aircraft-list"]}>
-				<For each={aircrafts()}>{(aircraftName) => <p>{aircraftName}</p>}</For>
+				<For each={aircraftTypes()}>{(aircraftType) => <AircraftLabel aircraftType={aircraftType} />}</For>
 			</div>
 			<div class={Styles["customize-button-wrapper"]}>
 				<Components.Tooltip text="Customize Faction">
@@ -74,9 +75,14 @@ export const Factions = (props: {
 	const sortedList = createMemo(() => {
 		const list = props.coalition === "blue" ? playableFactions() : enemyFactions();
 
-		list.sort((a, b) => Domain.Sort.Number.asc(a.year ?? 0, b.year ?? 0));
+		const custom: Array<DcsJs.Faction> = [];
+		const predefined: Array<DcsJs.Faction> = [];
 
-		return list;
+		list.forEach((f) => (f.created == null ? predefined.push(f) : custom.push(f)));
+		custom.sort((a, b) => Domain.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
+		predefined.sort((a, b) => Domain.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
+
+		return [...custom, ...predefined];
 	});
 
 	onMount(async () => {

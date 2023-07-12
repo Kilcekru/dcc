@@ -9,18 +9,18 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@zag-js/checkbox": "0.8.0",
-		"@zag-js/dialog": "0.8.0",
-		"@zag-js/editable": "0.8.0",
-		"@zag-js/hover-card": "0.8.0",
-		"@zag-js/pressable": "0.8.0",
-		"@zag-js/radio-group": "0.8.0",
-		"@zag-js/solid": "0.8.0",
-		"@zag-js/switch": "0.8.0",
-		"@zag-js/toast": "0.8.0",
-		"@zag-js/tooltip": "0.8.0",
+		"@zag-js/checkbox": "0.10.5",
+		"@zag-js/dialog": "0.10.5",
+		"@zag-js/editable": "0.10.5",
+		"@zag-js/hover-card": "0.10.5",
+		"@zag-js/pressable": "0.10.5",
+		"@zag-js/radio-group": "0.10.5",
+		"@zag-js/solid": "0.10.5",
+		"@zag-js/switch": "0.10.5",
+		"@zag-js/toast": "0.10.5",
+		"@zag-js/tooltip": "0.10.5",
 		"cnbuilder": "3.1.0",
-		"solid-js": "1.6.2"
+		"solid-js": "1.7.7"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.2.230-next.2"
