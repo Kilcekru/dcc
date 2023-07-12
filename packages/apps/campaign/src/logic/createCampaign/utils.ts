@@ -1,7 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { Scenario, ScenarioCoalition } from "../../data";
+import { ObjectivePlan, Scenario, ScenarioCoalition } from "../../data";
+
+export type DynamicObjectivePlan = ObjectivePlan & { objective: DcsJs.Import.Objective };
 
 export const claimsObjective = (coalition: ScenarioCoalition, objectiveName: string) => {
 	if (coalition.objectivePlans.some((plan) => objectiveName.toLowerCase() === plan.objectiveName.toLowerCase())) {

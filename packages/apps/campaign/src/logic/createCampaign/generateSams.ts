@@ -2,7 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
-import { Scenario } from "../../data/scenarios";
+import { ObjectivePlan } from "../../data/scenarios";
 import { random, randomItem } from "../../utils";
 
 function getTemplate(faction: DcsJs.CampaignFaction, dataStore: Types.Campaign.DataStore) {
@@ -71,7 +71,7 @@ export const generateSams = (
 	coalition: DcsJs.CampaignCoalition,
 	faction: DcsJs.CampaignFaction,
 	dataStore: Types.Campaign.DataStore,
-	scenario: Scenario,
+	objectivePlans: Array<ObjectivePlan>,
 ) => {
 	if (coalition === "neutral") {
 		return;
@@ -152,7 +152,7 @@ export const generateSams = (
 
 	const selectedTargets: DcsJs.StrikeTarget[] = [];
 
-	scenario[coalition].objectivePlans.forEach((objectivePlan) => {
+	objectivePlans.forEach((objectivePlan) => {
 		const withSam = objectivePlan.groundUnitTypes.some((gut) => gut === "sam");
 
 		if (!withSam) {
