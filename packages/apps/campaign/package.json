@@ -27,7 +27,7 @@
 		"zod": "3.21.4"
 	},
 	"devDependencies": {
-		"@foxdelta2/dcsjs": "0.2.229",
+		"@foxdelta2/dcsjs": "0.2.230-next.2",
 		"@types/leaflet": "1.9.3",
 		"@types/uuid": "9.0.2"
 	}

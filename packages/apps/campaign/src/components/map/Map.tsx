@@ -32,6 +32,7 @@ const sidcUnitCode = {
 	waypoint: "MGPI--",
 	militaryBase: "IB----",
 	radar: "ESR---",
+	carrier: "CLCV--",
 };
 
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
@@ -43,6 +44,7 @@ export const Map = () => {
 	const objectiveMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const shipGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const ewMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
@@ -95,7 +97,7 @@ export const Map = () => {
 	const createSymbol = ({
 		mapPosition,
 		hostile,
-		air,
+		domain,
 		unitCode,
 		specialPrefix,
 		onClick,
@@ -104,7 +106,7 @@ export const Map = () => {
 	}: {
 		mapPosition: MapPosition;
 		hostile: boolean;
-		air: boolean;
+		domain: "air" | "ground" | "sea";
 		unitCode: SidcUnitCodeKey;
 		specialPrefix?: string;
 		onClick?: () => void;
@@ -118,7 +120,7 @@ export const Map = () => {
 		}
 		const symbolCode = specialPrefix
 			? `G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`
-			: `S${hostile ? "H" : "F"}${air ? "A" : "G"}-${sidcUnitCode[unitCode]}`;
+			: `S${hostile ? "H" : "F"}${domain === "air" ? "A" : domain === "sea" ? "S" : "G"}-${sidcUnitCode[unitCode]}`;
 		const symbol = new MilSymbol.Symbol(symbolCode, {
 			size: 20,
 			...(color == null
@@ -187,7 +189,7 @@ export const Map = () => {
 			const marker = createSymbol({
 				mapPosition: mapPosition,
 				hostile: false,
-				air: false,
+				domain: "ground",
 				unitCode: "airport",
 				onClick: () => onClickAirdrome(airdromeName, "blue"),
 				color: "rgb(0, 193, 255)",
@@ -213,7 +215,7 @@ export const Map = () => {
 			const marker = createSymbol({
 				mapPosition: mapPosition,
 				hostile: true,
-				air: false,
+				domain: "ground",
 				unitCode: "airport",
 				onClick: () => onClickAirdrome(airdromeName, "red"),
 				color: "rgb(255, 31, 31)",
@@ -257,7 +259,7 @@ export const Map = () => {
 				const marker = createSymbol({
 					mapPosition: position,
 					hostile: coalition === "red",
-					air: true,
+					domain: "air",
 					unitCode: code as SidcUnitCodeKey,
 					onClick: () => onClickFlightGroup(fg, coalition),
 				});
@@ -284,7 +286,7 @@ export const Map = () => {
 					const marker = createSymbol({
 						mapPosition: positionToMapPosition(gg.position),
 						hostile: coalition === "red",
-						air: false,
+						domain: "ground",
 						unitCode: gg.type === "armor" ? "armor" : "infantry",
 						onClick: () => onClickGroundGroup(gg, coalition),
 					});
@@ -300,6 +302,37 @@ export const Map = () => {
 				}
 			} else {
 				groundGroupMarkers[gg.id]?.marker.setLatLng(positionToMapPosition(gg.position));
+			}
+		});
+	};
+
+	const createShipGroupSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+		faction.shipGroups?.forEach((sg) => {
+			if (sg.position == null) {
+				return;
+			}
+
+			if (shipGroupMarkers[sg.name] == null) {
+				try {
+					const marker = createSymbol({
+						mapPosition: positionToMapPosition(sg.position),
+						hostile: coalition === "red",
+						domain: "sea",
+						unitCode: "carrier",
+						onClick: () => null,
+					});
+
+					if (marker == null) {
+						return;
+					}
+
+					shipGroupMarkers[sg.name] = marker;
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e, coalition, sg);
+				}
+			} else {
+				shipGroupMarkers[sg.name]?.marker.setLatLng(positionToMapPosition(sg.position));
 			}
 		});
 	};
@@ -364,7 +397,7 @@ export const Map = () => {
 				const marker = createSymbol({
 					mapPosition: positionToMapPosition(structure.position),
 					hostile: coalition === "red",
-					air: false,
+					domain: "ground",
 					unitCode,
 					onClick: () => openStructure?.(structure.name, coalition),
 					color:
@@ -393,7 +426,7 @@ export const Map = () => {
 					const marker = createSymbol({
 						mapPosition,
 						hostile: coalition === "red",
-						air: false,
+						domain: "ground",
 						unitCode: "airDefenceMissle",
 						onClick: () => onClickSam?.(sam.id, coalition),
 					});
@@ -500,7 +533,7 @@ export const Map = () => {
 			const marker = createSymbol({
 				mapPosition: positionToMapPosition(waypoint.position),
 				hostile: false,
-				air: false,
+				domain: "ground",
 				unitCode: "waypoint",
 				specialPrefix: "123",
 			})?.marker.bindTooltip(waypoint.name, { permanent: true });
@@ -515,7 +548,7 @@ export const Map = () => {
 				const marker = createSymbol({
 					mapPosition: positionToMapPosition(waypoint.racetrack.position),
 					hostile: false,
-					air: false,
+					domain: "ground",
 					unitCode: "waypoint",
 					specialPrefix: "123",
 				})?.marker.bindTooltip("Track-race end", { permanent: true });
@@ -695,12 +728,13 @@ export const Map = () => {
 		// createEWSymbols("blue", state.blueFaction);
 		createStructureSymbols("blue", state.blueFaction);
 		createSamSymbols("blue", state.blueFaction);
+		createShipGroupSymbols("blue", state.blueFaction);
 		createAircraftSymbols("red", redPackages);
 		createGroundGroupSymbols("red", state.redFaction);
 		// createEWSymbols("red", state.redFaction);
 		createStructureSymbols("red", state.redFaction);
 		createSamSymbols("red", state.redFaction);
-
+		createShipGroupSymbols("red", state.redFaction);
 		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];
 
 		Object.entries(flightGroupMarkers).forEach(([id, marker]) => {

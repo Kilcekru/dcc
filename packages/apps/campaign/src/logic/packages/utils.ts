@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { random } from "../../utils";
+import * as Domain from "../../domain";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
@@ -31,16 +31,54 @@ export const updateAircraftForFlightGroup = (
 
 export function calcFrequency(aircraftType: string | undefined, dataStore: Types.Campaign.DataStore) {
 	if (aircraftType == null) {
-		return random(310, 343);
+		return Domain.Utils.random(310, 343);
 	}
 
 	if ((aircraftType as DcsJs.AircraftType) === "MiG-15bis") {
-		random(0, 50) * 0.025 + 3.75;
+		Domain.Utils.random(0, 50) * 0.025 + 3.75;
 	}
 
 	const aircraftDefinition = dataStore.aircrafts?.[aircraftType as DcsJs.AircraftType];
 
 	return aircraftDefinition?.allowedFrequency == null
-		? random(310, 343)
-		: random(aircraftDefinition.allowedFrequency[0], aircraftDefinition.allowedFrequency[1]);
+		? Domain.Utils.random(310, 343)
+		: Domain.Utils.random(aircraftDefinition.allowedFrequency[0], aircraftDefinition.allowedFrequency[1]);
+}
+
+export function getStartPosition(
+	homeBase: DcsJs.CampaignHomeBase | undefined,
+	faction: DcsJs.CampaignFaction,
+	dataStore: Types.Campaign.DataStore,
+) {
+	switch (homeBase?.type) {
+		case "carrier": {
+			const shipGroup = Domain.Utils.firstItem(faction.shipGroups);
+
+			if (shipGroup == null) {
+				return undefined;
+			}
+
+			return {
+				...shipGroup.position,
+				name: shipGroup.name,
+			};
+		}
+		case "airdrome": {
+			return dataStore.airdromes?.[homeBase.name as DcsJs.AirdromeName];
+		}
+		case "farp": {
+			const farp = faction.structures[homeBase.name];
+
+			if (farp == null) {
+				return undefined;
+			}
+
+			return {
+				...farp.position,
+				name: farp.name,
+			};
+		}
+	}
+
+	return undefined;
 }

@@ -115,6 +115,29 @@ const capPackages = (
 			if (pkg != null) {
 				return true;
 			}
+		} else {
+			const ship = faction.shipGroups?.find((ship) => {
+				const airdromePackages = getRunningPackages(
+					faction.packages,
+					(pkg) =>
+						pkg.task === "CAP" &&
+						pkg.flightGroups.some((fg) => {
+							return fg.target === ship.name;
+						}),
+				);
+
+				return airdromePackages.length < 1;
+			});
+
+			if (ship != null) {
+				const pkg = generateCapPackage(coalition, state, dataStore, ship.name);
+
+				addPackage(packages, pkg);
+
+				if (pkg != null) {
+					return true;
+				}
+			}
 		}
 	}
 
