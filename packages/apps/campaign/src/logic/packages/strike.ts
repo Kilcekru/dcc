@@ -2,10 +2,10 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
+import * as Domain from "../../domain";
 import {
 	addHeading,
 	calcPackageEndTime,
-	firstItem,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
 	headingToPosition,
@@ -18,7 +18,7 @@ import {
 import { getStrikeTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { getStartPosition, updateAircraftForFlightGroup } from "./utils";
 
 const speed = 170;
 
@@ -68,16 +68,10 @@ const escortFlightGroup = (
 		return;
 	}
 
-	const airdromeName = firstItem(faction.airdromeNames);
+	const startPosition = getStartPosition(Domain.Utils.firstItem(usableAircrafts)?.homeBase, faction, dataStore);
 
-	if (airdromeName == null) {
-		throw `airdrome not found: ${airdromeName ?? ""}`;
-	}
-
-	const airdrome = dataStore.airdromes[airdromeName];
-
-	if (airdrome == null) {
-		throw `escortFlightGroup: airdrome not found: ${airdromeName ?? ""}`;
+	if (startPosition == null) {
+		throw new Error("escortFlightGroup: start position not found");
 	}
 
 	let cs = generateCallSign(coalition, state, dataStore, "aircraft");
@@ -86,14 +80,14 @@ const escortFlightGroup = (
 		cs = generateCallSign(coalition, state, dataStore, "aircraft");
 	}
 
-	const [holdWaypoint] = calcHoldWaypoint(airdrome, ingressPosition, targetFlightGroup.startTime);
-	const [landingWaypoints] = calcLandingWaypoints(engressPosition, airdrome, engressTime);
+	const [holdWaypoint] = calcHoldWaypoint(startPosition, ingressPosition, targetFlightGroup.startTime);
+	const [landingWaypoints] = calcLandingWaypoints(engressPosition, startPosition, engressTime);
 
 	holdWaypoint.taskStart = true;
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(targetFlightGroup.startTime),
-		airdromeName,
+		airdromeName: startPosition.name,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
@@ -109,7 +103,7 @@ const escortFlightGroup = (
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(airdrome),
+				position: objectToPosition(startPosition),
 				time: targetFlightGroup.startTime,
 				speed,
 				onGround: true,
@@ -118,7 +112,7 @@ const escortFlightGroup = (
 			...landingWaypoints,
 		],
 		target: targetFlightGroup.name,
-		position: objectToPosition(airdrome),
+		position: objectToPosition(startPosition),
 	};
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
@@ -146,19 +140,13 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const airdromeName = firstItem(faction?.airdromeNames);
+	const startPosition = getStartPosition(Domain.Utils.firstItem(usableAircrafts)?.homeBase, faction, dataStore);
 
-	if (airdromeName == null) {
-		throw `airdrome not found: ${airdromeName ?? ""}`;
+	if (startPosition == null) {
+		throw new Error("generateStrikePackage: start position not found");
 	}
 
-	const airdrome = dataStore.airdromes[airdromeName];
-
-	if (airdrome == null) {
-		throw `generateStrikePackage: airdrome not found: ${airdromeName ?? ""}`;
-	}
-
-	const targetStructure = getStrikeTarget(airdrome, state.objectives, coalition, faction, oppFaction);
+	const targetStructure = getStrikeTarget(startPosition, state.objectives, coalition, faction, oppFaction);
 
 	if (targetStructure == null) {
 		return;
@@ -178,33 +166,33 @@ export const generateStrikePackage = (
 
 	const ingressPosition = positionFromHeading(
 		targetStructure.position,
-		headingToPosition(targetStructure.position, airdrome),
+		headingToPosition(targetStructure.position, startPosition),
 		15000
 	);
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetStructure.position);
 	const engressHeading =
 		oppAirdrome == null
-			? headingToPosition(targetStructure.position, airdrome)
+			? headingToPosition(targetStructure.position, startPosition)
 			: headingToPosition(targetStructure.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const engressPosition = positionFromHeading(targetStructure.position, addHeading(engressHeading, 180), 20000);
 
 	const durationIngress = getDurationEnRoute(ingressPosition, targetStructure.position, speed);
 	const durationEngress = getDurationEnRoute(targetStructure.position, engressPosition, speed);
 
-	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(airdrome, ingressPosition, startTime);
+	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(startPosition, ingressPosition, startTime);
 	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, speed);
 	const endEnRouteTime = holdTime + durationEnRoute;
 	const totTime = endEnRouteTime + 1;
 	const endIngressTime = endEnRouteTime + durationIngress;
 	const endEngressTime = endIngressTime + durationEngress;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, airdrome, endEngressTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, startPosition, endEngressTime + 1);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
-		airdromeName,
+		airdromeName: startPosition.name,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
@@ -220,7 +208,7 @@ export const generateStrikePackage = (
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(airdrome),
+				position: objectToPosition(startPosition),
 				time: startTime,
 				speed,
 				onGround: true,
@@ -252,7 +240,7 @@ export const generateStrikePackage = (
 			...landingWaypoints,
 		],
 		target: targetStructure.name,
-		position: objectToPosition(airdrome),
+		position: objectToPosition(startPosition),
 	};
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);

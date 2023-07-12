@@ -23,6 +23,6 @@
 		"solid-js": "1.6.2"
 	},
 	"devDependencies": {
-		"@foxdelta2/dcsjs": "0.2.229-next.17"
+		"@foxdelta2/dcsjs": "0.2.230-next.2"
 	}
 }

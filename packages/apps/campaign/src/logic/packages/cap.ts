@@ -50,7 +50,7 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const [objectivePosition, airdrome] =
+	const [objectivePosition, airdromeName] =
 		objectiveName === "Frontline"
 			? (() => {
 					const oppAirdromes = oppFaction.airdromeNames.map((name) => {
@@ -99,16 +99,26 @@ export const generateCapPackage = (
 
 						const airdrome = findNearest(airdromes, nearestObjective.position, (ad) => ad);
 
-						return [nearestObjective.position, airdrome];
+						return [nearestObjective.position, airdrome?.name];
 					}
 			  })()
-			: [
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					objectToPosition(airdromes[objectiveName as DcsJs.AirdromeName]!),
-					airdromes[objectiveName as DcsJs.AirdromeName],
-			  ];
+			: (() => {
+					const airdrome = airdromes[objectiveName as DcsJs.AirdromeName];
 
-	if (objectiveName == null || airdrome == null || objectivePosition == null) {
+					if (airdrome == null) {
+						const carrier = faction.shipGroups?.find((sg) => sg.name === objectiveName);
+
+						if (carrier == null) {
+							return [undefined, undefined];
+						}
+
+						return [carrier.position, carrier.name];
+					}
+
+					return [objectToPosition(airdrome), airdrome.name];
+			  })();
+
+	if (objectiveName == null || airdromeName == null || objectivePosition == null) {
 		// eslint-disable-next-line no-console
 		console.warn(`airdrome not found: ${objectiveName ?? ""}`);
 		return;
@@ -120,7 +130,7 @@ export const generateCapPackage = (
 	const heading = objectiveName === "Frontline" ? addHeading(oppHeading, 180) : oppHeading;
 
 	const endPosition = positionFromHeading(objectivePosition, heading, objectiveName === "Frontline" ? 10_000 : 30_000);
-	const durationEnRoute = getDurationEnRoute(airdrome, endPosition, Config.flight.speed);
+	const durationEnRoute = getDurationEnRoute(objectivePosition, endPosition, Config.flight.speed);
 	const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
@@ -129,13 +139,13 @@ export const generateCapPackage = (
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, objectivePosition, endOnStationTime + 1);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.CampaignFlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
-		airdromeName: airdrome.name,
+		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
@@ -151,7 +161,7 @@ export const generateCapPackage = (
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(airdrome),
+				position: objectToPosition(objectivePosition),
 				time: startTime,
 				speed: Config.flight.speed,
 				onGround: true,
@@ -172,7 +182,7 @@ export const generateCapPackage = (
 			},
 			...landingWaypoints,
 		],
-		position: objectToPosition(airdrome),
+		position: objectToPosition(objectivePosition),
 		target: objectiveName,
 	};
 

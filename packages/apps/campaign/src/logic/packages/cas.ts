@@ -19,7 +19,7 @@ import {
 import { getCasTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { getStartPosition, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -50,10 +50,7 @@ export const generateCasPackage = (
 
 	let isHelicopter = dataStore.aircrafts?.[firstAircraft.aircraftType as DcsJs.AircraftType]?.isHelicopter;
 
-	let startPosition =
-		firstAircraft.homeBase.type === "airdrome"
-			? dataStore.airdromes[firstAircraft.homeBase.name as DcsJs.AirdromeName]
-			: faction.structures[firstAircraft.homeBase.name]?.position;
+	let startPosition = getStartPosition(firstAircraft.homeBase, faction, dataStore);
 
 	if (startPosition == null) {
 		// eslint-disable-next-line no-console
@@ -81,10 +78,7 @@ export const generateCasPackage = (
 				return;
 			}
 
-			const startLightPosition =
-				firstLightAircraft.homeBase.type === "airdrome"
-					? dataStore.airdromes[firstLightAircraft.homeBase.name as DcsJs.AirdromeName]
-					: firstItem(Object.values(faction.structures).filter((structure) => structure.type === "Farp"))?.position;
+			const startLightPosition = getStartPosition(firstAircraft.homeBase, faction, dataStore);
 
 			if (startLightPosition == null) {
 				return;
