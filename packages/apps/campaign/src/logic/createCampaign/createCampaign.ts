@@ -12,7 +12,7 @@ import { generateGroundGroups } from "./generateGroundGroups";
 import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateSams } from "./generateSams";
 import { generateStructures } from "./generateStructures";
-import { DynamicObjectivePlan } from "./utils";
+import { DynamicObjectivePlan, factionHasCarrier } from "./utils";
 
 /**
  *
@@ -496,14 +496,17 @@ export const createCampaign = (
 		const isBlue = claimsObjective(scenario.blue, dataObjective.name);
 		const isRed = claimsObjective(scenario.red, dataObjective.name);
 
-		if (isBlue) {
-			blueObjectives.push(dataObjective);
-		}
+			if (isBlue) {
+				blueObjectives.push(dataObjective);
+			}
 
-		if (isRed) {
-			redObjectives.push(dataObjective);
+			if (isRed) {
+				redObjectives.push(dataObjective);
+			}
 		}
 	}); */
+
+	const blueHasCarrier = factionHasCarrier("blue", scenario, blueFaction, dataStore);
 
 	state.blueFaction = {
 		...blueFaction,
@@ -516,6 +519,7 @@ export const createCampaign = (
 				scenario,
 				dataStore,
 				objectives: blueObjectives,
+				hasCarrier: blueHasCarrier,
 			}),
 			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
 		},
@@ -539,6 +543,7 @@ export const createCampaign = (
 				scenario,
 				dataStore,
 				objectives: redObjectives,
+				hasCarrier: false,
 			}),
 			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
 		},
@@ -662,6 +667,19 @@ export const createCampaign = (
 	generateGroundGroups(redObjs, state.redFaction, state.timer);
 	generateSams("blue", state.blueFaction, dataStore, blueObjs);
 	generateSams("red", state.redFaction, dataStore, redObjs);
+
+	if (blueHasCarrier) {
+		const objective = dataStore.objectives?.find((obj) => obj.name === scenario.blue.carrierObjective);
+
+		if (objective != null) {
+			state.blueFaction.shipGroups = [
+				{
+					name: "CVN-72 Abraham Lincoln",
+					position: objective.position,
+				},
+			];
+		}
+	}
 
 	state.id = uuid();
 	state.name = scenario.name;
