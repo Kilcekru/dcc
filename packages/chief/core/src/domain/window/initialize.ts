@@ -29,7 +29,7 @@ export async function initialize() {
 		frame: false,
 	});
 
-	Menu.setupIpc();
+	Menu.initialize();
 
 	// main view
 	mainView = new BrowserView({

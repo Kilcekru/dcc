@@ -35,17 +35,17 @@ export function getConfig(): Types.AppMenu.Config {
 			hidden: config.env !== "dev",
 			submenu: [
 				{
-					label: "Reload",
+					label: "Reload (F5)",
 					action: "dev_reload",
-					hotkeys: ["F5", "Control+R"],
+					hotkeys: ["F5"],
 				},
 				{
-					label: "Force reload",
+					label: "Force reload (Ctrl+R)",
 					action: "dev_forceReload",
-					hotkeys: ["Control+Shift+R"],
+					hotkeys: ["Control+R"],
 				},
 				{
-					label: "Dev Tools",
+					label: "Dev Tools (F12)",
 					action: "dev_openDevTools",
 					hotkeys: ["F12"],
 				},
