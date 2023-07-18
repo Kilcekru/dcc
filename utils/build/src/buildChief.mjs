@@ -13,8 +13,9 @@ export async function buildChief({ env, watch }) {
 
 	const options = {
 		entryPoints: {
-			index: Path.join(paths.chief, "core/src/index.js"),
-			preload: Path.join(paths.chief, "preload/src/index.js"),
+			core: Path.join(paths.chief, "core/src/index.js"),
+			"preload/main": Path.join(paths.chief, "preload/src/main.js"),
+			"preload/menu": Path.join(paths.chief, "preload/src/menu.js"),
 		},
 		outdir: Path.join(paths.target, "chief"),
 		bundle: true,
@@ -33,7 +34,6 @@ export async function buildChief({ env, watch }) {
 			".lua": "text",
 		},
 		external: ["electron"],
-		legalComments: "external",
 	};
 
 	if (watch) {

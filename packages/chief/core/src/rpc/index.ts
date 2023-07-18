@@ -1,10 +1,10 @@
 import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { app, BrowserWindow, ipcMain, WebFrameMain } from "electron";
+import { app, ipcMain, WebFrameMain } from "electron";
 
-import { openContextMenu } from "../app/menu";
 import { config } from "../config";
+import * as Domain from "../domain";
 import { isArray, isPlainObject } from "../utils/utils";
 import { handlers } from "./handlers";
 
@@ -46,13 +46,11 @@ export function startRpc() {
 		if (config.env !== "dev") {
 			return;
 		}
+
 		const { x, y } = JSON.parse(args) as { x: number; y: number };
-		const window = BrowserWindow.fromWebContents(event.sender);
-		if (window == undefined) {
-			return;
-		}
-		openContextMenu({
-			window,
+
+		Domain.Window.openContextMenu({
+			webContent: event.sender,
 			x,
 			y,
 		});

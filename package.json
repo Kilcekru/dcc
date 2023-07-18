@@ -4,7 +4,6 @@
 	"description": "Digital Crew Chief",
 	"private": true,
 	"license": "MIT",
-	"main": "src/index.js",
 	"author": {
 		"name": "Kilcekru",
 		"email": "kilcekru@digitalcrewchief.at"

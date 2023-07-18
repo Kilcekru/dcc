@@ -2,7 +2,6 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { app, shell } from "electron";
 import * as os from "os";
 
-import { loadApp } from "../../app/startup";
 import { config } from "../../config";
 import * as Domain from "../../domain";
 
@@ -32,6 +31,6 @@ export const misc: Types.Rpc.Misc = {
 	getVersions,
 	getUserConfig,
 	getSystemConfig,
-	loadApp,
+	loadApp: Domain.Window.loadApp,
 	openExternalLink,
 };

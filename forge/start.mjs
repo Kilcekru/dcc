@@ -41,7 +41,7 @@ function watchChief() {
 	let timer;
 	const hashes = new Map();
 
-	const watcher = chokidar.watch("dist/chief");
+	const watcher = chokidar.watch(["dist/chief/core.js", "dist/chief/preload"]);
 	watcher.on("ready", () => {
 		ready = true;
 	});

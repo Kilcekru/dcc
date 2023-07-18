@@ -1,10 +1,10 @@
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { mainWindow } from "../app/startup";
+import * as Domain from "../domain";
 
 export function send<Channel extends keyof Types.Events.Events>(
 	channel: Channel,
 	payload: Types.Events.Events[Channel],
 ) {
-	mainWindow?.webContents.send(channel, JSON.stringify(payload));
+	Domain.Window.mainView?.webContents.send(channel, JSON.stringify(payload));
 }

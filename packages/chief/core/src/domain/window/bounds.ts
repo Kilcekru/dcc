@@ -1,15 +1,16 @@
-import { BrowserWindow, Rectangle, screen } from "electron";
+import { BrowserWindow, screen } from "electron";
 
-import * as Domain from "../domain";
+import * as Persistance from "../persistance";
 
 async function saveBounds(win: BrowserWindow) {
-	Domain.Persistance.State.dccConfig.data.win.bounds = win.getBounds();
-	await Domain.Persistance.State.dccConfig.save();
+	await Persistance.State.dccConfig.update("win", { ...Persistance.State.dccConfig.data.win, bounds: win.getBounds() });
 }
 
 async function saveMaximized(win: BrowserWindow) {
-	Domain.Persistance.State.dccConfig.data.win.maximized = win.isMaximized();
-	await Domain.Persistance.State.dccConfig.save();
+	await Persistance.State.dccConfig.update("win", {
+		...Persistance.State.dccConfig.data.win,
+		maximized: win.isMaximized(),
+	});
 }
 
 export function registerBoundsEvents(win: BrowserWindow) {
@@ -19,8 +20,8 @@ export function registerBoundsEvents(win: BrowserWindow) {
 	win.on("unmaximize", () => saveMaximized(win));
 }
 
-export function getWindowBounds(): Partial<Rectangle> {
-	const saved = Domain.Persistance.State.dccConfig.data.win?.bounds;
+export function getWindowBounds(): WindowBounds {
+	const saved = Persistance.State.dccConfig.data.win?.bounds;
 
 	if (saved.x === undefined || saved.y === undefined) {
 		return saved;
@@ -32,9 +33,11 @@ export function getWindowBounds(): Partial<Rectangle> {
 		x: saved.x,
 		y: saved.y,
 	}).bounds;
-	const bounds: Partial<Rectangle> = {};
-	bounds.width = saved.width <= display.width ? saved.width : display.width;
-	bounds.height = saved.height <= display.height ? saved.height : display.height;
+
+	const bounds: WindowBounds = {
+		width: saved.width <= display.width ? saved.width : display.width,
+		height: saved.height <= display.height ? saved.height : display.height,
+	};
 
 	if (saved.x < display.x) {
 		bounds.x = display.x;
@@ -53,4 +56,11 @@ export function getWindowBounds(): Partial<Rectangle> {
 	}
 
 	return bounds;
+}
+
+interface WindowBounds {
+	width: number;
+	height: number;
+	x?: number;
+	y?: number;
 }

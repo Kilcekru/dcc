@@ -1,0 +1,64 @@
+.container {
+	height: 30px;
+	display: flex;
+	align-items: center;
+}
+
+.logo {
+	width: 26px;
+	height: 26px;
+	margin: 2px;
+	margin-right: 10px;
+}
+
+.menu {
+	position: relative;
+	height: 30px;
+	-webkit-app-region: no-drag;
+	padding: 0 10px;
+	line-height: 30px;
+
+	&.active {
+		background-color: #333333;
+	}
+
+	&:hover {
+		background-color: #333333;
+	}
+}
+
+.dropdown {
+	position: absolute;
+	left: 0;
+	background-color: #111111;
+	white-space: nowrap;
+	border: 1px solid #808080;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.menuEntry {
+	height: 30px;
+	line-height: 30px;
+
+	padding-left: 20px;
+	padding-right: 20px;
+
+	&:hover {
+		background-color: #333333;
+	}
+}
+
+.disabled {
+	color: #808080;
+
+	&:hover {
+		background-color: transparent;
+	}
+}
+
+.separator {
+	height: 0;
+	border-bottom: 1px solid #808080;
+}

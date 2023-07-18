@@ -9,8 +9,6 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@kilcekru/dcc-lib-components": "workspace:*",
-		"@kilcekru/dcc-lib-rpc": "workspace:*",
 		"@kilcekru/dcs-coordinates": "0.5.0",
 		"@zag-js/checkbox": "0.10.5",
 		"@zag-js/dialog": "0.10.5",

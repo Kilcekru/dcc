@@ -1,8 +1,7 @@
 import { app } from "electron";
 import squirrelStartupCheck from "electron-squirrel-startup";
 
-import { enableLiveReload } from "./app/liveReload";
-import { startupApp } from "./app/startup";
+import * as Domain from "./domain";
 import { startRpc } from "./rpc";
 
 declare const BUILD_ENV: boolean;
@@ -21,14 +20,16 @@ if (!instanceLock) {
 	});
 
 	if (BUILD_ENV) {
-		enableLiveReload();
+		// Domain.Window.enableLiveReload(); // todo
 	}
-
-	app.on("ready", startupApp);
 
 	app.on("window-all-closed", () => {
 		app.quit();
 	});
 
+	app.on("ready", async () => {
+		await Promise.all([Domain.Persistance.State.dccConfig.load(), Domain.Persistance.State.userConfig.load()]);
+		await Domain.Window.initialize();
+	});
 	startRpc();
 }

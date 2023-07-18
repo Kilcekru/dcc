@@ -1,7 +1,9 @@
 import * as Path from "node:path";
 
+import { app } from "electron";
+
 export function getAppPath(name: "home" | "campaign") {
-	return Path.join(__dirname, "../apps", name, "index.html");
+	return Path.join(app.getAppPath(), "dist/apps", name, "index.html");
 }
 
 function isObject(data: unknown) {

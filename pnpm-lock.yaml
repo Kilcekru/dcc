@@ -38,12 +38,6 @@ importers:
 
   packages/apps/campaign:
     dependencies:
-      '@kilcekru/dcc-lib-components':
-        specifier: workspace:*
-        version: link:../../libs/components
-      '@kilcekru/dcc-lib-rpc':
-        specifier: workspace:*
-        version: link:../../libs/rpc
       '@kilcekru/dcs-coordinates':
         specifier: 0.5.0
         version: 0.5.0
@@ -99,9 +93,6 @@ importers:
 
   packages/apps/home:
     dependencies:
-      '@kilcekru/dcc-lib-rpc':
-        specifier: workspace:*
-        version: link:../../libs/rpc
       cnbuilder:
         specifier: 3.1.0
         version: 3.1.0
@@ -148,6 +139,15 @@ importers:
       electron:
         specifier: 25.2.0
         version: 25.2.0
+
+  packages/chief/menu:
+    dependencies:
+      cnbuilder:
+        specifier: 3.1.0
+        version: 3.1.0
+      solid-js:
+        specifier: 1.7.7
+        version: 1.7.7
 
   packages/chief/preload:
     devDependencies:
@@ -2690,7 +2690,7 @@ packages:
     dev: true
 
   /image-size@0.5.5:
-    resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
+    resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
     engines: {node: '>=0.10.0'}
     hasBin: true
     requiresBuild: true

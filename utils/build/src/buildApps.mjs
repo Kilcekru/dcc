@@ -29,7 +29,6 @@ export async function buildApps({ env, watch }) {
 			},
 			assetNames: "[name]",
 			plugins: [solidPlugin(), cssExtraPlugin()],
-			legalComments: "external",
 		};
 
 		if (watch) {
