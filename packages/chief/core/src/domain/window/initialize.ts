@@ -27,6 +27,7 @@ export async function initialize() {
 		minWidth: 1024,
 		minHeight: 700,
 		frame: false,
+		backgroundColor: "#27212e",
 	});
 
 	Menu.initialize();
