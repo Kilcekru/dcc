@@ -5,6 +5,7 @@ import { app, BrowserView, BrowserWindow, session } from "electron";
 import * as Menu from "../menu";
 import * as Persistance from "../persistance";
 import { getWindowBounds, registerBoundsEvents } from "./bounds";
+import { enableLiveReload } from "./liveReload";
 import { loadApp, setViewBounds } from "./utils";
 
 export let mainWindow: BrowserWindow;
@@ -34,6 +35,7 @@ export async function initialize() {
 	mainView = new BrowserView({
 		webPreferences: { preload: Path.join(app.getAppPath(), "dist/chief/preload/main.js"), session: dccSession },
 	});
+	enableLiveReload(mainView.webContents);
 	mainView.webContents.on("will-navigate", (event) => {
 		event.preventDefault();
 	});
@@ -46,6 +48,7 @@ export async function initialize() {
 	menuView = new BrowserView({
 		webPreferences: { preload: Path.join(app.getAppPath(), "dist/chief/preload/menu.js"), session: dccSession },
 	});
+	enableLiveReload(menuView.webContents);
 	menuView.webContents.on("will-navigate", (event) => {
 		event.preventDefault();
 	});

@@ -4,7 +4,8 @@ import * as Path from "node:path";
 import esbuild from "esbuild";
 import FS from "fs-extra";
 
-import { paths } from "./utils.mjs";
+import { log, paths } from "./utils.mjs";
+import { watchBuild } from "./watcher.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -37,8 +38,16 @@ export async function buildChief({ env, watch }) {
 	};
 
 	if (watch) {
-		const context = await esbuild.context(options);
-		context.watch();
+		await watchBuild({
+			options,
+			onRebuildEnd: ({ error, time }) => {
+				if (error != undefined) {
+					log("warn", `Rebuilt chief with errors (${time} ms)`);
+				} else {
+					log("info", `Rebuilt chief (${time} ms)`);
+				}
+			},
+		});
 	} else {
 		await esbuild.build(options);
 	}

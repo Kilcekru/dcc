@@ -4,7 +4,9 @@ import Path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import chokidar from "chokidar";
-import { app } from "electron";
+import { WebContents } from "electron";
+
+declare const BUILD_ENV: "dev" | "pro";
 
 async function hashFile(filePath: string) {
 	try {
@@ -60,24 +62,26 @@ function watch(path: string, onChange: () => void) {
 	};
 }
 
-export function enableLiveReload() {
-	app.on("browser-window-created", (e, bw) => {
+export function enableLiveReload(webContents: WebContents) {
+	if (BUILD_ENV === "dev") {
 		let watcher: ReturnType<typeof watch> | undefined;
 
-		bw.webContents.on("did-navigate", async (e, url) => {
+		webContents.on("did-navigate", async (e, url) => {
 			if (url.startsWith("file:///")) {
 				const path = Path.dirname(fileURLToPath(url));
 
 				if (path != watcher?.path) {
 					await watcher?.stop();
 					watcher = watch(path, () => {
-						console.log(`Reloading app '${Path.basename(path)}'`); // eslint-disable-line no-console
-						bw.webContents.reloadIgnoringCache();
+						console.log(`Reloading content '${Path.basename(path)}'`); // eslint-disable-line no-console
+						webContents.reloadIgnoringCache();
 					});
 				}
 			}
 		});
 
-		bw.on("closed", () => watcher?.stop());
-	});
+		webContents.on("destroyed", async () => {
+			await watcher?.stop();
+		});
+	}
 }

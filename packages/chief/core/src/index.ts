@@ -4,8 +4,6 @@ import squirrelStartupCheck from "electron-squirrel-startup";
 import * as Domain from "./domain";
 import { startRpc } from "./rpc";
 
-declare const BUILD_ENV: boolean;
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (squirrelStartupCheck) {
 	app.quit();
@@ -18,10 +16,6 @@ if (!instanceLock) {
 	app.on("second-instance", () => {
 		app.focus();
 	});
-
-	if (BUILD_ENV) {
-		// Domain.Window.enableLiveReload(); // todo
-	}
 
 	app.on("window-all-closed", () => {
 		app.quit();

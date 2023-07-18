@@ -7,6 +7,7 @@ import { solidPlugin } from "esbuild-plugin-solid";
 import FS from "fs-extra";
 
 import { log, paths } from "./utils.mjs";
+import { watchBuild } from "./watcher.mjs";
 
 export async function buildMenu({ env, watch }) {
 	await buildIndex({ watch });
@@ -28,8 +29,16 @@ export async function buildMenu({ env, watch }) {
 	};
 
 	if (watch) {
-		const context = await esbuild.context(options);
-		context.watch();
+		await watchBuild({
+			options,
+			onRebuildEnd: ({ error, time }) => {
+				if (error != undefined) {
+					log("warn", `Rebuilt menu with errors (${time} ms)`);
+				} else {
+					log("info", `Rebuilt menu (${time} ms)`);
+				}
+			},
+		});
 	} else {
 		await esbuild.build(options);
 	}

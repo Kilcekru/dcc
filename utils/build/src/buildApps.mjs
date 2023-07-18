@@ -8,6 +8,7 @@ import { solidPlugin } from "esbuild-plugin-solid";
 import FS from "fs-extra";
 
 import { log, paths } from "./utils.mjs";
+import { watchBuild } from "./watcher.mjs";
 
 export async function buildApps({ env, watch }) {
 	const apps = await findApps();
@@ -32,8 +33,16 @@ export async function buildApps({ env, watch }) {
 		};
 
 		if (watch) {
-			const context = await esbuild.context(options);
-			context.watch();
+			await watchBuild({
+				options,
+				onRebuildEnd: ({ error, time }) => {
+					if (error != undefined) {
+						log("warn", `Rebuilt apps with errors (${time} ms)`);
+					} else {
+						log("info", `Rebuilt apps (${time} ms)`);
+					}
+				},
+			});
 		} else {
 			promises.push(esbuild.build(options));
 		}
