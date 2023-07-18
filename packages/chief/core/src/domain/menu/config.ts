@@ -25,12 +25,6 @@ export function getConfig(): Types.AppMenu.Config {
 				},
 				{ type: "separator" },
 				{
-					label: "About",
-					action: "loadAbout",
-					disabled: disableNavigation,
-				},
-				{ type: "separator" },
-				{
 					label: "Quit",
 					action: "quit",
 				},
@@ -63,6 +57,16 @@ export function getConfig(): Types.AppMenu.Config {
 				{
 					label: "Log Campaign State",
 					action: "dev_logCampaignState",
+				},
+			],
+		},
+		{
+			label: "?",
+			submenu: [
+				{
+					label: "About",
+					action: "loadAbout",
+					disabled: disableNavigation,
 				},
 			],
 		},
