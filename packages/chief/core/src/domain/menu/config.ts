@@ -7,7 +7,7 @@ import * as Persistance from "../persistance";
 export function getConfig(): Types.AppMenu.Config {
 	const currentApp = Persistance.State.userConfig.data.currentApp;
 	const disableNavigation =
-		!Persistance.State.userConfig.data.setupComplete || Persistance.State.userConfig.data.dcs == undefined;
+		!Persistance.State.userConfig.data.setupComplete || Persistance.State.userConfig.data.dcs.available == undefined;
 
 	const menu: Types.AppMenu.Menu[] = [
 		{
