@@ -30,7 +30,7 @@ export async function initialize() {
 		backgroundColor: "#27212e",
 	});
 
-	Menu.initialize();
+	mainWindow.setMenu(Menu.initialize());
 
 	// main view
 	mainView = new BrowserView({

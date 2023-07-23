@@ -17,6 +17,7 @@ export async function buildChief({ env, watch }) {
 			core: Path.join(paths.chief, "core/src/index.js"),
 			"preload/main": Path.join(paths.chief, "preload/src/main.js"),
 			"preload/menu": Path.join(paths.chief, "preload/src/menu.js"),
+			"preload/capture": Path.join(paths.chief, "preload/src/capture.js"),
 		},
 		outdir: Path.join(paths.target, "chief"),
 		bundle: true,

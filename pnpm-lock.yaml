@@ -91,6 +91,12 @@ importers:
         specifier: 9.0.2
         version: 9.0.2
 
+  packages/apps/capture:
+    dependencies:
+      solid-js:
+        specifier: 1.7.7
+        version: 1.7.7
+
   packages/apps/home:
     dependencies:
       cnbuilder:
@@ -200,6 +206,12 @@ importers:
       '@foxdelta2/dcsjs':
         specifier: 0.2.230-next.2
         version: 0.2.230-next.2
+
+  packages/libs/document:
+    dependencies:
+      solid-js:
+        specifier: 1.7.7
+        version: 1.7.7
 
   packages/libs/rpc:
     devDependencies:

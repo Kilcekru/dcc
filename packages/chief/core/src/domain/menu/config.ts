@@ -58,6 +58,15 @@ export function getConfig(): Types.AppMenu.Config {
 					label: "Log Campaign State",
 					action: "dev_logCampaignState",
 				},
+				{ type: "separator" },
+				{
+					label: "Capture Window",
+					action: "dev_captureWindow",
+				},
+				{
+					label: "Capture Test",
+					action: "dev_captureTest",
+				},
 			],
 		},
 		{

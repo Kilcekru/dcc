@@ -3,5 +3,5 @@ import { setupIpc } from "./ipc";
 
 export function initialize() {
 	setupIpc();
-	initHotkeys();
+	return initHotkeys();
 }

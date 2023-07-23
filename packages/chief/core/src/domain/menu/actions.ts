@@ -1,8 +1,12 @@
+import * as Path from "node:path";
+
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { app, BrowserWindow } from "electron";
+import FS from "fs-extra";
 
 import * as Events from "../../rpc/events";
+import { capture, showCaptureWindow } from "../capture";
 import * as Persistance from "../persistance";
 import { loadApp, mainView, mainWindow } from "../window";
 
@@ -32,6 +36,15 @@ export const actions: Record<Types.AppMenu.Action, () => void> = {
 		}
 	},
 	dev_logCampaignState: () => Events.send("menu.dev.logState", undefined),
+	dev_captureWindow: () => showCaptureWindow(),
+	dev_captureTest: async () => {
+		const images = await capture([
+			{ type: "campaign.briefing", data: { text: "kneeboard 1" } },
+			{ type: "campaign.briefing", data: { text: "kneeboard 2" } },
+			{ type: "campaign.briefing", data: { text: "kneeboard 3" } },
+		]);
+		await Promise.all(images.map((img, i) => FS.outputFile(Path.join(app.getAppPath(), `../.tmp/img-${i}.png`), img)));
+	},
 	loadLauncher: () => loadApp("home"),
 	loadSettings: () => loadApp("home", { action: "settings" }),
 	loadAbout: () => loadApp("home", { action: "about" }),

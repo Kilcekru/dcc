@@ -2,7 +2,7 @@ import * as Path from "node:path";
 
 import { app } from "electron";
 
-export function getAppPath(name: "home" | "campaign") {
+export function getAppPath(name: "home" | "campaign" | "capture") {
 	return Path.join(app.getAppPath(), "dist/apps", name, "index.html");
 }
 

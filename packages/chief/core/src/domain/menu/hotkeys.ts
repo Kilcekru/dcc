@@ -26,5 +26,5 @@ export function initHotkeys() {
 		}
 	}
 
-	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+	return Menu.buildFromTemplate(template);
 }

@@ -38,3 +38,7 @@ export namespace Schema {
 }
 
 export type CampaignSynopsis = z.infer<typeof Schema.campaignSynopsis>;
+
+export interface BriefingDocument {
+	text: string;
+}
