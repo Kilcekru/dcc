@@ -2,6 +2,10 @@
 
 ## 0.4.0 (in progress)
 
+- Randomize the state of the campaign at the start
+- Add Carrier
+- Add the first Syria scenario: Desert Thunder
+
 ## 0.3.0 (2023-07-07)
 
 - More planes: Over 30 flyable planes & helicopters

@@ -298,7 +298,7 @@ export const getUsableAircraftsByType = (
 	coalition: DcsJs.CampaignCoalition,
 	aircraftTypes: Array<string> | undefined,
 	count: number,
-) => {
+): Array<DcsJs.Aircraft> => {
 	const faction = getCoalitionFaction(coalition, state);
 	const aircrafts = Object.values(faction.inventory.aircrafts ?? []);
 
@@ -326,18 +326,6 @@ export const getUsableAircraftsByType = (
 
 	// Return only aircraft with the selected aircraft type
 	return aliveAircrafts.filter((ac) => ac.aircraftType === selectedAircraftType);
-};
-
-export const getUsableUnit = <T>(units: Array<T>, typeParam: keyof T, count: number) => {
-	const usableUnitTypes = units.filter((ac) => {
-		const acCount = units.filter((a) => a[typeParam] === ac[typeParam]).length;
-
-		return acCount >= count;
-	});
-
-	const randomAircraft = randomItem(usableUnitTypes);
-
-	return usableUnitTypes.filter((ac) => ac[typeParam] === randomAircraft?.[typeParam]);
 };
 
 export const getAircraftStateFromFlightGroup = (

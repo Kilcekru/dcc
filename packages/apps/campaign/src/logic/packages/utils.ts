@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import * as Domain from "../../domain";
+import { getUsableAircraftsByType } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
@@ -49,7 +50,7 @@ export function getStartPosition(
 	homeBase: DcsJs.CampaignHomeBase | undefined,
 	faction: DcsJs.CampaignFaction,
 	dataStore: Types.Campaign.DataStore,
-) {
+): (DcsJs.Position & { name: string }) | undefined {
 	switch (homeBase?.type) {
 		case "carrier": {
 			const shipGroup = Domain.Utils.firstItem(faction.shipGroups);
@@ -81,4 +82,70 @@ export function getStartPosition(
 	}
 
 	return undefined;
+}
+
+export function getPackageAircrafts({
+	state,
+	faction,
+	coalition,
+	aircraftTypes,
+	count,
+	dataStore,
+}: {
+	state: RunningCampaignState;
+	faction: DcsJs.CampaignFaction;
+	coalition: DcsJs.CampaignCoalition;
+	aircraftTypes: Array<string> | undefined;
+	count: number;
+	dataStore: Types.Campaign.DataStore;
+}): { aircrafts: Array<DcsJs.Aircraft>; startPosition: ReturnType<typeof getStartPosition> } | undefined {
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, aircraftTypes, count);
+
+	if (usableAircrafts == null || usableAircrafts.length === 0) {
+		return;
+	}
+
+	const aircraftsPerAirdrome: Record<string, Array<DcsJs.Aircraft>> = {};
+
+	usableAircrafts.forEach((ac) => {
+		if (aircraftsPerAirdrome[ac.homeBase.name] == null) {
+			aircraftsPerAirdrome[ac.homeBase.name] = [ac];
+		} else {
+			aircraftsPerAirdrome[ac.homeBase.name]?.push(ac);
+		}
+	});
+
+	const validAirdromeNames = Object.entries(aircraftsPerAirdrome)
+		.filter(([_, value]) => value.length >= count)
+		.map(([key]) => key);
+
+	const selectedAirdromeName = Domain.Utils.randomItem(validAirdromeNames);
+
+	if (selectedAirdromeName == null) {
+		return undefined;
+	}
+
+	const selectedAircrafts = aircraftsPerAirdrome[selectedAirdromeName];
+
+	if (selectedAircrafts == null) {
+		return undefined;
+	}
+	const startPosition = getStartPosition(Domain.Utils.firstItem(selectedAircrafts)?.homeBase, faction, dataStore);
+
+	return {
+		aircrafts: selectedAircrafts,
+		startPosition,
+	};
+}
+
+export function getCruiseSpeed(aircrafts: Array<DcsJs.Aircraft>, dataStore: Types.Campaign.DataStore) {
+	return aircrafts.reduce((prev, ac) => {
+		const aircraftData = dataStore.aircrafts?.[ac.aircraftType as DcsJs.AircraftType];
+
+		if (aircraftData == null) {
+			return prev;
+		}
+
+		return aircraftData.cruiseSpeed < prev ? aircraftData.cruiseSpeed : prev;
+	}, 999);
 }

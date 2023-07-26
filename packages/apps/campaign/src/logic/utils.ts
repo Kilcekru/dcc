@@ -2,7 +2,6 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
-import { Config } from "../data";
 import {
 	addHeading,
 	distanceToPosition,
@@ -90,10 +89,11 @@ export const calcLandingWaypoints = (
 	engressPosition: DcsJs.Position,
 	airdromePosition: DcsJs.Position,
 	startTime: number,
+	cruiseSpeed: number,
 ): [Array<DcsJs.CampaignWaypoint>, number] => {
 	const navPosition = landingNavPosition(engressPosition, airdromePosition);
-	const durationNav = getDurationEnRoute(engressPosition, navPosition, Config.flight.speed);
-	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, Config.flight.speed);
+	const durationNav = getDurationEnRoute(engressPosition, navPosition, cruiseSpeed);
+	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, cruiseSpeed);
 	const endNavTime = startTime + durationNav;
 	const endLandingTime = endNavTime + 1 + durationLanding;
 
@@ -102,13 +102,13 @@ export const calcLandingWaypoints = (
 			{
 				name: "Nav",
 				position: navPosition,
-				speed: Config.flight.speed,
+				speed: cruiseSpeed,
 				time: startTime,
 			},
 			{
 				name: "Landing",
 				position: airdromePosition,
-				speed: Config.flight.speed,
+				speed: cruiseSpeed,
 				time: endNavTime + 1,
 				onGround: true,
 			},

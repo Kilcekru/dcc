@@ -82,8 +82,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.2
-        version: 0.2.230-next.2
+        specifier: 0.2.230-next.3
+        version: 0.2.230-next.3
       '@types/leaflet':
         specifier: 1.9.3
         version: 1.9.3
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.2
-        version: 0.2.230-next.2
+        specifier: 0.2.230-next.3
+        version: 0.2.230-next.3
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -204,8 +204,8 @@ importers:
         version: 1.7.7
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.2
-        version: 0.2.230-next.2
+        specifier: 0.2.230-next.3
+        version: 0.2.230-next.3
 
   packages/libs/document:
     dependencies:
@@ -226,8 +226,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.2
-        version: 0.2.230-next.2
+        specifier: 0.2.230-next.3
+        version: 0.2.230-next.3
 
   packages/shared/utils: {}
 
@@ -871,8 +871,8 @@ packages:
       '@floating-ui/core': 1.3.1
     dev: false
 
-  /@foxdelta2/dcsjs@0.2.230-next.2:
-    resolution: {integrity: sha512-OVSEQeW+TKogrOONQ+Dk+7tNCiKiwd7/5GrMYCXdUxkCkoxEpMMC0vub0JaYC1Zxv5kDXrahkgJM2xDQN+Jx7A==}
+  /@foxdelta2/dcsjs@0.2.230-next.3:
+    resolution: {integrity: sha512-PS2GtbEm7iUdT3sCyjQ4movC5/2zykXIomIapxWNdscGIRqofO+1ARWoBKRYj95SSGqmKxwocvNyTl2OJxvf7w==}
     dependencies:
       '@kilcekru/lua-table': 1.1.0
       adm-zip: 0.5.10

@@ -2,7 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Config } from "../../data";
-import { calcFlightGroupPosition, Minutes, random, timerToDate } from "../../utils";
+import { calcFlightGroupPosition, Minutes, oppositeCoalition, random, timerToDate } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { generateAwacsPackage } from "./awacs";
@@ -54,8 +54,26 @@ const casPackages = (
 	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "CAS");
+	const oppCoalition = oppositeCoalition(coalition);
+	const oppFaction = getCoalitionFaction(oppCoalition, state);
+	const possibleTargets = Object.values(oppFaction.groundGroups).filter(
+		(gg) =>
+			gg.state === "on objective" &&
+			gg.type !== "sam" &&
+			gg.unitIds.filter((id) => {
+				const inventoryUnit = oppFaction.inventory.groundUnits[id];
 
-	if (taskPackages.length < 1) {
+				if (inventoryUnit == null) {
+					return false;
+				}
+
+				return inventoryUnit.alive;
+			}).length >= 3,
+	);
+
+	const casPackageCount = Math.ceil(possibleTargets.length / 10);
+
+	if (taskPackages.length < casPackageCount) {
 		const pkg = generateCasPackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
@@ -108,13 +126,13 @@ const capPackages = (
 		);
 
 		if (frontlinePackages.length < 1) {
-			const pkg = generateCapPackage(coalition, state, dataStore, "Frontline");
+			/* const pkg = generateCapPackage(coalition, state, dataStore, "Frontline");
 
 			addPackage(packages, pkg);
 
 			if (pkg != null) {
 				return true;
-			}
+			} */
 		} else {
 			const ship = faction.shipGroups?.find((ship) => {
 				const airdromePackages = getRunningPackages(
@@ -207,9 +225,18 @@ const strikePackages = (
 	packages: Array<DcsJs.CampaignPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "Pinpoint Strike");
+	const oppCoalition = oppositeCoalition(coalition);
+	const oppFaction = getCoalitionFaction(oppCoalition, state);
+	const possibleTargets = Object.values(oppFaction.structures).filter((str) => str.state !== "destroyed");
+
+	if (possibleTargets.length === 0) {
+		return false;
+	}
+
+	const strikePackageCount = Math.ceil(possibleTargets.length / 5);
 
 	// Penalty for red
-	if (taskPackages.length < (coalition === "blue" ? 2 : 1)) {
+	if (taskPackages.length < strikePackageCount) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);

@@ -137,6 +137,9 @@ export const generateAircraftInventory = ({
 			const count = Math.max(2, Config.inventory.aircraft.cap * (faction.aircraftTypes.CAP?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 
+			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
+
 			Array.from({ length: count }, () => {
 				aircrafts.push({
 					aircraftType,
@@ -145,8 +148,8 @@ export const generateAircraftInventory = ({
 					availableTasks: ["CAP"],
 					alive: true,
 					onboardNumber: onboardNumber(),
-					homeBase: getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
+					homeBase,
+					loadout,
 				});
 			});
 		});
@@ -155,16 +158,19 @@ export const generateAircraftInventory = ({
 			const count = Math.max(2, Config.inventory.aircraft.cas * (faction.aircraftTypes.CAS?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 
+			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
+
 			Array.from({ length: count }, () => {
 				aircrafts.push({
 					aircraftType,
-					homeBase: getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore),
+					homeBase,
 					state: "idle",
 					id: createUniqueId(),
 					availableTasks: ["CAS"],
 					alive: true,
 					onboardNumber: onboardNumber(),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
+					loadout,
 				});
 			});
 		});
@@ -175,17 +181,19 @@ export const generateAircraftInventory = ({
 				Config.inventory.aircraft.strike * (faction.aircraftTypes["Pinpoint Strike"]?.length ?? 0),
 			);
 			const aircraftType = acType as DcsJs.AircraftType;
+			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
 
 			Array.from({ length: count }, () => {
 				aircrafts.push({
 					aircraftType,
-					homeBase: getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore),
+					homeBase,
 					state: "idle",
 					id: createUniqueId(),
 					availableTasks: ["Pinpoint Strike"],
 					alive: true,
 					onboardNumber: onboardNumber(),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
+					loadout,
 				});
 			});
 		});
@@ -193,17 +201,19 @@ export const generateAircraftInventory = ({
 		faction.aircraftTypes.DEAD?.forEach((acType) => {
 			const count = Math.max(2, Config.inventory.aircraft.dead * (faction.aircraftTypes.DEAD?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
+			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
 
 			Array.from({ length: count }, () => {
 				aircrafts.push({
 					aircraftType,
-					homeBase: getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore),
+					homeBase,
 					state: "idle",
 					id: createUniqueId(),
 					availableTasks: ["DEAD"],
 					alive: true,
 					onboardNumber: onboardNumber(),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
+					loadout,
 				});
 			});
 		});

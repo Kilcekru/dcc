@@ -2,12 +2,10 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
-import * as Domain from "../../domain";
 import {
 	addHeading,
 	calcPackageEndTime,
 	getDurationEnRoute,
-	getUsableAircraftsByType,
 	headingToPosition,
 	Minutes,
 	objectToPosition,
@@ -18,14 +16,13 @@ import {
 import { getStrikeTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { calcFrequency, getStartPosition, updateAircraftForFlightGroup } from "./utils";
-
-const speed = 170;
+import { calcFrequency, getCruiseSpeed, getPackageAircrafts, updateAircraftForFlightGroup } from "./utils";
 
 const calcHoldWaypoint = (
 	startPosition: DcsJs.Position,
 	targetPosition: DcsJs.Position,
 	startTime: number,
+	speed: number,
 ): [DcsJs.CampaignWaypoint, DcsJs.Position, number] => {
 	const targetHeading = headingToPosition(startPosition, targetPosition);
 
@@ -55,6 +52,8 @@ const escortFlightGroup = (
 	ingressPosition: DcsJs.Position,
 	engressPosition: DcsJs.Position,
 	engressTime: number,
+	cruiseSpeed: number,
+	packageAircrafts: ReturnType<typeof getPackageAircrafts>,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -62,15 +61,7 @@ const escortFlightGroup = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.CAP, 2);
-
-	if (usableAircrafts == null || usableAircrafts.length === 0) {
-		return;
-	}
-
-	const startPosition = getStartPosition(Domain.Utils.firstItem(usableAircrafts)?.homeBase, faction, dataStore);
-
-	if (startPosition == null) {
+	if (packageAircrafts?.startPosition == null) {
 		throw new Error("escortFlightGroup: start position not found");
 	}
 
@@ -80,16 +71,26 @@ const escortFlightGroup = (
 		cs = generateCallSign(coalition, state, dataStore, "aircraft");
 	}
 
-	const [holdWaypoint] = calcHoldWaypoint(startPosition, ingressPosition, targetFlightGroup.startTime);
-	const [landingWaypoints] = calcLandingWaypoints(engressPosition, startPosition, engressTime);
+	const [holdWaypoint] = calcHoldWaypoint(
+		packageAircrafts.startPosition,
+		ingressPosition,
+		targetFlightGroup.startTime,
+		cruiseSpeed,
+	);
+	const [landingWaypoints] = calcLandingWaypoints(
+		engressPosition,
+		packageAircrafts.startPosition,
+		engressTime,
+		cruiseSpeed,
+	);
 
 	holdWaypoint.taskStart = true;
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(targetFlightGroup.startTime),
-		airdromeName: startPosition.name,
+		airdromeName: packageAircrafts.startPosition.name,
 		units:
-			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+			packageAircrafts.aircrafts.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
@@ -103,22 +104,23 @@ const escortFlightGroup = (
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(startPosition),
+				position: objectToPosition(packageAircrafts.startPosition),
 				time: targetFlightGroup.startTime,
-				speed,
+				speed: cruiseSpeed,
 				onGround: true,
 			},
 			holdWaypoint,
 			...landingWaypoints,
 		],
 		target: targetFlightGroup.name,
-		position: objectToPosition(startPosition),
+		position: objectToPosition(packageAircrafts.startPosition),
 	};
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
 	return flightGroup;
 };
+
 export const generateStrikePackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
@@ -133,20 +135,37 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes["Pinpoint Strike"], 2);
-	// console.log("usable aircrafts", usableAircrafts);
+	const packageAircrafts = getPackageAircrafts({
+		aircraftTypes: faction.aircraftTypes["Pinpoint Strike"],
+		coalition,
+		state,
+		count: 2,
+		dataStore,
+		faction,
+	});
 
-	if (usableAircrafts == null || usableAircrafts.length === 0) {
-		return;
-	}
+	const escortPackageAircrafts = getPackageAircrafts({
+		aircraftTypes: faction.aircraftTypes.CAP,
+		coalition,
+		state,
+		count: 2,
+		dataStore,
+		faction,
+	});
 
-	const startPosition = getStartPosition(Domain.Utils.firstItem(usableAircrafts)?.homeBase, faction, dataStore);
-
-	if (startPosition == null) {
+	if (packageAircrafts?.startPosition == null || escortPackageAircrafts?.startPosition == null) {
 		throw new Error("generateStrikePackage: start position not found");
 	}
 
-	const targetStructure = getStrikeTarget(startPosition, state.objectives, coalition, faction, oppFaction);
+	const cruiseSpeed = getCruiseSpeed([...packageAircrafts.aircrafts, ...escortPackageAircrafts.aircrafts], dataStore);
+
+	const targetStructure = getStrikeTarget(
+		packageAircrafts.startPosition,
+		state.objectives,
+		coalition,
+		faction,
+		oppFaction,
+	);
 
 	if (targetStructure == null) {
 		return;
@@ -166,35 +185,45 @@ export const generateStrikePackage = (
 
 	const ingressPosition = positionFromHeading(
 		targetStructure.position,
-		headingToPosition(targetStructure.position, startPosition),
+		headingToPosition(targetStructure.position, packageAircrafts.startPosition),
 		15000,
 	);
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetStructure.position);
 	const engressHeading =
 		oppAirdrome == null
-			? headingToPosition(targetStructure.position, startPosition)
+			? headingToPosition(targetStructure.position, packageAircrafts.startPosition)
 			: headingToPosition(targetStructure.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const engressPosition = positionFromHeading(targetStructure.position, addHeading(engressHeading, 180), 20000);
 
-	const durationIngress = getDurationEnRoute(ingressPosition, targetStructure.position, speed);
-	const durationEngress = getDurationEnRoute(targetStructure.position, engressPosition, speed);
+	const durationIngress = getDurationEnRoute(ingressPosition, targetStructure.position, cruiseSpeed);
+	const durationEngress = getDurationEnRoute(targetStructure.position, engressPosition, cruiseSpeed);
 
-	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(startPosition, ingressPosition, startTime);
-	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, speed);
+	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(
+		packageAircrafts.startPosition,
+		ingressPosition,
+		startTime,
+		cruiseSpeed,
+	);
+	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, cruiseSpeed);
 	const endEnRouteTime = holdTime + durationEnRoute;
 	const totTime = endEnRouteTime + 1;
 	const endIngressTime = endEnRouteTime + durationIngress;
 	const endEngressTime = endIngressTime + durationEngress;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, startPosition, endEngressTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(
+		engressPosition,
+		packageAircrafts.startPosition,
+		endEngressTime + 1,
+		cruiseSpeed,
+	);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
-		airdromeName: startPosition.name,
+		airdromeName: packageAircrafts.startPosition.name,
 		units:
-			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
+			packageAircrafts.aircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
@@ -208,16 +237,16 @@ export const generateStrikePackage = (
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(startPosition),
+				position: objectToPosition(packageAircrafts.startPosition),
 				time: startTime,
-				speed,
+				speed: cruiseSpeed,
 				onGround: true,
 			},
 			holdWaypoint,
 			{
 				name: "Ingress",
 				position: ingressPosition,
-				speed,
+				speed: cruiseSpeed,
 				time: endEnRouteTime + 1,
 				taskStart: true,
 			},
@@ -227,20 +256,20 @@ export const generateStrikePackage = (
 					x: targetStructure.position.x,
 					y: targetStructure.position.y,
 				},
-				speed,
+				speed: cruiseSpeed,
 				time: endIngressTime + 1,
 				onGround: true,
 			},
 			{
 				name: "Engress",
 				position: engressPosition,
-				speed,
+				speed: cruiseSpeed,
 				time: endIngressTime + 2,
 			},
 			...landingWaypoints,
 		],
 		target: targetStructure.name,
-		position: objectToPosition(startPosition),
+		position: objectToPosition(packageAircrafts.startPosition),
 	};
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
@@ -253,6 +282,8 @@ export const generateStrikePackage = (
 		ingressPosition,
 		engressPosition,
 		endEngressTime,
+		cruiseSpeed,
+		escortPackageAircrafts,
 	);
 
 	if (escort != null) {
@@ -267,7 +298,7 @@ export const generateStrikePackage = (
 		taskEndTime: endIngressTime + 1,
 		endTime: calcPackageEndTime(flightGroups),
 		flightGroups,
-		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
+		frequency: calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

@@ -1,7 +1,7 @@
 export const Config = {
 	inventory: {
 		aircraft: {
-			cap: 10,
+			cap: 8,
 			cas: 4,
 			awacs: 3,
 			strike: 6,
@@ -34,9 +34,6 @@ export const Config = {
 			blue: 1,
 			red: 3.5,
 		},
-	},
-	flight: {
-		speed: 170,
 	},
 	night: {
 		startHour: 20,

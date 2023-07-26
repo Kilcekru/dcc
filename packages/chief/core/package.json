@@ -9,7 +9,7 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@foxdelta2/dcsjs": "0.2.230-next.2",
+		"@foxdelta2/dcsjs": "0.2.230-next.3",
 		"adm-zip": "^0.5.10",
 		"chokidar": "^3.5.3",
 		"electron-squirrel-startup": "^1.0.0",

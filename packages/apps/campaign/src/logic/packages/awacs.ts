@@ -14,7 +14,7 @@ import {
 import { getAwacsTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../utils";
-import { updateAircraftForFlightGroup } from "./utils";
+import { getCruiseSpeed, updateAircraftForFlightGroup } from "./utils";
 
 export const generateAwacsPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -34,7 +34,7 @@ export const generateAwacsPackage = (
 		return;
 	}
 
-	const speed = 170;
+	const cruiseSpeed = getCruiseSpeed(usableAircrafts, dataStore);
 
 	const airdromeName = firstItem(faction.airdromeNames);
 
@@ -55,12 +55,17 @@ export const generateAwacsPackage = (
 	}
 
 	const [racetrackStart, racetrackEnd] = raceTracks;
-	const durationEnRoute = getDurationEnRoute(airdrome, racetrackStart, speed);
+	const durationEnRoute = getDurationEnRoute(airdrome, racetrackStart, cruiseSpeed);
 	const duration = Minutes(120);
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints(
+		racetrackEnd,
+		airdrome,
+		endOnStationTime + 1,
+		cruiseSpeed,
+	);
 
 	const cs = generateCallSign(coalition, state, dataStore, "awacs");
 
@@ -84,13 +89,13 @@ export const generateAwacsPackage = (
 				name: "Take Off",
 				position: objectToPosition(airdrome),
 				time: startTime,
-				speed,
+				speed: cruiseSpeed,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				speed,
+				speed: cruiseSpeed,
 				time: endEnRouteTime + 1,
 				duration,
 				taskStart: true,
@@ -98,7 +103,7 @@ export const generateAwacsPackage = (
 					position: racetrackEnd,
 					name: "Track-race end",
 					distance: distanceToPosition(racetrackStart, racetrackEnd),
-					duration: getDurationEnRoute(racetrackStart, racetrackEnd, speed),
+					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},
 			...landingWaypoints,

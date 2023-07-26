@@ -26,6 +26,29 @@ export function generateGroundGroups(
 
 			const units = Domain.Utils.randomList(validGroundUnits, Domain.Utils.random(4, 8));
 
+			// SHORAD units
+			let airDefenseUnits: Array<DcsJs.GroundUnit> = [];
+			if (groupType === "armor") {
+				airDefenseUnits = Object.values(faction.inventory.groundUnits).filter(
+					(unit) =>
+						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
+						!unit.vehicleTypes.some((vt) => vt === "Infantry") &&
+						unit.state === "idle",
+				);
+			} else if (groupType === "infantry") {
+				airDefenseUnits = Object.values(faction.inventory.groundUnits).filter(
+					(unit) =>
+						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
+						unit.vehicleTypes.some((vt) => vt === "Infantry") &&
+						unit.state === "idle",
+				);
+			}
+
+			const shoradCount = Domain.Utils.random(0, 100) > 10 ? Domain.Utils.random(1, 2) : 0;
+			const usableADUnits = Domain.Unit.getUsableUnit(airDefenseUnits, "name", shoradCount);
+			const selectedADUnits = usableADUnits.slice(0, shoradCount);
+			selectedADUnits.forEach((unit) => units.push(unit));
+
 			units.forEach((unit) => {
 				const inventoryUnit = faction.inventory.groundUnits[unit.id];
 

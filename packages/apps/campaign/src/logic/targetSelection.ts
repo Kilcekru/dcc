@@ -29,8 +29,10 @@ const isInSamRange = (position: DcsJs.Position, oppFaction: DcsJs.CampaignFactio
 };
 
 export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
-	const objectivesGroundGroups = oppFaction.groundGroups.filter((gg) => gg.state === "on objective");
-	const groundGroupsInRange = findInside(objectivesGroundGroups, startPosition, (obj) => obj?.position, 130_000);
+	const objectivesGroundGroups = oppFaction.groundGroups.filter(
+		(gg) => gg.state === "on objective" && gg.type !== "sam",
+	);
+	const groundGroupsInRange = findInside(objectivesGroundGroups, startPosition, (obj) => obj?.position, 150_000);
 
 	const aliveGroundGroups = groundGroupsInRange.filter((gg) => {
 		return gg.unitIds.some((id) => {
