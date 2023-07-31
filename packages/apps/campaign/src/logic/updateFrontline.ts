@@ -1,11 +1,11 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import { Config } from "../data";
 import * as Domain from "../domain";
 import {
-	distanceToPosition,
 	getDeploymentCost,
 	getUsableGroundUnits,
 	Minutes,
@@ -210,7 +210,7 @@ const moveFactionGroundGroups = (
 					return;
 				}
 
-				if (distanceToPosition(gg.position, objective.position) < 2_000) {
+				if (Utils.distanceToPosition(gg.position, objective.position) < 2_000) {
 					const objective = state.objectives[gg.objectiveName];
 
 					if (objective == null) {

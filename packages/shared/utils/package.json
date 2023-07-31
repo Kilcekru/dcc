@@ -7,5 +7,8 @@
 		"clean:all": "rm -rf .turbo node_modules",
 		"validate:lint": "eslint src",
 		"validate:ts": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@foxdelta2/dcsjs": "0.2.230-next.4"
 	}
 }

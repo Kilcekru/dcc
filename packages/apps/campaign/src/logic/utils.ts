@@ -1,16 +1,15 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import {
 	addHeading,
-	distanceToPosition,
 	findInside,
 	findNearest,
 	getClientFlightGroups,
 	getDurationEnRoute,
 	getFlightGroups,
-	headingToPosition,
 	oppositeCoalition,
 	positionFromHeading,
 	random,
@@ -81,20 +80,25 @@ export const generateCallSign = (
 };
 
 const landingNavPosition = (engressPosition: DcsJs.Position, airdromePosition: DcsJs.Position) => {
-	const heading = headingToPosition(engressPosition, airdromePosition);
+	const heading = Utils.headingToPosition(engressPosition, airdromePosition);
 	return positionFromHeading(airdromePosition, addHeading(heading, 180), 32000);
 };
 
-export const calcLandingWaypoints = (
-	engressPosition: DcsJs.Position,
-	airdromePosition: DcsJs.Position,
-	startTime: number,
-	cruiseSpeed: number,
-): [Array<DcsJs.CampaignWaypoint>, number] => {
-	const navPosition = landingNavPosition(engressPosition, airdromePosition);
-	const durationNav = getDurationEnRoute(engressPosition, navPosition, cruiseSpeed);
-	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, cruiseSpeed);
-	const endNavTime = startTime + durationNav;
+export const calcLandingWaypoints = ({
+	egressPosition,
+	airdromePosition,
+	prevWaypointTime,
+	cruiseSpeed,
+}: {
+	egressPosition: DcsJs.Position;
+	airdromePosition: DcsJs.Position;
+	prevWaypointTime: number;
+	cruiseSpeed: number;
+}): [Array<DcsJs.CampaignWaypoint>, number] => {
+	const navPosition = landingNavPosition(egressPosition, airdromePosition);
+	const durationNav = getDurationEnRoute(egressPosition, navPosition, cruiseSpeed);
+	const durationLanding = getDurationEnRoute(navPosition, airdromePosition, 120);
+	const endNavTime = prevWaypointTime + durationNav;
 	const endLandingTime = endNavTime + 1 + durationLanding;
 
 	return [
@@ -103,13 +107,13 @@ export const calcLandingWaypoints = (
 				name: "Nav",
 				position: navPosition,
 				speed: cruiseSpeed,
-				time: startTime,
+				time: endNavTime,
 			},
 			{
 				name: "Landing",
 				position: airdromePosition,
 				speed: cruiseSpeed,
-				time: endNavTime + 1,
+				time: endLandingTime,
 				onGround: true,
 			},
 		],
@@ -268,7 +272,7 @@ export function getFrontlineObjective(
 				return prev;
 			}
 
-			const distance = distanceToPosition(airdrome, obj.position);
+			const distance = Utils.distanceToPosition(airdrome, obj.position);
 
 			if (distance < prev[1]) {
 				return [obj, distance] as [DcsJs.CampaignObjective, number];
@@ -306,7 +310,7 @@ export function getFarthestAirdromeFromPosition(
 
 	const [farthestAirdrome] = airdromesInRange.reduce(
 		(prev, airdrome) => {
-			const distance = distanceToPosition(position, airdrome);
+			const distance = Utils.distanceToPosition(position, airdrome);
 
 			if (distance > prev[1]) {
 				return [airdrome, distance] as [DcsJs.DCS.Airdrome, number];

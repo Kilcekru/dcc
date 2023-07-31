@@ -1,5 +1,6 @@
 export * from "./button";
 export * from "./card";
+export * from "./clock";
 export * from "./flag";
 export * from "./icons";
 export * from "./list";

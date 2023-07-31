@@ -64,6 +64,26 @@ const TemplateList = (props: { selectedTemplateName: string; toggle: (name: stri
 	);
 };
 
+const CarrierList = (props: { selectedCarrierName: string | undefined; toggle: (name: string) => void }) => {
+	const dataStore = useDataStore();
+
+	return (
+		<div class={Styles["aircraft-list"]}>
+			<For each={Object.values(dataStore.ships ?? []).filter((sg) => sg.groupType === "carrier")}>
+				{(sg) => (
+					<Components.Button
+						class={Styles.aircraft}
+						unstyled={props.selectedCarrierName !== sg.name}
+						onPress={() => props.toggle(sg.name)}
+					>
+						{sg.name}
+					</Components.Button>
+				)}
+			</For>
+		</div>
+	);
+};
+
 const countries = ["USA", "Russia", "France", "Germany", "Austria", "Iraq", "Iran", "Syria"];
 
 const CountryList = (props: { selectedCountry: string; toggle: (name: string) => void }) => {
@@ -96,7 +116,9 @@ export const CustomFaction = (props: {
 	const [awacs, setAwacs] = createSignal<Array<string>>(props.template?.aircraftTypes.AWACS ?? []);
 	const [dead, setDead] = createSignal<Array<string>>(props.template?.aircraftTypes.DEAD ?? []);
 	const [strike, setStrike] = createSignal<Array<string>>(props.template?.aircraftTypes["Pinpoint Strike"] ?? []);
+	const [csar, setCsar] = createSignal<Array<string>>(props.template?.aircraftTypes.CSAR ?? []);
 	const [templateName, setTemplateName] = createSignal(props.template?.templateName ?? "USA - Modern");
+	const [carrierName, setCarrierName] = createSignal<string | undefined>(props.template?.carrierName);
 	const [country, setCountry] = createSignal(props.template?.countryName ?? "USA");
 	// const updateFactions = Domain.Faction.useUpdate();
 
@@ -130,6 +152,11 @@ export const CustomFaction = (props: {
 				setter = setStrike;
 				break;
 			}
+			case "CSAR": {
+				list = csar();
+				setter = setCsar;
+				break;
+			}
 			default: {
 				list = cap();
 				setter = setCap;
@@ -151,12 +178,14 @@ export const CustomFaction = (props: {
 				AWACS: awacs(),
 				DEAD: dead(),
 				"Pinpoint Strike": strike(),
+				CSAR: csar(),
 			},
 			countryName: country(),
 			name: name() == "" ? "Custom" : name(),
 			playable: true,
 			year: year(),
 			templateName: templateName(),
+			carrierName: carrierName(),
 			created: props.template?.created,
 		};
 
@@ -207,8 +236,12 @@ export const CustomFaction = (props: {
 						selectedAircrafts={strike()}
 						toggle={(name) => toggleAircraft("Pinpoint Strike", name)}
 					/>
+					<h2 class={Styles["mission-task"]}>CSAR</h2>
+					<AircraftList missionTask="CSAR" selectedAircrafts={csar()} toggle={(name) => toggleAircraft("CSAR", name)} />
 					<h2 class={Styles["mission-task"]}>Ground Units</h2>
 					<TemplateList selectedTemplateName={templateName()} toggle={setTemplateName} />
+					<h2 class={Styles["mission-task"]}>Carrier</h2>
+					<CarrierList selectedCarrierName={carrierName()} toggle={setCarrierName} />
 				</div>
 			</Components.ScrollContainer>
 			<div class={Styles.buttons}>

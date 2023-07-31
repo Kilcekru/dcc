@@ -5,6 +5,10 @@
 - Randomize the state of the campaign at the start
 - Add Carrier
 - Add the first Syria scenario: Desert Thunder
+- Kneeboards
+- Improved flightplan
+- Improved package planning
+- Sync flight group position between mission and DCC
 
 ## 0.3.0 (2023-07-07)
 

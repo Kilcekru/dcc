@@ -13,12 +13,13 @@ import { generateStrikePackage } from "./strike";
 
 const updatePackagesState = (
 	packages: Array<DcsJs.CampaignPackage>,
+	lastTickTimer: number,
 	timer: number,
 	dataStore: Types.Campaign.DataStore,
 ) => {
 	packages.forEach((pkg) => {
 		pkg.flightGroups.forEach((fg) => {
-			const position = calcFlightGroupPosition(fg, timer, 170, dataStore);
+			const position = calcFlightGroupPosition(fg, lastTickTimer, timer, dataStore);
 
 			if (position == null) {
 				return;
@@ -255,7 +256,7 @@ const factionPackagesTick = (
 	dataStore: Types.Campaign.DataStore,
 	faction: DcsJs.CampaignFaction,
 ) => {
-	updatePackagesState(faction.packages, state.timer, dataStore);
+	updatePackagesState(faction.packages, state.lastTickTimer, state.timer, dataStore);
 
 	const date = timerToDate(state.timer);
 	const dayHour = date.getUTCHours() ?? 0;

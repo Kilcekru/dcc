@@ -1,13 +1,12 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import * as Domain from "../../domain";
 import {
 	calcPackageEndTime,
-	distanceToPosition,
 	getDurationEnRoute,
-	headingToPosition,
 	Minutes,
 	objectToPosition,
 	oppositeCoalition,
@@ -56,10 +55,13 @@ export const generateCasPackage = (
 		return;
 	}
 
-	const headingObjectiveToAirdrome = headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition);
+	const headingObjectiveToAirdrome = Utils.headingToPosition(
+		groundGroupTarget.position,
+		packageAircrafts.startPosition,
+	);
 	const racetrackStart = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome - 90, 7500);
 	const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);
-	const durationEnRoute = getDurationEnRoute(packageAircrafts.startPosition, groundGroupTarget.position, cruiseSpeed);
+	const durationEnRoute = getDurationEnRoute(packageAircrafts.startPosition, racetrackStart, cruiseSpeed);
 	const casDuration = Minutes(30);
 
 	const activeCas = faction.packages.filter((pkg) => pkg.task === "CAS");
@@ -73,14 +75,15 @@ export const generateCasPackage = (
 	const nextAvailableStartTime = activeCasStartTime + Minutes(random(20, 30));
 	const currentStartTime = Math.floor(state.timer) + Minutes(random(15, 20));
 	const startTime = currentStartTime > nextAvailableStartTime ? currentStartTime : nextAvailableStartTime;
-	const endEnRouteTime = startTime + durationEnRoute;
+
+	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + casDuration;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(
-		groundGroupTarget.position,
-		packageAircrafts.startPosition,
-		endOnStationTime + 1,
+	const [landingWaypoints, landingTime] = calcLandingWaypoints({
+		egressPosition: racetrackEnd,
+		airdromePosition: packageAircrafts.startPosition,
+		prevWaypointTime: endOnStationTime + 1,
 		cruiseSpeed,
-	);
+	});
 
 	const cs = generateCallSign(coalition, state, dataStore, isHelicopter ? "helicopter" : "aircraft");
 
@@ -104,21 +107,21 @@ export const generateCasPackage = (
 			{
 				name: "Take Off",
 				position: objectToPosition(packageAircrafts.startPosition),
-				time: startTime,
-				speed: cruiseSpeed,
+				time: 0,
+				speed: cruiseSpeed / 2,
 				onGround: true,
 			},
 			{
 				name: "Track-race start",
 				position: racetrackStart,
-				speed: cruiseSpeed,
+				speed: cruiseSpeed / 2,
 				duration: casDuration,
 				time: endEnRouteTime + 1,
 				taskStart: true,
 				racetrack: {
 					position: racetrackEnd,
 					name: "Track-race end",
-					distance: distanceToPosition(racetrackStart, racetrackEnd),
+					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},
@@ -136,7 +139,7 @@ export const generateCasPackage = (
 		task: "CAS" as DcsJs.Task,
 		startTime,
 		taskEndTime: endOnStationTime,
-		endTime: calcPackageEndTime(flightGroups),
+		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
 		frequency: calcFrequency(aircraftType, dataStore),
 		id: createUniqueId(),

@@ -11,7 +11,7 @@ import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateObjectivePlans } from "./generateObjectivePlans";
 import { generateSams } from "./generateSams";
 import { generateStructures } from "./generateStructures";
-import { factionHasCarrier } from "./utils";
+import { factionCarrierName } from "./utils";
 
 /**
  *
@@ -106,7 +106,7 @@ export const createCampaign = (
 		}
 	}); */
 
-	const blueHasCarrier = factionHasCarrier("blue", scenario, blueFaction, dataStore);
+	const blueCarrierName = factionCarrierName("blue", scenario, blueFaction, dataStore);
 
 	state.blueFaction = {
 		...blueFaction,
@@ -119,7 +119,7 @@ export const createCampaign = (
 				scenario,
 				dataStore,
 				objectives: blueObjectives,
-				hasCarrier: blueHasCarrier,
+				carrierName: blueCarrierName,
 			}),
 			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
 		},
@@ -129,6 +129,7 @@ export const createCampaign = (
 		structures: generateStructures("blue", blueOps, dataStore),
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
+		downedPilots: [],
 	};
 
 	state.redFaction = {
@@ -143,7 +144,6 @@ export const createCampaign = (
 				scenario,
 				dataStore,
 				objectives: redObjectives,
-				hasCarrier: false,
 			}),
 			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
 		},
@@ -153,6 +153,7 @@ export const createCampaign = (
 		structures: generateStructures("red", redOps, dataStore),
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
+		downedPilots: [],
 	};
 
 	state.objectives =
@@ -191,13 +192,13 @@ export const createCampaign = (
 	generateSams("blue", state.blueFaction, dataStore, blueOps);
 	generateSams("red", state.redFaction, dataStore, redOps);
 
-	if (blueHasCarrier) {
+	if (blueCarrierName && state.blueFaction.carrierName != null) {
 		const objective = dataStore.objectives?.find((obj) => obj.name === scenario.blue.carrierObjective);
 
 		if (objective != null) {
 			state.blueFaction.shipGroups = [
 				{
-					name: "CVN-72 Abraham Lincoln",
+					name: state.blueFaction.carrierName,
 					position: objective.position,
 				},
 			];

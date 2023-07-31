@@ -1,10 +1,10 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import {
 	calcPackageEndTime,
-	distanceToPosition,
 	firstItem,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
@@ -60,12 +60,12 @@ export const generateAwacsPackage = (
 
 	const endEnRouteTime = startTime + durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(
-		racetrackEnd,
-		airdrome,
-		endOnStationTime + 1,
+	const [landingWaypoints, landingTime] = calcLandingWaypoints({
+		egressPosition: racetrackEnd,
+		airdromePosition: airdrome,
+		prevWaypointTime: endOnStationTime + 1,
 		cruiseSpeed,
-	);
+	});
 
 	const cs = generateCallSign(coalition, state, dataStore, "awacs");
 
@@ -82,13 +82,13 @@ export const generateAwacsPackage = (
 		name: cs.flightGroupName,
 		task: "AWACS",
 		startTime,
-		tot: endEnRouteTime + 1,
+		tot: startTime + endEnRouteTime + 1,
 		landingTime,
 		waypoints: [
 			{
 				name: "Take Off",
 				position: objectToPosition(airdrome),
-				time: startTime,
+				time: 0,
 				speed: cruiseSpeed,
 				onGround: true,
 			},
@@ -102,7 +102,7 @@ export const generateAwacsPackage = (
 				racetrack: {
 					position: racetrackEnd,
 					name: "Track-race end",
-					distance: distanceToPosition(racetrackStart, racetrackEnd),
+					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},
@@ -119,7 +119,7 @@ export const generateAwacsPackage = (
 		task: "AWACS" as DcsJs.Task,
 		startTime,
 		taskEndTime: endOnStationTime,
-		endTime: calcPackageEndTime(flightGroups),
+		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
 		frequency: 251,
 		id: createUniqueId(),

@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -24,7 +25,7 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 			if (fg.task === "CAS" && fg.target != null) {
 				const gg = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
 
-				if (gg != null && distanceToPosition(fg.position, gg?.position) < 3_000) {
+				if (gg != null && Utils.distanceToPosition(fg.position, gg?.position) < 3_000) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
 

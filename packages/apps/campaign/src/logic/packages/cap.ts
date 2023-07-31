@@ -1,15 +1,14 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import {
 	addHeading,
 	calcPackageEndTime,
-	distanceToPosition,
 	findNearest,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
-	headingToPosition,
 	Minutes,
 	objectToPosition,
 	oppositeCoalition,
@@ -72,7 +71,7 @@ export const generateCapPackage = (
 								return prev;
 							}
 
-							const distance = distanceToPosition(airdrome, obj.position);
+							const distance = Utils.distanceToPosition(airdrome, obj.position);
 
 							if (distance < prev[1]) {
 								return [obj, distance] as [DcsJs.CampaignObjective, number];
@@ -130,26 +129,26 @@ export const generateCapPackage = (
 	const cruiseSpeed = getCruiseSpeed(usableAircrafts, dataStore);
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, objectivePosition);
-	const oppHeading = headingToPosition(objectivePosition, oppAirdrome);
+	const oppHeading = Utils.headingToPosition(objectivePosition, oppAirdrome);
 
 	const heading = objectiveName === "Frontline" ? addHeading(oppHeading, 180) : oppHeading;
 
 	const endPosition = positionFromHeading(objectivePosition, heading, objectiveName === "Frontline" ? 10_000 : 30_000);
 	const durationEnRoute = getDurationEnRoute(objectivePosition, endPosition, cruiseSpeed);
-	const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
+	const headingObjectiveToAirdrome = Utils.headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
 	const duration = Minutes(60);
 	const startTime = Math.floor(state.timer) + Minutes(random(10, 20));
 
-	const endEnRouteTime = startTime + durationEnRoute;
+	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(
-		racetrackEnd,
-		objectivePosition,
-		endOnStationTime + 1,
+	const [landingWaypoints, landingTime] = calcLandingWaypoints({
+		egressPosition: racetrackEnd,
+		airdromePosition: objectivePosition,
+		prevWaypointTime: endOnStationTime + 1,
 		cruiseSpeed,
-	);
+	});
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
@@ -186,7 +185,7 @@ export const generateCapPackage = (
 				racetrack: {
 					position: racetrackEnd,
 					name: "Track-race end",
-					distance: distanceToPosition(racetrackStart, racetrackEnd),
+					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},
@@ -204,7 +203,7 @@ export const generateCapPackage = (
 		task: "CAP" as DcsJs.Task,
 		startTime,
 		taskEndTime: endOnStationTime,
-		endTime: calcPackageEndTime(flightGroups),
+		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
 		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),

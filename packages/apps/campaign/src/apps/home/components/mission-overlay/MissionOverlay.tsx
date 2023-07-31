@@ -6,7 +6,7 @@ import { cnb } from "cnbuilder";
 import { createEffect, createMemo, createSignal, Show, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { CampaignContext, Clock } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
 import { useSave } from "../../../../hooks";
 import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
@@ -129,7 +129,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					<h1 class={cnb(Styles.title, isGenerated() ? Styles["title--show"] : null)}>Mission generated</h1>
 					<h1 class={cnb(Styles.title, isReady() ? Styles["title--show"] : null)}>Ready for Takeoff</h1>
 					<div class={cnb(Styles.clock, !isGenerated() ? Styles["clock--forwarding"] : null)}>
-						<Clock value={state.timer} />
+						<Components.Clock value={state.timer} />
 					</div>
 					<div class={cnb(Styles["help-text"], isGenerated() ? Styles["help-text--show"] : null)}>
 						<div>

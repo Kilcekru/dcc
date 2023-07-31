@@ -6,7 +6,12 @@ export interface IPC {
 	onRequestRender: (listener: (docs: Document | undefined) => void) => void;
 }
 
-export type Document = {
-	type: "campaign.briefing";
-	data: BriefingDocument;
-};
+export type Document =
+	| {
+			type: "campaign.briefing";
+			data: BriefingDocument;
+	  }
+	| {
+			type: "campaign.test";
+			data: { text: string };
+	  };

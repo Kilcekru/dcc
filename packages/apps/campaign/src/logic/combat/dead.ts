@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Domain from "../../domain";
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -42,7 +43,7 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 					return;
 				}
 
-				if (distanceToPosition(fg.position, sam.position) < 90_000 && fg.startTime + Minutes(1) < state.timer) {
+				if (Utils.distanceToPosition(fg.position, sam.position) < 90_000 && fg.startTime + Minutes(1) < state.timer) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
 

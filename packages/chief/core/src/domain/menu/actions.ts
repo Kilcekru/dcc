@@ -39,9 +39,9 @@ export const actions: Record<Types.AppMenu.Action, () => void> = {
 	dev_captureWindow: () => showCaptureWindow(),
 	dev_captureTest: async () => {
 		const images = await capture([
-			{ type: "campaign.briefing", data: { text: "kneeboard 1" } },
-			{ type: "campaign.briefing", data: { text: "kneeboard 2" } },
-			{ type: "campaign.briefing", data: { text: "kneeboard 3" } },
+			{ type: "campaign.test", data: { text: "kneeboard 1" } },
+			{ type: "campaign.test", data: { text: "kneeboard 2" } },
+			{ type: "campaign.test", data: { text: "kneeboard 3" } },
 		]);
 		await Promise.all(images.map((img, i) => FS.outputFile(Path.join(app.getAppPath(), `../.tmp/img-${i}.png`), img)));
 	},

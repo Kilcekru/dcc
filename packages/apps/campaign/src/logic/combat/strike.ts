@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -35,7 +36,7 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 				}
 
 				if (
-					distanceToPosition(fg.position, targetStructure.position) < 5_000 &&
+					Utils.distanceToPosition(fg.position, targetStructure.position) < 5_000 &&
 					fg.startTime + Minutes(1) < state.timer
 				) {
 					fg.units.forEach((unit) => {

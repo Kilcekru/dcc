@@ -10,15 +10,15 @@ import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAi
 function getHomeBase(
 	aircraftType: DcsJs.AircraftType,
 	airdromeName: string,
-	hasCarrier: boolean,
+	carrierName: string | undefined,
 	farpObjective: { name: string; position: DcsJs.Position } | undefined,
 	dataStore: Types.Campaign.DataStore,
 ): DcsJs.CampaignHomeBase {
 	const aircraft = dataStore.aircrafts?.[aircraftType];
 
-	return aircraft?.carrierCapable && hasCarrier
+	return aircraft?.carrierCapable && carrierName != null
 		? {
-				name: "CVN-72 Abraham Lincoln",
+				name: carrierName,
 				type: "carrier",
 		  }
 		: aircraft?.isHelicopter && farpObjective != null
@@ -65,14 +65,14 @@ export const generateAircraftInventory = ({
 	objectives,
 	scenario,
 	dataStore,
-	hasCarrier,
+	carrierName,
 }: {
 	coalition: DcsJs.CampaignCoalition;
 	faction: DcsJs.Faction;
 	objectives: Array<{ name: string; position: DcsJs.Position }>;
 	scenario: Scenario;
 	dataStore: Types.Campaign.DataStore;
-	hasCarrier: boolean;
+	carrierName?: string;
 }) => {
 	const airdromes = dataStore.airdromes;
 	const airdromeNames: Array<DcsJs.AirdromeName> = (
@@ -115,7 +115,7 @@ export const generateAircraftInventory = ({
 		Array.from({ length: count }, () => {
 			aircrafts.push({
 				aircraftType,
-				homeBase: getHomeBase(aircraftType, awacsAirdrome.name, hasCarrier, farpObjective, dataStore),
+				homeBase: getHomeBase(aircraftType, awacsAirdrome.name, carrierName, farpObjective, dataStore),
 				state: "idle",
 				id: createUniqueId(),
 				availableTasks: ["AWACS"],
@@ -137,7 +137,7 @@ export const generateAircraftInventory = ({
 			const count = Math.max(2, Config.inventory.aircraft.cap * (faction.aircraftTypes.CAP?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 
-			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const homeBase = getHomeBase(aircraftType, airdrome.name, carrierName, farpObjective, dataStore);
 			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
 
 			Array.from({ length: count }, () => {
@@ -158,7 +158,7 @@ export const generateAircraftInventory = ({
 			const count = Math.max(2, Config.inventory.aircraft.cas * (faction.aircraftTypes.CAS?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 
-			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const homeBase = getHomeBase(aircraftType, airdrome.name, carrierName, farpObjective, dataStore);
 			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
 
 			Array.from({ length: count }, () => {
@@ -181,7 +181,7 @@ export const generateAircraftInventory = ({
 				Config.inventory.aircraft.strike * (faction.aircraftTypes["Pinpoint Strike"]?.length ?? 0),
 			);
 			const aircraftType = acType as DcsJs.AircraftType;
-			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const homeBase = getHomeBase(aircraftType, airdrome.name, carrierName, farpObjective, dataStore);
 			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
 
 			Array.from({ length: count }, () => {
@@ -201,7 +201,7 @@ export const generateAircraftInventory = ({
 		faction.aircraftTypes.DEAD?.forEach((acType) => {
 			const count = Math.max(2, Config.inventory.aircraft.dead * (faction.aircraftTypes.DEAD?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
-			const homeBase = getHomeBase(aircraftType, airdrome.name, hasCarrier, farpObjective, dataStore);
+			const homeBase = getHomeBase(aircraftType, airdrome.name, carrierName, farpObjective, dataStore);
 			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
 
 			Array.from({ length: count }, () => {

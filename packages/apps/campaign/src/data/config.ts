@@ -39,4 +39,7 @@ export const Config = {
 		startHour: 20,
 		endHour: 6,
 	},
+	waypoint: {
+		takeOff: 600,
+	},
 };

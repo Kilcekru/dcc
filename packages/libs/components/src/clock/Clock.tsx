@@ -1,17 +1,12 @@
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createMemo, Show } from "solid-js";
-
-import { timerToDate } from "../utils";
 
 const formatTime = (value: number | undefined) => {
 	if (value == null) {
 		return;
 	}
 
-	if (value >= 10) {
-		return value.toString();
-	} else {
-		return `0${value.toString()}`;
-	}
+	return value.toString().padStart(2, "0");
 };
 
 export const Clock = (props: { value: number | undefined; withDay?: boolean }) => {
@@ -20,7 +15,7 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 			return undefined;
 		}
 
-		const d = timerToDate(props.value);
+		const d = Utils.timerToDate(props.value);
 
 		return d;
 	});

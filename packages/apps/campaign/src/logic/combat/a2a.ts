@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { distanceToPosition, getFlightGroups, Minutes, random } from "../../utils";
+import { getFlightGroups, Minutes, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getMaxRangeA2AMissileAvailable } from "../utils";
 
@@ -76,7 +77,7 @@ const a2aRound = (
 			attackingAircraft?.alive &&
 			(attackingAircraft.a2AWeaponReadyTimer == null || attackingAircraft.a2AWeaponReadyTimer < timer)
 		) {
-			const distance = distanceToPosition(attackingFg.position, targetFg.position);
+			const distance = Utils.distanceToPosition(attackingFg.position, targetFg.position);
 			const targetUnit = targetFg.units.find((unit) => {
 				const targetAircraft = targetFaction.inventory.aircrafts[unit.id];
 
@@ -133,10 +134,10 @@ const a2aFlightGroups = (
 
 	attackingFgs.forEach((attackingFlightGroup) => {
 		const targetFlightGroup = targetFgs
-			.filter((fg) => distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
+			.filter((fg) => Utils.distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
 			.map((fg) => ({
 				item: fg,
-				distance: distanceToPosition(attackingFlightGroup.position, fg.position),
+				distance: Utils.distanceToPosition(attackingFlightGroup.position, fg.position),
 			}))
 			.sort((a, b) => b.distance - a.distance)[0]?.item;
 

@@ -82,8 +82,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.3
-        version: 0.2.230-next.3
+        specifier: 0.2.230-next.4
+        version: 0.2.230-next.4
       '@types/leaflet':
         specifier: 1.9.3
         version: 1.9.3
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.3
-        version: 0.2.230-next.3
+        specifier: 0.2.230-next.4
+        version: 0.2.230-next.4
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -204,14 +204,18 @@ importers:
         version: 1.7.7
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.3
-        version: 0.2.230-next.3
+        specifier: 0.2.230-next.4
+        version: 0.2.230-next.4
 
   packages/libs/document:
     dependencies:
       solid-js:
         specifier: 1.7.7
         version: 1.7.7
+    devDependencies:
+      '@foxdelta2/dcsjs':
+        specifier: 0.2.230-next.4
+        version: 0.2.230-next.4
 
   packages/libs/rpc:
     devDependencies:
@@ -226,10 +230,14 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.3
-        version: 0.2.230-next.3
+        specifier: 0.2.230-next.4
+        version: 0.2.230-next.4
 
-  packages/shared/utils: {}
+  packages/shared/utils:
+    devDependencies:
+      '@foxdelta2/dcsjs':
+        specifier: 0.2.230-next.4
+        version: 0.2.230-next.4
 
   utils/build:
     dependencies:
@@ -871,10 +879,10 @@ packages:
       '@floating-ui/core': 1.3.1
     dev: false
 
-  /@foxdelta2/dcsjs@0.2.230-next.3:
-    resolution: {integrity: sha512-PS2GtbEm7iUdT3sCyjQ4movC5/2zykXIomIapxWNdscGIRqofO+1ARWoBKRYj95SSGqmKxwocvNyTl2OJxvf7w==}
+  /@foxdelta2/dcsjs@0.2.230-next.4:
+    resolution: {integrity: sha512-lM3suQptqhY8p2o8rtHBVck9Wonc1FOGlgda3hLNWeNyUc2zxEU5/eRbpBRRqY2+XKE1ffCkbkGQzWUyn2F2Ng==}
     dependencies:
-      '@kilcekru/lua-table': 1.1.0
+      '@kilcekru/lua-table': 1.1.2
       adm-zip: 0.5.10
       fs-extra: 11.1.1
       zod: 3.21.4
@@ -952,8 +960,8 @@ packages:
       - supports-color
     dev: false
 
-  /@kilcekru/lua-table@1.1.0:
-    resolution: {integrity: sha512-n9LavGu4AyElcF414SoUXua9us0KzbsDgftsar/+mv94sotfFNEGmmYowM5qtOA5E33o5/wCLDAqQMvasGnWKw==}
+  /@kilcekru/lua-table@1.1.2:
+    resolution: {integrity: sha512-dm20X3e2OnSm/BqJFZejBaxAHoGb5prFXU6RI0FJKrBJo4iMUQkwip90iNQujDHCZ/iWh11A0N97cNH6ge0Lwg==}
     engines: {node: '>=18.12.0', pnpm: ^8.6.2}
 
   /@kilcekru/ts-basics@3.1.1(typescript@5.1.6):
@@ -2702,7 +2710,7 @@ packages:
     dev: true
 
   /image-size@0.5.5:
-    resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
+    resolution: {integrity: sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=}
     engines: {node: '>=0.10.0'}
     hasBin: true
     requiresBuild: true

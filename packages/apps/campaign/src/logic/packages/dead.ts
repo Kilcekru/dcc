@@ -1,12 +1,12 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import {
 	addHeading,
 	calcPackageEndTime,
 	getDurationEnRoute,
-	headingToPosition,
 	Minutes,
 	objectToPosition,
 	oppositeCoalition,
@@ -16,7 +16,13 @@ import {
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { calcFrequency, getCruiseSpeed, getPackageAircrafts, updateAircraftForFlightGroup } from "./utils";
+import {
+	calcFrequency,
+	calcHoldWaypoint,
+	getCruiseSpeed,
+	getPackageAircrafts,
+	updateAircraftForFlightGroup,
+} from "./utils";
 
 export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -41,7 +47,9 @@ export const generateDeadPackage = (
 	});
 
 	if (packageAircrafts?.startPosition == null) {
-		throw new Error("escortFlightGroup: start position not found");
+		// eslint-disable-next-line no-console
+		console.warn("generateDeadPackage: start position not found", packageAircrafts);
+		return;
 	}
 
 	const cruiseSpeed = getCruiseSpeed(packageAircrafts.aircrafts, dataStore);
@@ -54,35 +62,41 @@ export const generateDeadPackage = (
 
 	const ingressPosition = positionFromHeading(
 		selectedObjective.position,
-		headingToPosition(selectedObjective.position, packageAircrafts.startPosition),
+		Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition),
 		selectedObjective.range,
 	);
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, selectedObjective.position);
 	const engressHeading =
 		oppAirdrome == null
-			? headingToPosition(selectedObjective.position, packageAircrafts.startPosition)
-			: headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
-	const engressPosition = positionFromHeading(
+			? Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition)
+			: Utils.headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+	const egressPosition = positionFromHeading(
 		selectedObjective.position,
 		addHeading(engressHeading, 180),
 		selectedObjective.range,
 	);
 
-	const durationEnRoute = getDurationEnRoute(packageAircrafts.startPosition, selectedObjective.position, cruiseSpeed);
-	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, cruiseSpeed);
-	const durationEngress = getDurationEnRoute(selectedObjective.position, engressPosition, cruiseSpeed);
-
 	const startTime = Math.floor(state.timer) + Minutes(random(5, 15));
-	const endEnRouteTime = startTime + durationEnRoute;
+	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(
+		packageAircrafts.startPosition,
+		ingressPosition,
+		cruiseSpeed,
+	);
+
+	const durationEnRoute = getDurationEnRoute(holdPosition, selectedObjective.position, cruiseSpeed);
+	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, cruiseSpeed);
+	const durationEngress = getDurationEnRoute(selectedObjective.position, egressPosition, cruiseSpeed);
+
+	const endEnRouteTime = holdTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
 	const endEngressTime = endIngressTime + durationEngress;
 
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(
-		engressPosition,
-		packageAircrafts.startPosition,
-		endEngressTime + 1,
+	const [landingWaypoints, landingTime] = calcLandingWaypoints({
+		egressPosition: egressPosition,
+		airdromePosition: packageAircrafts.startPosition,
+		prevWaypointTime: endEngressTime + 1,
 		cruiseSpeed,
-	);
+	});
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
@@ -102,16 +116,17 @@ export const generateDeadPackage = (
 		name: cs.flightGroupName,
 		task: "DEAD",
 		startTime,
-		tot: endEnRouteTime + 1,
+		tot: endIngressTime + 1,
 		landingTime: landingTime,
 		waypoints: [
 			{
 				name: "Take Off",
 				position: objectToPosition(packageAircrafts.startPosition),
-				time: startTime,
+				time: 0,
 				speed: cruiseSpeed,
 				onGround: true,
 			},
+			holdWaypoint,
 			{
 				name: "Ingress",
 				position: ingressPosition,
@@ -122,13 +137,13 @@ export const generateDeadPackage = (
 			{
 				name: "DEAD",
 				position: selectedObjective.position,
-				time: endEnRouteTime + 1,
+				time: endIngressTime + 1,
 				onGround: true,
 				speed: cruiseSpeed,
 			},
 			{
-				name: "Engress",
-				position: engressPosition,
+				name: "Egress",
+				position: egressPosition,
 				time: endEnRouteTime + 2,
 				speed: cruiseSpeed,
 			},
@@ -146,7 +161,7 @@ export const generateDeadPackage = (
 		task: "DEAD" as DcsJs.Task,
 		startTime,
 		taskEndTime: endEnRouteTime + 1,
-		endTime: calcPackageEndTime(flightGroups),
+		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
 		frequency: calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, dataStore),
 		id: createUniqueId(),

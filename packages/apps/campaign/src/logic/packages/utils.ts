@@ -1,8 +1,10 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Config } from "../../data";
 import * as Domain from "../../domain";
-import { getUsableAircraftsByType } from "../../utils";
+import { getDurationEnRoute, getUsableAircraftsByType, Minutes, positionFromHeading } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
@@ -102,6 +104,8 @@ export function getPackageAircrafts({
 	const usableAircrafts = getUsableAircraftsByType(state, coalition, aircraftTypes, count);
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
+		// eslint-disable-next-line no-console
+		console.warn("no usable aircrafts available", aircraftTypes);
 		return;
 	}
 
@@ -122,13 +126,13 @@ export function getPackageAircrafts({
 	const selectedAirdromeName = Domain.Utils.randomItem(validAirdromeNames);
 
 	if (selectedAirdromeName == null) {
-		return undefined;
+		return;
 	}
 
 	const selectedAircrafts = aircraftsPerAirdrome[selectedAirdromeName];
 
 	if (selectedAircrafts == null) {
-		return undefined;
+		return;
 	}
 	const startPosition = getStartPosition(Domain.Utils.firstItem(selectedAircrafts)?.homeBase, faction, dataStore);
 
@@ -148,4 +152,30 @@ export function getCruiseSpeed(aircrafts: Array<DcsJs.Aircraft>, dataStore: Type
 
 		return aircraftData.cruiseSpeed < prev ? aircraftData.cruiseSpeed : prev;
 	}, 999);
+}
+
+export function calcHoldWaypoint(
+	startPosition: DcsJs.Position,
+	targetPosition: DcsJs.Position,
+	cruiseSpeed: number,
+): [DcsJs.CampaignWaypoint, DcsJs.Position, number] {
+	const targetHeading = Utils.headingToPosition(startPosition, targetPosition);
+
+	const holdPosition = positionFromHeading(startPosition, targetHeading, 20_000);
+	const durationIngress = getDurationEnRoute(startPosition, holdPosition, cruiseSpeed);
+
+	const holdTime = Config.waypoint.takeOff + durationIngress;
+	const holdDuration = Minutes(5);
+	const holdEndTime = holdTime + holdDuration;
+
+	const waypoint: DcsJs.CampaignWaypoint = {
+		name: "Hold",
+		position: holdPosition,
+		time: holdTime,
+		speed: cruiseSpeed,
+		duration: holdDuration,
+		hold: true,
+	};
+
+	return [waypoint, holdPosition, holdEndTime];
 }

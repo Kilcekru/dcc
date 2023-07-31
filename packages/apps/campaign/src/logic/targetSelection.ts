@@ -1,14 +1,13 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Config } from "../data";
 import * as Domain from "../domain";
 import {
 	addHeading,
-	distanceToPosition,
 	findInside,
 	findNearest,
-	headingToPosition,
 	oppositeCoalition,
 	positionFromHeading,
 	random,
@@ -25,7 +24,7 @@ import {
 const isInSamRange = (position: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
 	return Domain.Faction.getSamGroups(oppFaction)
 		.filter((sam) => sam.operational)
-		.some((sam) => distanceToPosition(position, sam.position) <= sam.range);
+		.some((sam) => Utils.distanceToPosition(position, sam.position) <= sam.range);
 };
 
 export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
@@ -93,7 +92,7 @@ export const getStrikeTarget = (
 	});
 
 	const scoredStructures = structures.map((str) => {
-		const distance = distanceToPosition(startPosition, str.position);
+		const distance = Utils.distanceToPosition(startPosition, str.position);
 
 		let prio = 0;
 
@@ -170,7 +169,7 @@ export const getAwacsTarget = (
 		return undefined;
 	}
 
-	const heading = headingToPosition(frontlineObjective.position, farthestAirdrome);
+	const heading = Utils.headingToPosition(frontlineObjective.position, farthestAirdrome);
 
 	const centerPosition = positionFromHeading(
 		frontlineObjective.position,

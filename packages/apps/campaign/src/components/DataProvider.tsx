@@ -17,6 +17,7 @@ const initState: Types.Campaign.DataStore = {
 	callSigns: undefined,
 	launchers: undefined,
 	weapons: undefined,
+	ships: undefined,
 };
 
 type Store = [

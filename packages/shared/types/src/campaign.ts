@@ -14,6 +14,7 @@ export type DataStore = {
 	callSigns: DcsJs.GetCallSigns | undefined;
 	launchers: DcsJs.GetLaunchers | undefined;
 	weapons: DcsJs.GetWeapons | undefined;
+	ships: DcsJs.GetShips | undefined;
 };
 
 export type MissionState = {
@@ -40,5 +41,8 @@ export namespace Schema {
 export type CampaignSynopsis = z.infer<typeof Schema.campaignSynopsis>;
 
 export interface BriefingDocument {
-	text: string;
+	package: DcsJs.FlightPackage;
+	flightGroup: DcsJs.FlightGroup;
+	aircraftInventory: Record<string, DcsJs.Aircraft>;
+	dataAircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>>;
 }

@@ -1,7 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import fs from "fs-extra";
+import FS from "fs-extra";
 
 import * as Domain from "../../domain";
 
@@ -59,6 +59,7 @@ const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
 		callSigns: DcsJs.getCallSigns(),
 		launchers: DcsJs.getLaunchers(),
 		weapons: DcsJs.getWeapons(),
+		ships: DcsJs.GetShips(),
 	};
 };
 
@@ -69,7 +70,10 @@ const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = a
 		return { success: false };
 	}
 
-	await DcsJs.generateCampaignMission(campaign, path);
+	const kneeboards = await Domain.Campaign.generateBriefingKneeboards(campaign);
+
+	await DcsJs.generateCampaignMission(campaign, path, kneeboards);
+
 	return { success: true };
 };
 
@@ -80,7 +84,7 @@ const loadMissionState: Types.Rpc.Campaign["loadMissionState"] = async () => {
 		return undefined;
 	}
 
-	return (await fs.readJSON(path)) as Types.Campaign.MissionState;
+	return (await FS.readJSON(path)) as Types.Campaign.MissionState;
 };
 
 export async function loadFactions() {

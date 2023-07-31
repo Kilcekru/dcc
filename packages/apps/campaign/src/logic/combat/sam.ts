@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Domain from "../../domain";
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import { Minutes, oppositeCoalition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { destroyAircraft } from "./utils";
@@ -14,7 +15,7 @@ export const sam = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 	Domain.Faction.getSamGroups(faction).forEach((sam) => {
 		if (sam.operational && (sam.combatTimer ?? 0) <= state.timer) {
 			oppFaction.packages.forEach((pkg) => {
-				const fg = pkg.flightGroups.find((fg) => distanceToPosition(sam.position, fg.position) <= sam.range);
+				const fg = pkg.flightGroups.find((fg) => Utils.distanceToPosition(sam.position, fg.position) <= sam.range);
 
 				if (fg == null) {
 					return;

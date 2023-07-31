@@ -106,6 +106,44 @@ function addBasicObjective(
 	return objectivePlans;
 }
 
+function fillObjectives(
+	bluePlans: Array<DynamicObjectivePlan>,
+	redPlans: Array<DynamicObjectivePlan>,
+	objectives: Array<DcsJs.Import.Objective>,
+): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
+	let blue = bluePlans;
+	let red = redPlans;
+
+	objectives.forEach((obj) => {
+		const isBlue = bluePlans.some((plan) => plan.objectiveName === obj.name);
+		const isRed = redPlans.some((plan) => plan.objectiveName === obj.name);
+
+		if (isBlue || isRed) {
+			return;
+		}
+
+		const nearestBlue = Domain.Location.findNearest(bluePlans, obj.position, (op) => op.objective.position);
+		const nearestRed = Domain.Location.findNearest(redPlans, obj.position, (op) => op.objective.position);
+
+		const distanceBlue =
+			nearestBlue == null
+				? 999_999_999
+				: Domain.Location.distanceToPosition(nearestBlue.objective.position, obj.position);
+		const distanceRed =
+			nearestRed == null
+				? 999_999_999
+				: Domain.Location.distanceToPosition(nearestRed.objective.position, obj.position);
+
+		if (distanceBlue <= distanceRed) {
+			blue = addObjectivePlan(blue, obj);
+		} else {
+			red = addObjectivePlan(red, obj);
+		}
+	});
+
+	return [blue, red];
+}
+
 function addAirdromeSamObjectives(
 	airdromes: Array<DcsJs.DCS.Airdrome>,
 	oppAirdromes: Array<DcsJs.DCS.Airdrome>,
@@ -406,6 +444,8 @@ export function generateObjectivePlans(
 			endOfLine = true;
 		}
 	}
+
+	[blueObjs, redObjs] = fillObjectives(blueObjs, redObjs, objectives);
 
 	const samObjectives = objectives.filter((obj) => strikeTargets[obj.name]?.some((st) => st.type === "SAM"));
 

@@ -1,5 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
 import { useDataStore } from "./components/DataProvider";
@@ -31,14 +32,6 @@ export const positionToMapPosition =
 			throw new Error("invalid map position");
 		}
 	};
-
-export const headingToPosition = (position1: DcsJs.Position, position2: DcsJs.Position) => {
-	return (Math.atan2(position2.y - position1.y, position2.x - position1.x) * 180) / Math.PI;
-};
-
-export const distanceToPosition = (position1: DcsJs.Position, position2: DcsJs.Position) => {
-	return Math.sqrt(Math.pow(position2.x - position1.x, 2) + Math.pow(position2.y - position1.y, 2));
-};
 
 export const objectToPosition = <T extends DcsJs.Position>(value: T): DcsJs.Position => {
 	return {
@@ -119,7 +112,7 @@ export const findInside = <T>(
 				radius * radius
 			); */
 
-			return distanceToPosition(sourcePosition, position) <= radius;
+			return Utils.distanceToPosition(sourcePosition, position) <= radius;
 		}) ?? []
 	);
 };
@@ -132,7 +125,7 @@ export const findNearest = <T>(
 	return values?.reduce(
 		([prevObj, prevDistance], v) => {
 			const position = positionSelector(v);
-			const distance = distanceToPosition(sourcePosition, position);
+			const distance = Utils.distanceToPosition(sourcePosition, position);
 
 			if (distance < prevDistance) {
 				return [v, distance] as [T, number];
@@ -176,7 +169,7 @@ export const positionAfterDurationToPosition = (
 	}
 
 	const distanceTraveled = speed * duration;
-	const heading = headingToPosition(sourcePosition, targetPosition);
+	const heading = Utils.headingToPosition(sourcePosition, targetPosition);
 
 	return positionFromHeading(sourcePosition, heading, distanceTraveled);
 };
@@ -188,7 +181,9 @@ export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) 
 				return wp;
 			}
 
-			if (wp.time <= timer) {
+			const wpTime = fg.startTime + wp.time;
+
+			if (wpTime <= timer) {
 				return wp;
 			}
 
@@ -204,8 +199,8 @@ export const getNextWaypoint = (fg: DcsJs.CampaignFlightGroup, waypoint: DcsJs.C
 
 export const calcFlightGroupPosition = (
 	fg: DcsJs.CampaignFlightGroup,
+	lastTickTimer: number,
 	timer: number,
-	speed: number,
 	dataStore: Types.Campaign.DataStore,
 ) => {
 	if (fg.startTime >= timer) {
@@ -222,34 +217,44 @@ export const calcFlightGroupPosition = (
 
 	const airdrome = dataStore.airdromes?.[fg.airdromeName];
 
-	if (activeWaypoint.hold) {
-		return activeWaypoint.position;
-	}
 	if (activeWaypoint?.racetrack == null) {
+		const nextPosition = nextWaypoint?.position ?? airdrome ?? activeWaypoint.position;
+		if (Utils.distanceToPosition(fg.position, nextPosition) <= 1000) {
+			return nextPosition;
+		}
+
 		return positionAfterDurationToPosition(
-			activeWaypoint.position,
-			nextWaypoint?.position ?? airdrome ?? activeWaypoint.position,
-			timer - activeWaypoint.time,
-			speed,
+			fg.position,
+			nextPosition,
+			timer - lastTickTimer,
+			nextWaypoint?.speed ?? 200,
 		);
 	} else {
 		const timeOnStation = timer - activeWaypoint.time;
 		const distancesAlreadyFlown = Math.floor(timeOnStation / activeWaypoint.racetrack.duration);
-		const timeOnTrack = Math.floor(timeOnStation - distancesAlreadyFlown * activeWaypoint.racetrack.duration);
+		// const timeOnTrack = Math.floor(timeOnStation - distancesAlreadyFlown * activeWaypoint.racetrack.duration);
 
 		if (distancesAlreadyFlown % 2 === 0) {
+			if (Utils.distanceToPosition(fg.position, activeWaypoint.racetrack.position) <= 1000) {
+				return activeWaypoint.racetrack.position;
+			}
+
 			return positionAfterDurationToPosition(
-				activeWaypoint.position,
+				fg.position,
 				activeWaypoint.racetrack.position,
-				timeOnTrack,
-				speed,
+				timer - lastTickTimer,
+				nextWaypoint?.speed ?? 200,
 			);
 		} else {
+			if (Utils.distanceToPosition(fg.position, activeWaypoint.position) <= 1000) {
+				return activeWaypoint.position;
+			}
+
 			return positionAfterDurationToPosition(
-				activeWaypoint.racetrack.position,
+				fg.position,
 				activeWaypoint.position,
-				timeOnTrack,
-				speed,
+				timer - lastTickTimer,
+				nextWaypoint?.speed ?? 200,
 			);
 		}
 	}
@@ -263,14 +268,17 @@ export const lastItem = <T>(arr: Array<T>) => {
 	return arr[arr.length - 1];
 };
 
-export const calcPackageEndTime = (fgs: Array<DcsJs.CampaignFlightGroup>) => {
-	return fgs.reduce((prev, fg) => {
-		if (fg.landingTime > prev) {
-			return fg.landingTime;
-		} else {
-			return prev;
-		}
-	}, 0);
+export const calcPackageEndTime = (startTime: number, fgs: Array<DcsJs.CampaignFlightGroup>) => {
+	return (
+		startTime +
+		fgs.reduce((prev, fg) => {
+			if (fg.landingTime > prev) {
+				return fg.landingTime;
+			} else {
+				return prev;
+			}
+		}, 0)
+	);
 };
 
 export const getFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
@@ -358,8 +366,8 @@ export const filterObjectiveCoalition = (
 };
 
 export const getDurationEnRoute = (startPosition: DcsJs.Position, endPosition: DcsJs.Position, speed: number) => {
-	const distanceToObjective = distanceToPosition(startPosition, endPosition);
-	return distanceToObjective / speed;
+	const distanceToObjective = Utils.distanceToPosition(startPosition, endPosition);
+	return Math.round(distanceToObjective / speed);
 };
 
 export const oppositeCoalition = (coalition: DcsJs.CampaignCoalition | undefined): DcsJs.CampaignCoalition => {

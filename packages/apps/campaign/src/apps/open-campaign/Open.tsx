@@ -4,7 +4,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { createSignal, For, onMount, useContext } from "solid-js";
 
-import { CampaignContext, Clock } from "../../components";
+import { CampaignContext } from "../../components";
 import * as Domain from "../../domain";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
@@ -35,7 +35,7 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 			<h2 class={Styles.name}>{props.synopsis.name}</h2>
 			<h3 class={Styles.year}>{props.synopsis.factionName}</h3>
 			<h3 class={Styles.timer}>
-				<Clock value={props.synopsis.timer} withDay />
+				<Components.Clock value={props.synopsis.timer} withDay />
 			</h3>
 			<h3 class={Styles.edited}>{Domain.Format.Date.formatDateTime(props.synopsis.edited)}</h3>
 			<div class={Styles["customize-button-wrapper"]}>

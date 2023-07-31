@@ -13,7 +13,7 @@ export const claimsObjective = (coalition: ScenarioCoalition, objectiveName: str
 	return false;
 };
 
-export function factionHasCarrier(
+export function factionCarrierName(
 	coalition: DcsJs.CoalitionSide,
 	scenario: Scenario,
 	faction: DcsJs.Faction,
@@ -22,10 +22,10 @@ export function factionHasCarrier(
 	const scenarioSide = coalition === "red" ? scenario.red : scenario.blue;
 
 	if (scenarioSide.carrierObjective == null) {
-		return false;
+		return undefined;
 	}
 
-	let factionHasCarrierBasedAircrafts = false;
+	let carrierName = undefined;
 
 	Object.values(faction.aircraftTypes).forEach((aircraftTypes) => {
 		aircraftTypes.forEach((type) => {
@@ -35,11 +35,11 @@ export function factionHasCarrier(
 				return;
 			}
 
-			if (aircraft.carrierCapable && !aircraft.isHelicopter) {
-				factionHasCarrierBasedAircrafts = true;
+			if (aircraft.carrierCapable && !aircraft.isHelicopter && faction.carrierName != null) {
+				carrierName = faction.carrierName;
 			}
 		});
 	});
 
-	return factionHasCarrierBasedAircrafts;
+	return carrierName;
 }
