@@ -31,8 +31,12 @@ const sidcUnitCode = {
 	fighter: "MFF---",
 	waypoint: "MGPI--",
 	militaryBase: "IB----",
+	installation: "I-----",
+	transport: "IT----",
 	radar: "ESR---",
 	carrier: "CLCV--",
+	downedPilot: "USS6--",
+	hospital: "IXH---",
 };
 
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
@@ -45,6 +49,7 @@ export const Map = () => {
 	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const shipGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const downedPilotMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const ewMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
@@ -338,6 +343,37 @@ export const Map = () => {
 		});
 	};
 
+	const createDownedPilotSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+		faction.downedPilots.forEach((pilot) => {
+			if (pilot.position == null) {
+				return;
+			}
+
+			if (downedPilotMarkers[pilot.id] == null) {
+				try {
+					const marker = createSymbol({
+						mapPosition: positionToMapPosition(pilot.position),
+						hostile: coalition === "red",
+						domain: "ground",
+						unitCode: "downedPilot",
+						onClick: () => null,
+					});
+
+					if (marker == null) {
+						return;
+					}
+
+					downedPilotMarkers[pilot.id] = marker;
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(e, coalition, pilot);
+				}
+			} else {
+				downedPilotMarkers[pilot.id]?.marker.setLatLng(positionToMapPosition(pilot.position));
+			}
+		});
+	};
+
 	/* const createEWSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		faction.ews.forEach((gg) => {
 			if (gg.position == null) {
@@ -378,7 +414,7 @@ export const Map = () => {
 	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
 			if (objectiveMarkers[structure.id] == null) {
-				let unitCode: SidcUnitCodeKey = "militaryBase";
+				let unitCode: SidcUnitCodeKey = "installation";
 
 				switch (structure.type) {
 					case "Fuel Storage":
@@ -392,6 +428,15 @@ export const Map = () => {
 						break;
 					case "Ammo Depot":
 						unitCode = "ammoDepot";
+						break;
+					case "Hospital":
+						unitCode = "hospital";
+						break;
+					case "Farp":
+						unitCode = "militaryBase";
+						break;
+					case "Barrack":
+						unitCode = "transport";
 						break;
 				}
 
@@ -761,12 +806,14 @@ export const Map = () => {
 		createStructureSymbols("blue", state.blueFaction);
 		createSamSymbols("blue", state.blueFaction);
 		createShipGroupSymbols("blue", state.blueFaction);
+		createDownedPilotSymbols("blue", state.blueFaction);
 		createAircraftSymbols("red", redPackages);
 		createGroundGroupSymbols("red", state.redFaction);
 		// createEWSymbols("red", state.redFaction);
 		createStructureSymbols("red", state.redFaction);
 		createSamSymbols("red", state.redFaction);
 		createShipGroupSymbols("red", state.redFaction);
+		createDownedPilotSymbols("red", state.redFaction);
 		const fgs = [...getFlightGroups(bluePackages), ...getFlightGroups(redPackages)];
 
 		Object.entries(flightGroupMarkers).forEach(([id, marker]) => {
@@ -786,6 +833,17 @@ export const Map = () => {
 			} else {
 				removeSymbol(marker.marker);
 				delete groundGroupMarkers[id];
+			}
+		});
+
+		const pilots = [...state.blueFaction.downedPilots, ...state.redFaction.downedPilots];
+
+		Object.entries(downedPilotMarkers).forEach(([id, marker]) => {
+			if (marker == null || pilots.some((pilot) => pilot.name === id)) {
+				return;
+			} else {
+				removeSymbol(marker.marker);
+				delete downedPilotMarkers[id];
 			}
 		});
 

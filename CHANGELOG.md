@@ -9,6 +9,8 @@
 - Improved flightplan
 - Improved package planning
 - Sync flight group position between mission and DCC
+- CSAR
+- Reworked CAS In-Game communication
 
 ## 0.3.0 (2023-07-07)
 

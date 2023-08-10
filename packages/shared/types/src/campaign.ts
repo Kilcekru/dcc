@@ -21,6 +21,18 @@ export type MissionState = {
 	killed_aircrafts: Array<string>;
 	killed_ground_units: Array<string>;
 	mission_ended: boolean;
+	downed_pilots: Array<{
+		name: string;
+		coalition: number;
+		time: number;
+		x: number;
+		y: number;
+	}>;
+	group_positions: Array<{
+		name: string;
+		x: number;
+		y: number;
+	}>;
 	time: number;
 	mission_id: string;
 };

@@ -2,12 +2,14 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Config } from "../../data";
+import * as Domain from "../../domain";
 import { calcFlightGroupPosition, Minutes, oppositeCoalition, random, timerToDate } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { generateAwacsPackage } from "./awacs";
 import { generateCapPackage } from "./cap";
 import { generateCasPackage } from "./cas";
+import { generateCsarPackage } from "./csar";
 import { generateDeadPackage } from "./dead";
 import { generateStrikePackage } from "./strike";
 
@@ -236,9 +238,40 @@ const strikePackages = (
 
 	const strikePackageCount = Math.ceil(possibleTargets.length / 5);
 
-	// Penalty for red
 	if (taskPackages.length < strikePackageCount) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
+
+		packages = addPackage(packages, pkg);
+
+		if (pkg != null) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+const csarPackages = (
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
+	packages: Array<DcsJs.CampaignPackage>,
+) => {
+	const taskPackages = getRunningPackagesByTask(packages, "CSAR");
+	const faction = getCoalitionFaction(coalition, state);
+
+	if (taskPackages.length <= 2) {
+		const validDownedPilots = faction.downedPilots.filter(
+			(dp) => !taskPackages.some((pkg) => pkg.flightGroups.some((fg) => fg.target === dp.id)),
+		);
+
+		const selectedDownedPilot = Domain.Utils.randomItem(validDownedPilots);
+
+		if (selectedDownedPilot == null) {
+			return;
+		}
+
+		const pkg = generateCsarPackage(coalition, state, dataStore, selectedDownedPilot);
 
 		packages = addPackage(packages, pkg);
 
@@ -275,7 +308,10 @@ const factionPackagesTick = (
 		if (deadPackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}
-		strikePackages(coalition, state, dataStore, faction.packages);
+		if (strikePackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		csarPackages(coalition, state, dataStore, faction.packages);
 	}
 };
 

@@ -34,6 +34,9 @@ export async function buildChief({ env, watch }) {
 			// this build has to handle it.
 			".template": "text",
 			".lua": "text",
+			".png": "text",
+			".ogg": "file",
+			".wav": "file",
 		},
 		external: ["electron"],
 	};

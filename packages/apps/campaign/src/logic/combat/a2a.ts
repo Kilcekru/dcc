@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { getFlightGroups, Minutes, random } from "../../utils";
+import { createDownedPilot } from "../createDownedPilot";
 import { RunningCampaignState } from "../types";
 import { getMaxRangeA2AMissileAvailable } from "../utils";
 
@@ -10,6 +11,8 @@ type BattleReportEntry = {
 	aircraft: DcsJs.Aircraft;
 	weapon: DcsJs.Weapon & DcsJs.A2AWeapon;
 	targetAircraft?: DcsJs.Aircraft;
+	targetPosition?: DcsJs.Position;
+	targetName?: string;
 };
 
 type BattleReport = Array<BattleReportEntry>;
@@ -18,7 +21,9 @@ const saveBattleReport = (
 	report: BattleReport,
 	faction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
+	targetCoalition: DcsJs.CoalitionSide,
 	timer: number,
+	state: RunningCampaignState,
 ) => {
 	if (report.length > 0) {
 		report.forEach((entry) => {
@@ -58,6 +63,17 @@ const saveBattleReport = (
 
 			targetAircraft.alive = false;
 			targetAircraft.destroyedTime = timer;
+
+			if (random(1, 100) > 50 && entry.targetName != null && entry.targetPosition != null) {
+				targetFaction = createDownedPilot(
+					entry.targetName,
+					timer,
+					entry.targetPosition,
+					targetCoalition,
+					targetFaction,
+					state,
+				);
+			}
 		});
 	}
 };
@@ -116,6 +132,8 @@ const a2aRound = (
 
 			if (random(1, 100) <= 100 * distanceFactor) {
 				entry["targetAircraft"] = targetAircraft;
+				entry["targetPosition"] = targetFg.position;
+				entry["targetName"] = targetUnit.name;
 			}
 
 			battleReport.push(entry);
@@ -132,21 +150,23 @@ const a2aFlightGroups = (
 ) => {
 	const battleReport: BattleReport = [];
 
-	attackingFgs.forEach((attackingFlightGroup) => {
-		const targetFlightGroup = targetFgs
-			.filter((fg) => Utils.distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
-			.map((fg) => ({
-				item: fg,
-				distance: Utils.distanceToPosition(attackingFlightGroup.position, fg.position),
-			}))
-			.sort((a, b) => b.distance - a.distance)[0]?.item;
+	attackingFgs
+		.filter((fg) => fg.task === "CAP" || fg.task === "Escort")
+		.forEach((attackingFlightGroup) => {
+			const targetFlightGroup = targetFgs
+				.filter((fg) => Utils.distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
+				.map((fg) => ({
+					item: fg,
+					distance: Utils.distanceToPosition(attackingFlightGroup.position, fg.position),
+				}))
+				.sort((a, b) => a.distance - b.distance)[0]?.item;
 
-		if (targetFlightGroup == null) {
-			return;
-		}
+			if (targetFlightGroup == null) {
+				return;
+			}
 
-		a2aRound(attackingFlightGroup, targetFlightGroup, attackingFaction, targetFaction, timer, battleReport);
-	});
+			a2aRound(attackingFlightGroup, targetFlightGroup, attackingFaction, targetFaction, timer, battleReport);
+		});
 
 	return battleReport;
 };
@@ -174,11 +194,11 @@ export const a2a = (state: RunningCampaignState) => {
 	);
 
 	if (blueBattleReport.length > 0) {
-		saveBattleReport(blueBattleReport, state.blueFaction, state.redFaction, state.timer);
+		saveBattleReport(blueBattleReport, state.blueFaction, state.redFaction, "red", state.timer, state);
 	}
 
 	if (redBattleReport.length > 0) {
-		saveBattleReport(redBattleReport, state.redFaction, state.blueFaction, state.timer);
+		saveBattleReport(redBattleReport, state.redFaction, state.blueFaction, "blue", state.timer, state);
 	}
 
 	/* if (blueBattleReport.length > 0 || redBattleReport.length > 0) {

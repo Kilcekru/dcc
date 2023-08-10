@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 
 import * as Domain from "../domain";
 import { getFlightGroups } from "../utils";
+import { createDownedPilot } from "./createDownedPilot";
 
 export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
 	const flightGroups = getFlightGroups(faction.packages);
@@ -105,6 +106,7 @@ export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitN
 };
 
 export const updateFactionState = (
+	coalition: DcsJs.CampaignCoalition,
 	faction: DcsJs.CampaignFaction,
 	s: DcsJs.CampaignState,
 	missionState: Types.Campaign.MissionState,
@@ -184,6 +186,24 @@ export const updateFactionState = (
 					unit.client = false;
 				}
 			});
+
+			const groupPosition = missionState.group_positions.find((gp) => gp.name === fg.name);
+
+			if (groupPosition == null) {
+				return;
+			}
+
+			fg.position = groupPosition;
 		});
+	});
+
+	missionState.downed_pilots.forEach((pilot) => {
+		if (pilot.coalition === 2 && coalition === "blue") {
+			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s);
+		}
+
+		if (pilot.coalition === 1 && coalition === "red") {
+			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s);
+		}
 	});
 };

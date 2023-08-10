@@ -32,7 +32,7 @@ export const generateCasPackage = (
 	}
 
 	const packageAircrafts = getPackageAircrafts({
-		aircraftTypes: faction.aircraftTypes["Pinpoint Strike"],
+		aircraftTypes: faction.aircraftTypes["CAS"],
 		coalition,
 		state,
 		count: 2,
@@ -41,7 +41,9 @@ export const generateCasPackage = (
 	});
 
 	if (packageAircrafts?.startPosition == null) {
-		throw new Error("generateCasPackage: start position not found");
+		// eslint-disable-next-line no-console
+		console.warn("generateCasPackage: start position not found", { packageAircrafts });
+		return;
 	}
 
 	const cruiseSpeed = getCruiseSpeed(packageAircrafts.aircrafts, dataStore);

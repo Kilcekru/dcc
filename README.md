@@ -51,7 +51,6 @@ Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liber
 
 ## How does the Campaign work
 The campaign is defined by two definition, Scenario and faction.
-The two definitions are not editable at this time. But this will be possible in the future.
 Once the campaign is started each site/faction tries to archive the defined win condition automatically.
 The player can always choose the occupy one (or more) of the planned or active flight group/mission and play the mission out in DCS.
 After flying the mission in DCS the results are processed back into the campaign.
@@ -90,6 +89,12 @@ Provides electricity to structures and SAMs(IADS - coming soon) nearby to improv
 ### Fuel Storage
 Provides Fuel for Depots nearby to improve the deploy time of this structures.
 
+### Hospital
+Cares for the wounded pilots and soldiers. Which helps the deploy time for the next aircrafts or ground groups.
+
+### Prison
+Holds captured pilots and soldiers.
+
 ## Mission Types
 
 ### DEAD
@@ -105,7 +110,10 @@ Destroy all buildings at the given waypoint.
 Protect the designated Strike Group from enemy air threads.
 
 ### CAS
-Close Air Support. Destroy enemy ground units between the given waypoints. You can use the Moose Designation tool (Communication Menu -> F10) to find targets via smoke or laser.
+Close Air Support. Destroy enemy ground units between the given waypoints. Communication Tools with a JTAC to find the targets are available in the Communication Menu.
+
+### CSAR
+Combat search and rescue. Find and rescue previously downed pilots with a helicopter. Communication Tools with the pilot are available in the Communication Menu.
 
 ## Persistence
 Make sure DCS allows DCC to save it state with the following step.

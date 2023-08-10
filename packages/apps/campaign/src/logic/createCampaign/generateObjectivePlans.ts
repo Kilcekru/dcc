@@ -406,6 +406,22 @@ function generateFactionStructures({
 		range: Config.structureRange.fuel * rangeMultiplier,
 		structureType: "Fuel Storage",
 	});
+	objectivePlans = addStructures({
+		objectivePlans,
+		oppObjectivePlans,
+		objectives,
+		strikeTargets,
+		range: Config.structureRange.hospital * rangeMultiplier,
+		structureType: "Hospital",
+	});
+	objectivePlans = addStructures({
+		objectivePlans,
+		oppObjectivePlans,
+		objectives,
+		strikeTargets,
+		range: Config.structureRange.frontline.farp * rangeMultiplier,
+		structureType: "Farp",
+	});
 
 	return objectivePlans;
 }

@@ -12,9 +12,11 @@ export const Config = {
 		power: 50_000,
 		ammo: 50_000,
 		fuel: 50_000,
+		hospital: 50_000,
 		frontline: {
 			barrack: 30_000,
 			depot: 70_000,
+			farp: 50_000,
 		},
 	},
 	deploymentScore: {

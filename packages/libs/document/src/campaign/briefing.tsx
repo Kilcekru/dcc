@@ -89,7 +89,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<div />
 				<div />
 				<p>3</p>
-				<p>123</p>
+				<p>251</p>
 				<p>AWACS</p>
 				<div />
 				<div />

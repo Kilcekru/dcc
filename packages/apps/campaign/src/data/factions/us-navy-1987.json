@@ -20,6 +20,9 @@
 		"Pinpoint Strike": [
 			"AV8BNA",
 			"FA-18C_hornet"
+		],
+		"CSAR": [
+			"UH-1H"
 		]
 	},
 	"templateName": "USA - Modern",

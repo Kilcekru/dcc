@@ -4,11 +4,26 @@
 	"year": 1984,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": ["MiG-29A", "Su-27"],
-		"CAS": ["Su-25"],
-		"AWACS": ["A-50"],
-		"DEAD": ["Su-17M4"],
-		"Pinpoint Strike": ["Su-25", "Su-27"]
+		"CAP": [
+			"MiG-29A",
+			"Su-27"
+		],
+		"CAS": [
+			"Su-25"
+		],
+		"AWACS": [
+			"A-50"
+		],
+		"DEAD": [
+			"Su-17M4"
+		],
+		"Pinpoint Strike": [
+			"Su-25",
+			"Su-27"
+		],
+		"CSAR": [
+			"Mi-8MT"
+		]
 	},
 	"templateName": "Russia - Modern"
 }

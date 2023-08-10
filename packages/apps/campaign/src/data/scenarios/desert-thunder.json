@@ -10,18 +10,12 @@
 		"value": "Enguri Dam"
 	},
 	"blue": {
-		"airdromeNames": [
-			"Ramat David"
-		],
+		"airdromeNames": ["Ramat David"],
 		"carrierObjective": "Alpha",
 		"objectivePlans": []
 	},
 	"red": {
-		"airdromeNames": [
-			"Beirut-Rafic Hariri",
-			"Damascus",
-			"Tha'lah"
-		],
+		"airdromeNames": ["Beirut-Rafic Hariri", "Damascus", "Tha'lah"],
 		"objectivePlans": []
 	}
 }

@@ -65,7 +65,7 @@ export const getStrikeTarget = (
 	const factionObjectives = Object.values(objectives).filter((obj) => obj.coalition === coalition);
 	const structures = Object.values(oppFaction.structures).filter((structure) => {
 		// don't attack Farps
-		if (structure.type === "Farp") {
+		if (structure.type === "Farp" || structure.type === "Hospital") {
 			return false;
 		}
 		const alreadyTarget = faction.packages.find((pkg) => pkg.flightGroups.find((fg) => fg.target === structure.name));

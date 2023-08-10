@@ -195,11 +195,11 @@ export function CampaignProvider(props: {
 						}
 
 						if (s.blueFaction != null) {
-							updateFactionState(s.blueFaction, s, state);
+							updateFactionState("blue", s.blueFaction, s, state);
 						}
 
 						if (s.redFaction != null) {
-							updateFactionState(s.redFaction, s, state);
+							updateFactionState("red", s.redFaction, s, state);
 						}
 
 						missionRound(s, dataStore);
