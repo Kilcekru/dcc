@@ -60,8 +60,8 @@ export function getConfig(): Types.AppMenu.Config {
 				},
 				{ type: "separator" },
 				{
-					label: "Capture Window",
-					action: "dev_captureWindow",
+					label: "Capture Debug Window",
+					action: "dev_captureDebugWindow",
 				},
 				{
 					label: "Capture Test",

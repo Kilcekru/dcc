@@ -1,13 +1,12 @@
 import * as Path from "node:path";
 
-import { app, BrowserWindow, ContextMenuParams, Event, Menu } from "electron";
+import { app, BrowserWindow } from "electron";
 
 import { getAppPath } from "../../utils";
-import { config } from "./config";
+import { captureConfig } from "./config";
 import * as IPC from "./ipc";
 
 let captureWindow: BrowserWindow | undefined;
-let visible = false;
 
 export async function getCaptureWindow() {
 	if (captureWindow != undefined) {
@@ -24,6 +23,7 @@ export async function getCaptureWindow() {
 		enableLargerThanScreen: true,
 		webPreferences: {
 			preload: Path.join(app.getAppPath(), "dist/chief/preload/capture.js"),
+			offscreen: true,
 		},
 	});
 
@@ -34,50 +34,27 @@ export async function getCaptureWindow() {
 	captureWindow.removeMenu();
 
 	// set size explicitly, otherwise it might be constrained by screen size
-	captureWindow.setContentSize(config.width, config.height);
-
-	captureWindow.webContents.on("context-menu", onContextMenu);
+	captureWindow.setContentSize(captureConfig.width, captureConfig.height);
 
 	captureWindow.once("close", () => {
 		captureWindow = undefined;
-		visible = false;
 	});
 
-	const ready = IPC.waitForReady();
+	let painted = new Promise((r) => captureWindow?.webContents.once("paint", r));
 	await captureWindow.loadFile(getAppPath("capture"));
-	await ready;
+	await painted;
+	painted = new Promise((r) => captureWindow?.webContents.once("paint", r));
+	IPC.initialize(captureWindow);
+	await painted;
 	return captureWindow;
 }
 
-export function isCaptureWindowVisible() {
-	return visible;
+export async function initCaptureWindow() {
+	await getCaptureWindow();
 }
 
-export async function showCaptureWindow() {
-	const window = await getCaptureWindow();
-	window.show();
-	visible = true;
-}
-
-function onContextMenu(_e: Event, params: ContextMenuParams) {
-	if (captureWindow == undefined) {
-		return;
+export function closeCaptureWindow() {
+	if (captureWindow != undefined) {
+		captureWindow.close();
 	}
-
-	const contextMenu = Menu.buildFromTemplate([
-		{
-			label: "Reload",
-			click: () => {
-				captureWindow?.webContents.reload();
-			},
-		},
-		{ type: "separator" },
-		{
-			label: "Inspect",
-			click: () => {
-				captureWindow?.webContents.inspectElement(params.x, params.y);
-			},
-		},
-	]);
-	contextMenu.popup({ window: captureWindow, x: params.x, y: params.y });
 }

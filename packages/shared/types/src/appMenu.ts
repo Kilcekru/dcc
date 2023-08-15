@@ -43,7 +43,7 @@ export type Action =
 	| "dev_openDevTools"
 	| "dev_resetUserSettings"
 	| "dev_logCampaignState"
-	| "dev_captureWindow"
+	| "dev_captureDebugWindow"
 	| "dev_captureTest"
 	| "loadLauncher"
 	| "loadSettings"

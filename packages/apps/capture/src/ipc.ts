@@ -5,6 +5,5 @@ interface CaptureWindow extends Window {
 }
 declare const window: CaptureWindow;
 
-export const ready = window._dcc.ready;
-export const renderComplete = window._dcc.renderComplete;
+export const onInitialize = window._dcc.onInitialize;
 export const onRequestRender = window._dcc.onRequestRender;

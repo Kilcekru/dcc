@@ -6,7 +6,8 @@ import { app, BrowserWindow } from "electron";
 import FS from "fs-extra";
 
 import * as Events from "../../rpc/events";
-import { capture, showCaptureWindow } from "../capture";
+import { capture, initCaptureWindow } from "../capture";
+import { openCaptureDebugWindow } from "../capture/debug";
 import * as Persistance from "../persistance";
 import { loadApp, mainView, mainWindow } from "../window";
 
@@ -36,14 +37,17 @@ export const actions: Record<Types.AppMenu.Action, () => void> = {
 		}
 	},
 	dev_logCampaignState: () => Events.send("menu.dev.logState", undefined),
-	dev_captureWindow: () => showCaptureWindow(),
+	dev_captureDebugWindow: () => openCaptureDebugWindow(),
 	dev_captureTest: async () => {
-		const images = await capture([
-			{ type: "campaign.test", data: { text: "kneeboard 1" } },
-			{ type: "campaign.test", data: { text: "kneeboard 2" } },
-			{ type: "campaign.test", data: { text: "kneeboard 3" } },
-		]);
-		await Promise.all(images.map((img, i) => FS.outputFile(Path.join(app.getAppPath(), `../.tmp/img-${i}.png`), img)));
+		const arr = Array.from({ length: 10 }).map((_v, i) => ({
+			type: "campaign.test" as const,
+			data: { text: `kneeboard ${i}` },
+		}));
+		await initCaptureWindow();
+		const images = await capture(arr);
+		await Promise.all(
+			images.map((img, i) => FS.outputFile(Path.join(app.getAppPath(), `../.tmp/capture-test/img-${i}.png`), img)),
+		);
 	},
 	loadLauncher: () => loadApp("home"),
 	loadSettings: () => loadApp("home", { action: "settings" }),
