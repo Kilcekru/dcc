@@ -72,7 +72,7 @@ export const FlightGroupItem = (props: {
 					</div>
 				</div>
 				<div class={Styles["aircrafts-wrapper"]}>
-					<p class={Styles.label}>Aircrafts</p>
+					<p class={Styles.label}>Aircraft</p>
 					<div class={Styles.aircrafts}>
 						<For each={aircrafts()}>
 							{(aircraft) => (

@@ -59,7 +59,7 @@ After flying the mission in DCS the results are processed back into the campaign
 The scenario defines on which map and when the campaign takes place. It also says what the win condition is. And what objective and structures are allocated to which side at the start of the campaign.
 
 ### Faction
-This defines which planes, helicopters and ground units is available for the given faction. The aircrafts are categories into the different mission types available.
+This defines which planes, helicopters and ground units are available for the given faction. Aircraft availability can be set individually for the different mission types.
 
 ### Hardcore
 You can choose at campaign start to activate the hardcore mode. Hardcore means if you(or a client in multiplayer) dies in a mission the campaign fails.
