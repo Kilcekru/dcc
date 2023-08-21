@@ -17,7 +17,7 @@ export const ScenarioDescription = (props: { scenarioName: string; next: () => v
 			<div class={Styles.wrapper}>
 				<h1 class={Styles.title}>{props.scenarioName}</h1>
 				<h2 class={Styles.subtitle}>Dynamic Campaign</h2>
-				{ /* eslint-disable-next-line solid/no-innerhtml */ }
+				{/* eslint-disable-next-line solid/no-innerhtml */}
 				<div innerHTML={scenario()?.briefing} />
 				<Components.Button onPress={() => props.next()} large class={Styles.button}>
 					Start Campaign
