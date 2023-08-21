@@ -3,11 +3,14 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
 
 if (process.isMainFrame) {
 	const _dcc: Types.Capture.IPC = {
-		ready: () => {
-			ipcRenderer.send("Capture.ready");
-		},
-		renderComplete: () => {
-			ipcRenderer.send("Capture.renderComplete");
+		onInitialize: (listener) => {
+			const cb = (_e: IpcRendererEvent) => {
+				listener();
+			};
+			ipcRenderer.on("Capture.initialize", cb);
+			return () => {
+				ipcRenderer.off("Capture.initialize", cb);
+			};
 		},
 		onRequestRender: (listener) => {
 			const cb = (_e: IpcRendererEvent, args: string) => {
