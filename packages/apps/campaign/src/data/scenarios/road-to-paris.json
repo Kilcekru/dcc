@@ -5,6 +5,7 @@
 	"available": false,
 	"date": "1944-06-06",
 	"era": "WW2",
+	"briefing": "",
 	"win-condition": {
 		"type": "ground units"
 	},

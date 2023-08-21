@@ -84,6 +84,7 @@ export const CreateCampaign = () => {
 						</Match>
 						<Match when={currentScreen() === "Start"}>
 							<ScenarioDescription
+								scenarioName={scenario()}
 								next={() => setCurrentScreen("Blue Faction")}
 								prev={() => setCurrentScreen("Scenarios")}
 							/>

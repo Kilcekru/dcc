@@ -5,6 +5,7 @@
 	"available": true,
 	"date": "1972-09-20",
 	"era": "Cold War",
+	"briefing": "In the aftermath of Syria's invasion of Lebanon, Israel has launched a military campaign to recapture the territory and reestablish control. The conflict has escalated significantly, posing grave implications for regional stability and international security.",
 	"win-condition": {
 		"type": "objective",
 		"value": "Enguri Dam"

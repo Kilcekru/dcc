@@ -23,6 +23,7 @@ export type Scenario = {
 	name: string;
 	era: string;
 	date: string;
+	briefing: string;
 	"win-condition":
 		| {
 				type: "ground units";
