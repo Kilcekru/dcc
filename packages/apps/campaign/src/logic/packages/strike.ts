@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
+import * as Domain from "../../domain";
 import {
 	addHeading,
 	calcPackageEndTime,
@@ -61,6 +62,8 @@ const escortFlightGroup = ({
 		cs = generateCallSign(coalition, state, dataStore, "aircraft");
 	}
 
+	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
+
 	const [holdWaypoint] = calcHoldWaypoint(packageAircrafts.startPosition, ingressPosition, cruiseSpeed);
 	const [landingWaypoints] = calcLandingWaypoints({
 		egressPosition: egressPosition,
@@ -98,6 +101,7 @@ const escortFlightGroup = ({
 			...landingWaypoints,
 		],
 		target: targetFlightGroup.name,
+		frequency: calcFrequency(aircraftType, dataStore),
 		position: objectToPosition(packageAircrafts.startPosition),
 	};
 
@@ -144,6 +148,7 @@ export const generateStrikePackage = (
 		return;
 	}
 
+	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 	const cruiseSpeed = getCruiseSpeed([...packageAircrafts.aircrafts, ...escortPackageAircrafts.aircrafts], dataStore);
 
 	const targetStructure = getStrikeTarget(
@@ -254,6 +259,7 @@ export const generateStrikePackage = (
 			...landingWaypoints,
 		],
 		target: targetStructure.name,
+		frequency: calcFrequency(aircraftType, dataStore),
 		position: objectToPosition(packageAircrafts.startPosition),
 	};
 

@@ -84,7 +84,7 @@ const CarrierList = (props: { selectedCarrierName: string | undefined; toggle: (
 	);
 };
 
-const countries = ["USA", "Russia", "France", "Germany", "Austria", "Iraq", "Iran", "Syria"];
+const countries = ["USA", "Russia", "France", "Germany", "Austria", "Iraq", "Iran", "Syria", "Sweden"];
 
 const CountryList = (props: { selectedCountry: string; toggle: (name: string) => void }) => {
 	return (

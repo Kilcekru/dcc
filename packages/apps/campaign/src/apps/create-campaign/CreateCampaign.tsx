@@ -23,7 +23,7 @@ export const CreateCampaign = () => {
 	const setDataMap = useSetDataMap();
 	const createToast = useCreateErrorToast();
 
-	const onActivate = (aiSkill: DcsJs.AiSkill, hardcore: boolean, nightMissions: boolean) => {
+	const onActivate = (aiSkill: DcsJs.AiSkill, hardcore: boolean, nightMissions: boolean, badWeather: boolean) => {
 		const blue = blueFaction();
 		const red = redFaction();
 		if (blue == null || red == null) {
@@ -31,7 +31,7 @@ export const CreateCampaign = () => {
 		}
 
 		try {
-			activate?.(dataStore, blue, red, aiSkill, hardcore, nightMissions, scenario());
+			activate?.(dataStore, blue, red, aiSkill, hardcore, nightMissions, badWeather, scenario());
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(e);

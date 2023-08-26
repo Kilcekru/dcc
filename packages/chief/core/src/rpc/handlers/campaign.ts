@@ -48,6 +48,7 @@ const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
 
 	return {
 		map,
+		mapInfo: mapData.info,
 		airdromes: mapData.airdromes,
 		objectives: mapData.objectives,
 		strikeTargets: mapData.strikeTargets,

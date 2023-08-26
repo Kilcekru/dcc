@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
+import * as Domain from "../../domain";
 import {
 	addHeading,
 	calcPackageEndTime,
@@ -36,6 +37,7 @@ export const generateCapPackage = (
 	const aircraftCount = random(2, 4);
 
 	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, aircraftCount);
+	const aircraftType = Domain.Utils.firstItem(usableAircrafts)?.aircraftType as DcsJs.AircraftType;
 	const airdromes = dataStore.airdromes;
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -205,7 +207,7 @@ export const generateCapPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

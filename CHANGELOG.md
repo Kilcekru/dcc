@@ -1,18 +1,35 @@
 # Change Log
 
+## 0.5.0 (planned)
+* Add hot start
+
 ## 0.4.0 (in progress)
 
-- Randomize the state of the campaign at the start
 - Add Carrier
 - Add the first Syria scenario: Desert Thunder
-- Kneeboards
+- Add Korea War Factions(without SAMs)
+- Add SK-60 Mod
+- Add Sweden Faction
+- Add no bad weather option
+- Add map specific dynamic weather
+- Add Mission Type CSAR (Combat Search And Rescue) - Pick up a downed pilot and bring him/her back to safety
+- Add Mission Briefing Kneeboard
+- Randomize the state of the campaign at the start
 - Improved flightplan
 - Improved package planning
+- Improved F-15E Loadout
 - Sync flight group position between mission and DCC
-- CSAR
 - Reworked CAS In-Game communication
-- Fix Harrier Loadout
-* Add Early Cold War Factions without SAMs
+- Fix: Harrier Loadout
+- Fix: MiG-15 Radio Frequency
+- Fix: F-4 Radio Frequency 
+- Fix: Communication Callsign
+- Fix: Helicopter Spawn Altitude
+- Fix: Missing Mission Parameters(Compatible with DCS Web Editor)
+
+* Fix: Dedicated Server Module Bug
+
+* Improved escort mission(BRAA call via communication menu and kneeboard information)
 
 ## 0.3.0 (2023-07-07)
 

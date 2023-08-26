@@ -6,6 +6,7 @@ import { createStore } from "solid-js/store";
 
 const initState: Types.Campaign.DataStore = {
 	map: "caucasus",
+	mapInfo: undefined,
 	airdromes: undefined,
 	objectives: undefined,
 	strikeTargets: undefined,

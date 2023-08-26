@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
+import * as Domain from "../../domain";
 import {
 	addHeading,
 	calcPackageEndTime,
@@ -57,6 +58,8 @@ export const generateDeadPackage = (
 		console.warn("generateDeadPackage: start position not found", packageAircrafts);
 		return;
 	}
+
+	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 
 	const cruiseSpeed = getCruiseSpeed(packageAircrafts.aircrafts, dataStore);
 
@@ -170,7 +173,7 @@ export const generateDeadPackage = (
 		taskEndTime: endEnRouteTime + 1,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, dataStore),
 		id: createUniqueId(),
 	};
 };

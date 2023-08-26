@@ -8,6 +8,7 @@ export type DataStore = {
 	airdromes: DcsJs.GetMapData["airdromes"] | undefined;
 	objectives: DcsJs.GetMapData["objectives"] | undefined;
 	strikeTargets: DcsJs.GetMapData["strikeTargets"] | undefined;
+	mapInfo: DcsJs.GetMapData["info"] | undefined;
 	samTemplates: DcsJs.GetSamTemplates | undefined;
 	vehicles: DcsJs.GetVehicles | undefined;
 	structures: DcsJs.GetStructures | undefined;

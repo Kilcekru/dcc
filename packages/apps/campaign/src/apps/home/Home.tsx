@@ -14,7 +14,16 @@ import styles from "./Home.module.less";
 export const Home = () => {
 	const [
 		state,
-		{ tick, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore, togglePause, clearToastMessages },
+		{
+			tick,
+			saveCampaignRound,
+			pause,
+			updateDeploymentScore,
+			updateRepairScore,
+			updateWeather,
+			togglePause,
+			clearToastMessages,
+		},
 	] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	let inter: number;
@@ -55,6 +64,7 @@ export const Home = () => {
 	const longInterval = () => {
 		updateDeploymentScore?.();
 		updateRepairScore?.();
+		updateWeather?.(dataStore);
 		save();
 	};
 

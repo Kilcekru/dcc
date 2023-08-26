@@ -5,6 +5,7 @@ import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
 import { Config, scenarioList } from "../data";
+import * as Domain from "../domain";
 import {
 	campaignRound,
 	clearPackages,
@@ -26,6 +27,7 @@ type CampaignStore = [
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
 			nightMissions: boolean,
+			badWeather: boolean,
 			scenario: string,
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
@@ -44,6 +46,7 @@ type CampaignStore = [
 		saveCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
 		updateDeploymentScore?: () => void;
 		updateRepairScore?: () => void;
+		updateWeather?: (dataStore: Types.Campaign.DataStore) => void;
 		skipToNextDay?: () => void;
 		resumeNextDay?: () => void;
 		generateMissionId?: () => void;
@@ -77,6 +80,16 @@ export const initState: DcsJs.CampaignState = {
 	map: "caucasus",
 	created: new Date(),
 	edited: new Date(),
+	weather: {
+		temperature: 0,
+		wind: {
+			direction: 0,
+			speed: 0,
+		},
+		cloudCover: 0,
+		cloudCoverData: [],
+		offset: 0,
+	},
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -90,7 +103,7 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
+			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, badWeather, scenarioName) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
 					structuredClone(initState),
@@ -100,6 +113,7 @@ export function CampaignProvider(props: {
 					aiSkill,
 					hardcore,
 					nightMissions,
+					badWeather,
 					scenarioName,
 				);
 				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
@@ -214,6 +228,24 @@ export function CampaignProvider(props: {
 			},
 			updateRepairScore() {
 				setState(produce((s) => repairScoreUpdate(s)));
+			},
+			updateWeather(dataStore) {
+				setState(
+					produce((s) => {
+						const currentWeather = Domain.Weather.getCurrentWeather(
+							s.timer,
+							s.weather.offset,
+							s.weather.cloudCoverData,
+							s.allowBadWeather ?? false,
+							dataStore,
+						);
+						s.weather.temperature = currentWeather.temperature;
+						s.weather.cloudCover = currentWeather.cloudCover;
+						s.weather.wind = currentWeather.wind;
+
+						return s;
+					}),
+				);
 			},
 			skipToNextDay() {
 				setState(

@@ -1,0 +1,22 @@
+{
+	"countryName": "USA",
+	"name": "USA",
+	"year": 1952,
+	"playable": true,
+	"aircraftTypes": {
+		"CAP": [
+			"F-86F Sabre"
+		],
+		"CAS": [
+			"F-86F Sabre"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"Pinpoint Strike": [
+			"F-86F Sabre",
+			"MosquitoFBMkVI"
+		]
+	},
+	"templateName": "USA - Korea War"
+}

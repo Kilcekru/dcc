@@ -1,0 +1,27 @@
+{
+	"countryName": "Sweden",
+	"name": "Sweden",
+	"year": 1970,
+	"playable": true,
+	"aircraftTypes": {
+		"CAP": [
+			"AJS37"
+		],
+		"CAS": [
+			"SK-60"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"DEAD": [
+			"AJS37"
+		],
+		"Pinpoint Strike": [
+			"AJS37"
+		],
+		"CSAR": [
+			"SA342L"
+		]
+	},
+	"templateName": "Russia - Korea War"
+}

@@ -4,6 +4,8 @@ import { unwrap } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
 import { scenarioList } from "../../data/scenarios";
+import * as Domain from "../../domain";
+import { getCurrentWeather } from "../../domain/weather";
 import { firstItem, Minutes } from "../../utils";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundGroups } from "./generateGroundGroups";
@@ -26,6 +28,7 @@ export const createCampaign = (
 	aiSkill: DcsJs.AiSkill,
 	hardcore: boolean,
 	nightMissions: boolean,
+	badWeather: boolean,
 	scenarioName: string,
 ) => {
 	const scenario = scenarioList.find((sc) => sc.name === scenarioName);
@@ -207,6 +210,14 @@ export const createCampaign = (
 		}
 	}
 
+	const weatherOffset = Domain.Utils.random(-3, 3);
+	const cloudCoverData = Domain.Weather.generateCloudCover(
+		dataStore.mapInfo?.weather.cloudCover.baseCloudCover ?? 0,
+		dataStore.mapInfo?.weather.cloudCover.seasonEffect ?? 0,
+	);
+
+	const currentWeather = getCurrentWeather(state.timer, weatherOffset, cloudCoverData, badWeather, dataStore);
+
 	state.id = uuid();
 	state.name = scenario.name;
 	state.active = true;
@@ -215,8 +226,16 @@ export const createCampaign = (
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
 	state.allowNightMissions = nightMissions;
+	state.allowBadWeather = badWeather;
 	state.winner = undefined;
 	state.toastMessages = [];
+	state.weather = {
+		temperature: currentWeather.temperature,
+		offset: weatherOffset,
+		wind: currentWeather.wind,
+		cloudCover: currentWeather.cloudCover,
+		cloudCoverData,
+	};
 
 	return state;
 };
