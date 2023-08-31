@@ -154,7 +154,7 @@ export const generateCapPackage = (
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:
@@ -167,6 +167,7 @@ export const generateCapPackage = (
 		name: cs.flightGroupName,
 		task: "CAP",
 		startTime,
+		designatedStartTime: startTime,
 		tot: endEnRouteTime + 1,
 		landingTime,
 		waypoints: [

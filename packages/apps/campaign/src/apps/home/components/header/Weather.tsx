@@ -3,13 +3,14 @@ import { Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import * as Domain from "../../../../domain";
+import Styles from "./Weather.module.less";
 
 export const Weather = () => {
 	const [state] = useContext(CampaignContext);
 	const cloudCoverPreset = Domain.Weather.getCloudPreset(state.weather.cloudCover);
 
 	return (
-		<div>
+		<div class={Styles.wrapper}>
 			<Switch>
 				<Match when={cloudCoverPreset === "Overcast"}>
 					<Components.Icons.CloudFill />
@@ -24,7 +25,7 @@ export const Weather = () => {
 					<Components.Icons.CloudSunFill />
 				</Match>
 			</Switch>
-			({state.weather.cloudCover}){state.weather.temperature}°C
+			{state.weather.temperature}°C
 		</div>
 	);
 };

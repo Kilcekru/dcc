@@ -6,12 +6,19 @@ import { AiSkillMap } from "../../../utils";
 import Styles from "./Settings.module.less";
 
 export const Settings = (props: {
-	next: (aiSkill: DcsJs.AiSkill, hardcore: boolean, nightMissions: boolean, badWeather: boolean) => void;
+	next: (
+		aiSkill: DcsJs.AiSkill,
+		hardcore: boolean,
+		training: boolean,
+		nightMissions: boolean,
+		badWeather: boolean,
+	) => void;
 	prev: () => void;
 }) => {
 	const [hardcore, setHardcore] = createSignal(false);
 	const [nightMissions, setNightMissions] = createSignal(false);
 	const [badWeather, setBadWeather] = createSignal(true);
+	const [training, setTraining] = createSignal(false);
 	const [aiSkill, setAiSkill] = createSignal<DcsJs.AiSkill>("Average");
 	return (
 		<div>
@@ -24,6 +31,12 @@ export const Settings = (props: {
 				Hardcore
 			</Components.Switch>
 			<p class={Styles["hardcore-description"]}>You have one life. When you die the campaign is over</p>
+			<Components.Switch checked={training()} onChange={(value) => setTraining(value)}>
+				Trainings Mode
+			</Components.Switch>
+			<p class={Styles["hardcore-description"]}>
+				The AI(Air and Ground) will not engage in combat during the DCS Mission
+			</p>
 			<Components.Switch
 				checked={nightMissions()}
 				onChange={(value) => setNightMissions(value)}
@@ -43,7 +56,10 @@ export const Settings = (props: {
 			</Components.RadioGroup>
 
 			<div class={Styles.buttons}>
-				<Components.Button large onPress={() => props.next(aiSkill(), hardcore(), nightMissions(), badWeather())}>
+				<Components.Button
+					large
+					onPress={() => props.next(aiSkill(), hardcore(), training(), nightMissions(), badWeather())}
+				>
 					Next
 				</Components.Button>
 			</div>

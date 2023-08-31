@@ -103,6 +103,7 @@ export const generateCasPackage = (
 		name: cs.flightGroupName,
 		task: "CAS",
 		startTime,
+		designatedStartTime: startTime,
 		tot: endEnRouteTime + 1,
 		landingTime,
 		waypoints: [

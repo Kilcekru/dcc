@@ -14,6 +14,8 @@
 - Add map specific dynamic weather
 - Add Mission Type CSAR (Combat Search And Rescue) - Pick up a downed pilot and bring him/her back to safety
 - Add Mission Briefing Kneeboard
+- Add Helicopter Map Symbols
+- Add Trainings Mode
 - Randomize the state of the campaign at the start
 - Improved flightplan
 - Improved package planning
@@ -26,8 +28,8 @@
 - Fix: Communication Callsign
 - Fix: Helicopter Spawn Altitude
 - Fix: Missing Mission Parameters(Compatible with DCS Web Editor)
-
-* Fix: Dedicated Server Module Bug
+- Fix: Dedicated Server
+- Fix: "Something went terribly" wrong in the Map
 
 * Improved escort mission(BRAA call via communication menu and kneeboard information)
 

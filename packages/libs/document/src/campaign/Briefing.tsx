@@ -80,10 +80,10 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<p>{props.data.package.frequency}</p>
 				<p>Package</p>
 				<p>1</p>
-				<p>123</p>
+				<p>{props.data.mapData.airdromes[props.data.flightGroup.airdromeName]?.frequency}</p>
 				<p>{props.data.flightGroup.airdromeName}</p>
 				<p>2</p>
-				<p>123</p>
+				<p>{props.data.mapData.airdromes[props.data.flightGroup.airdromeName]?.frequency}</p>
 				<p>{props.data.flightGroup.airdromeName}</p>
 				<div />
 				<div />
@@ -123,7 +123,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 
 						return (
 							<>
-								<p class={Styles.label}>{i() + 1}</p>
+								<p class={Styles.label}>{i()}</p>
 								<p>{wp.name}</p>
 								<p>
 									<Components.Clock value={time} />

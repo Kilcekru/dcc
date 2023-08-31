@@ -27,7 +27,7 @@ export const Header = () => {
 
 	return (
 		<div class={Styles.header}>
-			<div>
+			<div class={Styles["left-col"]}>
 				<div>
 					<h1 class={Styles.title}>{state.name}</h1>
 					<p class={Styles.hardcore}>

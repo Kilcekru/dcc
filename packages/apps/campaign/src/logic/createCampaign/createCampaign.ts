@@ -27,6 +27,7 @@ export const createCampaign = (
 	redFaction: DcsJs.Faction,
 	aiSkill: DcsJs.AiSkill,
 	hardcore: boolean,
+	training: boolean,
 	nightMissions: boolean,
 	badWeather: boolean,
 	scenarioName: string,
@@ -225,6 +226,7 @@ export const createCampaign = (
 	state.winningCondition = scenario["win-condition"];
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
+	state.training = training;
 	state.allowNightMissions = nightMissions;
 	state.allowBadWeather = badWeather;
 	state.winner = undefined;

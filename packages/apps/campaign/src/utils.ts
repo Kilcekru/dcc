@@ -281,15 +281,15 @@ export const calcPackageEndTime = (startTime: number, fgs: Array<DcsJs.CampaignF
 	);
 };
 
-export const getFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
+export const getFlightGroups = (packages: Array<DcsJs.FlightPackage> | undefined) => {
 	return (
 		packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups];
-		}, [] as Array<DcsJs.CampaignFlightGroup>) ?? []
+		}, [] as Array<DcsJs.FlightGroup>) ?? []
 	);
 };
 
-export const getClientFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
+export const getClientFlightGroups = (packages: Array<DcsJs.FlightPackage> | undefined) => {
 	const fgs = getFlightGroups(packages);
 
 	return fgs.filter((fg) => fg.units.some((unit) => unit.client)) ?? [];

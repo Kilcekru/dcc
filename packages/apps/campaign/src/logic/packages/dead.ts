@@ -126,6 +126,7 @@ export const generateDeadPackage = (
 		name: cs.flightGroupName,
 		task: "DEAD",
 		startTime,
+		designatedStartTime: startTime,
 		tot: endIngressTime + 1,
 		landingTime: landingTime,
 		waypoints: [

@@ -3,6 +3,7 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { createMemo, Show, useContext } from "solid-js";
 
+import * as Domain from "../../domain";
 import { CampaignContext } from "../CampaignProvider";
 import { useDataStore } from "../DataProvider";
 import { useFaction } from "../utils";
@@ -10,7 +11,7 @@ import Styles from "./FlightGroupButtons.module.less";
 
 export function FlightGroupButtons(props: {
 	coalition: DcsJs.CampaignCoalition | undefined;
-	flightGroup: DcsJs.CampaignFlightGroup | undefined;
+	flightGroup: DcsJs.FlightGroup | undefined;
 	class?: string;
 }) {
 	const [, { setClient }] = useContext(CampaignContext);
@@ -43,7 +44,7 @@ export function FlightGroupButtons(props: {
 	});
 
 	const clientCount = createMemo(() => {
-		return props.flightGroup?.units.filter((unit) => unit.client).length ?? 0;
+		return Domain.Client.flightGroupClientCount(props.flightGroup);
 	});
 
 	const hasPlayableAircrafts = createMemo(() =>

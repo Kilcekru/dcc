@@ -7,7 +7,7 @@ import { useDataStore } from "../../../../components/DataProvider";
 import { getClientFlightGroups } from "../../../../utils";
 import Styles from "./ClientList.module.less";
 
-function Item(props: { flightGroup: DcsJs.FlightGroup }) {
+function Item(props: { flightGroup: DcsJs.CampaignFlightGroup }) {
 	const [state] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 

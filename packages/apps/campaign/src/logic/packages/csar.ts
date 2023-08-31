@@ -69,7 +69,7 @@ export const generateCsarPackage = (
 		id: createUniqueId() + "-" + String(startTime),
 		airdromeName: packageAircrafts.startPosition.name,
 		units:
-			packageAircrafts.aircrafts?.slice(0, 2).map((aircraft, i) => ({
+			packageAircrafts.aircrafts?.slice(0, 1).map((aircraft, i) => ({
 				id: aircraft.id,
 				callSign: cs.unitCallSign(i),
 				name: cs.unitName(i),
@@ -78,6 +78,7 @@ export const generateCsarPackage = (
 		name: cs.flightGroupName,
 		task: "CSAR",
 		startTime,
+		designatedStartTime: startTime,
 		tot: pickUpTime,
 		landingTime: landingTime,
 		waypoints: [

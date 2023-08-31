@@ -242,9 +242,9 @@ const moveFactionGroundGroups = (
 						return;
 					}
 					gg.position = positionAfterDurationToPosition(
-						startObjective.position,
+						gg.position,
 						objective.position,
-						state.timer - gg.startTime,
+						state.timer - state.lastTickTimer,
 						6, // slow down on map, because the units uses the direct way.
 					);
 				}

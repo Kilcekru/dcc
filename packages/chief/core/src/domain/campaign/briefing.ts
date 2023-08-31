@@ -23,6 +23,7 @@ export async function generateBriefingKneeboards(campaign: DcsJs.CampaignState) 
 						flightGroup: fg,
 						aircraftInventory: faction.inventory.aircrafts,
 						dataAircrafts: DcsJs.getAircrafts(),
+						mapData: DcsJs.getMapData(campaign.map),
 					},
 				});
 			}

@@ -1,4 +1,6 @@
+export * as Client from "./client";
 export * as Faction from "./faction";
+export * as FlightGroup from "./flight-group";
 export * as Format from "./format";
 export * as Location from "./location";
 export * as Sort from "./sort";

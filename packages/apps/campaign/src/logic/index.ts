@@ -63,3 +63,4 @@ export * from "./contextHelper";
 export * from "./createCampaign";
 export * from "./deploymentScoreUpdate";
 export * from "./repairScoreUpdate";
+export * from "./updateDownedPilots";

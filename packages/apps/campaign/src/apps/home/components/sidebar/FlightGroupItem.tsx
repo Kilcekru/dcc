@@ -9,7 +9,7 @@ import { OverlaySidebarContext } from "../overlay-sidebar";
 import Styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: {
-	flightGroup: DcsJs.CampaignFlightGroup;
+	flightGroup: DcsJs.FlightGroup;
 	faction: DcsJs.CampaignFaction | undefined;
 }) => {
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);

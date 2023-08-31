@@ -12,6 +12,8 @@ const ScenarioItem = (props: { scenario: Scenario; onPress: (name: Scenario) => 
 				return Styles["red-bullet"];
 			case "road-to-paris":
 				return Styles["road-to-paris"];
+			case "desert-thunder":
+				return Styles["desert-thunder"];
 			default:
 				return;
 		}

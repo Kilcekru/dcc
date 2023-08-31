@@ -69,7 +69,7 @@ export const generateAwacsPackage = (
 
 	const cs = generateCallSign(coalition, state, dataStore, "awacs");
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
 		airdromeName,
 		units:
@@ -82,6 +82,7 @@ export const generateAwacsPackage = (
 		name: cs.flightGroupName,
 		task: "AWACS",
 		startTime,
+		designatedStartTime: startTime,
 		tot: startTime + endEnRouteTime + 1,
 		landingTime,
 		waypoints: [

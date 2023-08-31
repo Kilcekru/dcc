@@ -13,6 +13,7 @@ import {
 	deploymentScoreUpdate,
 	missionRound,
 	repairScoreUpdate,
+	updateDownedPilots,
 	updateFactionState,
 } from "../logic";
 import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
@@ -26,6 +27,7 @@ type CampaignStore = [
 			redFaction: DcsJs.Faction,
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
+			training: boolean,
 			nightMissions: boolean,
 			badWeather: boolean,
 			scenario: string,
@@ -47,6 +49,7 @@ type CampaignStore = [
 		updateDeploymentScore?: () => void;
 		updateRepairScore?: () => void;
 		updateWeather?: (dataStore: Types.Campaign.DataStore) => void;
+		updateDownedPilots?: () => void;
 		skipToNextDay?: () => void;
 		resumeNextDay?: () => void;
 		generateMissionId?: () => void;
@@ -74,6 +77,8 @@ export const initState: DcsJs.CampaignState = {
 	aiSkill: "Average",
 	name: "",
 	nextDay: false,
+	allowBadWeather: false,
+	training: false,
 	allowNightMissions: false,
 	missionId: undefined,
 	toastMessages: [],
@@ -103,7 +108,17 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, badWeather, scenarioName) {
+			activate(
+				dataStore,
+				blueFaction,
+				redFaction,
+				aiSkill,
+				hardcore,
+				training,
+				nightMissions,
+				badWeather,
+				scenarioName,
+			) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
 					structuredClone(initState),
@@ -112,6 +127,7 @@ export function CampaignProvider(props: {
 					redFaction,
 					aiSkill,
 					hardcore,
+					training,
 					nightMissions,
 					badWeather,
 					scenarioName,
@@ -180,6 +196,24 @@ export function CampaignProvider(props: {
 								unit.client = i < count;
 							});
 						});
+
+						const takeoffTime = Domain.Client.calcTakeoffTime(s.blueFaction.packages);
+
+						if (takeoffTime == null) {
+							s.blueFaction.packages.forEach((pkg) => {
+								pkg.flightGroups.forEach((fg) => {
+									if (fg.startTime !== fg.designatedStartTime) {
+										fg.startTime = fg.designatedStartTime;
+									}
+								});
+							});
+						} else {
+							s.blueFaction.packages.forEach((pkg) => {
+								if (Domain.Client.packageHasClient(pkg)) {
+									pkg.flightGroups.forEach((fg) => (fg.startTime = takeoffTime));
+								}
+							});
+						}
 						s.missionId = undefined;
 					}),
 				);
@@ -244,6 +278,18 @@ export function CampaignProvider(props: {
 						s.weather.wind = currentWeather.wind;
 
 						return s;
+					}),
+				);
+			},
+			updateDownedPilots() {
+				setState(
+					produce((s) => {
+						if (s.blueFaction == null || s.redFaction == null) {
+							return;
+						}
+
+						s.blueFaction = updateDownedPilots(s.blueFaction, s.timer);
+						s.redFaction = updateDownedPilots(s.redFaction, s.timer);
 					}),
 				);
 			},

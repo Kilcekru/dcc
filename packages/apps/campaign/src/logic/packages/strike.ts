@@ -87,6 +87,7 @@ const escortFlightGroup = ({
 		name: cs.flightGroupName,
 		task: "Escort",
 		startTime: targetFlightGroup.startTime,
+		designatedStartTime: targetFlightGroup.startTime,
 		tot: targetFlightGroup.tot,
 		landingTime: targetFlightGroup.landingTime,
 		waypoints: [
@@ -222,6 +223,7 @@ export const generateStrikePackage = (
 		name: cs.flightGroupName,
 		task: "Pinpoint Strike",
 		startTime,
+		designatedStartTime: startTime,
 		tot: endIngressTime + 1,
 		landingTime: landingTime,
 		waypoints: [

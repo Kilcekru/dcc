@@ -21,6 +21,7 @@ export const Home = () => {
 			updateDeploymentScore,
 			updateRepairScore,
 			updateWeather,
+			updateDownedPilots,
 			togglePause,
 			clearToastMessages,
 		},
@@ -65,6 +66,7 @@ export const Home = () => {
 		updateDeploymentScore?.();
 		updateRepairScore?.();
 		updateWeather?.(dataStore);
+		updateDownedPilots?.();
 		save();
 	};
 

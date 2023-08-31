@@ -449,14 +449,20 @@ export function generateObjectivePlans(
 	const redLanes = generateLanes(redPositions, bluePositions);
 
 	let blueObjs: Array<DynamicObjectivePlan> = [];
+	const maxBlueObjsCount = Domain.Utils.random(5, 12);
 	let redObjs: Array<DynamicObjectivePlan> = [];
 
 	// Basic Objectives
 	while (!endOfLine) {
-		blueObjs = addBasicObjective(blueLanes, blueObjs, redObjs, objectives);
+		if (blueObjs.length < maxBlueObjsCount) {
+			blueObjs = addBasicObjective(blueLanes, blueObjs, redObjs, objectives);
+		}
 		redObjs = addBasicObjective(redLanes, redObjs, blueObjs, objectives);
 
-		if (!blueLanes.find((p) => p.current != null) && !redLanes.find((p) => p.current != null)) {
+		if (
+			(!blueLanes.find((p) => p.current != null) || blueObjs.length >= maxBlueObjsCount) &&
+			!redLanes.find((p) => p.current != null)
+		) {
 			endOfLine = true;
 		}
 	}

@@ -37,6 +37,8 @@ const sidcUnitCode = {
 	carrier: "CLCV--",
 	downedPilot: "USS6--",
 	hospital: "IXH---",
+	attackHelicopter: "MHA---",
+	csar: "MHH---",
 };
 
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
@@ -236,8 +238,8 @@ export const Map = () => {
 		});
 	};
 
-	const createAircraftSymbols = (coalition: DcsJs.CampaignCoalition, packages: Array<DcsJs.CampaignPackage>) => {
-		const flightGroups = packages?.reduce((prev, pkg) => {
+	const createAircraftSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+		const flightGroups = faction.packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
 		}, [] as Array<DcsJs.CampaignFlightGroup>);
 
@@ -250,7 +252,26 @@ export const Map = () => {
 				return;
 			}
 
-			const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
+			// const code = fg.task === "AWACS" ? "aew" : fg.task === "CAS" ? "attack" : "fighter";
+			let code: SidcUnitCodeKey = "fighter";
+
+			switch (fg.task) {
+				case "AWACS":
+					code = "aew";
+					break;
+				case "CAS": {
+					const isHelicopter = Domain.FlightGroup.hasHelicopter(fg, faction, dataStore);
+
+					code = isHelicopter ? "attackHelicopter" : "attack";
+					break;
+				}
+				case "Pinpoint Strike":
+					code = "attack";
+					break;
+				case "CSAR":
+					code = "csar";
+					break;
+			}
 
 			let position: MapPosition = [0, 0];
 
@@ -266,7 +287,7 @@ export const Map = () => {
 					mapPosition: position,
 					hostile: coalition === "red",
 					domain: "air",
-					unitCode: code as SidcUnitCodeKey,
+					unitCode: code,
 					onClick: () => onClickFlightGroup(fg, coalition),
 				});
 
@@ -368,8 +389,6 @@ export const Map = () => {
 					// eslint-disable-next-line no-console
 					console.error(e, coalition, pilot);
 				}
-			} else {
-				downedPilotMarkers[pilot.id]?.marker.setLatLng(positionToMapPosition(pilot.position));
 			}
 		});
 	};
@@ -800,14 +819,14 @@ export const Map = () => {
 		const bluePackages = state.blueFaction.packages;
 		const redPackages = state.redFaction.packages;
 
-		createAircraftSymbols("blue", bluePackages);
+		createAircraftSymbols("blue", state.blueFaction);
 		createGroundGroupSymbols("blue", state.blueFaction);
 		// createEWSymbols("blue", state.blueFaction);
 		createStructureSymbols("blue", state.blueFaction);
 		createSamSymbols("blue", state.blueFaction);
 		createShipGroupSymbols("blue", state.blueFaction);
 		createDownedPilotSymbols("blue", state.blueFaction);
-		createAircraftSymbols("red", redPackages);
+		createAircraftSymbols("red", state.redFaction);
 		createGroundGroupSymbols("red", state.redFaction);
 		// createEWSymbols("red", state.redFaction);
 		createStructureSymbols("red", state.redFaction);
@@ -839,7 +858,7 @@ export const Map = () => {
 		const pilots = [...state.blueFaction.downedPilots, ...state.redFaction.downedPilots];
 
 		Object.entries(downedPilotMarkers).forEach(([id, marker]) => {
-			if (marker == null || pilots.some((pilot) => pilot.name === id)) {
+			if (marker == null || pilots.some((pilot) => pilot.id === id)) {
 				return;
 			} else {
 				removeSymbol(marker.marker);

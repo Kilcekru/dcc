@@ -4,20 +4,10 @@
 	"year": 1955,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": [
-			"MiG-15bis",
-			"MiG-19P"
-		],
-		"CAS": [
-			"MiG-19P"
-		],
-		"AWACS": [
-			"A-50"
-		],
-		"Pinpoint Strike": [
-			"MiG-19P",
-			"Ju-88A4"
-		]
+		"CAP": ["MiG-15bis", "MiG-19P"],
+		"CAS": ["MiG-19P"],
+		"AWACS": ["A-50"],
+		"Pinpoint Strike": ["MiG-19P", "Ju-88A4"]
 	},
 	"templateName": "Russia - Korea War"
 }

@@ -58,4 +58,5 @@ export interface BriefingDocument {
 	flightGroup: DcsJs.FlightGroup;
 	aircraftInventory: Record<string, DcsJs.Aircraft>;
 	dataAircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>>;
+	mapData: DcsJs.MapData;
 }
