@@ -229,7 +229,7 @@ export function Debrief(props: {
 
 						<div class={Styles["stats-row"]}>
 							<p class={Styles.stat}>{stats().aircrafts.blue.length}</p>
-							<h3 class={Styles["stats-title"]}>Lost Aircrafts</h3>
+							<h3 class={Styles["stats-title"]}>Lost Aircraft</h3>
 							<p class={Styles.stat}>{stats().aircrafts.red.length}</p>
 						</div>
 
