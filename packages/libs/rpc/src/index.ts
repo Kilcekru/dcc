@@ -1,12 +1,13 @@
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { campaign, home, misc } from "./handlers";
+import { campaign, home, misc, patches } from "./handlers";
 import * as Utils from "./utils";
 
 export const rpc = {
 	misc,
 	campaign,
 	home,
+	patches,
 };
 
 export function onEvent<Channel extends keyof Types.Events.Events>(
