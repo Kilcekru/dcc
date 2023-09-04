@@ -173,7 +173,7 @@ const awacsPackages = (
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "AWACS");
 
-	if (taskPackages.length < 1) {
+	if (taskPackages.length < Config.packages.awacs) {
 		const pkg = generateAwacsPackage(coalition, state, dataStore, Math.floor(state.timer) + Minutes(random(10, 15)));
 
 		packages = addPackage(packages, pkg);
@@ -208,7 +208,7 @@ const deadPackages = (
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "DEAD");
 
-	if (taskPackages.length < 1) {
+	if (taskPackages.length < Config.packages.dead) {
 		const pkg = generateDeadPackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
@@ -236,7 +236,7 @@ const strikePackages = (
 		return false;
 	}
 
-	const strikePackageCount = Math.ceil(possibleTargets.length / 5);
+	const strikePackageCount = Math.min(Math.ceil(possibleTargets.length / 5), Config.packages.strike);
 
 	if (taskPackages.length < strikePackageCount) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
@@ -260,7 +260,7 @@ const csarPackages = (
 	const taskPackages = getRunningPackagesByTask(packages, "CSAR");
 	const faction = getCoalitionFaction(coalition, state);
 
-	if (taskPackages.length <= 2) {
+	if (taskPackages.length < Config.packages.csar) {
 		const validDownedPilots = faction.downedPilots.filter(
 			(dp) => !taskPackages.some((pkg) => pkg.flightGroups.some((fg) => fg.target === dp.id)),
 		);

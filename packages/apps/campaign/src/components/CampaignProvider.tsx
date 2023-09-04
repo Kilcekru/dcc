@@ -243,11 +243,11 @@ export function CampaignProvider(props: {
 						}
 
 						if (s.blueFaction != null) {
-							updateFactionState("blue", s.blueFaction, s, state);
+							updateFactionState("blue", s.blueFaction, s, state, dataStore);
 						}
 
 						if (s.redFaction != null) {
-							updateFactionState("red", s.redFaction, s, state);
+							updateFactionState("red", s.redFaction, s, state, dataStore);
 						}
 
 						missionRound(s, dataStore);

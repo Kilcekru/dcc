@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
@@ -33,11 +33,18 @@ export const positionToMapPosition =
 		}
 	};
 
-export const objectToPosition = <T extends DcsJs.Position>(value: T): DcsJs.Position => {
-	return {
-		x: value.x,
-		y: value.y,
-	};
+const isPosition = (value: DcsJs.Position | { position: DcsJs.Position }): value is DcsJs.Position => {
+	return (value as DcsJs.Position).x != null;
+};
+export const objectToPosition = <T extends DcsJs.Position | { position: DcsJs.Position }>(value: T): DcsJs.Position => {
+	if (isPosition(value)) {
+		return {
+			x: value.x,
+			y: value.y,
+		};
+	} else {
+		return value.position;
+	}
 };
 
 export const addHeading = (heading: number, value: number) => {

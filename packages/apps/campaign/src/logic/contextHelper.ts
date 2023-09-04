@@ -110,6 +110,7 @@ export const updateFactionState = (
 	faction: DcsJs.CampaignFaction,
 	s: DcsJs.CampaignState,
 	missionState: Types.Campaign.MissionState,
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 	const killedGroundUnits = killedGroundUnitIds(faction, missionState.killed_ground_units);
@@ -199,11 +200,11 @@ export const updateFactionState = (
 
 	missionState.downed_pilots.forEach((pilot) => {
 		if (pilot.coalition === 2 && coalition === "blue") {
-			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s);
+			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s, dataStore);
 		}
 
 		if (pilot.coalition === 1 && coalition === "red") {
-			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s);
+			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s, dataStore);
 		}
 	});
 };

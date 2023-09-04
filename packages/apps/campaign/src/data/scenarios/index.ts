@@ -24,6 +24,7 @@ export type Scenario = {
 	era: string;
 	date: string;
 	briefing: string;
+	"blue-start-objective-range": [number, number];
 	"win-condition":
 		| {
 				type: "ground units";
@@ -37,7 +38,7 @@ export type Scenario = {
 };
 
 export const scenarioList: Array<Scenario> = [
-	redBullet as Scenario,
-	roadToParis as Scenario,
-	desertThunder as Scenario,
+	redBullet as unknown as Scenario,
+	roadToParis as unknown as Scenario,
+	desertThunder as unknown as Scenario,
 ];

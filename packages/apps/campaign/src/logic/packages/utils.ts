@@ -4,7 +4,13 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Config } from "../../data";
 import * as Domain from "../../domain";
-import { getDurationEnRoute, getUsableAircraftsByType, Minutes, positionFromHeading } from "../../utils";
+import {
+	getDurationEnRoute,
+	getUsableAircraftsByType,
+	Minutes,
+	objectToPosition,
+	positionFromHeading,
+} from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
@@ -92,6 +98,7 @@ export function getPackageAircrafts({
 	coalition,
 	aircraftTypes,
 	count,
+	withMaxDistance,
 	dataStore,
 }: {
 	state: RunningCampaignState;
@@ -100,8 +107,13 @@ export function getPackageAircrafts({
 	aircraftTypes: Array<string> | undefined;
 	count: number;
 	dataStore: Types.Campaign.DataStore;
+	withMaxDistance?: {
+		distance: number;
+		position: DcsJs.Position;
+	};
 }): { aircrafts: Array<DcsJs.Aircraft>; startPosition: ReturnType<typeof getStartPosition> } | undefined {
 	const usableAircrafts = getUsableAircraftsByType(state, coalition, aircraftTypes, count);
+	const airdromes = dataStore.airdromes ?? {};
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
 		// eslint-disable-next-line no-console
@@ -119,17 +131,48 @@ export function getPackageAircrafts({
 		}
 	});
 
-	const validAirdromeNames = Object.entries(aircraftsPerAirdrome)
+	const validHomeBaseNames = Object.entries(aircraftsPerAirdrome)
 		.filter(([_, value]) => value.length >= count)
 		.map(([key]) => key);
 
-	const selectedAirdromeName = Domain.Utils.randomItem(validAirdromeNames);
+	const homeBasesInRange = withMaxDistance
+		? validHomeBaseNames
+				.map((name) => {
+					const airdrome = airdromes[name];
 
-	if (selectedAirdromeName == null) {
+					// Hombase is not a airdrome
+					if (airdrome == null) {
+						const shipGroup = faction.shipGroups?.find((grp) => grp.name === name);
+
+						// Homebase is not a ship
+						if (shipGroup == null) {
+							const farp = Object.values(faction.structures).find((str) => str.name === name);
+
+							return farp;
+						}
+					}
+
+					return airdrome;
+				})
+				.filter((homeBase) => {
+					if (homeBase == null) {
+						return false;
+					}
+
+					const distance = Domain.Location.distanceToPosition(withMaxDistance.position, objectToPosition(homeBase));
+
+					return distance <= withMaxDistance.distance;
+				})
+				.map((airdrome) => airdrome?.name ?? "")
+		: validHomeBaseNames;
+
+	const selectedHomeBase = Domain.Utils.randomItem(homeBasesInRange);
+
+	if (selectedHomeBase == null || selectedHomeBase == "") {
 		return;
 	}
 
-	const selectedAircrafts = aircraftsPerAirdrome[selectedAirdromeName];
+	const selectedAircrafts = aircraftsPerAirdrome[selectedHomeBase];
 
 	if (selectedAircrafts == null) {
 		return;

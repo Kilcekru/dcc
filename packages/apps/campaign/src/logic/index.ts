@@ -27,7 +27,7 @@ export const campaignRound = (state: DcsJs.CampaignState, dataStore: Types.Campa
 	cleanupPackages(state as RunningCampaignState);
 	updateAircraftState(state as RunningCampaignState);
 	packagesRound(state as RunningCampaignState, dataStore);
-	combatRound(state as RunningCampaignState);
+	combatRound(state as RunningCampaignState, dataStore);
 	cleanupFlightGroups(state as RunningCampaignState);
 	cleanupGroundGroups(state as RunningCampaignState);
 	cleanupStructures(state as RunningCampaignState);

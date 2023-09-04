@@ -78,6 +78,7 @@ export const createCampaign = (
 		structuredClone(unwrap(redAirdromes)),
 		structuredClone(unwrap(blueAirdromes)),
 		structuredClone(unwrap(redAirdromes)),
+		scenario["blue-start-objective-range"],
 		dataStore,
 	);
 

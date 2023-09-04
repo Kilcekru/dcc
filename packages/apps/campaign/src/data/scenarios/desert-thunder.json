@@ -10,13 +10,25 @@
 		"type": "objective",
 		"value": "Enguri Dam"
 	},
+	"blue-start-objective-range": [
+		5,
+		12
+	],
 	"blue": {
-		"airdromeNames": ["Ramat David"],
+		"airdromeNames": [
+			"Ramat David"
+		],
 		"carrierObjective": "Alpha",
 		"objectivePlans": []
 	},
 	"red": {
-		"airdromeNames": ["Beirut-Rafic Hariri", "Damascus", "Tha'lah"],
+		"airdromeNames": [
+			"Beirut-Rafic Hariri",
+			"Damascus",
+			"King Hussein Air College",
+			"Al Qusayr",
+			"Hama"
+		],
 		"objectivePlans": []
 	}
 }

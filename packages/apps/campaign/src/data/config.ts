@@ -6,7 +6,14 @@ export const Config = {
 			awacs: 3,
 			strike: 6,
 			dead: 4,
+			csar: 2,
 		},
+	},
+	packages: {
+		awacs: 1,
+		strike: 3,
+		dead: 2,
+		csar: 2,
 	},
 	structureRange: {
 		power: 50_000,
@@ -18,6 +25,15 @@ export const Config = {
 			depot: 70_000,
 			farp: 50_000,
 		},
+	},
+	maxDistance: {
+		helicopter: 50_000,
+		csar: 30_000,
+		cas: 100_000,
+		strike: 150_000,
+		dead: 150_000,
+		cap: 100_000,
+		awacs: 300_000,
 	},
 	deploymentScore: {
 		base: 12,

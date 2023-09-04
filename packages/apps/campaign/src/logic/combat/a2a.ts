@@ -1,4 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { getFlightGroups, Minutes, random } from "../../utils";
@@ -24,6 +25,7 @@ const saveBattleReport = (
 	targetCoalition: DcsJs.CoalitionSide,
 	timer: number,
 	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	if (report.length > 0) {
 		report.forEach((entry) => {
@@ -72,6 +74,7 @@ const saveBattleReport = (
 					targetCoalition,
 					targetFaction,
 					state,
+					dataStore,
 				);
 			}
 		});
@@ -171,7 +174,7 @@ const a2aFlightGroups = (
 	return battleReport;
 };
 
-export const a2a = (state: RunningCampaignState) => {
+export const a2a = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	const blueFlightGroups = getFlightGroups(state.blueFaction.packages);
 	const redFlightGroups = getFlightGroups(state.redFaction.packages);
 
@@ -194,11 +197,11 @@ export const a2a = (state: RunningCampaignState) => {
 	);
 
 	if (blueBattleReport.length > 0) {
-		saveBattleReport(blueBattleReport, state.blueFaction, state.redFaction, "red", state.timer, state);
+		saveBattleReport(blueBattleReport, state.blueFaction, state.redFaction, "red", state.timer, state, dataStore);
 	}
 
 	if (redBattleReport.length > 0) {
-		saveBattleReport(redBattleReport, state.redFaction, state.blueFaction, "blue", state.timer, state);
+		saveBattleReport(redBattleReport, state.redFaction, state.blueFaction, "blue", state.timer, state, dataStore);
 	}
 
 	/* if (blueBattleReport.length > 0 || redBattleReport.length > 0) {

@@ -64,9 +64,19 @@ const TemplateList = (props: { selectedTemplateName: string; toggle: (name: stri
 	);
 };
 
-const CarrierList = (props: { selectedCarrierName: string | undefined; toggle: (name: string) => void }) => {
+const CarrierList = (props: {
+	selectedCarrierName: string | undefined;
+	toggle: (name: string | undefined) => void;
+}) => {
 	const dataStore = useDataStore();
 
+	const onPress = (name: string) => {
+		if (props.selectedCarrierName === name) {
+			props.toggle(undefined);
+		} else {
+			props.toggle(name);
+		}
+	};
 	return (
 		<div class={Styles["aircraft-list"]}>
 			<For each={Object.values(dataStore.ships ?? []).filter((sg) => sg.groupType === "carrier")}>
@@ -74,7 +84,7 @@ const CarrierList = (props: { selectedCarrierName: string | undefined; toggle: (
 					<Components.Button
 						class={Styles.aircraft}
 						unstyled={props.selectedCarrierName !== sg.name}
-						onPress={() => props.toggle(sg.name)}
+						onPress={() => onPress(sg.name)}
 					>
 						{sg.name}
 					</Components.Button>

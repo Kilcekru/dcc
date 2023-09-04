@@ -157,7 +157,7 @@ function addAirdromeSamObjectives(
 			return;
 		}
 
-		const nearbyObjectives = Domain.Location.findInside(objectives, airdrome, (obj) => obj.position, 40_000);
+		const nearbyObjectives = Domain.Location.findInside(objectives, airdrome, (obj) => obj.position, 20_000);
 		const sourceDistance = Domain.Location.distanceToPosition(airdrome, oppAirdrome);
 
 		const forwardObjectives = nearbyObjectives.filter((obj) => {
@@ -431,6 +431,7 @@ export function generateObjectivePlans(
 	redPositions: Array<DcsJs.Position>,
 	blueAirdromes: Array<DcsJs.DCS.Airdrome>,
 	redAirdromes: Array<DcsJs.DCS.Airdrome>,
+	blueRange: [number, number],
 	dataStore: Types.Campaign.DataStore,
 ): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
 	const objectives = dataStore.objectives;
@@ -449,7 +450,7 @@ export function generateObjectivePlans(
 	const redLanes = generateLanes(redPositions, bluePositions);
 
 	let blueObjs: Array<DynamicObjectivePlan> = [];
-	const maxBlueObjsCount = Domain.Utils.random(5, 12);
+	const maxBlueObjsCount = Domain.Utils.random(blueRange[0], blueRange[1]);
 	let redObjs: Array<DynamicObjectivePlan> = [];
 
 	// Basic Objectives

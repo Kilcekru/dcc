@@ -9,6 +9,7 @@ import {
 	getDeploymentCost,
 	getUsableGroundUnits,
 	Minutes,
+	oppositeCoalition,
 	positionAfterDurationToPosition,
 	random,
 	randomList,
@@ -162,35 +163,6 @@ const deployFrontline = (
 		// p.startObjective.deploymentTimer = p.state.timer;
 	}
 };
-// TODO
-/* export const captureNeutralObjectives = (state: RunningCampaignState, dataStore: DataStore) => {
-	
-	Object.values(state.objectives).forEach((objective) => {
-		if (objective.deploymentTimer + objective.deploymentDelay <= state.timer && objective.coalition !== "neutral") {
-			const objectivesInRange = findInside(
-				Object.values(state.objectives),
-				objective.position,
-				(obj) => obj.position,
-				12_000
-			);
-
-			const neutralObjectives = objectivesInRange.filter((obj) => obj.coalition === "neutral");
-			const vehicleObjectives = neutralObjectives.filter((obj) =>
-				dataStore.strikeTargets?.[obj.name]?.some((target) => target.type === "Vehicle")
-			);
-
-			if (vehicleObjectives.length > 0) {
-				const targetNeutralObjective = findNearest(vehicleObjectives, objective.position, (obj) => obj.position);
-
-				if (targetNeutralObjective == null) {
-					return;
-				}
-
-				deployFrontline(targetNeutralObjective, objective, state);
-			}
-		}
-	});
-}; */
 
 const moveFactionGroundGroups = (
 	coalition: DcsJs.CampaignCoalition,
@@ -252,6 +224,44 @@ const moveFactionGroundGroups = (
 	});
 };
 
+const moveBackmarkers = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+	const faction = getCoalitionFaction(coalition, state);
+	const oppCoalition = oppositeCoalition(coalition);
+	const oppObjectives = Object.values(state.objectives).filter((obj) => obj.coalition === oppCoalition);
+
+	faction.groundGroups.forEach((gg) => {
+		if (gg.state === "on objective") {
+			const oppObjectivesInRange = Domain.Location.findInside(
+				oppObjectives,
+				gg.position,
+				(obj) => obj.position,
+				Config.structureRange.frontline.depot,
+			);
+
+			if (oppObjectivesInRange.length === 0) {
+				const targetObjective = getFrontlineTarget(
+					coalition,
+					gg.position,
+					gg.type === "infantry" ? Config.structureRange.frontline.barrack : Config.structureRange.frontline.depot,
+					state,
+				);
+
+				if (targetObjective == null) {
+					return;
+				}
+
+				gg.name = targetObjective.name + "-" + gg.id;
+				gg.startObjectiveName = gg.objectiveName;
+				(gg.objectiveName = targetObjective.name), (gg.startTime = state.timer), (gg.state = "en route");
+
+				targetObjective.incomingGroundGroups[coalition] = gg.id;
+
+				// eslint-disable-next-line no-console
+				console.log(`send backmarker ${gg.id} to ${targetObjective.name}`);
+			}
+		}
+	});
+};
 const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -359,6 +369,8 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Ca
 	// Only create packages during the day
 	if ((dayHour >= Config.night.endHour && dayHour < Config.night.startHour) || state.allowNightMissions) {
 		moveFrontline(state, dataStore);
+		moveBackmarkers("blue", state);
+		moveBackmarkers("red", state);
 		attackFrontline("blue", state);
 		attackFrontline("red", state);
 		updateCombat(state, dataStore);

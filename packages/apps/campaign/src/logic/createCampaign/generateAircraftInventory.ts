@@ -213,7 +213,7 @@ export const generateAircraftInventory = ({
 		});
 
 		faction.aircraftTypes.CSAR?.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.dead * (faction.aircraftTypes.CSAR?.length ?? 0));
+			const count = Math.max(2, Config.inventory.aircraft.csar * (faction.aircraftTypes.CSAR?.length ?? 0));
 			const aircraftType = acType as DcsJs.AircraftType;
 			const homeBase = getHomeBase(aircraftType, airdrome.name, carrierName, undefined, dataStore);
 			const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);

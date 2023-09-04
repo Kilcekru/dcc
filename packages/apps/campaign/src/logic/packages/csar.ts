@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
+import { Config } from "../../data";
 import * as Domain from "../../domain";
 import { calcPackageEndTime, getDurationEnRoute, Minutes, objectToPosition, random } from "../../utils";
 import { RunningCampaignState } from "../types";
@@ -20,6 +21,18 @@ export const generateCsarPackage = (
 		return;
 	}
 
+	const validDropStructures = Object.values(faction.structures).filter(
+		(str) => str.type === "Farp" || str.type === "Hospital",
+	);
+
+	const dropStructure = Domain.Location.findNearest(validDropStructures, downedPilot.position, (str) => str.position);
+
+	if (dropStructure == null) {
+		// eslint-disable-next-line no-console
+		console.warn("generateCsarPackage: no drop structure found");
+		return;
+	}
+
 	const packageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes["CSAR"],
 		coalition,
@@ -27,6 +40,10 @@ export const generateCsarPackage = (
 		count: 1,
 		dataStore,
 		faction,
+		withMaxDistance: {
+			distance: Config.maxDistance.csar,
+			position: downedPilot.position,
+		},
 	});
 
 	if (packageAircrafts?.startPosition == null) {
@@ -39,18 +56,8 @@ export const generateCsarPackage = (
 
 	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 
-	const startTime = Math.floor(state.timer) + Minutes(random(5, 10));
+	const startTime = Math.floor(state.timer) + Minutes(random(10, 30));
 
-	const validDropStructures = Object.values(faction.structures).filter(
-		(str) => str.type === "Farp" || str.type === "Hospital",
-	);
-	const dropStructure = Domain.Location.findNearest(validDropStructures, downedPilot.position, (str) => str.position);
-
-	if (dropStructure == null) {
-		// eslint-disable-next-line no-console
-		console.warn("generateCsarPackage: no drop structure found");
-		return;
-	}
 	const durationIngress = getDurationEnRoute(packageAircrafts.startPosition, downedPilot.position, cruiseSpeed);
 	const durationDropLocation = getDurationEnRoute(downedPilot.position, dropStructure.position, cruiseSpeed);
 
