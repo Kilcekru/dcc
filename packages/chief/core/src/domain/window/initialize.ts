@@ -21,7 +21,6 @@ export async function initialize() {
 	// window
 	mainWindow = new BrowserWindow({
 		...getWindowBounds(),
-		width: 1100,
 		show: false,
 		webPreferences: { session: dccSession },
 		minWidth: 1024,
@@ -61,8 +60,8 @@ export async function initialize() {
 
 	registerBoundsEvents(mainWindow);
 	setViewBounds();
-	mainWindow.on("maximize", setViewBounds);
-	mainWindow.on("unmaximize", setViewBounds);
+	mainWindow.on("maximize", () => setViewBounds(false));
+	mainWindow.on("unmaximize", () => setViewBounds(false));
 
 	if (Persistance.State.userConfig.data.dcs.available != undefined) {
 		await loadApp(Persistance.State.userConfig.data.currentApp);

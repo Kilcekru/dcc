@@ -16,6 +16,7 @@ export interface Menu {
 	hidden?: boolean;
 	disabled?: boolean;
 	submenu: MenuEntry[];
+	highlight?: boolean;
 }
 
 export type MenuEntry =
@@ -26,6 +27,7 @@ export type MenuEntry =
 			hotkeys?: string[];
 			hidden?: boolean;
 			disabled?: boolean;
+			highlight?: boolean;
 	  }
 	| { type: "separator" };
 
@@ -49,5 +51,6 @@ export type Action =
 	| "loadSettings"
 	| "loadAbout"
 	| "loadCampaign"
+	| "updateDcc"
 	| "campaign_new"
 	| "campaign_open";

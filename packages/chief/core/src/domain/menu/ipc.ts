@@ -5,7 +5,6 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { app, ipcMain, WebFrameMain } from "electron";
 
 import { config } from "../../config";
-import * as Persistance from "../persistance";
 import * as Window from "../window";
 import { actions } from "./actions";
 import { getConfig } from "./config";
@@ -36,7 +35,7 @@ export function setupIpc() {
 		if (!validateSender(event.senderFrame)) {
 			return;
 		}
-		Window.setViewBounds();
+		Window.setViewBounds(false);
 	});
 
 	ipcMain.handle("Menu.contextMenu", async (event, args: string) => {
@@ -50,16 +49,11 @@ export function setupIpc() {
 			y,
 		});
 	});
-
-	const onConfigChanged = () => {
-		Window.setViewBounds();
-		Window.menuView.webContents.send("Menu.onConfigChanged", JSON.stringify(getConfig()));
-	};
-
-	Window.mainWindow.on("maximize", onConfigChanged);
-	Window.mainWindow.on("unmaximize", onConfigChanged);
-	Persistance.State.userConfig.onChange(onConfigChanged);
 }
+
+export const onConfigChanged = () => {
+	Window.menuView.webContents.send("Menu.onConfigChanged", JSON.stringify(getConfig()));
+};
 
 const menuUrl = pathToFileURL(Path.join(app.getAppPath(), "dist/chief/menu/index.html")).href;
 function validateSender(frame: WebFrameMain) {

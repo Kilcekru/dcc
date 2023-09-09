@@ -23,6 +23,7 @@ if (!instanceLock) {
 
 	app.on("ready", async () => {
 		await Promise.all([Domain.Persistance.State.dccConfig.load(), Domain.Persistance.State.userConfig.load()]);
+		void Domain.Update.updateCheck();
 		await Domain.Window.initialize();
 	});
 	startRpc();

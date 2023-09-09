@@ -40,18 +40,22 @@ export function openContextMenu(args: OpenContextMenuArgs) {
 	});
 }
 
+let menuExpanded = false;
 export function setViewBounds(expandMenu?: boolean) {
 	// view bounds are buggy in electron, they will not correctly fit the window
 	// calc correct viewBounds from windowBounds
 	const bounds = mainWindow.getBounds();
 	const maxed = mainWindow.isMaximized();
+	if (expandMenu != undefined) {
+		menuExpanded = expandMenu;
+	}
 	menuView.setBounds({
 		x: 0,
 		y: 0,
 		width: bounds.width - (maxed ? 16 : 0),
-		height: expandMenu ? bounds.height - (maxed ? 16 : 0) : 30,
+		height: menuExpanded ? bounds.height - (maxed ? 16 : 0) : 30,
 	});
-	menuView.setAutoResize({ width: true, height: expandMenu });
+	menuView.setAutoResize({ width: true, height: menuExpanded });
 	mainView.setBounds({
 		x: 0,
 		y: 30,

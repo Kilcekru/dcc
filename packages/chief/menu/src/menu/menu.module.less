@@ -58,6 +58,22 @@
 	}
 }
 
+.highlight {
+	position: relative;
+
+	&::before {
+		content: "";
+		display: block;
+		height: 8px;
+		width: 8px;
+		background: #c00000;
+		border-radius: 50%;
+		position: absolute;
+		top: 2px;
+		right: 2px;
+	}
+}
+
 .separator {
 	height: 0;
 	border-bottom: 1px solid #808080;

@@ -2,13 +2,14 @@ import * as Path from "node:path";
 
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, shell } from "electron";
 import FS from "fs-extra";
 
 import * as Events from "../../rpc/events";
 import { capture, initCaptureWindow } from "../capture";
 import { openCaptureDebugWindow } from "../capture/debug";
 import * as Persistance from "../persistance";
+import { updateInfo } from "../update";
 import { loadApp, mainView, mainWindow } from "../window";
 
 export const actions: Record<Types.AppMenu.Action, () => void> = {
@@ -53,6 +54,15 @@ export const actions: Record<Types.AppMenu.Action, () => void> = {
 	loadSettings: () => loadApp("home", { action: "settings" }),
 	loadAbout: () => loadApp("home", { action: "about" }),
 	loadCampaign: () => loadApp("campaign"),
+	updateDcc: async () => {
+		try {
+			if (updateInfo.available && updateInfo.details != undefined) {
+				await shell.openExternal(updateInfo.details.url);
+			}
+		} catch (err) {
+			console.log(`updateDcc failed ${Utils.errMsg(err)}`); // eslint-disable-line no-console
+		}
+	},
 	campaign_new: () => Events.send("menu.campaign.new", undefined),
 	campaign_open: () => Events.send("menu.campaign.open", undefined),
 };

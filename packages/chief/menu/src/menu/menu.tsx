@@ -23,6 +23,7 @@ export const Menu = () => {
 								[Styles.menu ?? ""]: true,
 								[Styles.active ?? ""]: state.expanded && i() === active(),
 								[Styles.disabled ?? ""]: entry.disabled,
+								[Styles.highlight ?? ""]: entry.highlight,
 							})}
 							onClick={(e) => {
 								if (entry.disabled) {
@@ -58,9 +59,15 @@ const MenuDropdown = (props: { items: Types.AppMenu.MenuEntry[] }) => {
 					if (entry.type === "separator") {
 						return <div class={Styles.separator} />;
 					}
+					if (entry.hidden) {
+						return null;
+					}
 					return (
 						<div
-							class={cnb(Styles.menuEntry, { [Styles.disabled ?? ""]: entry.disabled })}
+							class={cnb(Styles.menuEntry, {
+								[Styles.disabled ?? ""]: entry.disabled,
+								[Styles.highlight ?? ""]: entry.highlight,
+							})}
 							onClick={() => {
 								if (entry.disabled) {
 									return;

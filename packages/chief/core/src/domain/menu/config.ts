@@ -3,6 +3,7 @@ import { BrowserWindow } from "electron";
 
 import { config } from "../../config";
 import * as Persistance from "../persistance";
+import { updateInfo } from "../update";
 
 export function getConfig(): Types.AppMenu.Config {
 	const currentApp = Persistance.State.userConfig.data.currentApp;
@@ -71,11 +72,18 @@ export function getConfig(): Types.AppMenu.Config {
 		},
 		{
 			label: "?",
+			highlight: updateInfo.available === true,
 			submenu: [
 				{
 					label: "About",
 					action: "loadAbout",
 					disabled: disableNavigation,
+				},
+				{
+					label: "Update available",
+					action: "updateDcc",
+					hidden: updateInfo.available !== true,
+					highlight: true,
 				},
 			],
 		},

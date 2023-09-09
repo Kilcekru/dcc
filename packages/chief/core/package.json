@@ -12,9 +12,11 @@
 		"@foxdelta2/dcsjs": "0.2.230-next.9",
 		"adm-zip": "^0.5.10",
 		"chokidar": "^3.5.3",
+		"electron-fetch": "^1.9.1",
 		"electron-squirrel-startup": "^1.0.0",
 		"fs-extra": "^11.1.1",
 		"regedit": "^5.1.2",
+		"semver": "^7.5.4",
 		"sudo-prompt": "^9.2.1",
 		"zod": "^3.21.4"
 	},
@@ -23,6 +25,7 @@
 		"@types/adm-zip": "^0.5.0",
 		"@types/fs-extra": "^11.0.1",
 		"@types/node": "^20.4.1",
+		"@types/semver": "^7.5.1",
 		"electron": "25.2.0"
 	}
 }
