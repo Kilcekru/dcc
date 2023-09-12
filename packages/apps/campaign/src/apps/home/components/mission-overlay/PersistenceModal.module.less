@@ -1,0 +1,43 @@
+.modal {
+	z-index: 100000;
+
+	&.modal__backdrop {
+		z-index: 100000;
+	}
+
+	&.modal__container {
+		z-index: 100001;
+	}
+
+	&.modal__content {
+		padding: 30px;
+	}
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	padding-top: 20px;
+	width: 400px;
+}
+
+.header {
+	font-size: 20px;
+	font-weight: 300;
+}
+.buttons {
+	margin-top: 20px;
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.button {
+	&--cancel {
+		background-color: var(--secondary);
+
+		&:hover {
+			background-color: var(--secondary-hover);
+		}
+	}
+}
