@@ -9,11 +9,10 @@ import { getCurrentWeather } from "../../domain/weather";
 import { firstItem, Minutes } from "../../utils";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundGroups } from "./generateGroundGroups";
-import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
 import { generateObjectivePlans } from "./generateObjectivePlans";
 import { generateSams } from "./generateSams";
 import { generateStructures } from "./generateStructures";
-import { factionCarrierName } from "./utils";
+import { awacsFrequency, factionCarrierName } from "./utils";
 
 /**
  *
@@ -97,20 +96,6 @@ export const createCampaign = (
 	const blueObjectives: Types.Campaign.DataStore["objectives"] = blueOps.map((dop) => dop.objective);
 	const redObjectives: Types.Campaign.DataStore["objectives"] = redOps.map((dop) => dop.objective);
 
-	/* dataStore.objectives?.forEach((dataObjective) => {
-		const isBlue = claimsObjective(scenario.blue, dataObjective.name);
-		const isRed = claimsObjective(scenario.red, dataObjective.name);
-
-			if (isBlue) {
-				blueObjectives.push(dataObjective);
-			}
-
-			if (isRed) {
-				redObjectives.push(dataObjective);
-			}
-		}
-	}); */
-
 	const blueCarrierName = factionCarrierName("blue", scenario, blueFaction, dataStore);
 
 	state.blueFaction = {
@@ -127,11 +112,11 @@ export const createCampaign = (
 				carrierName: blueCarrierName,
 				oppObjectives: redObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
+			groundUnits: {},
 		},
 		packages: [],
 		groundGroups: [],
-		awacsFrequency: 251,
+		awacsFrequency: awacsFrequency(blueFaction, dataStore),
 		structures: generateStructures("blue", blueOps, dataStore),
 		reinforcementTimer: state.timer,
 		reinforcementDelay: Minutes(30),
@@ -152,7 +137,7 @@ export const createCampaign = (
 				objectivePlans: redOps,
 				oppObjectives: blueObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
+			groundUnits: {},
 		},
 		packages: [],
 		groundGroups: [],
@@ -194,8 +179,8 @@ export const createCampaign = (
 			{} as Record<string, DcsJs.CampaignObjective>,
 		) ?? {};
 
-	generateGroundGroups(blueOps, state.blueFaction, state.timer);
-	generateGroundGroups(redOps, state.redFaction, state.timer);
+	generateGroundGroups(blueOps, state.blueFaction, state.timer, dataStore);
+	generateGroundGroups(redOps, state.redFaction, state.timer, dataStore);
 	generateSams("blue", state.blueFaction, dataStore, blueOps);
 	generateSams("red", state.redFaction, dataStore, redOps);
 

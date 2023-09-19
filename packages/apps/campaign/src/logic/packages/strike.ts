@@ -141,6 +141,7 @@ export const generateStrikePackage = (
 		count: 2,
 		dataStore,
 		faction,
+		excludedAircrafts: packageAircrafts?.aircrafts,
 	});
 
 	if (packageAircrafts?.startPosition == null || escortPackageAircrafts?.startPosition == null) {

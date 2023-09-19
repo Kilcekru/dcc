@@ -14,7 +14,16 @@ export const findInside = <T>(
 		values?.filter((v) => {
 			const position = positionSelector(v);
 
-			return distanceToPosition(sourcePosition, position) <= radius;
+			if (
+				sourcePosition.x - radius >= position.x &&
+				sourcePosition.x + radius <= position.x &&
+				sourcePosition.y - radius >= position.y &&
+				sourcePosition.y + radius <= position.y
+			) {
+				return true; // distanceToPosition(sourcePosition, position) <= radius;
+			} else {
+				return false;
+			}
 		}) ?? []
 	);
 };

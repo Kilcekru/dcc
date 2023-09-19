@@ -100,6 +100,7 @@ export function getPackageAircrafts({
 	count,
 	withMaxDistance,
 	dataStore,
+	excludedAircrafts,
 }: {
 	state: RunningCampaignState;
 	faction: DcsJs.CampaignFaction;
@@ -111,11 +112,16 @@ export function getPackageAircrafts({
 		distance: number;
 		position: DcsJs.Position;
 	};
+	excludedAircrafts?: Array<DcsJs.Aircraft>;
 }): { aircrafts: Array<DcsJs.Aircraft>; startPosition: ReturnType<typeof getStartPosition> } | undefined {
 	const usableAircrafts = getUsableAircraftsByType(state, coalition, aircraftTypes, count);
+	const validAircrafts =
+		excludedAircrafts == null
+			? usableAircrafts
+			: usableAircrafts.filter((ac) => !excludedAircrafts.some((eac) => ac.id === eac.id));
 	const airdromes = dataStore.airdromes ?? {};
 
-	if (usableAircrafts == null || usableAircrafts.length === 0) {
+	if (validAircrafts == null || validAircrafts.length === 0) {
 		// eslint-disable-next-line no-console
 		console.warn("no usable aircrafts available", aircraftTypes);
 		return;
@@ -123,7 +129,7 @@ export function getPackageAircrafts({
 
 	const aircraftsPerAirdrome: Record<string, Array<DcsJs.Aircraft>> = {};
 
-	usableAircrafts.forEach((ac) => {
+	validAircrafts.forEach((ac) => {
 		if (aircraftsPerAirdrome[ac.homeBase.name] == null) {
 			aircraftsPerAirdrome[ac.homeBase.name] = [ac];
 		} else {

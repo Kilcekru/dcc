@@ -12,6 +12,7 @@ import { reinforcement } from "./reinforcement";
 import { repairStructures } from "./repairStructures";
 import { RunningCampaignState } from "./types";
 import { updateAircraftState } from "./updateAircraftState";
+import { updateAirdromes } from "./updateAirdrome";
 import { updateFrontline } from "./updateFrontline";
 
 /**
@@ -32,6 +33,7 @@ export const campaignRound = (state: DcsJs.CampaignState, dataStore: Types.Campa
 	cleanupGroundGroups(state as RunningCampaignState);
 	cleanupStructures(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState, dataStore);
+	updateAirdromes(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
 	repairStructures(state as RunningCampaignState);
 	gameOver(state as RunningCampaignState);
@@ -51,6 +53,7 @@ export const missionRound = (state: DcsJs.CampaignState, dataStore: Types.Campai
 	cleanupGroundGroups(state as RunningCampaignState);
 	cleanupStructures(state as RunningCampaignState);
 	updateFrontline(state as RunningCampaignState, dataStore);
+	updateAirdromes(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
 	repairStructures(state as RunningCampaignState);
 	gameOver(state as RunningCampaignState);

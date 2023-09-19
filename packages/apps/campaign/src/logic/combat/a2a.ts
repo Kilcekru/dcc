@@ -66,7 +66,7 @@ const saveBattleReport = (
 			targetAircraft.alive = false;
 			targetAircraft.destroyedTime = timer;
 
-			if (random(1, 100) > 50 && entry.targetName != null && entry.targetPosition != null) {
+			if (random(1, 100) > 40 && entry.targetName != null && entry.targetPosition != null) {
 				targetFaction = createDownedPilot(
 					entry.targetName,
 					timer,

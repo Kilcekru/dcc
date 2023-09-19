@@ -7,15 +7,14 @@ import { Config } from "../data";
 import * as Domain from "../domain";
 import {
 	getDeploymentCost,
-	getUsableGroundUnits,
 	Minutes,
 	oppositeCoalition,
 	positionAfterDurationToPosition,
 	random,
-	randomList,
 	timerToDate,
 } from "../utils";
 import { conquerObjective, g2g, g2gBattle } from "./combat";
+import { generateGroundGroupInventory } from "./createCampaign/generateGroundUnitsInventory";
 import { getFrontlineTarget } from "./targetSelection";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction, transferObjectiveStructures, unitIdsToGroundUnit } from "./utils";
@@ -96,39 +95,16 @@ const deployFrontline = (
 		targetObjective: DcsJs.Objective;
 		startObjective: DcsJs.Objective;
 		state: RunningCampaignState;
+		dataStore: Types.Campaign.DataStore;
 	} & deploymentSource,
 ) => {
 	// Is no other ground group on the way
 	if (p.targetObjective.incomingGroundGroups[p.startObjective.coalition] == null) {
 		const faction = getCoalitionFaction(p.startObjective.coalition, p.state);
-		const groundUnits =
-			p.groupType === "infantry"
-				? getUsableGroundUnits(faction.inventory.groundUnits)
-				: getUsableGroundUnits(faction.inventory.groundUnits).filter(
-						(unit) => !unit.vehicleTypes.some((vt) => vt === "Infantry"),
-				  );
-		const nonSHORADUnits = groundUnits.filter((unit) => !unit.vehicleTypes.some((vt) => vt === "SHORAD"));
 
-		const selectedGroundUnits = randomList(nonSHORADUnits, random(4, 8));
+		const groundUnits = generateGroundGroupInventory(faction, p.dataStore, p.groupType);
 
-		if (selectedGroundUnits.length < 4) {
-			// eslint-disable-next-line no-console
-			console.warn("deployFrontline: not enough ground units available");
-			return;
-		}
-
-		if (p.groupType === "armor") {
-			const airDefenceUnits = Object.values(faction.inventory.groundUnits).filter(
-				(unit) => unit.category === "Air Defence" && unit.state === "idle",
-			);
-			const count = random(0, 2);
-
-			const selectedADUnits = airDefenceUnits.slice(0, count);
-
-			selectedADUnits.forEach((unit) => selectedGroundUnits.push(unit));
-		}
-
-		const unitIds = selectedGroundUnits.map((u) => u.id);
+		const unitIds = groundUnits.map((u) => u.id);
 
 		const id = createUniqueId();
 
@@ -148,14 +124,11 @@ const deployFrontline = (
 		faction.groundGroups.push(gg);
 
 		// update inventory
-		selectedGroundUnits.forEach((u) => {
-			const inventoryUnit = faction.inventory.groundUnits[u.id];
-
-			if (inventoryUnit == null) {
-				return;
-			}
-
-			inventoryUnit.state = "on objective";
+		groundUnits.forEach((u) => {
+			faction.inventory.groundUnits[u.id] = {
+				...u,
+				state: "en route",
+			};
 		});
 
 		// update objective
@@ -262,7 +235,11 @@ const moveBackmarkers = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 		}
 	});
 };
-const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+const attackFrontline = (
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
+) => {
 	const faction = getCoalitionFaction(coalition, state);
 
 	Object.keys(faction.structures).forEach((id) => {
@@ -293,7 +270,14 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 					return;
 				}
 
-				deployFrontline({ targetObjective, startObjective: objective, state, groupType: "armor", depot: structure });
+				deployFrontline({
+					targetObjective,
+					startObjective: objective,
+					state,
+					groupType: "armor",
+					depot: structure,
+					dataStore,
+				});
 				structure.deploymentScore -= deploymentCost;
 			}
 		}
@@ -325,6 +309,7 @@ const attackFrontline = (coalition: DcsJs.CampaignCoalition, state: RunningCampa
 					state,
 					groupType: "infantry",
 					barrack: structure,
+					dataStore,
 				});
 				structure.deploymentScore -= deploymentCost;
 			}
@@ -371,8 +356,8 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Ca
 		moveFrontline(state, dataStore);
 		moveBackmarkers("blue", state);
 		moveBackmarkers("red", state);
-		attackFrontline("blue", state);
-		attackFrontline("red", state);
+		attackFrontline("blue", state, dataStore);
+		attackFrontline("red", state, dataStore);
 		updateCombat(state, dataStore);
 	}
 };

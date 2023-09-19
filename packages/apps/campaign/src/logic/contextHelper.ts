@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
+import { Config } from "../data";
 import * as Domain from "../domain";
 import { getFlightGroups } from "../utils";
 import { createDownedPilot } from "./createDownedPilot";
@@ -194,7 +195,10 @@ export const updateFactionState = (
 				return;
 			}
 
-			fg.position = groupPosition;
+			fg.position = {
+				x: Config.mapOrigin[s.map].x + groupPosition.x,
+				y: Config.mapOrigin[s.map].y + groupPosition.y,
+			};
 		});
 	});
 

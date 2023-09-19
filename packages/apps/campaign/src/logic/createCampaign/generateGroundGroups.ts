@@ -1,63 +1,30 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
 import * as Domain from "../../domain";
+import { generateGroundGroupInventory } from "./generateGroundUnitsInventory";
 import { DynamicObjectivePlan } from "./utils";
 
 export function generateGroundGroups(
 	objectivePlans: Array<DynamicObjectivePlan>,
 	faction: DcsJs.CampaignFaction,
 	timer: number,
+	dataStore: Types.Campaign.DataStore,
 ) {
 	objectivePlans.forEach((op) => {
 		if (op.groundUnitTypes.some((gut) => gut === "vehicles")) {
 			const id = createUniqueId();
-			const groupType = Domain.Utils.random(1, 100) > 40 ? "armor" : "infantry";
+			const groupType = Domain.Utils.random(1, 100) > 30 ? "armor" : "infantry";
 
-			const validGroundUnits = Object.values(faction.inventory.groundUnits)
-				.filter((unit) => unit.category !== "Air Defence")
-				.filter((unit) => {
-					if (groupType === "infantry") {
-						return unit.category === "Infantry" && unit.state === "idle";
-					} else {
-						return unit.category !== "Infantry" && unit.state === "idle";
-					}
-				});
+			const units = generateGroundGroupInventory(faction, dataStore, groupType);
 
-			const units = Domain.Utils.randomList(validGroundUnits, Domain.Utils.random(4, 8));
-
-			// SHORAD units
-			let airDefenseUnits: Array<DcsJs.GroundUnit> = [];
-			if (groupType === "armor") {
-				airDefenseUnits = Object.values(faction.inventory.groundUnits).filter(
-					(unit) =>
-						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
-						!unit.vehicleTypes.some((vt) => vt === "Infantry") &&
-						unit.state === "idle",
-				);
-			} else if (groupType === "infantry") {
-				airDefenseUnits = Object.values(faction.inventory.groundUnits).filter(
-					(unit) =>
-						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
-						unit.vehicleTypes.some((vt) => vt === "Infantry") &&
-						unit.state === "idle",
-				);
-			}
-
-			const shoradCount = Domain.Utils.random(0, 100) > 10 ? Domain.Utils.random(1, 2) : 0;
-			const usableADUnits = Domain.Unit.getUsableUnit(airDefenseUnits, "name", shoradCount);
-			const selectedADUnits = usableADUnits.slice(0, shoradCount);
-			selectedADUnits.forEach((unit) => units.push(unit));
-
-			units.forEach((unit) => {
-				const inventoryUnit = faction.inventory.groundUnits[unit.id];
-
-				if (inventoryUnit == null) {
-					console.error("inventory ground unit not found", unit.id); // eslint-disable-line no-console
-					return;
-				}
-
-				inventoryUnit.state = "on objective";
+			// update inventory
+			units.forEach((u) => {
+				faction.inventory.groundUnits[u.id] = {
+					...u,
+					state: "on objective",
+				};
 			});
 
 			faction.groundGroups.push({

@@ -20,6 +20,7 @@ export const Config = {
 		ammo: 50_000,
 		fuel: 50_000,
 		hospital: 50_000,
+		airdrome: 10_000,
 		frontline: {
 			barrack: 30_000,
 			depot: 70_000,
@@ -50,7 +51,7 @@ export const Config = {
 		repair: 100_000,
 		coalitionMultiplier: {
 			blue: 1,
-			red: 3.5,
+			red: 2,
 		},
 	},
 	night: {
@@ -59,5 +60,27 @@ export const Config = {
 	},
 	waypoint: {
 		takeOff: 600,
+	},
+	mapOrigin: {
+		caucasus: {
+			x: 0,
+			y: 0,
+		},
+		normandy: {
+			x: 0,
+			y: 0,
+		},
+		persianGulf: {
+			x: 0,
+			y: 0,
+		},
+		southAtlantic: {
+			x: 0,
+			y: 0,
+		},
+		syria: {
+			x: -587.411551255995,
+			y: -56132.3249950192,
+		},
 	},
 };

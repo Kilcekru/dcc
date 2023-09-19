@@ -9,10 +9,7 @@
 	"win-condition": {
 		"type": "ground units"
 	},
-	"blue-start-objective-range": [
-		2,
-		4
-	],
+	"blue-start-objective-range": [2, 4],
 	"blue": {
 		"airdromeNames": [],
 		"objectivePlans": []

@@ -318,7 +318,7 @@ export const getUsableAircraftsByType = (
 	const aircrafts = Object.values(faction.inventory.aircrafts ?? []);
 
 	// Filter only aircrafts that are in idle state
-	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle");
+	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle" && ac.disabled !== true);
 	// Filter only aircrafts that are alive
 	const aliveAircrafts = idleAircrafts.filter((ac) => ac.alive);
 	// Filter only aircrafts of specific aircraft types
@@ -405,10 +405,6 @@ export const onboardNumber = () => {
 	} else {
 		return `00${num}`;
 	}
-};
-
-export const getUsableGroundUnits = (activeGroundUnits: Record<string, DcsJs.CampaignUnit>) => {
-	return Object.values(activeGroundUnits).filter((unit) => unit.state === "idle" && unit.alive);
 };
 
 export const getScenarioFaction = (coalition: DcsJs.CampaignCoalition, scenario: Scenario) => {

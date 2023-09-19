@@ -11,7 +11,7 @@ type Lane = {
 	target: DcsJs.Position;
 };
 
-const rangeMultiplier = 1;
+const rangeMultiplier = 0.6;
 
 function selectObjective(
 	sourcePosition: DcsJs.Position,
@@ -333,7 +333,7 @@ function addFrontline(
 		const distanceFriendly = Domain.Location.distanceToPosition(obj.position, nearestFriendly.objective.position);
 		const distanceOpp = Domain.Location.distanceToPosition(obj.position, nearestOpp.objective.position);
 
-		if (distanceOpp <= 30_000 && distanceFriendly < distanceOpp) {
+		if (distanceOpp <= Config.structureRange.frontline.barrack && distanceFriendly < distanceOpp) {
 			objectivePlans = addObjectivePlan(objectivePlans, obj, "vehicles");
 		}
 	});

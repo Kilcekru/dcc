@@ -477,6 +477,18 @@ export const Map = () => {
 		});
 	};
 
+	const cleanupStructures = () => {
+		Object.entries(objectiveMarkers).forEach(([id, marker]) => {
+			const blueStructure = Object.values(state.blueFaction?.structures ?? {}).some((structure) => structure.id === id);
+			const redStructure = Object.values(state.redFaction?.structures ?? {}).some((structure) => structure.id === id);
+
+			if (!blueStructure && !redStructure) {
+				removeSymbol(marker.marker);
+				delete objectiveMarkers[id];
+			}
+		});
+	};
+
 	const createSamSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Domain.Faction.getSamGroups(faction).forEach((sam) => {
 			if (sam.operational) {
@@ -512,18 +524,6 @@ export const Map = () => {
 
 				removeSymbol(samCircle?.circle);
 				removeSymbol(samCircle?.marker);
-			}
-		});
-	};
-
-	const cleanupStructures = () => {
-		Object.entries(objectiveMarkers).forEach(([id, marker]) => {
-			const blueStructure = Object.values(state.blueFaction?.structures ?? {}).some((structure) => structure.id === id);
-			const redStructure = Object.values(state.redFaction?.structures ?? {}).some((structure) => structure.id === id);
-
-			if (!blueStructure && !redStructure) {
-				removeSymbol(marker.marker);
-				delete objectiveMarkers[id];
 			}
 		});
 	};
