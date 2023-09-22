@@ -53,6 +53,8 @@ export const Config = {
 			blue: 1,
 			red: 2,
 		},
+		maxEnRoutePerUnitCamp: 0.4,
+		maxEnRoute: 5,
 	},
 	night: {
 		startHour: 20,

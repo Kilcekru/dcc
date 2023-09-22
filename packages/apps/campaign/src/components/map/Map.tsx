@@ -56,7 +56,7 @@ export const Map = () => {
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let winConditionCircle: L.CircleMarker | undefined = undefined;
-	const objectiveCircles: Record<string, L.CircleMarker> = {};
+	// const objectiveCircles: Record<string, L.CircleMarker> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
@@ -581,7 +581,7 @@ export const Map = () => {
 		}
 	});
 
-	createEffect(() => {
+	/* createEffect(() => {
 		const map = leaftletMap();
 
 		if (map == null) {
@@ -610,7 +610,7 @@ export const Map = () => {
 					.bindTooltip((<span>{obj.name}</span>) as Content, { permanent: map.getZoom() >= 10 });
 			}
 		});
-	});
+	}); */
 
 	// Selected Flight Group
 	createEffect(() => {

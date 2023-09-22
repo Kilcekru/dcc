@@ -11,6 +11,7 @@ import {
 	clearPackages,
 	createCampaign,
 	deploymentScoreUpdate,
+	longCampaignRound,
 	missionRound,
 	repairScoreUpdate,
 	updateDownedPilots,
@@ -46,6 +47,7 @@ type CampaignStore = [
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: Types.Campaign.MissionState, dataStore: Types.Campaign.DataStore) => void;
 		saveCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
+		saveLongCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
 		updateDeploymentScore?: () => void;
 		updateRepairScore?: () => void;
 		updateWeather?: (dataStore: Types.Campaign.DataStore) => void;
@@ -256,6 +258,9 @@ export function CampaignProvider(props: {
 			},
 			saveCampaignRound(dataStore) {
 				setState(produce((s) => campaignRound(s, dataStore)));
+			},
+			saveLongCampaignRound(dataStore) {
+				setState(produce((s) => longCampaignRound(s, dataStore)));
 			},
 			updateDeploymentScore() {
 				setState(produce((s) => deploymentScoreUpdate(s)));

@@ -17,6 +17,7 @@ export const Home = () => {
 		{
 			tick,
 			saveCampaignRound,
+			saveLongCampaignRound,
 			pause,
 			updateDeploymentScore,
 			updateRepairScore,
@@ -67,6 +68,15 @@ export const Home = () => {
 		updateRepairScore?.();
 		updateWeather?.(dataStore);
 		updateDownedPilots?.();
+
+		try {
+			saveLongCampaignRound?.(dataStore);
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e, state);
+			stopInterval();
+		}
+
 		save();
 	};
 

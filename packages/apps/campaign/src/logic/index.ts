@@ -7,13 +7,13 @@ import { cleanupPackages } from "./cleanupPackages";
 import { cleanupStructures } from "./cleanupStructures";
 import { combatRound } from "./combat";
 import { gameOver } from "./gameOver";
-import { packagesRound } from "./packages";
+import { packagesRound, updatePackagesStateRound } from "./packages";
 import { reinforcement } from "./reinforcement";
 import { repairStructures } from "./repairStructures";
 import { RunningCampaignState } from "./types";
 import { updateAircraftState } from "./updateAircraftState";
 import { updateAirdromes } from "./updateAirdrome";
-import { updateFrontline } from "./updateFrontline";
+import { moveGroundGroups, updateFrontline, updateGroundCombat } from "./updateFrontline";
 
 /**
  *
@@ -25,10 +25,22 @@ export const campaignRound = (state: DcsJs.CampaignState, dataStore: Types.Campa
 		return state;
 	}
 
-	cleanupPackages(state as RunningCampaignState);
 	updateAircraftState(state as RunningCampaignState);
-	packagesRound(state as RunningCampaignState, dataStore);
+	updatePackagesStateRound(state as RunningCampaignState, dataStore);
+	moveGroundGroups(state as RunningCampaignState, dataStore);
 	combatRound(state as RunningCampaignState, dataStore);
+	updateGroundCombat(state as RunningCampaignState, dataStore);
+
+	return state;
+};
+
+export const longCampaignRound = (state: DcsJs.CampaignState, dataStore: Types.Campaign.DataStore) => {
+	if (state.blueFaction == null || state.redFaction == null) {
+		return state;
+	}
+
+	cleanupPackages(state as RunningCampaignState);
+	packagesRound(state as RunningCampaignState, dataStore);
 	cleanupFlightGroups(state as RunningCampaignState);
 	cleanupGroundGroups(state as RunningCampaignState);
 	cleanupStructures(state as RunningCampaignState);
@@ -52,6 +64,7 @@ export const missionRound = (state: DcsJs.CampaignState, dataStore: Types.Campai
 	cleanupFlightGroups(state as RunningCampaignState);
 	cleanupGroundGroups(state as RunningCampaignState);
 	cleanupStructures(state as RunningCampaignState);
+	moveGroundGroups(state as RunningCampaignState, dataStore);
 	updateFrontline(state as RunningCampaignState, dataStore);
 	updateAirdromes(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);

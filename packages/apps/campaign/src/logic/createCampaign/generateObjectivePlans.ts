@@ -11,7 +11,7 @@ type Lane = {
 	target: DcsJs.Position;
 };
 
-const rangeMultiplier = 0.6;
+const rangeMultiplier = 0.8;
 
 function selectObjective(
 	sourcePosition: DcsJs.Position,

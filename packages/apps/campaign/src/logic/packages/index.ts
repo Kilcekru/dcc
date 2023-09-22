@@ -289,8 +289,6 @@ const factionPackagesTick = (
 	dataStore: Types.Campaign.DataStore,
 	faction: DcsJs.CampaignFaction,
 ) => {
-	updatePackagesState(faction.packages, state.lastTickTimer, state.timer, dataStore);
-
 	const date = timerToDate(state.timer);
 	const dayHour = date.getUTCHours() ?? 0;
 
@@ -319,3 +317,8 @@ export const packagesRound = (state: RunningCampaignState, dataStore: Types.Camp
 	factionPackagesTick("blue", state, dataStore, state.blueFaction);
 	factionPackagesTick("red", state, dataStore, state.redFaction);
 };
+
+export function updatePackagesStateRound(state: RunningCampaignState, dataStore: Types.Campaign.DataStore) {
+	updatePackagesState(state.blueFaction.packages, state.lastTickTimer, state.timer, dataStore);
+	updatePackagesState(state.redFaction.packages, state.lastTickTimer, state.timer, dataStore);
+}

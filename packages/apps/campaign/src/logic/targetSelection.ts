@@ -193,56 +193,61 @@ export const getFrontlineTarget = (
 	sourcePosition: DcsJs.Position,
 	range: number,
 	state: RunningCampaignState,
+	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
-	const unprotectedObjectives = Object.values(state.objectives).filter(
+	const unprotectedObjectives = Object.values(relevantObjectives[coalition]).filter(
 		(obj) =>
-			obj.coalition === coalition &&
-			obj.incomingGroundGroups[coalition] == null &&
-			!faction.groundGroups.some((gg) => gg.objectiveName === obj.name),
+			obj.incomingGroundGroups[coalition] == null && !faction.groundGroups.some((gg) => gg.objectiveName === obj.name),
 	);
 
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
-	const oppObjectives = Object.values(state.objectives).filter(
-		(obj) => obj.coalition === oppCoalition || obj.coalition === "neutral",
-	);
+	const oppObjectives = Object.values(relevantObjectives[oppCoalition]);
 
-	const unprotectedFrontlineObjectives: Array<DcsJs.Objective> = [];
-	oppFaction.groundGroups.forEach((oppGg) => {
-		const ggsInRange = Domain.Location.findInside(
-			faction.groundGroups,
-			oppGg.position,
-			(gg) => gg.position,
-			Config.structureRange.frontline.depot,
-		);
+	if (Domain.Location.someInside(oppObjectives, sourcePosition, range)) {
+		const unprotectedFrontlineObjectives: Array<DcsJs.Objective> = [];
+		oppFaction.groundGroups.forEach((oppGg) => {
+			const ggsInRange = Domain.Location.findInside(
+				faction.groundGroups,
+				oppGg.position,
+				(gg) => gg.position,
+				Config.structureRange.frontline.depot,
+			);
+
+			const objectivesInRange = Domain.Location.findInside(
+				unprotectedObjectives,
+				oppGg.position,
+				(obj) => obj.position,
+				Config.structureRange.frontline.depot,
+			);
+
+			if (ggsInRange.length === 0 && objectivesInRange.length > 0) {
+				objectivesInRange.forEach((obj) => unprotectedFrontlineObjectives.push(obj));
+			}
+		});
+
+		if (unprotectedFrontlineObjectives.length > 0) {
+			return Domain.Utils.randomItem(unprotectedFrontlineObjectives);
+		}
+
+		const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
 		const objectivesInRange = Domain.Location.findInside(
-			unprotectedObjectives,
-			oppGg.position,
+			freeOppObjectives,
+			sourcePosition,
 			(obj) => obj.position,
-			Config.structureRange.frontline.depot,
+			range,
 		);
 
-		if (ggsInRange.length === 0 && objectivesInRange.length > 0) {
-			objectivesInRange.forEach((obj) => unprotectedFrontlineObjectives.push(obj));
+		if (objectivesInRange.length > 0) {
+			const targetObjective = Domain.Location.findNearest(objectivesInRange, sourcePosition, (obj) => obj.position);
+
+			if (targetObjective == null) {
+				return null;
+			}
+
+			return targetObjective;
 		}
-	});
-
-	if (unprotectedFrontlineObjectives.length > 0) {
-		return Domain.Utils.randomItem(unprotectedFrontlineObjectives);
-	}
-
-	const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
-	const objectivesInRange = Domain.Location.findInside(freeOppObjectives, sourcePosition, (obj) => obj.position, range);
-
-	if (objectivesInRange.length > 0) {
-		const targetObjective = Domain.Location.findNearest(objectivesInRange, sourcePosition, (obj) => obj.position);
-
-		if (targetObjective == null) {
-			return null;
-		}
-
-		return targetObjective;
 	}
 
 	return null;
