@@ -10,6 +10,10 @@ import { patches } from "./config";
 
 const tmpDir = Path.join(app.getPath("userData"), `.tmp/patch`);
 
+/** Detect if a patch is applied
+ * @returns true if patch is applied, false if patch is not applied, undefined if state can't be detected
+ * @throws Error if dcs not available or file can't be read
+ */
 export async function detectPatch(id: Types.Patch.Id) {
 	if (!userConfig.data.dcs.available) {
 		throw new Error("DCS paths not available in userconfig");

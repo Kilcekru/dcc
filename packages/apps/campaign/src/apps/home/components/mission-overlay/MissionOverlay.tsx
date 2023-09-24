@@ -4,7 +4,7 @@ import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
-import { createEffect, createMemo, createSignal, onMount, Show, useContext } from "solid-js";
+import { createEffect, createMemo, createSignal, Show, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CampaignContext } from "../../../../components";
@@ -15,18 +15,14 @@ import { ClientList } from "./ClientList";
 import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
 import Styles from "./MissionOverlay.module.less";
-import { PersistenceErrorModal } from "./PersistenceErrorModal";
 import { PersistenceModal } from "./PersistenceModal";
-import { PersistenceSuccessModal } from "./PersistenceSuccessModal";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [state, { submitMissionState, pause, generateMissionId }] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
-	const [isPersistenceOpen, setIsPersistenceOpen] = createSignal(false);
-	const [isPersistenceSuccessOpen, setIsPersistenceSuccessOpen] = createSignal(false);
-	const [isPersistenceErrorOpen, setIsPersistenceErrorOpen] = createSignal(false);
-	const [persistenceAllowed, setPersistenceAllowed] = createSignal(false);
+	const [isPersistenceModalOpen, setIsPersistenceModalOpen] = createSignal(false);
+	const [isPersistenceIgnored, setisPersistenceIgnored] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
 	const [flightGroups, setFlightGroups] = createSignal<{
 		blue: Array<DcsJs.CampaignFlightGroup>;
@@ -37,26 +33,26 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 	const save = useSave();
 
-	onMount(async () => {
+	const detectPersistance = async (): Promise<boolean> => {
 		try {
 			const patch = await rpc.patches.detectPatch("scriptFileAccess");
-			setPersistenceAllowed(patch ?? true);
+			return patch ?? true;
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(`detect patch: ${Utils.errMsg(e)}`);
-			setPersistenceAllowed(true);
+			return true;
 		}
-	});
+	};
 
 	const onGenerateMission = async () => {
 		try {
 			generateMissionId?.();
 			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)));
 
-			if (persistenceAllowed()) {
+			if (isPersistenceIgnored() || (await detectPersistance())) {
 				setOverlayState("generated");
 			} else {
-				setIsPersistenceOpen(true);
+				setIsPersistenceModalOpen(true);
 			}
 		} catch (e) {
 			const errorString = String(e).split("'rpc':")[1];
@@ -74,37 +70,16 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 		}
 	};
 
-	const onPersistenceClose = () => {
-		setIsPersistenceOpen(false);
+	const onPersistenceModalClose = (ignore?: boolean) => {
+		setIsPersistenceModalOpen(false);
 		setOverlayState("generated");
-	};
-
-	const onPersistencePatch = async () => {
-		setIsPersistenceOpen(false);
-
-		try {
-			await rpc.patches.executePatches([{ id: "scriptFileAccess", action: "apply" }]);
-			setIsPersistenceSuccessOpen(true);
-		} catch (e) {
-			// eslint-disable-next-line no-console
-			console.error(`execute patch: ${Utils.errMsg(e)}`);
-			setPersistenceAllowed(false);
-			setIsPersistenceErrorOpen(true);
+		if (ignore) {
+			setisPersistenceIgnored(true);
 		}
 	};
 
-	const onPersistenceSuccessClose = () => {
-		setIsPersistenceSuccessOpen(false);
-		setOverlayState("generated");
-	};
-
-	const onPersistenceErrorClose = () => {
-		setIsPersistenceErrorOpen(false);
-		setOverlayState("generated");
-	};
-
-	const onPersistenceErrorCancel = () => {
-		setIsPersistenceErrorOpen(false);
+	const onPersistenceModalCancel = () => {
+		setIsPersistenceModalOpen(false);
 		onClose();
 	};
 
@@ -224,12 +199,10 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				</Show>
 			</div>
 
-			<PersistenceModal isOpen={isPersistenceOpen()} onClose={onPersistenceClose} onConfirm={onPersistencePatch} />
-			<PersistenceSuccessModal isOpen={isPersistenceSuccessOpen()} onClose={onPersistenceSuccessClose} />
-			<PersistenceErrorModal
-				isOpen={isPersistenceErrorOpen()}
-				onClose={onPersistenceErrorClose}
-				onCancel={onPersistenceErrorCancel}
+			<PersistenceModal
+				isOpen={isPersistenceModalOpen()}
+				onClose={onPersistenceModalClose}
+				onCancel={onPersistenceModalCancel}
 			/>
 			<HowToStartModal isOpen={isHowToStartOpen()} onClose={() => setIsHowToStartOpen(false)} />
 		</div>

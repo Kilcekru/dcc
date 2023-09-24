@@ -32,6 +32,10 @@ const App = (props: { open: boolean }) => {
 		save();
 	});
 
+	onEvent("menu.campaign.enablePersistance", () => {
+		// TODO: show persistance modal
+	});
+
 	function onOpenCreateCampaign() {
 		setOpen(false);
 	}
