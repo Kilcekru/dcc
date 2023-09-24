@@ -44,12 +44,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(`detect patch: ${Utils.errMsg(e)}`);
-			setPersistenceAllowed(false);
-
-			createToast({
-				title: "Mission Generation failed",
-				description: Utils.errMsg(e),
-			});
+			setPersistenceAllowed(true);
 		}
 	});
 
@@ -88,11 +83,11 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 		setIsPersistenceOpen(false);
 
 		try {
-			await rpc.patches.applyPatches(["scriptFileAccess"]);
+			await rpc.patches.executePatches([{ id: "scriptFileAccess", action: "apply" }]);
 			setIsPersistenceSuccessOpen(true);
 		} catch (e) {
 			// eslint-disable-next-line no-console
-			console.error(`apply patch: ${Utils.errMsg(e)}`);
+			console.error(`execute patch: ${Utils.errMsg(e)}`);
 			setPersistenceAllowed(false);
 			setIsPersistenceErrorOpen(true);
 		}
