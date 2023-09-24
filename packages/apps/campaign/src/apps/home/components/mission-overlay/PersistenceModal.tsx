@@ -46,7 +46,15 @@ export function PersistenceModal(props: {
 		<Components.Modal isOpen={props.isOpen} onClose={onClose} class={Styles.modal}>
 			<div class={Styles.content}>
 				<Show when={state() === "start"}>
-					<p class={Styles.header}>Persistence is not activated</p>
+					<p class={Styles.header}>Persistence is not enabled</p>
+					<p class={Styles.comment}>
+						DCS does not allow saving state from missions per default.
+						<br />
+						A small change in DCS settings is necessary for persistance to work. If the generated mission is hosted on a
+						dedicated server, the change needs to be applied there.
+						<br />
+						<a onClick={() => rpc.misc.openExternalLink("https://github.com/Kilcekru/dcc#persistence")}>Read more</a>
+					</p>
 					<p>Do you want to update the Settings?</p>
 					<div class={Styles.buttons}>
 						<Components.Button class={Styles["button--cancel"]} onPress={() => onClose(true)}>
@@ -57,9 +65,14 @@ export function PersistenceModal(props: {
 				</Show>
 				<Show when={state() === "success"}>
 					<p class={Styles.header}>Persistence updated</p>
-					<p>Please restart DCS if it was open</p>
+					<p>Please restart DCS if it was open.</p>
+					<p class={Styles.comment}>
+						DCS disables this feature for security reasons.
+						<br />
+						If you want to join online servers, persistance should be disabled again before you do so.
+					</p>
 					<Components.Switch checked={true} onChange={onChangeUndo}>
-						Undo Persistence on Close
+						Disable Persistence on Close
 					</Components.Switch>
 					<div class={Styles.buttons}>
 						<Components.Button onPress={onClose}>Continue</Components.Button>
@@ -67,7 +80,10 @@ export function PersistenceModal(props: {
 				</Show>
 				<Show when={state() === "error"}>
 					<p class={Styles.header}>We couldn't update the Persistence Settings for you</p>
-					<p>If you want to continue with the mission you need to enabled the Persistence Settings manually</p>
+					<p>If you want to continue with the mission you need to enable the Persistence Settings manually.</p>
+					<p class={Styles.comment}>
+						<a onClick={() => rpc.misc.openExternalLink("https://github.com/Kilcekru/dcc#persistence")}>Read more</a>
+					</p>
 					<div class={Styles.buttons}>
 						<Components.Button class={Styles["button--cancel"]} onPress={onCancel}>
 							Cancel Mission

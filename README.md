@@ -21,12 +21,15 @@ Still in early development we currently only offer a dynamic campaign, but more 
   - [Farp](#farp)
   - [Power Plant](#power-plant)
   - [Fuel Storage](#fuel-storage)
+  - [Hospital](#hospital)
+  - [Prison](#prison)
 - [Mission Types](#mission-types)
   - [DEAD](#dead)
   - [CAP](#cap)
   - [Strike](#strike)
   - [Escort](#escort)
   - [CAS](#cas)
+  - [CSAR](#csar)
 - [Persistence](#persistence)
   - [Current Limitation](#current-limitation)
   - [Upcoming Features](#upcoming-features)
@@ -134,8 +137,8 @@ To:
 ```
 do
    sanitizeModule('os')
-   --sanitizeModule('io')
-   --sanitizeModule('lfs')
+   -- sanitizeModule('io')
+   -- sanitizeModule('lfs')
    _G['require'] = nil
    _G['loadlib'] = nil
    _G['package'] = nil
