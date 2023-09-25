@@ -3,8 +3,8 @@ import { Menu, MenuItemConstructorOptions } from "electron";
 import { actions } from "./actions";
 import { getConfig } from "./config";
 
-export function initHotkeys() {
-	const { menu } = getConfig();
+export async function initHotkeys() {
+	const { menu } = await getConfig();
 
 	const template: MenuItemConstructorOptions[] = [];
 

@@ -2,7 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { CampaignSynopsis, DataStore, MissionState } from "./campaign";
 import { AppName, DcsPaths, SystemConfig, UserConfig, Versions } from "./core";
-import { PatchId } from "./patch";
+import * as Patch from "./patch";
 
 export interface Misc {
 	getVersions: () => Promise<Versions>;
@@ -42,7 +42,7 @@ export interface Campaign {
 }
 
 export interface Patches {
-	detectPatch: (id: PatchId) => Promise<boolean | undefined>;
-	applyPatches: (ids: PatchId[]) => Promise<void>;
-	clearPatches: (ids: PatchId[]) => Promise<void>;
+	detectPatch: (id: Patch.Id) => Promise<boolean | undefined>;
+	executePatches: (execs: Patch.Execution[]) => Promise<void>;
+	executePatchOnQuit: (id: Patch.Id, action: Patch.Action | "none") => Promise<void>;
 }

@@ -10,7 +10,11 @@ import { patches } from "./config";
 
 const tmpDir = Path.join(app.getPath("userData"), `.tmp/patch`);
 
-export async function detectPatch(id: Types.Patch.PatchId) {
+/** Detect if a patch is applied
+ * @returns true if patch is applied, false if patch is not applied, undefined if state can't be detected
+ * @throws Error if dcs not available or file can't be read
+ */
+export async function detectPatch(id: Types.Patch.Id) {
 	if (!userConfig.data.dcs.available) {
 		throw new Error("DCS paths not available in userconfig");
 	}
@@ -36,45 +40,23 @@ export async function detectPatch(id: Types.Patch.PatchId) {
 	return undefined;
 }
 
-export async function applyPatches(ids: Types.Patch.PatchId[]) {
+export async function executePatches(execs: Types.Patch.Execution[]) {
 	if (!userConfig.data.dcs.available) {
 		throw new Error("DCS paths not available in userconfig");
 	}
 	const filesToWrite: Array<{ path: string; content: string }> = [];
 
-	for (const id of ids) {
-		const patch = patches[id];
+	for (const execution of execs) {
+		const patch = patches[execution.id];
 		const path = Path.join(userConfig.data.dcs.paths.install, patch.path);
 		let content = await FS.readFile(path, "utf-8");
 		let changed = false;
+
 		for (const replacement of patch.replace ?? []) {
-			const res = replaceLine(content, replacement.search, replacement.substitute);
-			content = res.content;
-			changed = changed || res.changed;
-		}
-
-		if (changed) {
-			filesToWrite.push({ path, content });
-		}
-	}
-	if (filesToWrite.length > 0) {
-		await writePatchFiles(filesToWrite);
-	}
-}
-
-export async function clearPatches(ids: Types.Patch.PatchId[]) {
-	if (!userConfig.data.dcs.available) {
-		throw new Error("DCS paths not available in userconfig");
-	}
-	const filesToWrite: Array<{ path: string; content: string }> = [];
-
-	for (const id of ids) {
-		const patch = patches[id];
-		const path = Path.join(userConfig.data.dcs.paths.install, patch.path);
-		let content = await FS.readFile(path, "utf-8");
-		let changed = false;
-		for (const replacement of patch.replace ?? []) {
-			const res = replaceLine(content, replacement.substitute, replacement.search);
+			const res =
+				execution.action === "apply"
+					? replaceLine(content, replacement.search, replacement.substitute)
+					: replaceLine(content, replacement.substitute, replacement.search);
 			content = res.content;
 			changed = changed || res.changed;
 		}

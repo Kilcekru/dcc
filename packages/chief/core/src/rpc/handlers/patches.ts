@@ -4,6 +4,11 @@ import * as Domain from "../../domain";
 
 export const patches: Types.Rpc.Patches = {
 	detectPatch: Domain.Patches.detectPatch,
-	applyPatches: Domain.Patches.applyPatches,
-	clearPatches: Domain.Patches.clearPatches,
+	executePatches: async (execs) => {
+		await Domain.Patches.executePatches(execs);
+		await Domain.AppMenu.onConfigChanged();
+	},
+	executePatchOnQuit: async (id, action) => {
+		Domain.Patches.executePatchOnQuit(id, action);
+	},
 };

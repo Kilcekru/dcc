@@ -10,11 +10,11 @@ import { actions } from "./actions";
 import { getConfig } from "./config";
 
 export function setupIpc() {
-	ipcMain.handle("Menu.getConfig", (event) => {
+	ipcMain.handle("Menu.getConfig", async (event) => {
 		if (!validateSender(event.senderFrame)) {
 			return;
 		}
-		return JSON.stringify(getConfig());
+		return JSON.stringify(await getConfig());
 	});
 
 	ipcMain.handle("Menu.handleAction", (event, args: string) => {
@@ -51,8 +51,8 @@ export function setupIpc() {
 	});
 }
 
-export const onConfigChanged = () => {
-	Window.menuView.webContents.send("Menu.onConfigChanged", JSON.stringify(getConfig()));
+export const onConfigChanged = async () => {
+	Window.menuView.webContents.send("Menu.onConfigChanged", JSON.stringify(await getConfig()));
 };
 
 const menuUrl = pathToFileURL(Path.join(app.getAppPath(), "dist/chief/menu/index.html")).href;

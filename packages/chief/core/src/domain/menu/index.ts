@@ -4,7 +4,9 @@ import * as Window from "../window";
 import { initHotkeys } from "./hotkeys";
 import { onConfigChanged, setupIpc } from "./ipc";
 
-export function initialize() {
+export { onConfigChanged } from "./ipc";
+
+export async function initialize() {
 	setupIpc();
 
 	Window.mainWindow.on("maximize", onConfigChanged);
@@ -12,5 +14,5 @@ export function initialize() {
 	Persistance.State.userConfig.onChange(onConfigChanged);
 	void updateCheckComplete.then(onConfigChanged);
 
-	return initHotkeys();
+	return await initHotkeys();
 }
