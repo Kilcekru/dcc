@@ -25,7 +25,7 @@ export function clearPackage(faction: DcsJs.CampaignFaction, pkg: DcsJs.FlightPa
 	faction.packages = faction.packages.filter((p) => p.id !== pkg.id);
 
 	// Get all aircraft units within the package
-	const aircraftUnits: Array<DcsJs.CampaignFlightGroupUnit> = [];
+	const aircraftUnits: Array<DcsJs.FlightGroupUnit> = [];
 
 	pkg.flightGroups.forEach((fg) => {
 		fg.units.forEach((u) => {

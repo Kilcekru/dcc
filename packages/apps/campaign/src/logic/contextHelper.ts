@@ -51,7 +51,7 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 };
 
 export const killedAircraftIdsByFlightGroups = (
-	flightGroups: Array<DcsJs.CampaignFlightGroup>,
+	flightGroups: Array<DcsJs.FlightGroup>,
 	killedAircraftNames: Array<string>,
 ) => {
 	const ids: Array<string> = [];

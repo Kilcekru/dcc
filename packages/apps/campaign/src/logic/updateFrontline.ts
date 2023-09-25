@@ -89,6 +89,7 @@ const deployFrontline = (
 		startObjective: DcsJs.Objective;
 		state: RunningCampaignState;
 		dataStore: Types.Campaign.DataStore;
+		onObjective?: boolean;
 	} & deploymentSource,
 ) => {
 	// Is no other ground group on the way
@@ -106,9 +107,9 @@ const deployFrontline = (
 			name: p.targetObjective.name + "-" + id,
 			startObjectiveName: p.startObjective.name,
 			objectiveName: p.targetObjective.name,
-			position: p.startObjective.position,
+			position: p.onObjective ? p.targetObjective.position : p.startObjective.position,
 			startTime: p.state.timer + Minutes(random(5, 15)),
-			state: "en route",
+			state: p.onObjective ? "on objective" : "en route",
 			unitIds,
 			type: p.groupType,
 		};
@@ -120,7 +121,7 @@ const deployFrontline = (
 		groundUnits.forEach((u) => {
 			faction.inventory.groundUnits[u.id] = {
 				...u,
-				state: "en route",
+				state: p.onObjective ? "on objective" : "en route",
 			};
 		});
 
@@ -233,13 +234,10 @@ const moveFactionGroundGroups = (
 	});
 }; */
 
-const attackFrontline = (
-	coalition: DcsJs.CampaignCoalition,
-	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore,
-	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
-) => {
+function getUnitCamps(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
 	const faction = getCoalitionFaction(coalition, state);
+	const depotDeploymentCost = getDeploymentCost(coalition, "Depot");
+	const barrackDeploymentCost = getDeploymentCost(coalition, "Barrack");
 	const depots = Object.values(faction.structures).filter((structure) => {
 		return structure?.type === "Depot";
 	});
@@ -249,20 +247,6 @@ const attackFrontline = (
 	});
 
 	const unitCamps = [...depots, ...barracks];
-
-	const ggsEnRoute = faction.groundGroups.filter((gg) => gg.state === "combat" || gg.state === "en route");
-
-	const depotDeploymentCost = getDeploymentCost(coalition, "Depot");
-	const barrackDeploymentCost = getDeploymentCost(coalition, "Barrack");
-	const maxAllowedGg = Math.max(
-		Math.round(unitCamps.length * Config.deploymentScore.maxEnRoutePerUnitCamp),
-		Config.deploymentScore.maxEnRoute,
-	);
-	const areMoreGgsAllowed = ggsEnRoute.length < maxAllowedGg;
-
-	if (!areMoreGgsAllowed) {
-		return;
-	}
 
 	const unitCampsReadyForDeployment = unitCamps.filter((camp) => {
 		if (camp.state != "active") {
@@ -279,6 +263,34 @@ const attackFrontline = (
 
 		return false;
 	});
+
+	return {
+		total: unitCamps,
+		readyForDeployment: unitCampsReadyForDeployment,
+	};
+}
+
+const attackFrontline = (
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
+	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
+) => {
+	const faction = getCoalitionFaction(coalition, state);
+	const { total: unitCamps, readyForDeployment: unitCampsReadyForDeployment } = getUnitCamps(coalition, state);
+	const depotDeploymentCost = getDeploymentCost(coalition, "Depot");
+	const barrackDeploymentCost = getDeploymentCost(coalition, "Barrack");
+	const ggsEnRoute = faction.groundGroups.filter((gg) => gg.state === "combat" || gg.state === "en route");
+	const maxAllowedGg = Math.max(
+		Math.round(unitCamps.length * Config.deploymentScore.maxEnRoutePerUnitCamp),
+		Config.deploymentScore.maxEnRoute,
+	);
+	const areMoreGgsAllowed = ggsEnRoute.length < maxAllowedGg;
+
+	if (!areMoreGgsAllowed) {
+		return;
+	}
+
 	const unitCampsAtFrontline = unitCampsReadyForDeployment.filter((camp) =>
 		Domain.Location.InFrontlineRange(coalition, camp.position, state),
 	);
@@ -361,6 +373,85 @@ export const updateGroundCombat = (state: RunningCampaignState, dataStore: Types
 	});
 };
 
+function reinforceCoalitionFrontline(
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
+	frontlineObjectives: Array<DcsJs.Objective>,
+) {
+	const { readyForDeployment: unitCampsReadyForDeployment } = getUnitCamps(coalition, state);
+	const faction = getCoalitionFaction(coalition, state);
+	const depotDeploymentCost = getDeploymentCost(coalition, "Depot");
+	const barrackDeploymentCost = getDeploymentCost(coalition, "Barrack");
+
+	const emptyFrontlineObjectives = frontlineObjectives.filter((obj) => {
+		if (obj.incomingGroundGroups[coalition] == null) {
+			const objectiveGG = faction.groundGroups.find((gg) => gg.objectiveName === obj.name);
+
+			return objectiveGG == null;
+		}
+
+		return false;
+	});
+
+	emptyFrontlineObjectives.forEach((obj) => {
+		const campsInRange = Domain.Location.findInside(
+			unitCampsReadyForDeployment,
+			obj.position,
+			(camp) => camp.position,
+			Config.structureRange.frontline.barrack,
+		);
+
+		const farthestCamp = Domain.Location.findFarthest(campsInRange, obj.position, (camp) => camp.position);
+
+		if (farthestCamp == null) {
+			return;
+		}
+
+		const startObjective = state.objectives[farthestCamp.objectiveName];
+
+		if (startObjective == null) {
+			return;
+		}
+
+		if (farthestCamp.type === "Depot") {
+			deployFrontline({
+				targetObjective: obj,
+				startObjective,
+				state,
+				groupType: "armor",
+				depot: farthestCamp,
+				dataStore,
+				onObjective: true,
+			});
+
+			farthestCamp.deploymentScore -= barrackDeploymentCost;
+		}
+
+		if (farthestCamp.type === "Barrack") {
+			deployFrontline({
+				targetObjective: obj,
+				startObjective,
+				state,
+				groupType: "infantry",
+				barrack: farthestCamp,
+				dataStore,
+				onObjective: true,
+			});
+
+			farthestCamp.deploymentScore -= depotDeploymentCost;
+		}
+	});
+}
+function reinforceFrontline(
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
+	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
+) {
+	reinforceCoalitionFrontline("blue", state, dataStore, Object.values(relevantObjectives.blue));
+	reinforceCoalitionFrontline("red", state, dataStore, Object.values(relevantObjectives.red));
+}
+
 export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	updateObjectivesCoalition(state);
 	// captureNeutralObjectives(state, dataStore); TODO
@@ -406,10 +497,13 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Ca
 		}
 	});
 
+	reinforceFrontline(state, dataStore, relevantObjectives);
+
 	// Only create packages during the day
 	if ((dayHour >= Config.night.endHour && dayHour < Config.night.startHour) || state.allowNightMissions) {
 		// moveBackmarkers("blue", state);
 		// moveBackmarkers("red", state);
+
 		attackFrontline("blue", state, dataStore, relevantObjectives);
 		attackFrontline("red", state, dataStore, relevantObjectives);
 	}

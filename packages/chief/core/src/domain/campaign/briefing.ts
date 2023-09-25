@@ -21,7 +21,7 @@ export async function generateBriefingKneeboards(campaign: DcsJs.CampaignState) 
 					data: {
 						package: pkg,
 						flightGroup: fg,
-						aircraftInventory: faction.inventory.aircrafts,
+						faction,
 						dataAircrafts: DcsJs.getAircrafts(),
 						mapData: DcsJs.getMapData(campaign.map),
 					},

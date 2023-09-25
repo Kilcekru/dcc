@@ -1,6 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
-export function calcTakeoffTime(packages: Array<DcsJs.CampaignPackage> | undefined) {
+export function calcTakeoffTime(packages: Array<DcsJs.FlightPackage> | undefined) {
 	return packages?.reduce(
 		(prev, pkg) => {
 			const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));

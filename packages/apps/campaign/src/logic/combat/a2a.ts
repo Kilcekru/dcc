@@ -8,7 +8,7 @@ import { RunningCampaignState } from "../types";
 import { getMaxRangeA2AMissileAvailable } from "../utils";
 
 type BattleReportEntry = {
-	unit: DcsJs.CampaignFlightGroupUnit;
+	unit: DcsJs.FlightGroupUnit;
 	aircraft: DcsJs.Aircraft;
 	weapon: DcsJs.Weapon & DcsJs.A2AWeapon;
 	targetAircraft?: DcsJs.Aircraft;
@@ -82,8 +82,8 @@ const saveBattleReport = (
 };
 
 const a2aRound = (
-	attackingFg: DcsJs.CampaignFlightGroup,
-	targetFg: DcsJs.CampaignFlightGroup,
+	attackingFg: DcsJs.FlightGroup,
+	targetFg: DcsJs.FlightGroup,
 	attackingFaction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
 	timer: number,
@@ -145,8 +145,8 @@ const a2aRound = (
 };
 
 const a2aFlightGroups = (
-	attackingFgs: Array<DcsJs.CampaignFlightGroup>,
-	targetFgs: Array<DcsJs.CampaignFlightGroup>,
+	attackingFgs: Array<DcsJs.FlightGroup>,
+	targetFgs: Array<DcsJs.FlightGroup>,
 	attackingFaction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
 	timer: number,

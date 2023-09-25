@@ -56,7 +56,7 @@ export type CampaignSynopsis = z.infer<typeof Schema.campaignSynopsis>;
 export interface BriefingDocument {
 	package: DcsJs.FlightPackage;
 	flightGroup: DcsJs.FlightGroup;
-	aircraftInventory: Record<string, DcsJs.Aircraft>;
+	faction: DcsJs.CampaignFaction;
 	dataAircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>>;
 	mapData: DcsJs.MapData;
 }

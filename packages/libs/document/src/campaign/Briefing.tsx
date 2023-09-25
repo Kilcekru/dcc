@@ -16,7 +16,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 			return;
 		}
 
-		const aircraft = props.data.aircraftInventory[unit.id];
+		const aircraft = props.data.faction.inventory.aircrafts[unit.id];
 
 		if (aircraft == null) {
 			return;
@@ -31,7 +31,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 			return "";
 		}
 
-		const aircraft = props.data.aircraftInventory[unit.id];
+		const aircraft = props.data.faction.inventory.aircrafts[unit.id];
 
 		if (aircraft == null) {
 			return "";
@@ -87,6 +87,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 		<div class={Styles.briefing}>
 			<h1>{props.data.flightGroup.name}</h1>
 			<h2>Airbase</h2>
+			<p>{props.data.flightGroup.task}</p>
 			<div class={Styles.airbase}>
 				<p class={Styles.label} />
 				<p class={Styles.label}>Name</p>
@@ -102,7 +103,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<p>{airdromeData().name}</p>
 				<p>{airdromeData().tcn}</p>
 				<p>{airdromeData().icls}</p>
-				<p>{airdromeData().frequency}</p>
+				<p>{airdromeData().frequency}</p>p
 			</div>
 			<h2>Package</h2>
 			<div class={Styles.package}>
@@ -142,11 +143,21 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<div />
 				<div />
 				<p class={Styles.label}>3</p>
-				<p>251</p>
+				<p>{props.data.faction.awacsFrequency}</p>
 				<p>AWACS</p>
 				<div />
 				<div />
 				<div />
+				{props.data.flightGroup.jtacFrequency != null ? (
+					<>
+						<p class={Styles.label}>4</p>
+						<p>{props.data.flightGroup.jtacFrequency}</p>
+						<p>JTAC</p>
+						<div />
+						<div />
+						<div />
+					</>
+				) : null}
 			</div>
 			<h2>Flightplan</h2>
 			<div class={Styles["flight-plan"]}>

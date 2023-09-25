@@ -71,6 +71,26 @@ export const findNearest = <T>(
 	)[0];
 };
 
+export const findFarthest = <T>(
+	values: Array<T> | undefined,
+	sourcePosition: DcsJs.Position,
+	positionSelector: (value: T) => DcsJs.Position,
+) => {
+	return values?.reduce(
+		([prevObj, prevDistance], v) => {
+			const position = positionSelector(v);
+			const distance = distanceToPosition(sourcePosition, position);
+
+			if (distance > prevDistance) {
+				return [v, distance] as [T, number];
+			} else {
+				return [prevObj, prevDistance] as [T, number];
+			}
+		},
+		[undefined, 0] as [T, number],
+	)[0];
+};
+
 const isPosition = (value: DcsJs.Position | { position: DcsJs.Position }): value is DcsJs.Position => {
 	return (value as DcsJs.Position).x != null;
 };

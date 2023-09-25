@@ -115,7 +115,7 @@ export const generateStrikePackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-): DcsJs.CampaignPackage | undefined => {
+): DcsJs.FlightPackage | undefined => {
 	// console.log("generate strike");
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -198,10 +198,11 @@ export const generateStrikePackage = (
 		ingressPosition,
 		cruiseSpeed,
 	);
+	const strikeDuration = Minutes(5);
 	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, cruiseSpeed);
 	const endEnRouteTime = holdTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
-	const endEgressTime = endIngressTime + durationEngress;
+	const endEgressTime = endIngressTime + strikeDuration + durationEngress;
 	const [landingWaypoints, landingTime] = calcLandingWaypoints({
 		egressPosition: egressPosition,
 		airdromePosition: packageAircrafts.startPosition,
@@ -250,6 +251,7 @@ export const generateStrikePackage = (
 					y: targetStructure.position.y,
 				},
 				speed: cruiseSpeed,
+				duration: strikeDuration,
 				time: endIngressTime + 1,
 				onGround: true,
 			},

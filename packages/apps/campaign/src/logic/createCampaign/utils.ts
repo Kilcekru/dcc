@@ -43,31 +43,3 @@ export function factionCarrierName(
 
 	return carrierName;
 }
-
-export function awacsFrequency(faction: DcsJs.Faction, dataStore: Types.Campaign.DataStore) {
-	const aircraftStore = dataStore.aircrafts;
-
-	if (aircraftStore == null) {
-		return 251;
-	}
-
-	let limitedFrequency = false;
-
-	Object.values(faction.aircraftTypes).forEach((act) => {
-		act.forEach((ac) => {
-			const aircraft = aircraftStore[ac as DcsJs.AircraftType];
-
-			if (aircraft == null) {
-				return;
-			}
-
-			if (aircraft.allowedFrequency == null) {
-				return;
-			}
-
-			limitedFrequency = true;
-		});
-	});
-
-	return limitedFrequency ? 144 : 251;
-}

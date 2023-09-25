@@ -24,7 +24,7 @@ export function unitIsHelicopter(
 }
 
 export function hasHelicopter(
-	flightGroup: DcsJs.CampaignFlightGroup,
+	flightGroup: DcsJs.FlightGroup,
 	faction: DcsJs.CampaignFaction,
 	dataStore: Types.Campaign.DataStore,
 ) {

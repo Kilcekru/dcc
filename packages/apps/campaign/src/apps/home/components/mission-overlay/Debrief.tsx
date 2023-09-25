@@ -14,7 +14,7 @@ import {
 import Styles from "./Debrief.module.less";
 
 function useFlightGroupMissionState(
-	flightGroup: DcsJs.CampaignFlightGroup,
+	flightGroup: DcsJs.FlightGroup,
 	killedBlueAircrafts: Array<string>,
 	killedRedGroundUnits: Array<string>,
 ) {
@@ -106,7 +106,7 @@ function useFlightGroupMissionState(
 	}
 }
 
-function Unit(props: { unit: DcsJs.CampaignFlightGroupUnit; killedBlueAircrafts: Array<string> }) {
+function Unit(props: { unit: DcsJs.FlightGroupUnit; killedBlueAircrafts: Array<string> }) {
 	const killed = createMemo(() => props.killedBlueAircrafts.some((id) => id === props.unit.id));
 	return (
 		<div class={Styles["aircraft-row"]}>
@@ -118,7 +118,7 @@ function Unit(props: { unit: DcsJs.CampaignFlightGroupUnit; killedBlueAircrafts:
 	);
 }
 function FlightGroup(props: {
-	flightGroup: DcsJs.CampaignFlightGroup;
+	flightGroup: DcsJs.FlightGroup;
 	killedBlueAircrafts: Array<string>;
 	killedRedGroundUnits: Array<string>;
 }) {
@@ -147,8 +147,8 @@ function FlightGroup(props: {
 export function Debrief(props: {
 	missionState: Types.Campaign.MissionState | undefined;
 	flightGroups: {
-		blue: Array<DcsJs.CampaignFlightGroup>;
-		red: Array<DcsJs.CampaignFlightGroup>;
+		blue: Array<DcsJs.FlightGroup>;
+		red: Array<DcsJs.FlightGroup>;
 	};
 	onClose: () => void;
 }) {

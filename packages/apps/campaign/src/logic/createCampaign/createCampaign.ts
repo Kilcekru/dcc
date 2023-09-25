@@ -6,13 +6,13 @@ import { v4 as uuid } from "uuid";
 import { scenarioList } from "../../data/scenarios";
 import * as Domain from "../../domain";
 import { getCurrentWeather } from "../../domain/weather";
-import { firstItem, Minutes } from "../../utils";
+import { awacsFrequency, firstItem, Minutes } from "../../utils";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundGroups } from "./generateGroundGroups";
 import { generateObjectivePlans } from "./generateObjectivePlans";
 import { generateSams } from "./generateSams";
 import { generateStructures } from "./generateStructures";
-import { awacsFrequency, factionCarrierName } from "./utils";
+import { factionCarrierName } from "./utils";
 
 /**
  *

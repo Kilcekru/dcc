@@ -25,7 +25,7 @@ export const generateCapPackage = (
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	objectiveName: string,
-): DcsJs.CampaignPackage | undefined => {
+): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);

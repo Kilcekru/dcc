@@ -35,7 +35,7 @@ export const generateDeadPackage = (
 	coalition: DcsJs.CampaignCoalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-): DcsJs.CampaignPackage | undefined => {
+): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -121,7 +121,7 @@ export const generateDeadPackage = (
 						name: cs.unitName(i),
 						client: false,
 						loadout: getLoadoutForAircraftType(aircraft.aircraftType as DcsJs.AircraftType, "DEAD", dataStore),
-					}) as DcsJs.CampaignFlightGroupUnit,
+					}) as DcsJs.FlightGroupUnit,
 			) ?? [],
 		name: cs.flightGroupName,
 		task: "DEAD",

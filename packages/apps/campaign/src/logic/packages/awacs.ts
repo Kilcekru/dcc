@@ -21,7 +21,7 @@ export const generateAwacsPackage = (
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	startTime: number,
-): DcsJs.CampaignPackage | undefined => {
+): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 
 	if (faction == null || dataStore?.airdromes == null) {

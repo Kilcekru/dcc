@@ -81,7 +81,7 @@ export const Map = () => {
 		return positionToMapPosition(airdrome);
 	});
 
-	const onClickFlightGroup = (flightGroup: DcsJs.CampaignFlightGroup, coalition: DcsJs.CampaignCoalition) => {
+	const onClickFlightGroup = (flightGroup: DcsJs.FlightGroup, coalition: DcsJs.CampaignCoalition) => {
 		selectFlightGroup?.(flightGroup);
 		openFlightGroup?.(flightGroup.id, coalition);
 	};
@@ -241,7 +241,7 @@ export const Map = () => {
 	const createAircraftSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		const flightGroups = faction.packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
-		}, [] as Array<DcsJs.CampaignFlightGroup>);
+		}, [] as Array<DcsJs.FlightGroup>);
 
 		flightGroups?.forEach((fg) => {
 			if (fg.position == null) {

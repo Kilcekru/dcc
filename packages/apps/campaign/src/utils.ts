@@ -181,7 +181,7 @@ export const positionAfterDurationToPosition = (
 	return positionFromHeading(sourcePosition, heading, distanceTraveled);
 };
 
-export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) => {
+export const getActiveWaypoint = (fg: DcsJs.FlightGroup, timer: number) => {
 	return fg.waypoints.reduce(
 		(prev, wp) => {
 			if (prev == null) {
@@ -200,12 +200,12 @@ export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) 
 	);
 };
 
-export const getNextWaypoint = (fg: DcsJs.CampaignFlightGroup, waypoint: DcsJs.CampaignWaypoint) => {
+export const getNextWaypoint = (fg: DcsJs.FlightGroup, waypoint: DcsJs.CampaignWaypoint) => {
 	return fg.waypoints[fg.waypoints.indexOf(waypoint) + 1];
 };
 
 export const calcFlightGroupPosition = (
-	fg: DcsJs.CampaignFlightGroup,
+	fg: DcsJs.FlightGroup,
 	lastTickTimer: number,
 	timer: number,
 	dataStore: Types.Campaign.DataStore,
@@ -275,7 +275,7 @@ export const lastItem = <T>(arr: Array<T>) => {
 	return arr[arr.length - 1];
 };
 
-export const calcPackageEndTime = (startTime: number, fgs: Array<DcsJs.CampaignFlightGroup>) => {
+export const calcPackageEndTime = (startTime: number, fgs: Array<DcsJs.FlightGroup>) => {
 	return (
 		startTime +
 		fgs.reduce((prev, fg) => {
@@ -344,7 +344,7 @@ export const getUsableAircraftsByType = (
 };
 
 export const getAircraftStateFromFlightGroup = (
-	fg: DcsJs.CampaignFlightGroup,
+	fg: DcsJs.FlightGroup,
 	timer: number,
 ): DcsJs.CampaignAircraftState | undefined => {
 	if (fg.startTime < timer) {
@@ -487,7 +487,7 @@ export function dateToTimer(value: Date) {
 	return value.valueOf() / 1000;
 }
 
-export function calcTakeoffTime(packages: Array<DcsJs.CampaignPackage> | undefined) {
+export function calcTakeoffTime(packages: Array<DcsJs.FlightPackage> | undefined) {
 	return packages?.reduce(
 		(prev, pkg) => {
 			const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
@@ -511,4 +511,46 @@ export function getMissionStateTimer(missionState: Types.Campaign.MissionState, 
 	const additionalTimer = additionalDays * 86400;
 
 	return missionState.time + additionalTimer;
+}
+
+export function awacsFrequency(faction: DcsJs.Faction, dataStore: Types.Campaign.DataStore) {
+	const aircraftStore = dataStore.aircrafts;
+
+	if (aircraftStore == null) {
+		return 251;
+	}
+
+	let limitedFrequency = false;
+
+	Object.values(faction.aircraftTypes).forEach((act) => {
+		act.forEach((ac) => {
+			const aircraft = aircraftStore[ac as DcsJs.AircraftType];
+
+			if (aircraft == null) {
+				return;
+			}
+
+			if (aircraft.allowedFrequency == null) {
+				return;
+			}
+
+			limitedFrequency = true;
+		});
+	});
+
+	return limitedFrequency ? 144 : 251;
+}
+
+export function jtacFrequency(faction: DcsJs.CampaignFaction) {
+	const existingJtacFrequency = faction.packages.reduce((prev, pkg) => {
+		const fgWithJtac = pkg.flightGroups.find((fg) => fg.jtacFrequency);
+
+		if (fgWithJtac?.jtacFrequency != null && fgWithJtac.jtacFrequency > prev) {
+			return fgWithJtac.jtacFrequency;
+		}
+
+		return prev;
+	}, 240);
+
+	return existingJtacFrequency + 1;
 }

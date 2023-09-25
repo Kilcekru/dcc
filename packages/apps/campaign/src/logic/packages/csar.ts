@@ -14,7 +14,7 @@ export const generateCsarPackage = (
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	downedPilot: DcsJs.DownedPilot,
-): DcsJs.CampaignPackage | undefined => {
+): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 
 	if (dataStore?.airdromes == null) {

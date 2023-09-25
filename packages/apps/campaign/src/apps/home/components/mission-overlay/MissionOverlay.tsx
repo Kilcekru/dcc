@@ -29,8 +29,8 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const [persistenceAllowed, setPersistenceAllowed] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
 	const [flightGroups, setFlightGroups] = createSignal<{
-		blue: Array<DcsJs.CampaignFlightGroup>;
-		red: Array<DcsJs.CampaignFlightGroup>;
+		blue: Array<DcsJs.FlightGroup>;
+		red: Array<DcsJs.FlightGroup>;
 	}>({ blue: [], red: [] });
 	const isReady = createMemo(() => overlayState() === "ready");
 	const isGenerated = createMemo(() => overlayState() === "generated");
@@ -154,10 +154,10 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			setFlightGroups({
 				blue: structuredClone(
 					unwrap(getFlightGroups(state.blueFaction?.packages)),
-				) as unknown as Array<DcsJs.CampaignFlightGroup>,
+				) as unknown as Array<DcsJs.FlightGroup>,
 				red: structuredClone(
 					unwrap(getFlightGroups(state.redFaction?.packages)),
-				) as unknown as Array<DcsJs.CampaignFlightGroup>,
+				) as unknown as Array<DcsJs.FlightGroup>,
 			});
 
 			submitMissionState?.(loadedMissionState, dataStore);
