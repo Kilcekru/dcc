@@ -8,16 +8,27 @@
 	"briefing": "In the aftermath of Syria's invasion of Lebanon, Israel has launched a military campaign to recapture the territory and reestablish control. The conflict has escalated significantly, posing grave implications for regional stability and international security.",
 	"win-condition": {
 		"type": "objective",
-		"value": "Enguri Dam"
+		"value": "Hama Center"
 	},
-	"blue-start-objective-range": [5, 12],
+	"blue-start-objective-range": [
+		5,
+		12
+	],
 	"blue": {
-		"airdromeNames": ["Ramat David"],
+		"airdromeNames": [
+			"Ramat David"
+		],
 		"carrierObjective": "Alpha",
 		"objectivePlans": []
 	},
 	"red": {
-		"airdromeNames": ["Beirut-Rafic Hariri", "Damascus", "King Hussein Air College", "Al Qusayr", "Hama"],
+		"airdromeNames": [
+			"Beirut-Rafic Hariri",
+			"Damascus",
+			"King Hussein Air College",
+			"Al Qusayr",
+			"Hama"
+		],
 		"objectivePlans": []
 	}
 }

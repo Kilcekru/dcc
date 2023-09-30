@@ -39,12 +39,15 @@ export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.Ca
 	);
 
 	const aliveGroundGroups = groundGroupsInRange.filter((gg) => {
-		return gg.unitIds.some((id) => {
+		const aliveUnits = gg.unitIds.filter((id) => {
 			const inventoryUnit = oppFaction.inventory.groundUnits[id];
 
 			return inventoryUnit?.alive;
 		});
+
+		return aliveUnits.length >= 4;
 	});
+
 	const groundGroupsOutsideSamRange = aliveGroundGroups.filter(
 		(objective) => !isInSamRange(objective.position, oppFaction),
 	);

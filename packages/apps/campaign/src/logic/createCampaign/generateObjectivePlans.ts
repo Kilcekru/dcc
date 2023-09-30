@@ -11,8 +11,6 @@ type Lane = {
 	target: DcsJs.Position;
 };
 
-const rangeMultiplier = 0.8;
-
 function selectObjective(
 	sourcePosition: DcsJs.Position,
 	targetPosition: DcsJs.Position,
@@ -356,11 +354,13 @@ function generateLanes(startPositions: Array<DcsJs.Position>, targetPositions: A
 }
 
 function generateFactionStructures({
+	coalition,
 	objectivePlans,
 	oppObjectivePlans,
 	objectives,
 	strikeTargets,
 }: {
+	coalition: DcsJs.CampaignCoalition;
 	objectivePlans: Array<DynamicObjectivePlan>;
 	oppObjectivePlans: Array<DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
@@ -371,7 +371,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.depot * rangeMultiplier,
+		range: Config.structureRange.frontline.depot * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Depot",
 	});
 	objectivePlans = addStructures({
@@ -379,7 +379,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.barrack * rangeMultiplier,
+		range: Config.structureRange.frontline.barrack * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Barrack",
 	});
 	objectivePlans = addStructures({
@@ -387,7 +387,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.power * rangeMultiplier,
+		range: Config.structureRange.power * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Power Plant",
 	});
 	objectivePlans = addStructures({
@@ -395,7 +395,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.ammo * rangeMultiplier,
+		range: Config.structureRange.ammo * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Ammo Depot",
 	});
 	objectivePlans = addStructures({
@@ -403,7 +403,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.fuel * rangeMultiplier,
+		range: Config.structureRange.fuel * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Fuel Storage",
 	});
 	objectivePlans = addStructures({
@@ -411,7 +411,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.hospital * rangeMultiplier,
+		range: Config.structureRange.hospital * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Hospital",
 	});
 	objectivePlans = addStructures({
@@ -419,7 +419,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.farp * rangeMultiplier,
+		range: Config.structureRange.frontline.farp * Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Farp",
 	});
 
@@ -476,6 +476,7 @@ export function generateObjectivePlans(
 	redObjs = addAirdromeSamObjectives(redAirdromes, blueAirdromes, samObjectives, redObjs);
 
 	blueObjs = generateFactionStructures({
+		coalition: "blue",
 		objectivePlans: blueObjs,
 		objectives,
 		oppObjectivePlans: redObjs,
@@ -483,6 +484,7 @@ export function generateObjectivePlans(
 	});
 
 	redObjs = generateFactionStructures({
+		coalition: "red",
 		objectivePlans: redObjs,
 		objectives,
 		oppObjectivePlans: blueObjs,

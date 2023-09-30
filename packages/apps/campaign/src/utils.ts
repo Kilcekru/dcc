@@ -226,7 +226,7 @@ export const calcFlightGroupPosition = (
 
 	if (activeWaypoint?.racetrack == null) {
 		const nextPosition = nextWaypoint?.position ?? airdrome ?? activeWaypoint.position;
-		if (Utils.distanceToPosition(fg.position, nextPosition) <= 1000) {
+		if (Utils.distanceToPosition(fg.position, nextPosition) <= 2000) {
 			return nextPosition;
 		}
 

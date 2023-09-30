@@ -408,7 +408,7 @@ export function transferObjectiveStructures(
 		const packages = getPackagesWithTarget(faction, structure.name);
 
 		// eslint-disable-next-line no-console
-		console.log("transfer structures", structure.name);
+		console.log(`transfer structures ${structure.name} to ${coalition}`);
 
 		const clientFgs = getClientFlightGroups(packages);
 

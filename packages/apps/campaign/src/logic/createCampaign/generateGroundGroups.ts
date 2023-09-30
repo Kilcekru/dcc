@@ -15,7 +15,7 @@ export function generateGroundGroups(
 	objectivePlans.forEach((op) => {
 		if (op.groundUnitTypes.some((gut) => gut === "vehicles")) {
 			const id = createUniqueId();
-			const groupType = Domain.Utils.random(1, 100) > 30 ? "armor" : "infantry";
+			const groupType = Domain.Utils.random(1, 100) > 40 ? "armor" : "infantry";
 
 			const units = generateGroundGroupInventory(faction, dataStore, groupType);
 

@@ -56,9 +56,9 @@ export const generateAwacsPackage = (
 
 	const [racetrackStart, racetrackEnd] = raceTracks;
 	const durationEnRoute = getDurationEnRoute(airdrome, racetrackStart, cruiseSpeed);
-	const duration = Minutes(120);
+	const duration = Minutes(360);
 
-	const endEnRouteTime = startTime + durationEnRoute;
+	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
 	const [landingWaypoints, landingTime] = calcLandingWaypoints({
 		egressPosition: racetrackEnd,

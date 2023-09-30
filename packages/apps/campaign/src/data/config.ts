@@ -11,7 +11,8 @@ export const Config = {
 	},
 	packages: {
 		awacs: 1,
-		strike: 3,
+		strike: { blue: 4, red: 3, neutral: 0 },
+		cas: { blue: 3, red: 2, neutral: 0 },
 		dead: 2,
 		csar: 2,
 	},
@@ -22,10 +23,11 @@ export const Config = {
 		hospital: 50_000,
 		airdrome: 10_000,
 		frontline: {
-			barrack: 30_000,
-			depot: 70_000,
+			barrack: 50_000,
+			depot: 60_000,
 			farp: 50_000,
 		},
+		generateRangeMultiplier: { blue: 0.6, red: 0.8, neutral: 0 },
 	},
 	maxDistance: {
 		helicopter: 50_000,
@@ -44,17 +46,17 @@ export const Config = {
 			fuel: 0.2,
 		},
 		frontline: {
-			barrack: 55_000,
-			depot: 70_000,
+			barrack: 60_000,
+			depot: 50_000,
 			initialFactor: 0.75,
 		},
 		repair: 100_000,
 		coalitionMultiplier: {
-			blue: 1,
-			red: 2,
+			blue: 0.75,
+			red: 5,
 		},
-		maxEnRoutePerUnitCamp: 0.4,
-		maxEnRoute: 5,
+		maxEnRoutePerUnitCamp: 0.8,
+		maxEnRoute: 6,
 	},
 	night: {
 		startHour: 20,

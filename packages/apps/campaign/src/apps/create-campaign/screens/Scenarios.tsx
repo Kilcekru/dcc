@@ -36,7 +36,7 @@ const ScenarioItem = (props: { scenario: Scenario; onPress: (name: Scenario) => 
 		<Components.Card
 			class={Styles.scenario}
 			disabled={!props.scenario.available}
-			onPress={() => props.onPress(props.scenario)}
+			onPress={() => (props.scenario.available ? props.onPress(props.scenario) : null)}
 		>
 			<div class={cnb(Styles.background, scenarioImage())} />
 			<h2 class={Styles.name}>{props.scenario.name}</h2>

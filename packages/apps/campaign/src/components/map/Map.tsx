@@ -47,7 +47,10 @@ export const Map = () => {
 	let mapDiv: HTMLDivElement;
 	let selectedMarkerId: string;
 	const airdromeMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
-	const objectiveMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
+	const objectiveMarkers: Record<
+		string,
+		{ marker: L.Marker; symbolCode: string; color?: string; coalition: DcsJs.CampaignCoalition }
+	> = {};
 	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const shipGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
@@ -471,7 +474,19 @@ export const Map = () => {
 				});
 
 				if (marker != null) {
-					objectiveMarkers[structure.id] = marker;
+					objectiveMarkers[structure.id] = {
+						...marker,
+						coalition,
+					};
+				}
+			} else {
+				if (objectiveMarkers[structure.id]?.coalition !== coalition) {
+					// eslint-disable-next-line no-console
+					console.warn(
+						`${structure.name} has the wrong coalition. Is: ${
+							objectiveMarkers[structure.id]?.coalition ?? ""
+						}, should: ${coalition}`,
+					);
 				}
 			}
 		});

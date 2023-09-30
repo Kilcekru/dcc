@@ -5,12 +5,14 @@ import { cnb } from "cnbuilder";
 import { createSignal, For, onMount, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
+import { useSetDataMap } from "../../components/DataProvider";
 import * as Domain from "../../domain";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
 
 const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: () => void }) => {
 	const [, { replaceCampaignState }] = useContext(CampaignContext);
+	const setDataMap = useSetDataMap();
 
 	const onOpen = () => {
 		rpc.campaign
@@ -22,6 +24,7 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 					return;
 				}
 
+				setDataMap(loadedState.map);
 				replaceCampaignState?.(loadedState);
 			})
 			.catch((e) => {

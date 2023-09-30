@@ -50,13 +50,13 @@ export const g2gBattle = (
 		);
 
 		if (aliveRedUnitId == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		const aliveRedUnit = state.redFaction.inventory.groundUnits[aliveRedUnitId];
 
 		if (aliveRedUnit == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		aliveRedUnit.alive = false;
@@ -73,13 +73,13 @@ export const g2gBattle = (
 		);
 
 		if (aliveBlueUnitId == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		const aliveBlueUnit = state.blueFaction.inventory.groundUnits[aliveBlueUnitId];
 
 		if (aliveBlueUnit == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		aliveBlueUnit.alive = false;

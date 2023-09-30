@@ -4,7 +4,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import { createMemo, For } from "solid-js";
+import { createMemo, For, Show } from "solid-js";
 
 import Styles from "./Briefing.module.less";
 
@@ -83,29 +83,70 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 			};
 		}
 	});
+
+	const taskDescription = createMemo(() => {
+		switch (props.data.flightGroup.task) {
+			case "CAS": {
+				return "Destroy the enemy ground units at waypoint 3 'CAS'";
+			}
+			case "Pinpoint Strike": {
+				return "Destroy the enemy buildings at waypoint 3 'Strike'";
+			}
+			case "Escort": {
+				return "Escort the Strike flight from enemy fighters";
+			}
+			case "DEAD": {
+				return "Destroy the enemy tracking radar(SAM) at waypoint 3 'DEAD'";
+			}
+			case "CAP": {
+				return "Protect the area around waypoint 1 and 2 from enemy fighters";
+			}
+			case "CSAR": {
+				return "Find and rescue the downed pilot at waypoint 2";
+			}
+			default: {
+				return "";
+			}
+		}
+	});
+
+	const taskHint = createMemo(() => {
+		switch (props.data.flightGroup.task) {
+			case "CAS": {
+				return "JTAC is available via the Communication Menu for 9-Line. Additionally the JTAC can mark the units for you with 'F-10. Other...'.";
+			}
+			case "Escort": {
+				return "With the 'F-10. Other...' entry in the Communication Menu you can request a BRA Call for your escort destination at any time.";
+			}
+			case "CSAR": {
+				return "Find and rescue the downed pilot at waypoint 2";
+			}
+			default: {
+				return undefined;
+			}
+		}
+	});
 	return (
 		<div class={Styles.briefing}>
 			<h1>{props.data.flightGroup.name}</h1>
-			<h2>Airbase</h2>
-			<p>{props.data.flightGroup.task}</p>
+			<h3>{props.data.flightGroup.task}</h3>
+			<p>{taskDescription()}</p>
+			<Show when={taskHint() != null}>
+				<p>{taskHint()}</p>
+			</Show>
+			<h2 class={Styles.title}>Airbase</h2>
 			<div class={Styles.airbase}>
 				<p class={Styles.label} />
 				<p class={Styles.label}>Name</p>
-				<p class={Styles.label}>TCN</p>
-				<p class={Styles.label}>ICLS</p>
 				<p class={Styles.label}>Freq.</p>
 				<p>DEP</p>
 				<p>{airdromeData().name}</p>
-				<p>{airdromeData().tcn}</p>
-				<p>{airdromeData().icls}</p>
 				<p>{airdromeData().frequency}</p>
 				<p>ARR</p>
 				<p>{airdromeData().name}</p>
-				<p>{airdromeData().tcn}</p>
-				<p>{airdromeData().icls}</p>
-				<p>{airdromeData().frequency}</p>p
+				<p>{airdromeData().frequency}</p>
 			</div>
-			<h2>Package</h2>
+			<h2 class={Styles.title}>Package</h2>
 			<div class={Styles.package}>
 				<p class={Styles.label}>Callsign</p>
 				<p class={Styles.label}>Aircraft Type</p>
@@ -120,46 +161,29 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 					)}
 				</For>
 			</div>
-			<h2>Radio</h2>
+			<h2 class={Styles.title}>Radio</h2>
 			<div class={Styles.radio}>
-				<p class={Styles.comm1}>COMM 1</p>
-				<p class={Styles.comm2}>COMM 2</p>
-				<p class={Styles.label}>Chl.</p>
-				<p class={Styles.label}>Freq.</p>
-				<p class={Styles.label}>Name</p>
 				<p class={Styles.label}>Chl.</p>
 				<p class={Styles.label}>Freq.</p>
 				<p class={Styles.label}>Name</p>
 				<p class={Styles.label}>1</p>
 				<p>{props.data.package.frequency}</p>
 				<p>Package</p>
-				<p class={Styles.label}>1</p>
-				<p>{airdromeData().frequency}</p>
-				<p>{airdromeData().name}</p>
 				<p class={Styles.label}>2</p>
 				<p>{airdromeData().frequency}</p>
 				<p>{airdromeData().name}</p>
-				<div />
-				<div />
-				<div />
 				<p class={Styles.label}>3</p>
 				<p>{props.data.faction.awacsFrequency}</p>
 				<p>AWACS</p>
-				<div />
-				<div />
-				<div />
 				{props.data.flightGroup.jtacFrequency != null ? (
 					<>
 						<p class={Styles.label}>4</p>
 						<p>{props.data.flightGroup.jtacFrequency}</p>
 						<p>JTAC</p>
-						<div />
-						<div />
-						<div />
 					</>
 				) : null}
 			</div>
-			<h2>Flightplan</h2>
+			<h2 class={Styles.title}>Flightplan</h2>
 			<div class={Styles["flight-plan"]}>
 				<p class={Styles.label}>Nr.</p>
 				<p class={Styles.label}>Name</p>

@@ -6,7 +6,7 @@ import { createUniqueId } from "solid-js";
 import { Config } from "../data";
 import * as Domain from "../domain";
 import { getDeploymentCost, Minutes, positionAfterDurationToPosition, random, timerToDate } from "../utils";
-import { conquerObjective, g2g, g2gBattle } from "./combat";
+import { g2g, g2gBattle } from "./combat";
 import { generateGroundGroupInventory } from "./createCampaign/generateGroundUnitsInventory";
 import { getFrontlineTarget } from "./targetSelection";
 import { RunningCampaignState } from "./types";
@@ -149,7 +149,7 @@ const moveFactionGroundGroups = (
 					return;
 				}
 
-				if (Utils.distanceToPosition(gg.position, objective.position) < 2_000) {
+				if (Utils.distanceToPosition(gg.position, objective.position) < 500) {
 					const objective = state.objectives[gg.objectiveName];
 
 					if (objective == null) {
@@ -285,6 +285,7 @@ const attackFrontline = (
 		Math.round(unitCamps.length * Config.deploymentScore.maxEnRoutePerUnitCamp),
 		Config.deploymentScore.maxEnRoute,
 	);
+
 	const areMoreGgsAllowed = ggsEnRoute.length < maxAllowedGg;
 
 	if (!areMoreGgsAllowed) {
@@ -355,15 +356,13 @@ export const updateGroundCombat = (state: RunningCampaignState, dataStore: Types
 	state.blueFaction.groundGroups.forEach((gg) => {
 		if (Domain.Faction.isGroundGroup(gg)) {
 			if (gg.state === "combat" && state.timer >= (gg.combatTimer ?? 0)) {
-				const redGg = state.redFaction.groundGroups.find(
-					(rgg) => rgg.state === "combat" && rgg.objectiveName === gg.objectiveName,
-				);
+				const redGg = state.redFaction.groundGroups.find((rgg) => rgg.objectiveName === gg.objectiveName);
 
 				if (redGg == null || !Domain.Faction.isGroundGroup(redGg)) {
 					// eslint-disable-next-line no-console
-					console.error("red combat ground group not found", gg);
+					console.error("red combat ground group not found", gg, gg.objectiveName);
 
-					conquerObjective(gg, "blue", state, dataStore);
+					// conquerObjective(gg, "blue", state, dataStore);
 					return;
 				}
 

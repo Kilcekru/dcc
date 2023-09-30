@@ -1,21 +1,36 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import * as Domain from "../../domain";
 import {
+	addHeading,
 	calcPackageEndTime,
 	getDurationEnRoute,
 	jtacFrequency,
 	Minutes,
 	objectToPosition,
 	oppositeCoalition,
+	positionFromHeading,
 	random,
 } from "../../utils";
 import { getCasTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, generateCallSign, getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
-import { calcFrequency, getCruiseSpeed, getPackageAircrafts, updateAircraftForFlightGroup } from "./utils";
+import {
+	calcLandingWaypoints,
+	calcNearestOppositeAirdrome,
+	generateCallSign,
+	getCoalitionFaction,
+	getLoadoutForAircraftType,
+} from "../utils";
+import {
+	calcFrequency,
+	calcHoldWaypoint,
+	getCruiseSpeed,
+	getPackageAircrafts,
+	updateAircraftForFlightGroup,
+} from "./utils";
 
 export const generateCasPackage = (
 	coalition: DcsJs.CampaignCoalition,
@@ -62,8 +77,33 @@ export const generateCasPackage = (
 	); */
 	// const racetrackStart = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome - 90, 7500);
 	// const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);
-	const durationEnRoute = getDurationEnRoute(packageAircrafts.startPosition, groundGroupTarget.position, cruiseSpeed);
+	const ingressPosition = positionFromHeading(
+		groundGroupTarget.position,
+		Utils.headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition),
+		15000,
+	);
+
+	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(
+		packageAircrafts.startPosition,
+		ingressPosition,
+		cruiseSpeed,
+	);
+
+	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, groundGroupTarget.position);
+	const egressHeading =
+		oppAirdrome == null
+			? Utils.headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition)
+			: Utils.headingToPosition(groundGroupTarget.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+	const egressPosition = positionFromHeading(groundGroupTarget.position, addHeading(egressHeading, 180), 20000);
+
 	const casDuration = Minutes(30);
+
+	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, cruiseSpeed);
+	const durationIngress = getDurationEnRoute(ingressPosition, groundGroupTarget.position, cruiseSpeed);
+	const durationEngress = getDurationEnRoute(groundGroupTarget.position, egressPosition, cruiseSpeed);
+	const endEnRouteTime = holdTime + durationEnRoute;
+	const endIngressTime = endEnRouteTime + durationIngress;
+	const endEgressTime = endIngressTime + casDuration + durationEngress;
 
 	const activeCas = faction.packages.filter((pkg) => pkg.task === "CAS");
 	const activeCasStartTime = activeCas.reduce((prev, pkg) => {
@@ -77,12 +117,11 @@ export const generateCasPackage = (
 	const currentStartTime = Math.floor(state.timer) + Minutes(random(15, 20));
 	const startTime = currentStartTime > nextAvailableStartTime ? currentStartTime : nextAvailableStartTime;
 
-	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + casDuration;
 	const [landingWaypoints, landingTime] = calcLandingWaypoints({
-		egressPosition: groundGroupTarget.position,
+		egressPosition,
 		airdromePosition: packageAircrafts.startPosition,
-		prevWaypointTime: endOnStationTime + 1,
+		prevWaypointTime: endEgressTime + 1,
 		cruiseSpeed,
 	});
 
@@ -113,12 +152,20 @@ export const generateCasPackage = (
 				speed: cruiseSpeed,
 				onGround: true,
 			},
+			holdWaypoint,
 			{
-				name: "CAS",
+				name: "Ingress",
+				position: ingressPosition,
+				speed: cruiseSpeed,
+				time: endEnRouteTime + 1,
+				taskStart: true,
+			},
+			{
+				name: `CAS ${groundGroupTarget.objectiveName}`,
 				position: groundGroupTarget.position,
 				speed: cruiseSpeed,
 				duration: casDuration,
-				time: endEnRouteTime + 1,
+				time: endIngressTime + 1,
 				taskStart: true,
 				onGround: true,
 				/* racetrack: {
@@ -127,6 +174,12 @@ export const generateCasPackage = (
 					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				}, */
+			},
+			{
+				name: "Egress",
+				position: egressPosition,
+				speed: cruiseSpeed,
+				time: endEgressTime + 1,
 			},
 			...landingWaypoints,
 		],

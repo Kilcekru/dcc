@@ -74,7 +74,7 @@ const casPackages = (
 			}).length >= 3,
 	);
 
-	const casPackageCount = Math.ceil(possibleTargets.length / 10);
+	const casPackageCount = Math.min(Math.ceil(possibleTargets.length / 10), Config.packages.cas[coalition]);
 
 	if (taskPackages.length < casPackageCount) {
 		const pkg = generateCasPackage(coalition, state, dataStore);
@@ -236,7 +236,7 @@ const strikePackages = (
 		return false;
 	}
 
-	const strikePackageCount = Math.min(Math.ceil(possibleTargets.length / 5), Config.packages.strike);
+	const strikePackageCount = Math.min(Math.ceil(possibleTargets.length / 5), Config.packages.strike[coalition]);
 
 	if (taskPackages.length < strikePackageCount) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
