@@ -8,11 +8,9 @@ import {
 	addHeading,
 	calcPackageEndTime,
 	getDurationEnRoute,
-	Minutes,
 	objectToPosition,
 	oppositeCoalition,
 	positionFromHeading,
-	random,
 } from "../../utils";
 import { getStrikeTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
@@ -173,8 +171,8 @@ export const generateStrikePackage = (
 
 		return prev;
 	}, 0);
-	const nextAvailableStartTime = activeStrikeStartTime + Minutes(random(20, 30));
-	const currentStartTime = Math.floor(state.timer) + Minutes(random(15, 20));
+	const nextAvailableStartTime = activeStrikeStartTime + Domain.Time.Minutes(Domain.Random.number(20, 30));
+	const currentStartTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(15, 20));
 	const startTime = currentStartTime > nextAvailableStartTime ? currentStartTime : nextAvailableStartTime;
 
 	const ingressPosition = positionFromHeading(
@@ -198,7 +196,7 @@ export const generateStrikePackage = (
 		ingressPosition,
 		cruiseSpeed,
 	);
-	const strikeDuration = Minutes(5);
+	const strikeDuration = Domain.Time.Minutes(5);
 	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, cruiseSpeed);
 	const endEnRouteTime = holdTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;

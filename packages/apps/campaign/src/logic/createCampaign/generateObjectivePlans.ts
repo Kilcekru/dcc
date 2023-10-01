@@ -26,7 +26,7 @@ function selectObjective(
 		return objDistance < sourceDistance && objDistance > 20_000;
 	});
 
-	const selectedObjective = Domain.Utils.randomItem(forwardObjectives);
+	const selectedObjective = Domain.Random.item(forwardObjectives);
 
 	return selectedObjective;
 }
@@ -164,7 +164,7 @@ function addAirdromeSamObjectives(
 			return objDistance < sourceDistance && objDistance > 30_000;
 		});
 
-		const selectedObjective = Domain.Utils.randomItem(forwardObjectives);
+		const selectedObjective = Domain.Random.item(forwardObjectives);
 
 		if (selectedObjective == null) {
 			const farEnoughFromOppAirdrome = nearbyObjectives.filter((obj) => {
@@ -173,7 +173,7 @@ function addAirdromeSamObjectives(
 				return objDistance > 30_000;
 			});
 
-			const fallbackObjective = Domain.Utils.randomItem(farEnoughFromOppAirdrome);
+			const fallbackObjective = Domain.Random.item(farEnoughFromOppAirdrome);
 
 			if (fallbackObjective == null) {
 				return;
@@ -248,7 +248,7 @@ function validStructureObjective({
 		return coalitionDistance <= oppDistance;
 	});
 
-	return Domain.Utils.randomItem(friendlyObjectives);
+	return Domain.Random.item(friendlyObjectives);
 }
 
 function addStructures({
@@ -434,7 +434,7 @@ export function generateObjectivePlans(
 	blueRange: [number, number],
 	dataStore: Types.Campaign.DataStore,
 ): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
-	const objectives = dataStore.objectives;
+	const objectives = dataStore.objectives?.filter((obj) => obj.type === "Town" || obj.type === "Terrain");
 	const strikeTargets = dataStore.strikeTargets;
 
 	if (objectives == null) {
@@ -450,7 +450,7 @@ export function generateObjectivePlans(
 	const redLanes = generateLanes(redPositions, bluePositions);
 
 	let blueObjs: Array<DynamicObjectivePlan> = [];
-	const maxBlueObjsCount = Domain.Utils.random(blueRange[0], blueRange[1]);
+	const maxBlueObjsCount = Domain.Random.number(blueRange[0], blueRange[1]);
 	let redObjs: Array<DynamicObjectivePlan> = [];
 
 	// Basic Objectives

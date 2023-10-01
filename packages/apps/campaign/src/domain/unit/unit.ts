@@ -1,4 +1,4 @@
-import { randomItem } from "../utils";
+import { Random } from "..";
 
 export const getUsableUnit = <T>(units: Array<T>, typeParam: keyof T, count: number) => {
 	const usableUnitTypes = units.filter((ac) => {
@@ -7,7 +7,7 @@ export const getUsableUnit = <T>(units: Array<T>, typeParam: keyof T, count: num
 		return acCount >= count;
 	});
 
-	const randomAircraft = randomItem(usableUnitTypes);
+	const randomAircraft = Random.item(usableUnitTypes);
 
 	return usableUnitTypes.filter((ac) => ac[typeParam] === randomAircraft?.[typeParam]);
 };

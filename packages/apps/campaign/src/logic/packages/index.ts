@@ -3,7 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Config } from "../../data";
 import * as Domain from "../../domain";
-import { calcFlightGroupPosition, Minutes, oppositeCoalition, random, timerToDate } from "../../utils";
+import { calcFlightGroupPosition, oppositeCoalition, timerToDate } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { generateAwacsPackage } from "./awacs";
@@ -174,20 +174,25 @@ const awacsPackages = (
 	const taskPackages = getRunningPackagesByTask(packages, "AWACS");
 
 	if (taskPackages.length < Config.packages.awacs) {
-		const pkg = generateAwacsPackage(coalition, state, dataStore, Math.floor(state.timer) + Minutes(random(10, 15)));
+		const pkg = generateAwacsPackage(
+			coalition,
+			state,
+			dataStore,
+			Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(10, 15)),
+		);
 
 		packages = addPackage(packages, pkg);
 	} else if (taskPackages.length === 1) {
 		const taskEndTime = taskPackages.reduce((prev, pkg) => {
 			if (pkg.taskEndTime < prev) {
-				return pkg.taskEndTime;
+				return pkg.startTime + pkg.taskEndTime;
 			} else {
 				return prev;
 			}
 		}, 10000000);
 
-		if (taskEndTime < Math.floor(state.timer) + Minutes(30)) {
-			const pkg = generateAwacsPackage(coalition, state, dataStore, taskEndTime - Minutes(2));
+		if (taskEndTime < Math.floor(state.timer) + Domain.Time.Minutes(30)) {
+			const pkg = generateAwacsPackage(coalition, state, dataStore, taskEndTime - Domain.Time.Minutes(2));
 
 			packages = addPackage(packages, pkg);
 
@@ -265,7 +270,7 @@ const csarPackages = (
 			(dp) => !taskPackages.some((pkg) => pkg.flightGroups.some((fg) => fg.target === dp.id)),
 		);
 
-		const selectedDownedPilot = Domain.Utils.randomItem(validDownedPilots);
+		const selectedDownedPilot = Domain.Random.item(validDownedPilots);
 
 		if (selectedDownedPilot == null) {
 			return;

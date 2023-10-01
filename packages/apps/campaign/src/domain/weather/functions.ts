@@ -1,6 +1,7 @@
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { mapRange, random, round } from "../utils";
+import * as Domain from "../../domain";
+import { mapRange, round } from "../utils";
 
 export function getTemperature(
 	timer: number,
@@ -56,7 +57,7 @@ export function getCloudCover(timer: number, cloudCoverData: Array<number>, allo
 
 export function getWind(cloudCover: number, dataStore: Types.Campaign.DataStore) {
 	const speed = Math.max(1, (dataStore.mapInfo?.weather.wind.speed ?? 0) + cloudCover * 5);
-	const direction = (dataStore.mapInfo?.weather.wind.direction ?? 0) + random(-20, 20);
+	const direction = (dataStore.mapInfo?.weather.wind.direction ?? 0) + Domain.Random.number(-20, 20);
 
 	return {
 		speed,

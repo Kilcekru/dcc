@@ -2,7 +2,8 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { getFlightGroups, Minutes, random } from "../../utils";
+import * as Domain from "../../domain";
+import { getFlightGroups } from "../../utils";
 import { createDownedPilot } from "../createDownedPilot";
 import { RunningCampaignState } from "../types";
 import { getMaxRangeA2AMissileAvailable } from "../utils";
@@ -35,7 +36,7 @@ const saveBattleReport = (
 				throw "aircraft not found";
 			}
 
-			aircraft.a2AWeaponReadyTimer = timer + Minutes(1);
+			aircraft.a2AWeaponReadyTimer = timer + Domain.Time.Minutes(1);
 			const pylon = aircraft.loadout.pylons.find((p) => p.weapon?.name === entry.weapon.name && p.count > 0);
 
 			if (pylon == null) {
@@ -66,7 +67,7 @@ const saveBattleReport = (
 			targetAircraft.alive = false;
 			targetAircraft.destroyedTime = timer;
 
-			if (random(1, 100) > 20 && entry.targetName != null && entry.targetPosition != null) {
+			if (Domain.Random.number(1, 100) > 20 && entry.targetName != null && entry.targetPosition != null) {
 				targetFaction = createDownedPilot(
 					entry.targetName,
 					timer,
@@ -133,7 +134,7 @@ const a2aRound = (
 			};
 			const distanceFactor = 1 - distance / maxRangeWeapon.range;
 
-			if (random(1, 100) <= 100 * distanceFactor) {
+			if (Domain.Random.number(1, 100) <= 100 * distanceFactor) {
 				entry["targetAircraft"] = targetAircraft;
 				entry["targetPosition"] = targetFg.position;
 				entry["targetName"] = targetUnit.name;

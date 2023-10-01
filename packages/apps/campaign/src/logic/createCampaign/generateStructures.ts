@@ -3,7 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
 import { Config, ObjectivePlan } from "../../data";
-import { randomItem } from "../../utils";
+import * as Domain from "../../domain";
 
 function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureType: DcsJs.StructureType) {
 	if (coalition === "blue") {
@@ -52,7 +52,7 @@ export function generateStructures(
 			}
 
 			const structureType = structurePlan.structureType as DcsJs.StructureType;
-			const structureTemplate = randomItem(dataStore.structures?.[structureType] ?? []);
+			const structureTemplate = Domain.Random.item(dataStore.structures?.[structureType] ?? []);
 
 			if (structureType === "Barrack" || structureType === "Depot") {
 				const structure: DcsJs.StructureUnitCamp = {

@@ -5,7 +5,7 @@ import { createUniqueId } from "solid-js";
 
 import { Config } from "../data";
 import * as Domain from "../domain";
-import { getDeploymentCost, Minutes, positionAfterDurationToPosition, random, timerToDate } from "../utils";
+import { getDeploymentCost, positionAfterDurationToPosition, timerToDate } from "../utils";
 import { g2g, g2gBattle } from "./combat";
 import { generateGroundGroupInventory } from "./createCampaign/generateGroundUnitsInventory";
 import { getFrontlineTarget } from "./targetSelection";
@@ -96,9 +96,7 @@ const deployFrontline = (
 	if (p.targetObjective.incomingGroundGroups[p.startObjective.coalition] == null) {
 		const faction = getCoalitionFaction(p.startObjective.coalition, p.state);
 
-		const groundUnits = generateGroundGroupInventory(faction, p.dataStore, p.groupType);
-
-		const unitIds = groundUnits.map((u) => u.id);
+		const { groundUnits, shoradGroundUnits } = generateGroundGroupInventory(faction, p.dataStore, p.groupType);
 
 		const id = createUniqueId();
 
@@ -108,9 +106,10 @@ const deployFrontline = (
 			startObjectiveName: p.startObjective.name,
 			objectiveName: p.targetObjective.name,
 			position: p.onObjective ? p.targetObjective.position : p.startObjective.position,
-			startTime: p.state.timer + Minutes(random(5, 15)),
+			startTime: p.state.timer + Domain.Time.Minutes(Domain.Random.number(5, 15)),
 			state: p.onObjective ? "on objective" : "en route",
-			unitIds,
+			unitIds: groundUnits.map((u) => u.id),
+			shoradUnitIds: shoradGroundUnits.map((u) => u.id),
 			type: p.groupType,
 		};
 
@@ -296,7 +295,7 @@ const attackFrontline = (
 		Domain.Location.InFrontlineRange(coalition, camp.position, state),
 	);
 
-	const selectedCamp = Domain.Utils.randomItem(unitCampsAtFrontline);
+	const selectedCamp = Domain.Random.item(unitCampsAtFrontline);
 
 	if (selectedCamp == null) {
 		return;

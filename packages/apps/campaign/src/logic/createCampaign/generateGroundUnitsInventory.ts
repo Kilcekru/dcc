@@ -3,7 +3,6 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
 import * as Domain from "../../domain";
-import { random } from "../../utils";
 
 export function generateGroundGroupInventory(
 	faction: DcsJs.Faction,
@@ -65,6 +64,7 @@ export function generateGroundGroupInventory(
 	});
 
 	const groundUnits: Array<DcsJs.CampaignUnit> = [];
+	const shoradGroundUnits: Array<DcsJs.CampaignUnit> = [];
 
 	const groupTypeTemplates = groupType === "armor" ? armorTemplates : infantryTemplates;
 	const groupTypeShoradTemplates = groupType === "armor" ? armorShoradTemplates : infantryShoradTemplates;
@@ -73,7 +73,7 @@ export function generateGroundGroupInventory(
 		Array.from({ length: 8 }, () => {
 			const id = createUniqueId();
 
-			const unitTemplate = Domain.Utils.randomItem(groupTypeTemplates);
+			const unitTemplate = Domain.Random.item(groupTypeTemplates);
 
 			if (unitTemplate) {
 				groundUnits.push({
@@ -86,13 +86,14 @@ export function generateGroundGroupInventory(
 	}
 
 	if (groupTypeShoradTemplates.length > 0) {
-		Array.from({ length: random(1, 2) }, () => {
+		const length = Domain.Random.number(0, 100) > 15 ? 1 : 0;
+		Array.from({ length }, () => {
 			const id = createUniqueId();
 
-			const unitTemplate = Domain.Utils.randomItem(groupTypeShoradTemplates);
+			const unitTemplate = Domain.Random.item(groupTypeShoradTemplates);
 
 			if (unitTemplate) {
-				groundUnits.push({
+				shoradGroundUnits.push({
 					...unitTemplate,
 					id,
 					displayName: `${unitTemplate.name}|${id}`,
@@ -101,5 +102,5 @@ export function generateGroundGroupInventory(
 		});
 	}
 
-	return groundUnits;
+	return { groundUnits, shoradGroundUnits };
 }

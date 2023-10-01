@@ -10,11 +10,9 @@ import {
 	findNearest,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
-	Minutes,
 	objectToPosition,
 	oppositeCoalition,
 	positionFromHeading,
-	random,
 } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
@@ -34,9 +32,7 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const aircraftCount = random(2, 4);
-
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, aircraftCount);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, 2);
 	const aircraftType = Domain.Utils.firstItem(usableAircrafts)?.aircraftType as DcsJs.AircraftType;
 	const airdromes = dataStore.airdromes;
 
@@ -140,8 +136,8 @@ export const generateCapPackage = (
 	const headingObjectiveToAirdrome = Utils.headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
-	const duration = Minutes(60);
-	const startTime = Math.floor(state.timer) + Minutes(random(10, 20));
+	const duration = Domain.Time.Hours(1);
+	const startTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(10, 20));
 
 	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;

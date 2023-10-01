@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Minutes, oppositeCoalition, random } from "../../utils";
+import * as Domain from "../../domain";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -37,7 +38,7 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 
 				if (
 					Utils.distanceToPosition(fg.position, targetStructure.position) < 5_000 &&
-					fg.startTime + Minutes(1) < state.timer
+					fg.startTime + Domain.Time.Minutes(1) < state.timer
 				) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
@@ -48,14 +49,14 @@ export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaig
 
 						if (aircraft.a2GWeaponReadyTimer == null || aircraft.a2GWeaponReadyTimer <= state.timer) {
 							// Is the attack successful
-							if (random(1, 100) <= 75) {
+							if (Domain.Random.number(1, 100) <= 75) {
 								destroyStructure(targetStructure, state.timer);
 								console.log(`Strike: ${aircraft.id} destroyed structure ${targetStructure.name}`); // eslint-disable-line no-console
 							} else {
 								console.log(`Strike: ${aircraft.id} missed structure ${targetStructure.name}`); // eslint-disable-line no-console
 							}
 
-							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(60);
+							aircraft.a2GWeaponReadyTimer = state.timer + Domain.Time.Minutes(60);
 						}
 					});
 				}

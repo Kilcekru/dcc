@@ -3,12 +3,12 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
+import * as Domain from "../../domain";
 import {
 	calcPackageEndTime,
 	firstItem,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
-	Minutes,
 	objectToPosition,
 } from "../../utils";
 import { getAwacsTarget } from "../targetSelection";
@@ -56,7 +56,7 @@ export const generateAwacsPackage = (
 
 	const [racetrackStart, racetrackEnd] = raceTracks;
 	const durationEnRoute = getDurationEnRoute(airdrome, racetrackStart, cruiseSpeed);
-	const duration = Minutes(360);
+	const duration = Domain.Time.Hours(6);
 
 	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;

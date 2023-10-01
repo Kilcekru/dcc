@@ -4,15 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Config } from "../data";
 import * as Domain from "../domain";
-import {
-	addHeading,
-	findInside,
-	findNearest,
-	oppositeCoalition,
-	positionFromHeading,
-	random,
-	randomItem,
-} from "../utils";
+import { addHeading, findInside, findNearest, oppositeCoalition, positionFromHeading } from "../utils";
 import { RunningCampaignState } from "./types";
 import {
 	getCoalitionFaction,
@@ -146,7 +138,7 @@ export const getStrikeTarget = (
 
 	const sortedStructures = scoredStructures.sort((a, b) => b.score - a.score);
 
-	const selectedStructure = randomItem(sortedStructures.slice(0, 2));
+	const selectedStructure = Domain.Random.item(sortedStructures.slice(0, 2));
 
 	return selectedStructure?.structure;
 };
@@ -182,7 +174,7 @@ export const getAwacsTarget = (
 	const centerPosition = positionFromHeading(
 		frontlineObjective.position,
 		heading,
-		coalition === "blue" ? random(50_000, 70_000) : random(80_000, 120_000),
+		coalition === "blue" ? Domain.Random.number(50_000, 70_000) : Domain.Random.number(80_000, 120_000),
 	);
 
 	const racetrackStart = positionFromHeading(centerPosition, addHeading(heading, -90), 40_000);
@@ -231,7 +223,7 @@ export const getFrontlineTarget = (
 		});
 
 		if (unprotectedFrontlineObjectives.length > 0) {
-			return Domain.Utils.randomItem(unprotectedFrontlineObjectives);
+			return Domain.Random.item(unprotectedFrontlineObjectives);
 		}
 
 		const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);

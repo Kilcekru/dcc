@@ -15,12 +15,12 @@ export function generateGroundGroups(
 	objectivePlans.forEach((op) => {
 		if (op.groundUnitTypes.some((gut) => gut === "vehicles")) {
 			const id = createUniqueId();
-			const groupType = Domain.Utils.random(1, 100) > 40 ? "armor" : "infantry";
+			const groupType = Domain.Random.number(1, 100) > 40 ? "armor" : "infantry";
 
-			const units = generateGroundGroupInventory(faction, dataStore, groupType);
+			const { groundUnits, shoradGroundUnits } = generateGroundGroupInventory(faction, dataStore, groupType);
 
 			// update inventory
-			units.forEach((u) => {
+			[...groundUnits, ...shoradGroundUnits].forEach((u) => {
 				faction.inventory.groundUnits[u.id] = {
 					...u,
 					state: "on objective",
@@ -34,7 +34,8 @@ export function generateGroundGroups(
 				startObjectiveName: op.objectiveName,
 				position: op.objective.position,
 				state: "on objective",
-				unitIds: units.map((u) => u.id),
+				unitIds: groundUnits.map((u) => u.id),
+				shoradUnitIds: shoradGroundUnits.map((u) => u.id),
 				startTime: timer,
 				type: groupType,
 			});

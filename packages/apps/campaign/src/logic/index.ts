@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 
 import { cleanupFlightGroups } from "./cleanupFlightGroups";
 import { cleanupGroundGroups } from "./cleanupGroundGroup";
+import { cleanupInventory } from "./cleanupInventory";
 import { cleanupPackages } from "./cleanupPackages";
 import { cleanupStructures } from "./cleanupStructures";
 import { combatRound } from "./combat";
@@ -48,6 +49,7 @@ export const longCampaignRound = (state: DcsJs.CampaignState, dataStore: Types.C
 	updateAirdromes(state as RunningCampaignState, dataStore);
 	reinforcement(state as RunningCampaignState);
 	repairStructures(state as RunningCampaignState);
+	cleanupInventory(state as RunningCampaignState);
 	gameOver(state as RunningCampaignState);
 
 	return state;

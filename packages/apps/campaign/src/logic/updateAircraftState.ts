@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
-import { getAircraftStateFromFlightGroup, getFlightGroups, Minutes } from "../utils";
+import * as Domain from "../domain";
+import { getAircraftStateFromFlightGroup, getFlightGroups } from "../utils";
 import { RunningCampaignState } from "./types";
 
 const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
@@ -33,7 +34,7 @@ const updateFactionAircraftState = (faction: DcsJs.CampaignFaction, timer: numbe
 			if (fg == null) {
 				if (aircraft.state !== "idle") {
 					aircraft.state = "maintenance";
-					aircraft.maintenanceEndTime = timer + Minutes(40);
+					aircraft.maintenanceEndTime = timer + Domain.Time.Minutes(40);
 				}
 
 				return;

@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 
 import { Config } from "../../data";
 import * as Domain from "../../domain";
-import { calcPackageEndTime, getDurationEnRoute, Minutes, objectToPosition, random } from "../../utils";
+import { calcPackageEndTime, getDurationEnRoute, objectToPosition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { generateCallSign, getCoalitionFaction } from "../utils";
 import { calcFrequency, getCruiseSpeed, getPackageAircrafts, updateAircraftForFlightGroup } from "./utils";
@@ -56,21 +56,21 @@ export const generateCsarPackage = (
 
 	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 
-	const startTime = Math.floor(state.timer) + Minutes(random(10, 30));
+	const startTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(10, 30));
 
 	const durationIngress = getDurationEnRoute(packageAircrafts.startPosition, downedPilot.position, cruiseSpeed);
 	const durationDropLocation = getDurationEnRoute(downedPilot.position, dropStructure.position, cruiseSpeed);
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
-	const pickUpTime = Minutes(10) + durationIngress;
-	const dropOffTime = pickUpTime + Minutes(2) + durationDropLocation;
+	const pickUpTime = Domain.Time.Minutes(10) + durationIngress;
+	const dropOffTime = pickUpTime + Domain.Time.Minutes(2) + durationDropLocation;
 
 	const isDropOffLanding = dropStructure.name === packageAircrafts.startPosition.name;
 
 	const durationLanding = getDurationEnRoute(dropStructure.position, packageAircrafts.startPosition, cruiseSpeed);
 
-	const landingTime = isDropOffLanding ? dropOffTime : dropOffTime + Minutes(2) + durationLanding;
+	const landingTime = isDropOffLanding ? dropOffTime : dropOffTime + Domain.Time.Minutes(2) + durationLanding;
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),

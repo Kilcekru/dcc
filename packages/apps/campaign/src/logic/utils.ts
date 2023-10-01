@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
+import * as Domain from "../domain";
 import {
 	addHeading,
 	findInside,
@@ -12,8 +13,6 @@ import {
 	getFlightGroups,
 	oppositeCoalition,
 	positionFromHeading,
-	random,
-	randomCallSign,
 } from "../utils";
 import { clearPackage } from "./clearPackages";
 import { getPackagesWithTarget } from "./combat/utils";
@@ -59,7 +58,7 @@ export const generateCallSign = (
 	dataStore: Types.Campaign.DataStore,
 	type: "aircraft" | "helicopter" | "awacs",
 ) => {
-	const { name, index } = randomCallSign(dataStore, type);
+	const { name, index } = Domain.Random.callSign(dataStore, type);
 
 	const number = calcNumber(state, name, index, 1);
 
@@ -72,7 +71,7 @@ export const generateCallSign = (
 						"3": index + 1,
 						name: `${number.unit.name}${number.unit.number}${index + 1}`,
 				  }
-				: random(100, 999);
+				: Domain.Random.number(100, 999);
 		},
 		unitName: (index: number) => `${number.flightGroup}-${index + 1}`,
 		flightGroupName: number.flightGroup,

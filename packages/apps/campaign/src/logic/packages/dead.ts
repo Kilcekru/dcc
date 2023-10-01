@@ -8,11 +8,9 @@ import {
 	addHeading,
 	calcPackageEndTime,
 	getDurationEnRoute,
-	Minutes,
 	objectToPosition,
 	oppositeCoalition,
 	positionFromHeading,
-	random,
 } from "../../utils";
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
@@ -85,7 +83,7 @@ export const generateDeadPackage = (
 		selectedObjective.range,
 	);
 
-	const startTime = Math.floor(state.timer) + Minutes(random(5, 15));
+	const startTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(5, 15));
 	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(
 		packageAircrafts.startPosition,
 		ingressPosition,

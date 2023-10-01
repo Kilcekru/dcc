@@ -5,6 +5,7 @@ import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
 import { useDataStore } from "./components/DataProvider";
 import { Config, Scenario } from "./data";
+import * as Domain from "./domain";
 import { RunningCampaignState } from "./logic/types";
 import { getCoalitionFaction } from "./logic/utils";
 import { MapPosition, Task } from "./types";
@@ -55,53 +56,6 @@ export const addHeading = (heading: number, value: number) => {
 	}
 
 	return sum % 360;
-};
-
-export const Minutes = (value: number) => {
-	return value * 60;
-};
-
-export const random = (min: number, max: number): number => {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-};
-
-export const randomItem = <T>(arr: Array<T>, filterFn?: (value: T) => boolean): T | undefined => {
-	const filtered = filterFn == null ? arr : [...arr].filter(filterFn);
-
-	return filtered[random(0, filtered.length - 1)];
-};
-
-export const randomList = <T>(arr: Array<T>, length: number): Array<T> => {
-	const selected: Array<T> = [];
-
-	Array.from({ length: length }, () => {
-		const s = randomItem(arr, (v) => !selected.some((a) => a == v));
-
-		if (s == null) {
-			return;
-		}
-
-		selected.push(s);
-	});
-
-	return selected;
-};
-
-export const randomCallSign = (dataStore: Types.Campaign.DataStore, type: "aircraft" | "helicopter" | "awacs") => {
-	const callSigns = dataStore.callSigns?.[type];
-
-	if (callSigns == null) {
-		return {
-			name: "Enfield",
-			index: 1,
-		};
-	}
-	const selected = randomItem(callSigns) ?? "Enfield";
-
-	return {
-		name: selected,
-		index: (callSigns.indexOf(selected) ?? 1) + 1,
-	};
 };
 
 export const findInside = <T>(
@@ -337,7 +291,7 @@ export const getUsableAircraftsByType = (
 		.map(([acType]) => acType);
 
 	// Select a random aircraft type from the valid aircraft types
-	const selectedAircraftType = randomItem(validAircraftTypes);
+	const selectedAircraftType = Domain.Random.item(validAircraftTypes);
 
 	// Return only aircraft with the selected aircraft type
 	return aliveAircrafts.filter((ac) => ac.aircraftType === selectedAircraftType);
@@ -396,7 +350,7 @@ export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | un
 };
 
 export const onboardNumber = () => {
-	const num = random(1, 999);
+	const num = Domain.Random.number(1, 999);
 
 	if (num > 99) {
 		return `${num}`;

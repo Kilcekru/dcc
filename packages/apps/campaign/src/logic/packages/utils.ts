@@ -4,13 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Config } from "../../data";
 import * as Domain from "../../domain";
-import {
-	getDurationEnRoute,
-	getUsableAircraftsByType,
-	Minutes,
-	objectToPosition,
-	positionFromHeading,
-} from "../../utils";
+import { getDurationEnRoute, getUsableAircraftsByType, objectToPosition, positionFromHeading } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 
@@ -40,18 +34,18 @@ export const updateAircraftForFlightGroup = (
 
 export function calcFrequency(aircraftType: string | undefined, dataStore: Types.Campaign.DataStore) {
 	if (aircraftType == null) {
-		return Domain.Utils.random(310, 343);
+		return Domain.Random.number(310, 343);
 	}
 
 	if ((aircraftType as DcsJs.AircraftType) === "MiG-15bis") {
-		return Domain.Utils.random(0, 50) * 0.025 + 3.75;
+		return Domain.Random.number(0, 50) * 0.025 + 3.75;
 	}
 
 	const aircraftDefinition = dataStore.aircrafts?.[aircraftType as DcsJs.AircraftType];
 
 	return aircraftDefinition?.allowedFrequency == null
-		? Domain.Utils.random(310, 343)
-		: Domain.Utils.random(aircraftDefinition.allowedFrequency[0], aircraftDefinition.allowedFrequency[1]);
+		? Domain.Random.number(310, 343)
+		: Domain.Random.number(aircraftDefinition.allowedFrequency[0], aircraftDefinition.allowedFrequency[1]);
 }
 
 export function getStartPosition(
@@ -172,7 +166,7 @@ export function getPackageAircrafts({
 				.map((airdrome) => airdrome?.name ?? "")
 		: validHomeBaseNames;
 
-	const selectedHomeBase = Domain.Utils.randomItem(homeBasesInRange);
+	const selectedHomeBase = Domain.Random.item(homeBasesInRange);
 
 	if (selectedHomeBase == null || selectedHomeBase == "") {
 		return;
@@ -214,7 +208,7 @@ export function calcHoldWaypoint(
 	const durationIngress = getDurationEnRoute(startPosition, holdPosition, cruiseSpeed);
 
 	const holdTime = Config.waypoint.takeOff + durationIngress;
-	const holdDuration = Minutes(5);
+	const holdDuration = Domain.Time.Minutes(5);
 	const holdEndTime = holdTime + holdDuration;
 
 	const waypoint: DcsJs.CampaignWaypoint = {

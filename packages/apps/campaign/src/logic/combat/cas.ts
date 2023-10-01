@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Minutes, oppositeCoalition, random } from "../../utils";
+import * as Domain from "../../domain";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -34,7 +35,7 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 						}
 
 						if (aircraft.a2GWeaponReadyTimer == null) {
-							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);
+							aircraft.a2GWeaponReadyTimer = state.timer + Domain.Time.Minutes(3);
 						} else if (aircraft.a2GWeaponReadyTimer <= state.timer) {
 							const aliveUnitId = gg.unitIds.find((id) => {
 								const inventoryUnit = oppFaction.inventory.groundUnits[id];
@@ -46,14 +47,14 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 								return;
 							}
 
-							if (random(1, 100) <= 50) {
+							if (Domain.Random.number(1, 100) <= 50) {
 								destroyUnit(oppFaction, aliveUnitId, state.timer);
 								console.log(`CAS: ${aircraft.id} destroyed ${aliveUnitId} in objective ${gg.objectiveName}`); // eslint-disable-line no-console
 							} else {
 								console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${gg.objectiveName}`); // eslint-disable-line no-console
 							}
 
-							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);
+							aircraft.a2GWeaponReadyTimer = state.timer + Domain.Time.Minutes(3);
 						}
 					});
 				}

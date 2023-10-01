@@ -1,0 +1,40 @@
+import type * as DcsJs from "@foxdelta2/dcsjs";
+
+import * as Domain from "../domain";
+import { RunningCampaignState } from "./types";
+import { getCoalitionFaction } from "./utils";
+
+function cleanupFactionInventory(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
+	const faction = getCoalitionFaction(coalition, state);
+
+	Object.values(faction.inventory.aircrafts).forEach((aircraft) => {
+		if (aircraft.alive) {
+			return;
+		}
+
+		if (aircraft.destroyedTime == null) {
+			return;
+		}
+
+		if (aircraft.destroyedTime <= state.timer - Domain.Time.Hours(12)) {
+			delete faction.inventory.aircrafts[aircraft.id];
+		}
+	});
+
+	Object.values(faction.inventory.groundUnits).forEach((unit) => {
+		if (unit.alive) {
+			return;
+		}
+
+		if (unit.destroyedTime == null) {
+			return;
+		}
+
+		if (unit.destroyedTime <= state.timer - Domain.Time.Hours(12)) {
+			delete faction.inventory.groundUnits[unit.id];
+		}
+	});
+}
+export function cleanupInventory(state: RunningCampaignState) {
+	cleanupFactionInventory("blue", state);
+}

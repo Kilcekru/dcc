@@ -67,8 +67,8 @@ export const Config = {
 	},
 	mapOrigin: {
 		caucasus: {
-			x: 0,
-			y: 0,
+			x: -37.17517531,
+			y: 634800.6017,
 		},
 		normandy: {
 			x: 0,

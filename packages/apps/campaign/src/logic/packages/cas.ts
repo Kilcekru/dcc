@@ -9,11 +9,9 @@ import {
 	calcPackageEndTime,
 	getDurationEnRoute,
 	jtacFrequency,
-	Minutes,
 	objectToPosition,
 	oppositeCoalition,
 	positionFromHeading,
-	random,
 } from "../../utils";
 import { getCasTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
@@ -96,7 +94,7 @@ export const generateCasPackage = (
 			: Utils.headingToPosition(groundGroupTarget.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const egressPosition = positionFromHeading(groundGroupTarget.position, addHeading(egressHeading, 180), 20000);
 
-	const casDuration = Minutes(30);
+	const casDuration = Domain.Time.Minutes(30);
 
 	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, cruiseSpeed);
 	const durationIngress = getDurationEnRoute(ingressPosition, groundGroupTarget.position, cruiseSpeed);
@@ -113,8 +111,8 @@ export const generateCasPackage = (
 
 		return prev;
 	}, 0);
-	const nextAvailableStartTime = activeCasStartTime + Minutes(random(20, 30));
-	const currentStartTime = Math.floor(state.timer) + Minutes(random(15, 20));
+	const nextAvailableStartTime = activeCasStartTime + Domain.Time.Minutes(Domain.Random.number(20, 30));
+	const currentStartTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(15, 20));
 	const startTime = currentStartTime > nextAvailableStartTime ? currentStartTime : nextAvailableStartTime;
 
 	const endOnStationTime = endEnRouteTime + 1 + casDuration;

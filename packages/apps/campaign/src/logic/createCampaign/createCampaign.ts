@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import { scenarioList } from "../../data/scenarios";
 import * as Domain from "../../domain";
 import { getCurrentWeather } from "../../domain/weather";
-import { awacsFrequency, firstItem, Minutes } from "../../utils";
+import { awacsFrequency, firstItem } from "../../utils";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundGroups } from "./generateGroundGroups";
 import { generateObjectivePlans } from "./generateObjectivePlans";
@@ -119,7 +119,7 @@ export const createCampaign = (
 		awacsFrequency: awacsFrequency(blueFaction, dataStore),
 		structures: generateStructures("blue", blueOps, dataStore),
 		reinforcementTimer: state.timer,
-		reinforcementDelay: Minutes(30),
+		reinforcementDelay: Domain.Time.Minutes(30),
 		downedPilots: [],
 	};
 
@@ -144,7 +144,7 @@ export const createCampaign = (
 		awacsFrequency: 251,
 		structures: generateStructures("red", redOps, dataStore),
 		reinforcementTimer: state.timer,
-		reinforcementDelay: Minutes(30),
+		reinforcementDelay: Domain.Time.Minutes(30),
 		downedPilots: [],
 	};
 
@@ -168,7 +168,7 @@ export const createCampaign = (
 					name: dataObjective.name,
 					position: dataObjective.position,
 					coalition: isBlue ? "blue" : "red",
-					deploymentDelay: isBlue ? Minutes(30) : Minutes(60),
+					deploymentDelay: isBlue ? Domain.Time.Minutes(30) : Domain.Time.Minutes(60),
 					deploymentTimer: state.timer,
 					incomingGroundGroups: {},
 				};
@@ -197,7 +197,7 @@ export const createCampaign = (
 		}
 	}
 
-	const weatherOffset = Domain.Utils.random(-3, 3);
+	const weatherOffset = Domain.Random.number(-3, 3);
 	const cloudCoverData = Domain.Weather.generateCloudCover(
 		dataStore.mapInfo?.weather.cloudCover.baseCloudCover ?? 0,
 		dataStore.mapInfo?.weather.cloudCover.seasonEffect ?? 0,

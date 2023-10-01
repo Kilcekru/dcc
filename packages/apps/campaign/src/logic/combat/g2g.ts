@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { Minutes, oppositeCoalition, random } from "../../utils";
+import * as Domain from "../../domain";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, transferObjectiveStructures } from "../utils";
 
@@ -42,7 +43,7 @@ export const g2gBattle = (
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ) => {
-	if (random(1, 100) <= 50) {
+	if (Domain.Random.number(1, 100) <= 50) {
 		console.log(`Ground: ${blueGroundGroup.id} destroyed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
 
 		const aliveRedUnitId = redGroundGroup.unitIds.find(
@@ -65,7 +66,7 @@ export const g2gBattle = (
 		console.log(`Ground: ${blueGroundGroup.id} missed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
 	}
 
-	if (random(1, 100) <= 50) {
+	if (Domain.Random.number(1, 100) <= 50) {
 		console.log(`Ground: ${redGroundGroup.id} destroyed ground unit from group ${blueGroundGroup.id}`); // eslint-disable-line no-console
 
 		const aliveBlueUnitId = blueGroundGroup.unitIds.find(
@@ -92,9 +93,9 @@ export const g2gBattle = (
 	const redAlive = hasStillAliveUnits(redGroundGroup, state.redFaction);
 
 	if (blueAlive && redAlive) {
-		blueGroundGroup.combatTimer = state.timer + Minutes(3);
+		blueGroundGroup.combatTimer = state.timer + Domain.Time.Minutes(3);
 		blueGroundGroup.state = "combat";
-		redGroundGroup.combatTimer = state.timer + Minutes(3);
+		redGroundGroup.combatTimer = state.timer + Domain.Time.Minutes(3);
 		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
 		conquerObjective(blueGroundGroup, "blue", state, dataStore);

@@ -1,11 +1,10 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import * as Domain from "../domain";
-import { Minutes } from "../utils";
 
 export function updateDownedPilots(faction: DcsJs.CampaignFaction, timer: number) {
 	faction.downedPilots = faction.downedPilots.filter((pilot) => {
-		const withinTimeLimit = pilot.time + Minutes(60) >= timer;
+		const withinTimeLimit = pilot.time + Domain.Time.Minutes(60) >= timer;
 
 		if (withinTimeLimit) {
 			return true;
