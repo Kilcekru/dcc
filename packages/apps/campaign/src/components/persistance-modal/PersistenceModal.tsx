@@ -2,23 +2,17 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { createSignal, Show } from "solid-js";
 
+import { useModalContext, useSetIsPersistanceModalOpen } from "../modalProvider";
 import Styles from "./PersistenceModal.module.less";
 
-export function PersistenceModal(props: {
-	isOpen: boolean;
-	onClose: (ignore?: boolean) => void;
-	onCancel: () => void;
-}) {
+export function PersistenceModal() {
+	const modalContext = useModalContext();
+	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
 	const [state, setState] = createSignal<"start" | "success" | "error">("start");
 
-	const onClose = (ignore?: boolean) => {
+	const onClose = () => {
 		setState("start");
-		props.onClose(ignore);
-	};
-
-	const onCancel = () => {
-		setState("start");
-		props.onCancel();
+		setIsPersistanceModalOpen(false);
 	};
 
 	const onApplyPatch = async () => {
@@ -43,7 +37,7 @@ export function PersistenceModal(props: {
 	};
 
 	return (
-		<Components.Modal isOpen={props.isOpen} onClose={onClose} class={Styles.modal}>
+		<Components.Modal isOpen={modalContext.isPersistanceModalOpen} onClose={onClose} class={Styles.modal}>
 			<div class={Styles.content}>
 				<Show when={state() === "start"}>
 					<p class={Styles.header}>Persistence is not enabled</p>
@@ -57,7 +51,7 @@ export function PersistenceModal(props: {
 					</p>
 					<p>Do you want to update the Settings?</p>
 					<div class={Styles.buttons}>
-						<Components.Button class={Styles["button--cancel"]} onPress={() => onClose(true)}>
+						<Components.Button class={Styles["button--cancel"]} onPress={() => onClose()}>
 							Ignore
 						</Components.Button>
 						<Components.Button onPress={onApplyPatch}>Confirm</Components.Button>
@@ -85,9 +79,6 @@ export function PersistenceModal(props: {
 						<a onClick={() => rpc.misc.openExternalLink("https://github.com/Kilcekru/dcc#persistence")}>Read more</a>
 					</p>
 					<div class={Styles.buttons}>
-						<Components.Button class={Styles["button--cancel"]} onPress={onCancel}>
-							Cancel Mission
-						</Components.Button>
 						<Components.Button onPress={onClose}>Continue</Components.Button>
 					</div>
 				</Show>

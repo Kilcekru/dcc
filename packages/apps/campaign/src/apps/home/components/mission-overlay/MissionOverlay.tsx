@@ -9,20 +9,20 @@ import { unwrap } from "solid-js/store";
 
 import { CampaignContext } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
+import { useModalContext, useSetIsPersistanceModalOpen } from "../../../../components/modalProvider";
 import { useSave } from "../../../../hooks";
 import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
 import { ClientList } from "./ClientList";
 import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
 import Styles from "./MissionOverlay.module.less";
-import { PersistenceModal } from "./PersistenceModal";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
+	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
+	const modalContext = useModalContext();
 	const [state, { submitMissionState, pause, generateMissionId }] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
-	const [isPersistenceModalOpen, setIsPersistenceModalOpen] = createSignal(false);
-	const [isPersistenceIgnored, setisPersistenceIgnored] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
 	const [flightGroups, setFlightGroups] = createSignal<{
 		blue: Array<DcsJs.FlightGroup>;
@@ -49,10 +49,10 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			generateMissionId?.();
 			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)));
 
-			if (isPersistenceIgnored() || (await detectPersistance())) {
+			if (modalContext.isPersistanceIgnored || (await detectPersistance())) {
 				setOverlayState("generated");
 			} else {
-				setIsPersistenceModalOpen(true);
+				setIsPersistanceModalOpen(true);
 			}
 		} catch (e) {
 			const errorString = String(e).split("'rpc':")[1];
@@ -68,19 +68,6 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				description: errorString,
 			});
 		}
-	};
-
-	const onPersistenceModalClose = (ignore?: boolean) => {
-		setIsPersistenceModalOpen(false);
-		setOverlayState("generated");
-		if (ignore) {
-			setisPersistenceIgnored(true);
-		}
-	};
-
-	const onPersistenceModalCancel = () => {
-		setIsPersistenceModalOpen(false);
-		onClose();
 	};
 
 	createEffect(() => {
@@ -199,11 +186,6 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				</Show>
 			</div>
 
-			<PersistenceModal
-				isOpen={isPersistenceModalOpen()}
-				onClose={onPersistenceModalClose}
-				onCancel={onPersistenceModalCancel}
-			/>
 			<HowToStartModal isOpen={isHowToStartOpen()} onClose={() => setIsHowToStartOpen(false)} />
 		</div>
 	);
