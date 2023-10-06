@@ -1,9 +1,6 @@
 # Change Log
 
-## 0.5.0 (planned)
-* Add hot start
-
-## 0.4.0 (in progress)
+## 0.4.0
 
 - Add Carrier
 - Add the first Syria scenario: Desert Thunder
@@ -16,12 +13,21 @@
 - Add Mission Briefing Kneeboard
 - Add Helicopter Map Symbols
 - Add Trainings Mode
+- Add the option to enable persistence automatically
+- Add Escort In-Game communication menu
+- Add AWACS VHF
+- Add Sync flight group position between mission and DCC
+- Add Tile Bar & Menu
+- Add Airdrome Capture
+- Add Automated Update Check
 - Randomize the state of the campaign at the start
 - Improved flightplan
 - Improved package planning
 - Improved F-15E Loadout
-- Sync flight group position between mission and DCC
-- Reworked CAS In-Game communication
+- Improved F-18 Loadout
+- Improved Su-33 Loadout
+- Improved App Security
+- Reworked CAS In-Game communication menu
 - Fix: Harrier Loadout
 - Fix: MiG-15 Radio Frequency
 - Fix: F-4 Radio Frequency 
