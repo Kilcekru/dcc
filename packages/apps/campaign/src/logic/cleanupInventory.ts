@@ -17,6 +17,14 @@ function cleanupFactionInventory(coalition: DcsJs.CampaignCoalition, state: Runn
 		}
 
 		if (aircraft.destroyedTime <= state.timer - Domain.Time.Hours(12)) {
+			if (
+				faction.packages.some((pkg) =>
+					pkg.flightGroups.some((fg) => fg.units.some((fgUnit) => fgUnit.id === aircraft.id)),
+				)
+			) {
+				return;
+			}
+
 			delete faction.inventory.aircrafts[aircraft.id];
 		}
 	});
@@ -31,6 +39,14 @@ function cleanupFactionInventory(coalition: DcsJs.CampaignCoalition, state: Runn
 		}
 
 		if (unit.destroyedTime <= state.timer - Domain.Time.Hours(12)) {
+			if (
+				faction.groundGroups.some(
+					(gg) => gg.unitIds.some((id) => id === unit.id) || gg.shoradUnitIds.some((id) => id === unit.id),
+				)
+			) {
+				return;
+			}
+
 			delete faction.inventory.groundUnits[unit.id];
 		}
 	});

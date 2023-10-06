@@ -21,6 +21,7 @@ export const conquerObjective = (
 	dataStore: Types.Campaign.DataStore,
 ) => {
 	const objective = state.objectives[attackingGroundGroup.objectiveName];
+	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 
 	if (objective == null) {
 		// eslint-disable-next-line no-console
@@ -34,7 +35,12 @@ export const conquerObjective = (
 	objective.incomingGroundGroups["blue"] = undefined;
 	objective.incomingGroundGroups["red"] = undefined;
 
+	// eslint-disable-next-line no-console
+	console.log(`${coalition}(${attackingGroundGroup.id}) captures ${attackingGroundGroup.objectiveName}`);
+
 	transferObjectiveStructures(objective, coalition, state, dataStore);
+
+	oppFaction.groundGroups = oppFaction.groundGroups.filter((gg) => gg.objectiveName !== objective.name);
 };
 
 export const g2gBattle = (
@@ -98,9 +104,16 @@ export const g2gBattle = (
 		redGroundGroup.combatTimer = state.timer + Domain.Time.Minutes(3);
 		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
+		// eslint-disable-next-line no-console
+		console.log(`blue won the battle of ${blueGroundGroup.objectiveName} with ${blueGroundGroup.id}`);
 		conquerObjective(blueGroundGroup, "blue", state, dataStore);
-	} else {
+	} else if (redAlive) {
+		// eslint-disable-next-line no-console
+		console.log(`red won the battle of ${redGroundGroup.objectiveName} with ${redGroundGroup.id}`);
 		conquerObjective(redGroundGroup, "red", state, dataStore);
+	} else {
+		// eslint-disable-next-line no-console
+		console.warn(`At ${blueGroundGroup.objectiveName} both faction lost the battle`);
 	}
 };
 

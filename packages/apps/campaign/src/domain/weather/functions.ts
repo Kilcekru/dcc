@@ -56,7 +56,7 @@ export function getCloudCover(timer: number, cloudCoverData: Array<number>, allo
 }
 
 export function getWind(cloudCover: number, dataStore: Types.Campaign.DataStore) {
-	const speed = Math.max(1, (dataStore.mapInfo?.weather.wind.speed ?? 0) + cloudCover * 5);
+	const speed = Math.max(0.1, (dataStore.mapInfo?.weather.wind.speed ?? 0) + cloudCover * 2);
 	const direction = (dataStore.mapInfo?.weather.wind.direction ?? 0) + Domain.Random.number(-20, 20);
 
 	return {

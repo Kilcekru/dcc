@@ -10,7 +10,6 @@ import {
 	getDurationEnRoute,
 	jtacFrequency,
 	objectToPosition,
-	oppositeCoalition,
 	positionFromHeading,
 } from "../../utils";
 import { getCasTarget } from "../targetSelection";
@@ -36,8 +35,6 @@ export const generateCasPackage = (
 	dataStore: Types.Campaign.DataStore,
 ): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
-	const oppCoalition = oppositeCoalition(coalition);
-	const oppFaction = getCoalitionFaction(oppCoalition, state);
 
 	if (dataStore?.airdromes == null) {
 		return;
@@ -63,7 +60,7 @@ export const generateCasPackage = (
 	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 	const isHelicopter = dataStore.aircrafts?.[aircraftType]?.isHelicopter;
 
-	const groundGroupTarget = getCasTarget(packageAircrafts.startPosition, oppFaction);
+	const groundGroupTarget = getCasTarget(packageAircrafts.startPosition, coalition, state);
 
 	if (groundGroupTarget == null) {
 		return;

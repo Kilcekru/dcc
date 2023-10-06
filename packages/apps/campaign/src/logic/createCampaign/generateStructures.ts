@@ -6,19 +6,24 @@ import { Config, ObjectivePlan } from "../../data";
 import * as Domain from "../../domain";
 
 function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureType: DcsJs.StructureType) {
-	if (coalition === "blue") {
-		switch (structureType) {
-			case "Barrack": {
-				return Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor;
-			}
-			case "Depot": {
-				return Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor;
-			}
+	const margin = Domain.Random.number(0.8, 1.2);
+
+	switch (structureType) {
+		case "Barrack": {
+			return (
+				(Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+			);
+		}
+		case "Depot": {
+			return (
+				(Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+			);
 		}
 	}
 
 	return 0;
 }
+
 export function generateStructures(
 	coalition: DcsJs.CampaignCoalition,
 	objectivePlans: Array<ObjectivePlan>,

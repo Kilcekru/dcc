@@ -4,7 +4,7 @@ import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
-import { Config, scenarioList } from "../data";
+import { scenarioList } from "../data";
 import * as Domain from "../domain";
 import {
 	campaignRound,
@@ -52,7 +52,7 @@ type CampaignStore = [
 		updateRepairScore?: () => void;
 		updateWeather?: (dataStore: Types.Campaign.DataStore) => void;
 		updateDownedPilots?: () => void;
-		skipToNextDay?: () => void;
+		skipToNextDay?: (dataStore: Types.Campaign.DataStore) => void;
 		resumeNextDay?: () => void;
 		generateMissionId?: () => void;
 		resetMissionId?: () => void;
@@ -298,7 +298,7 @@ export function CampaignProvider(props: {
 					}),
 				);
 			},
-			skipToNextDay() {
+			skipToNextDay(dataStore) {
 				setState(
 					produce((s) => {
 						s.paused = true;
@@ -306,7 +306,7 @@ export function CampaignProvider(props: {
 
 						const d = timerToDate(s.timer);
 						d.setUTCDate(d.getUTCDate() + 1);
-						d.setUTCHours(Config.night.endHour);
+						d.setUTCHours(dataStore.mapInfo?.night.endHour ?? 7);
 						d.setUTCMinutes(0);
 						d.setUTCSeconds(0);
 

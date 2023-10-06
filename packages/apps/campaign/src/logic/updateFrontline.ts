@@ -6,7 +6,7 @@ import { createUniqueId } from "solid-js";
 import { Config } from "../data";
 import * as Domain from "../domain";
 import { getDeploymentCost, positionAfterDurationToPosition, timerToDate } from "../utils";
-import { g2g, g2gBattle } from "./combat";
+import { conquerObjective, g2g, g2gBattle } from "./combat";
 import { generateGroundGroupInventory } from "./createCampaign/generateGroundUnitsInventory";
 import { getFrontlineTarget } from "./targetSelection";
 import { RunningCampaignState } from "./types";
@@ -117,7 +117,7 @@ const deployFrontline = (
 		faction.groundGroups.push(gg);
 
 		// update inventory
-		groundUnits.forEach((u) => {
+		[...groundUnits, ...shoradGroundUnits].forEach((u) => {
 			faction.inventory.groundUnits[u.id] = {
 				...u,
 				state: p.onObjective ? "on objective" : "en route",
@@ -282,7 +282,7 @@ const attackFrontline = (
 	const ggsEnRoute = faction.groundGroups.filter((gg) => gg.state === "combat" || gg.state === "en route");
 	const maxAllowedGg = Math.max(
 		Math.round(unitCamps.length * Config.deploymentScore.maxEnRoutePerUnitCamp),
-		Config.deploymentScore.maxEnRoute,
+		Config.deploymentScore.maxEnRoute[coalition],
 	);
 
 	const areMoreGgsAllowed = ggsEnRoute.length < maxAllowedGg;
@@ -359,9 +359,9 @@ export const updateGroundCombat = (state: RunningCampaignState, dataStore: Types
 
 				if (redGg == null || !Domain.Faction.isGroundGroup(redGg)) {
 					// eslint-disable-next-line no-console
-					console.error("red combat ground group not found", gg, gg.objectiveName);
+					console.warn("red combat ground group not found", gg, gg.objectiveName);
 
-					// conquerObjective(gg, "blue", state, dataStore);
+					conquerObjective(gg, "blue", state, dataStore);
 					return;
 				}
 
@@ -451,7 +451,7 @@ function reinforceFrontline(
 }
 
 export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
-	updateObjectivesCoalition(state);
+	// updateObjectivesCoalition(state);
 	// captureNeutralObjectives(state, dataStore); TODO
 
 	const date = timerToDate(state.timer);
@@ -498,7 +498,11 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Ca
 	reinforceFrontline(state, dataStore, relevantObjectives);
 
 	// Only create packages during the day
-	if ((dayHour >= Config.night.endHour && dayHour < Config.night.startHour) || state.allowNightMissions) {
+	if (
+		dataStore.mapInfo == null ||
+		(dayHour >= dataStore.mapInfo.night.endHour && dayHour < dataStore.mapInfo.night.startHour) ||
+		state.allowNightMissions
+	) {
 		// moveBackmarkers("blue", state);
 		// moveBackmarkers("red", state);
 

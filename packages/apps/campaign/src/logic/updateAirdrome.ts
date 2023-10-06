@@ -65,6 +65,8 @@ function updateCoalitionAirdromes(
 			newAircrafts.forEach((ac) => {
 				oppFaction.inventory.aircrafts[ac.id] = ac;
 			});
+
+			oppFaction.airdromeNames.push(name);
 		}
 	});
 }

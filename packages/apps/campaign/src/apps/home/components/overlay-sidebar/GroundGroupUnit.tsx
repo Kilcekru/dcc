@@ -18,7 +18,7 @@ export function GroundGroupUnit(props: { unitId: string; coalition: DcsJs.Campai
 		if (unit == null) {
 			// eslint-disable-next-line no-console
 			console.error("GroundGroupUnit", "ground unit not found", props.unitId);
-			throw "ground unit not found";
+			// throw "ground unit not found";
 		}
 
 		return unit;
@@ -27,10 +27,10 @@ export function GroundGroupUnit(props: { unitId: string; coalition: DcsJs.Campai
 	return (
 		<div>
 			<div class={Style.header}>
-				<h3 class={Style["item-title"]}>{unit().name}</h3>
+				<h3 class={Style["item-title"]}>{unit()?.name}</h3>
 				<Components.Stat>
 					<Components.StatLabel>Status</Components.StatLabel>
-					<Components.StatValue>{unit().alive ? "Alive" : "Destroyed"}</Components.StatValue>
+					<Components.StatValue>{unit()?.alive ? "Alive" : "Destroyed"}</Components.StatValue>
 				</Components.Stat>
 			</div>
 		</div>

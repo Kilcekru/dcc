@@ -82,8 +82,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.14
-        version: 0.2.230-next.14
+        specifier: 0.2.230-next.15
+        version: 0.2.230-next.15
       '@types/leaflet':
         specifier: 1.9.3
         version: 1.9.3
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.14
-        version: 0.2.230-next.14
+        specifier: 0.2.230-next.15
+        version: 0.2.230-next.15
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -216,8 +216,8 @@ importers:
         version: 1.7.7
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.14
-        version: 0.2.230-next.14
+        specifier: 0.2.230-next.15
+        version: 0.2.230-next.15
 
   packages/libs/document:
     dependencies:
@@ -226,8 +226,8 @@ importers:
         version: 1.7.7
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.14
-        version: 0.2.230-next.14
+        specifier: 0.2.230-next.15
+        version: 0.2.230-next.15
 
   packages/libs/rpc:
     devDependencies:
@@ -242,14 +242,14 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.14
-        version: 0.2.230-next.14
+        specifier: 0.2.230-next.15
+        version: 0.2.230-next.15
 
   packages/shared/utils:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.2.230-next.14
-        version: 0.2.230-next.14
+        specifier: 0.2.230-next.15
+        version: 0.2.230-next.15
 
   utils/build:
     dependencies:
@@ -891,8 +891,8 @@ packages:
       '@floating-ui/core': 1.3.1
     dev: false
 
-  /@foxdelta2/dcsjs@0.2.230-next.14:
-    resolution: {integrity: sha512-t/+kb5zZqSNEHwZ7atrOOEc8y9rbaTjefMJGyYDsDA8u9RCY4gkh965vMtK1Sa7Mx/+9MwPzzIPg2fghIU0euQ==}
+  /@foxdelta2/dcsjs@0.2.230-next.15:
+    resolution: {integrity: sha512-FXbUpGw1TIsd/Ey1PhIjCo2Ji6U9GgPkAkPLNxTRzTCzNbuayV7hX312dr1FV44S/eCJEMNlzx0PzKwGHuQ3Lw==}
     dependencies:
       '@kilcekru/lua-table': 1.1.2
       adm-zip: 0.5.10

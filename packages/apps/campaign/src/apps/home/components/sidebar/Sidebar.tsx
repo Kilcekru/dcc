@@ -2,13 +2,14 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import { Config } from "../../../../data";
+import { useDataStore } from "../../../../components/DataProvider";
 import { getFlightGroups, sortDesc, timerToDate } from "../../../../utils";
 import { FlightGroupItem } from "./FlightGroupItem";
 import Styles from "./Sidebar.module.less";
 
 export const Sidebar = () => {
 	const [state, { skipToNextDay }] = useContext(CampaignContext);
+	const dataStore = useDataStore();
 
 	const date = createMemo(() => {
 		const d = timerToDate(state.timer);
@@ -17,9 +18,13 @@ export const Sidebar = () => {
 	});
 
 	const isNight = createMemo(() => {
+		if (dataStore.mapInfo == null) {
+			return false;
+		}
+
 		const hour = date().getUTCHours();
 
-		return hour < Config.night.endHour || hour >= Config.night.startHour;
+		return hour < dataStore.mapInfo.night.endHour || hour >= dataStore.mapInfo.night.startHour;
 	});
 
 	return (
@@ -28,7 +33,9 @@ export const Sidebar = () => {
 				<div class={Styles["night-wrapper"]}>
 					<p class={Styles["night-description"]}>No flight groups are planned during the night.</p>
 					<div class={Styles["night-buttons"]}>
-						<Components.Button onPress={() => skipToNextDay?.()}>Jump to Day {date().getDate() + 1}</Components.Button>
+						<Components.Button onPress={() => skipToNextDay?.(dataStore)}>
+							Jump to Day {date().getDate() + 1}
+						</Components.Button>
 					</div>
 				</div>
 			</Show>

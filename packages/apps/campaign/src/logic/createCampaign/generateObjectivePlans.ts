@@ -145,6 +145,7 @@ function fillObjectives(
 function addAirdromeSamObjectives(
 	airdromes: Array<DcsJs.DCS.Airdrome>,
 	oppAirdromes: Array<DcsJs.DCS.Airdrome>,
+	targets: Record<string, DcsJs.StrikeTarget[]>,
 	objectives: Array<DcsJs.Import.Objective>,
 	objectivePlans: Array<DynamicObjectivePlan>,
 ) {
@@ -155,7 +156,17 @@ function addAirdromeSamObjectives(
 			return;
 		}
 
-		const nearbyObjectives = Domain.Location.findInside(objectives, airdrome, (obj) => obj.position, 20_000);
+		const validObjectives = objectives.filter((obj) => {
+			const objTargets = targets[obj.name];
+
+			if (objTargets == null) {
+				return [];
+			}
+
+			return objTargets.some((target) => target.type === "SAM");
+		});
+
+		const nearbyObjectives = Domain.Location.findInside(validObjectives, airdrome, (obj) => obj.position, 20_000);
 		const sourceDistance = Domain.Location.distanceToPosition(airdrome, oppAirdrome);
 
 		const forwardObjectives = nearbyObjectives.filter((obj) => {
@@ -434,7 +445,9 @@ export function generateObjectivePlans(
 	blueRange: [number, number],
 	dataStore: Types.Campaign.DataStore,
 ): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
-	const objectives = dataStore.objectives?.filter((obj) => obj.type === "Town" || obj.type === "Terrain");
+	const objectives = dataStore.objectives?.filter(
+		(obj) => obj.type === "Town" || obj.type === "Terrain" || obj.type === "POI",
+	);
 	const strikeTargets = dataStore.strikeTargets;
 
 	if (objectives == null) {
@@ -472,8 +485,8 @@ export function generateObjectivePlans(
 
 	const samObjectives = objectives.filter((obj) => strikeTargets[obj.name]?.some((st) => st.type === "SAM"));
 
-	blueObjs = addAirdromeSamObjectives(blueAirdromes, redAirdromes, samObjectives, blueObjs);
-	redObjs = addAirdromeSamObjectives(redAirdromes, blueAirdromes, samObjectives, redObjs);
+	blueObjs = addAirdromeSamObjectives(blueAirdromes, redAirdromes, strikeTargets, samObjectives, blueObjs);
+	redObjs = addAirdromeSamObjectives(redAirdromes, blueAirdromes, strikeTargets, samObjectives, redObjs);
 
 	blueObjs = generateFactionStructures({
 		coalition: "blue",

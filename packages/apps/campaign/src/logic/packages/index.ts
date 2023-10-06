@@ -298,7 +298,11 @@ const factionPackagesTick = (
 	const dayHour = date.getUTCHours() ?? 0;
 
 	// Only create packages during the day
-	if ((dayHour >= Config.night.endHour && dayHour < Config.night.startHour) || state.allowNightMissions) {
+	if (
+		dataStore.mapInfo == null ||
+		(dayHour >= dataStore.mapInfo.night.endHour && dayHour < dataStore.mapInfo.night.startHour) ||
+		state.allowNightMissions
+	) {
 		if (casPackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}

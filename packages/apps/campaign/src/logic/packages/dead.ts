@@ -4,14 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
 import * as Domain from "../../domain";
-import {
-	addHeading,
-	calcPackageEndTime,
-	getDurationEnRoute,
-	objectToPosition,
-	oppositeCoalition,
-	positionFromHeading,
-} from "../../utils";
+import { addHeading, calcPackageEndTime, getDurationEnRoute, objectToPosition, positionFromHeading } from "../../utils";
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
 import {
@@ -35,8 +28,6 @@ export const generateDeadPackage = (
 	dataStore: Types.Campaign.DataStore,
 ): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
-	const oppCoalition = oppositeCoalition(coalition);
-	const oppFaction = getCoalitionFaction(oppCoalition, state);
 
 	if (faction == null || dataStore.airdromes == null) {
 		return;
@@ -61,7 +52,7 @@ export const generateDeadPackage = (
 
 	const cruiseSpeed = getCruiseSpeed(packageAircrafts.aircrafts, dataStore);
 
-	const selectedObjective = getDeadTarget(packageAircrafts.startPosition, oppFaction);
+	const selectedObjective = getDeadTarget(packageAircrafts.startPosition, coalition, state);
 
 	if (selectedObjective == null) {
 		return;
@@ -158,7 +149,7 @@ export const generateDeadPackage = (
 			},
 			...landingWaypoints,
 		],
-		target: selectedObjective.id,
+		target: selectedObjective.name,
 		position: objectToPosition(packageAircrafts.startPosition),
 	};
 

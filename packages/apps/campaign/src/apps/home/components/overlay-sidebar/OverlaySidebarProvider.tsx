@@ -2,7 +2,15 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import { createContext, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-type OverlayState = "closed" | "structure" | "flight group" | "ground group" | "airdrome" | "ewr" | "sam";
+type OverlayState =
+	| "closed"
+	| "structure"
+	| "flight group"
+	| "ground group"
+	| "airdrome"
+	| "ewr"
+	| "sam"
+	| "downed pilot";
 type OverlayContextState = {
 	state: OverlayState;
 	structureName?: string;
@@ -20,6 +28,7 @@ type OverlayStore = [
 		openAirdrome?: (airdromeName: string, coalition: DcsJs.CampaignCoalition) => void;
 		openEWR?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
 		openSam?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
+		openDownedPilot?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
 		close?: () => void;
 	},
 ];
@@ -85,6 +94,15 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 				setState(
 					produce((s) => {
 						s.state = "sam";
+						s.groundGroupId = id;
+						s.coalition = coalition;
+					}),
+				);
+			},
+			openDownedPilot(id, coalition) {
+				setState(
+					produce((s) => {
+						s.state = "downed pilot";
 						s.groundGroupId = id;
 						s.coalition = coalition;
 					}),

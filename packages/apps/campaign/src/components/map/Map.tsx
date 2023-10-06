@@ -59,14 +59,16 @@ export const Map = () => {
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let winConditionCircle: L.CircleMarker | undefined = undefined;
-	// const objectiveCircles: Record<string, L.CircleMarker> = {};
+	const objectiveCircles: Record<string, L.CircleMarker> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
 	const dataStore = useDataStore();
 	const positionToMapPosition = usePositionToMapPosition();
-	const [overlaySidebarState, { openStructure, openFlightGroup, openGroundGroup, openAirdrome, openSam }] =
-		useContext(OverlaySidebarContext);
+	const [
+		overlaySidebarState,
+		{ openStructure, openFlightGroup, openGroundGroup, openAirdrome, openSam, openDownedPilot },
+	] = useContext(OverlaySidebarContext);
 
 	const centerAirdrome = createMemo(() => {
 		const airdromeName = state.blueFaction?.airdromeNames[0];
@@ -93,16 +95,16 @@ export const Map = () => {
 		openGroundGroup?.(groundGroup.id, coalition);
 	};
 
-	/* const onClickEWR = (groundGroup: DcsJs.CampaignGroundGroup, coalition: DcsJs.CampaignCoalition) => {
-		openEWR?.(groundGroup.id, coalition);
-	}; */
-
 	const onClickAirdrome = (airdromeName: string, coalition: DcsJs.CampaignCoalition) => {
 		openAirdrome?.(airdromeName, coalition);
 	};
 
 	const onClickSam = (id: string, coalition: DcsJs.CampaignCoalition) => {
 		openSam?.(id, coalition);
+	};
+
+	const onClickDownedPilot = (id: string, coalition: DcsJs.CampaignCoalition) => {
+		openDownedPilot?.(id, coalition);
 	};
 
 	const createSymbol = ({
@@ -380,7 +382,7 @@ export const Map = () => {
 						hostile: coalition === "red",
 						domain: "ground",
 						unitCode: "downedPilot",
-						onClick: () => null,
+						onClick: () => onClickDownedPilot(pilot.id, coalition),
 					});
 
 					if (marker == null) {
@@ -395,43 +397,6 @@ export const Map = () => {
 			}
 		});
 	};
-
-	/* const createEWSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
-		faction.ews.forEach((gg) => {
-			if (gg.position == null) {
-				return;
-			}
-
-			const hasAliveUnits = gg.unitIds.some((id) => faction.inventory.groundUnits[id]?.alive);
-
-			if (hasAliveUnits) {
-				if (ewMarkers[gg.id] == null) {
-					const marker = createSymbol({
-						mapPosition: positionToMapPosition(gg.position),
-						hostile: coalition === "red",
-						air: false,
-						unitCode: "radar",
-						onClick: () => onClickEWR?.(gg, coalition),
-					});
-
-					if (marker == null) {
-						return;
-					}
-
-					ewMarkers[gg.id] = marker;
-				} else {
-					ewMarkers[gg.id]?.marker.setLatLng(positionToMapPosition(gg.position));
-				}
-			} else {
-				if (ewMarkers[gg.id] == null) {
-					return;
-				}
-
-				removeSymbol(ewMarkers[gg.id]?.marker);
-				delete ewMarkers[gg.id];
-			}
-		});
-	}; */
 
 	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
@@ -480,14 +445,14 @@ export const Map = () => {
 					};
 				}
 			} else {
-				if (objectiveMarkers[structure.id]?.coalition !== coalition) {
+				/* if (objectiveMarkers[structure.id]?.coalition !== coalition) {
 					// eslint-disable-next-line no-console
 					console.warn(
 						`${structure.name} has the wrong coalition. Is: ${
 							objectiveMarkers[structure.id]?.coalition ?? ""
 						}, should: ${coalition}`,
 					);
-				}
+				} */
 			}
 		});
 	};
@@ -596,7 +561,7 @@ export const Map = () => {
 		}
 	});
 
-	/* createEffect(() => {
+	createEffect(() => {
 		const map = leaftletMap();
 
 		if (map == null) {
@@ -625,7 +590,7 @@ export const Map = () => {
 					.bindTooltip((<span>{obj.name}</span>) as Content, { permanent: map.getZoom() >= 10 });
 			}
 		});
-	}); */
+	});
 
 	// Selected Flight Group
 	createEffect(() => {

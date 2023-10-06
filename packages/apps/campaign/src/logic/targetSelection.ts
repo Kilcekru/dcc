@@ -19,10 +19,20 @@ const isInSamRange = (position: DcsJs.Position, oppFaction: DcsJs.CampaignFactio
 		.some((sam) => Utils.distanceToPosition(position, sam.position) <= sam.range);
 };
 
-export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
+export const getCasTarget = (
+	startPosition: DcsJs.Position,
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+) => {
+	const faction = getCoalitionFaction(coalition, state);
+	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 	const objectivesGroundGroups = oppFaction.groundGroups.filter(
-		(gg) => gg.state === "on objective" && gg.type !== "sam",
+		(gg) =>
+			gg.state === "on objective" &&
+			gg.type !== "sam" &&
+			!faction.packages.some((pkg) => pkg.flightGroups.some((fg) => fg.task === "CAS" && fg.target === gg.id)),
 	);
+
 	const groundGroupsInRange = findInside(
 		objectivesGroundGroups,
 		startPosition,
@@ -37,7 +47,13 @@ export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.Ca
 			return inventoryUnit?.alive;
 		});
 
-		return aliveUnits.length >= 4;
+		const objective = state.objectives[gg.objectiveName];
+
+		if (objective == null) {
+			return false;
+		}
+
+		return objective.incomingGroundGroups[coalition] == null && aliveUnits.length >= 4;
 	});
 
 	const groundGroupsOutsideSamRange = aliveGroundGroups.filter(
@@ -47,10 +63,21 @@ export const getCasTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.Ca
 	return findNearest(groundGroupsOutsideSamRange, startPosition, (group) => group.position);
 };
 
-export const getDeadTarget = (startPosition: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
+export const getDeadTarget = (
+	startPosition: DcsJs.Position,
+	coalition: DcsJs.CampaignCoalition,
+	state: RunningCampaignState,
+) => {
+	const faction = getCoalitionFaction(coalition, state);
+	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 	const oppSams = Domain.Faction.getSamGroups(oppFaction).filter((sam) => sam.operational === true);
 
-	const inRange = findInside(oppSams, startPosition, (sam) => sam.position, Config.maxDistance.dead);
+	const freeTargets = oppSams.filter(
+		(sam) =>
+			!faction.packages.some((pkg) => pkg.flightGroups.some((fg) => fg.task === "DEAD" && fg.target === sam.name)),
+	);
+
+	const inRange = findInside(freeTargets, startPosition, (sam) => sam.position, Config.maxDistance.dead);
 
 	return findNearest(inRange, startPosition, (sam) => sam.position);
 };

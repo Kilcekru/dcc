@@ -33,6 +33,7 @@ const escortFlightGroup = ({
 	egressTime,
 	cruiseSpeed,
 	packageAircrafts,
+	frequency,
 }: {
 	coalition: DcsJs.CampaignCoalition;
 	state: RunningCampaignState;
@@ -43,6 +44,7 @@ const escortFlightGroup = ({
 	egressTime: number;
 	cruiseSpeed: number;
 	packageAircrafts: ReturnType<typeof getPackageAircrafts>;
+	frequency: number;
 }) => {
 	const faction = getCoalitionFaction(coalition, state);
 
@@ -59,8 +61,6 @@ const escortFlightGroup = ({
 	while (cs.flightGroupName === targetFlightGroup.name) {
 		cs = generateCallSign(coalition, state, dataStore, "aircraft");
 	}
-
-	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 
 	const [holdWaypoint] = calcHoldWaypoint(packageAircrafts.startPosition, ingressPosition, cruiseSpeed);
 	const [landingWaypoints] = calcLandingWaypoints({
@@ -100,7 +100,7 @@ const escortFlightGroup = ({
 			...landingWaypoints,
 		],
 		target: targetFlightGroup.name,
-		frequency: calcFrequency(aircraftType, dataStore),
+		frequency,
 		position: objectToPosition(packageAircrafts.startPosition),
 	};
 
@@ -148,7 +148,6 @@ export const generateStrikePackage = (
 		return;
 	}
 
-	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 	const cruiseSpeed = getCruiseSpeed([...packageAircrafts.aircrafts, ...escortPackageAircrafts.aircrafts], dataStore);
 
 	const targetStructure = getStrikeTarget(
@@ -162,6 +161,8 @@ export const generateStrikePackage = (
 	if (targetStructure == null) {
 		return;
 	}
+
+	const frequency = calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, dataStore);
 
 	const activeStrikes = faction.packages.filter((pkg) => pkg.task === "Pinpoint Strike");
 	const activeStrikeStartTime = activeStrikes.reduce((prev, pkg) => {
@@ -262,7 +263,7 @@ export const generateStrikePackage = (
 			...landingWaypoints,
 		],
 		target: targetStructure.name,
-		frequency: calcFrequency(aircraftType, dataStore),
+		frequency,
 		position: objectToPosition(packageAircrafts.startPosition),
 	};
 
@@ -278,6 +279,7 @@ export const generateStrikePackage = (
 		egressTime: endEgressTime,
 		cruiseSpeed,
 		packageAircrafts: escortPackageAircrafts,
+		frequency,
 	});
 
 	if (escort != null) {
@@ -292,7 +294,7 @@ export const generateStrikePackage = (
 		taskEndTime: endIngressTime + 1,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, dataStore),
+		frequency,
 		id: createUniqueId(),
 	};
 };

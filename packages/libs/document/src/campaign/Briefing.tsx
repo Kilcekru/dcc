@@ -93,7 +93,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				return "Destroy the enemy buildings at waypoint 3 'Strike'";
 			}
 			case "Escort": {
-				return "Escort the Strike flight from enemy fighters";
+				return "Protect the Strike flight from enemy fighters";
 			}
 			case "DEAD": {
 				return "Destroy the enemy tracking radar(SAM) at waypoint 3 'DEAD'";
@@ -119,7 +119,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				return "With the 'F-10. Other...' entry in the Communication Menu you can request a BRA Call for your escort destination at any time.";
 			}
 			case "CSAR": {
-				return "Find and rescue the downed pilot at waypoint 2";
+				return "In the 'F-10. Other...' entry in the Communication Menu you have options to locate the pilot";
 			}
 			default: {
 				return undefined;
@@ -128,11 +128,11 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 	});
 	return (
 		<div class={Styles.briefing}>
-			<h1>{props.data.flightGroup.name}</h1>
-			<h3>{props.data.flightGroup.task}</h3>
-			<p>{taskDescription()}</p>
+			<h1 class={Styles.name}>{props.data.flightGroup.name}</h1>
+			<h3 class={Styles.task}>{props.data.flightGroup.task}</h3>
+			<p class={Styles.taskDescription}>{taskDescription()}</p>
 			<Show when={taskHint() != null}>
-				<p>{taskHint()}</p>
+				<p class={Styles.hint}>{taskHint()}</p>
 			</Show>
 			<h2 class={Styles.title}>Airbase</h2>
 			<div class={Styles.airbase}>

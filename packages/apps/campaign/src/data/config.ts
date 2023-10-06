@@ -48,7 +48,7 @@ export const Config = {
 		frontline: {
 			barrack: 60_000,
 			depot: 50_000,
-			initialFactor: 0.75,
+			initialFactor: { blue: 0.75, red: 0.1, neutral: 0 },
 		},
 		repair: 100_000,
 		coalitionMultiplier: {
@@ -56,11 +56,7 @@ export const Config = {
 			red: 5,
 		},
 		maxEnRoutePerUnitCamp: 0.8,
-		maxEnRoute: 6,
-	},
-	night: {
-		startHour: 20,
-		endHour: 6,
+		maxEnRoute: { blue: 6, red: 2, neutral: 0 },
 	},
 	waypoint: {
 		takeOff: 600,
