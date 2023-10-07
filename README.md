@@ -35,18 +35,19 @@ Still in early development we currently only offer a dynamic campaign, but more 
 - [Persistence](#persistence)
 - [Multiplayer](#multiplayer)
 - [Current Limitation](#current-limitation)
-- [Upcoming Features](#upcoming-features)
 - [Roadmap](#roadmap)
+  - [App Features](#app-features)
+  - [Dynamic Campaign](#dynamic-campaign-1)
 - [Discord](#discord)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 
 ## Installation
-- Download the latest release `Setup.zip` from github
-- Extract the zip and run the `Setup.exe` (The Installer is not yet signed, so Windows might warn you about an unknown source)
-- The installer installs all necessary files, creates a Desktop Shortcut and launches the app. You can delete the Setup afterwards
-- Inside DCC you can setup the paths to your DCS folders and then start the campaign app
-- You are ready to go, have fun
+- Download the latest release `Setup.zip` from github.
+- Extract the zip and run the `Setup.exe` (The Installer is not yet signed, so Windows might warn you about an unknown source).
+- The installer installs all necessary files, creates a Desktop Shortcut and launches the app. You can delete the Setup afterwards.
+- Inside DCC you can setup the paths to your DCS folders and then start the campaign app.
+- You are ready to go, have fun.
 
 # Dynamic Campaign
 Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liberation
@@ -128,11 +129,16 @@ Close Air Support. Destroy enemy ground units between the given waypoints. Commu
 Combat search and rescue. Find and rescue previously downed pilots with a helicopter. Communication Tools with the pilot are available in the Communication Menu.
 
 ## Persistence
-Make sure DCS allows DCC to save it state with the following step.
-These needs do be done after each DCS update.
-Change the following lines in the file in the DCS installation folder 'DCS World/Scripts/MissionScripting.lua'
+DCC will check if DCS persistance is enabled when you run a campaign (if your DCS folder are setup correctly).\
+You can enable persistance via the menu or when you generate a mission.\
+You can also select to disable persistance again when you close DCC.
+
+Enabled persistance allows DCS missions to save file on your computer (which DCC utilizes to store the mission state).\
+If you fly on online servers this should not be enabled to prevent malicious files to be stored.
+
+To manually enable persistance change the following lines in the file `DCS World/Scripts/MissionScripting.lua` in the DCS installation folder.\
 From:
-```
+```lua
 do
    sanitizeModule('os')
    sanitizeModule('io')
@@ -143,7 +149,7 @@ do
 end
 ```
 To:
-```
+```lua
 do
    sanitizeModule('os')
    -- sanitizeModule('io')
@@ -156,18 +162,17 @@ end
 
 ## Multiplayer
 DCC can be used for multiplayer sessions.
-You can selected multiple slots and multiple flight groups in DCC flight group list(currently max two clients per flight group)
+You can select multiple slots and multiple flight groups in DCC flight group list (currently max two clients per flight group)
 If the clients are spread over multiple flight groups the mission start time will be set to the earliest flight group start time.
 
-To start a multiplayer mission you can either start it on the PC running DCC. 
-Or on an additional server, in which case 
+To start a multiplayer mission you can either start it on the PC running DCC or on an dedicated server, in which case 
 the file "dcc_state.json" created by the mission must be copied back (to the folder where the mission file was created) 
 so that DCC can take over the result of this mission. 
+
 ## Current Limitation
 Many systems within the Campaign are currently implemented in a simplified way. 
 For example the ground battle currently doesn't distinguishes between the vehicle/infantry type.
 We will improve and expand these systems in the future.
-
 
 ## Roadmap
 ### App Features
