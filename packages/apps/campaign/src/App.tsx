@@ -9,6 +9,7 @@ import { CampaignContext, CampaignProvider } from "./components";
 import { DataProvider, useSetDataMap } from "./components/DataProvider";
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
+import { Config } from "./data";
 import { useSave } from "./hooks";
 
 const App = (props: { open: boolean }) => {
@@ -74,7 +75,7 @@ const AppWithContext = () => {
 
 	onMount(() => {
 		rpc.campaign
-			.resumeCampaign()
+			.resumeCampaign(Config.campaignVersion)
 			.then((loadedState) => {
 				console.log("load", loadedState); // eslint-disable-line no-console
 
@@ -101,6 +102,9 @@ const AppWithContext = () => {
 			})
 			.catch((e) => {
 				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
+				setCampaignState({
+					loaded: true,
+				});
 			});
 	});
 

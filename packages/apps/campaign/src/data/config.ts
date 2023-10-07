@@ -83,4 +83,5 @@ export const Config = {
 			y: -56132.3249950192,
 		},
 	},
+	campaignVersion: 1,
 };

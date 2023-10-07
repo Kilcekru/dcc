@@ -17,7 +17,7 @@
 - Add Escort In-Game communication menu
 - Add AWACS VHF
 - Add Sync flight group position between mission and DCC
-- Add Tile Bar & Menu
+- Add Title Bar & Menu
 - Add Airdrome Capture
 - Add Automated Update Check
 - Randomize the state of the campaign at the start

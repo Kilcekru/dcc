@@ -3,6 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { unwrap } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
+import { Config } from "../../data";
 import { scenarioList } from "../../data/scenarios";
 import * as Domain from "../../domain";
 import { getCurrentWeather } from "../../domain/weather";
@@ -224,6 +225,7 @@ export const createCampaign = (
 		cloudCover: currentWeather.cloudCover,
 		cloudCoverData,
 	};
+	state.version = Config.campaignVersion;
 
 	return state;
 };

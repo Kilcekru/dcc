@@ -48,6 +48,7 @@ export namespace Schema {
 		created: z.coerce.date(),
 		edited: z.coerce.date(),
 		timer: z.number(),
+		version: z.number().optional(),
 	});
 }
 

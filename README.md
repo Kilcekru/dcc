@@ -13,6 +13,8 @@ Still in early development we currently only offer a dynamic campaign, but more 
   - [Scenario](#scenario)
   - [Faction](#faction)
   - [Hardcore](#hardcore)
+  - [Carrier](#carrier)
+  - [Airport Capture](#airport-capture)
 - [Structures](#structures)
   - [Ammo Depot](#ammo-depot)
   - [Barrack](#barrack)
@@ -31,8 +33,9 @@ Still in early development we currently only offer a dynamic campaign, but more 
   - [CAS](#cas)
   - [CSAR](#csar)
 - [Persistence](#persistence)
-  - [Current Limitation](#current-limitation)
-  - [Upcoming Features](#upcoming-features)
+- [Multiplayer](#multiplayer)
+- [Current Limitation](#current-limitation)
+- [Upcoming Features](#upcoming-features)
 - [Roadmap](#roadmap)
 - [Discord](#discord)
 - [Contributing](#contributing)
@@ -43,7 +46,6 @@ Still in early development we currently only offer a dynamic campaign, but more 
 - Extract the zip and run the `Setup.exe` (The Installer is not yet signed, so Windows might warn you about an unknown source)
 - The installer installs all necessary files, creates a Desktop Shortcut and launches the app. You can delete the Setup afterwards
 - Inside DCC you can setup the paths to your DCS folders and then start the campaign app
-- To allow DCS persistance, follow the steps described at [Persistance](#persistence)
 - You are ready to go, have fun
 
 # Dynamic Campaign
@@ -66,6 +68,13 @@ This defines which planes, helicopters and ground units are available for the gi
 
 ### Hardcore
 You can choose at campaign start to activate the hardcore mode. Hardcore means if you(or a client in multiplayer) dies in a mission the campaign fails.
+
+### Carrier
+A carrier will be automatically added to the campaign(if one was selected in the faction) if your faction has a carrier capable plane.
+You can switch between a super carrier or carrier in the faction.
+
+### Airport Capture
+You can capture(or lose) an airport if all surrounded objectives(5nm) are captured by your ground units.
 
 ## Structures
 Structures are a collection of building which provide a service for the controlling faction. To prevent these services the opposite faction can destroy the buildings with a Strike mission or capture the structure with ground units.
@@ -93,10 +102,10 @@ Provides electricity to structures and SAMs(IADS - coming soon) nearby to improv
 Provides Fuel for Depots nearby to improve the deploy time of this structures.
 
 ### Hospital
-Cares for the wounded pilots and soldiers. Which helps the deploy time for the next aircrafts or ground groups.
+Cares for the wounded pilots and soldiers. Which helps the deploy time for the next aircrafts or ground groups. (Not fully implemented)
 
 ### Prison
-Holds captured pilots and soldiers.
+Holds captured pilots and soldiers. (Not fully implemented)
 
 ## Mission Types
 
@@ -110,7 +119,7 @@ Combat Air Patrol. Flight between the given waypoints and attack all enemy aircr
 Destroy all buildings at the given waypoint.
 
 ### Escort
-Protect the designated Strike Group from enemy air threads.
+Protect the designated Strike Group from enemy air threads. Communication Tools to find your escort target are available in the Communication Menu.
 
 ### CAS
 Close Air Support. Destroy enemy ground units between the given waypoints. Communication Tools with a JTAC to find the targets are available in the Communication Menu.
@@ -145,31 +154,30 @@ do
 end
 ```
 
-### Current Limitation
+## Multiplayer
+DCC can be used for multiplayer sessions.
+You can selected multiple slots and multiple flight groups in DCC flight group list(currently max two clients per flight group)
+If the clients are spread over multiple flight groups the mission start time will be set to the earliest flight group start time.
+
+To start a multiplayer mission you can either start it on the PC running DCC. 
+Or on an additional server, in which case 
+the file "dcc_state.json" created by the mission must be copied back (to the folder where the mission file was created) 
+so that DCC can take over the result of this mission. 
+## Current Limitation
 Many systems within the Campaign are currently implemented in a simplified way. 
 For example the ground battle currently doesn't distinguishes between the vehicle/infantry type.
 We will improve and expand these systems in the future.
 
-### Upcoming Features
-
-- Carrier
-- More Maps
-- More Scenarios
-- More Factions
-- More Package Types
-- IADS
-- In App customizing Scenarios and Factions
-- Improved Frontline logic
-- Kneeboard
-- Warehouse
-- Recon / Fog of War
 
 ## Roadmap
-
+### App Features
 - Quick Mission: Create a simple mission that offers immersion into a battlefield
 - Patcher: Apply patches to DCS to easily configure your setup
 - Controls: Drag & Drop setup for your Joystick / Throttle
 - Mods: Install and Remove supported DCS mods with a simple click
+
+### Dynamic Campaign
+[Roadmap](https://github.com/users/Kilcekru/projects/2)
 
 ## Discord
 [Join our Discord server and stay connected.](https://discord.gg/jZZ3pFpY3e)

@@ -97,6 +97,7 @@ export const initState: DcsJs.CampaignState = {
 		cloudCoverData: [],
 		offset: 0,
 	},
+	version: 0,
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);

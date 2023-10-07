@@ -12,10 +12,10 @@ const saveCampaign: Types.Rpc.Campaign["saveCampaign"] = async (campaign) => {
 	});
 };
 
-const resumeCampaign: Types.Rpc.Campaign["resumeCampaign"] = async () => {
+const resumeCampaign: Types.Rpc.Campaign["resumeCampaign"] = async (version) => {
 	const list = await Domain.Persistance.CampaignPersistance.list();
 
-	const activeSynopsis = Object.values(list).find((syn) => syn.active);
+	const activeSynopsis = Object.values(list).find((syn) => syn.active && (syn.version ?? 0) >= version);
 
 	if (activeSynopsis == null) {
 		return Object.values(list).length > 0 ? undefined : null;
