@@ -16,7 +16,7 @@ const hasStillAliveUnits = (groundGroup: DcsJs.GroundGroup, faction: DcsJs.Campa
 
 export const conquerObjective = (
 	attackingGroundGroup: DcsJs.GroundGroup,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ) => {
@@ -118,7 +118,7 @@ export const g2gBattle = (
 };
 
 export const g2g = (
-	attackingCoalition: DcsJs.CampaignCoalition,
+	attackingCoalition: DcsJs.Coalition,
 	attackingGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,

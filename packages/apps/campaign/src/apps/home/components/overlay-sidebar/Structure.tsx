@@ -7,6 +7,7 @@ import { CampaignContext } from "../../../../components";
 import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction } from "../../../../logic/utils";
 import { getDeploymentCost, hasAmmoDepotInRange, hasFuelStorageInRange, hasPowerInRange } from "../../../../utils";
+import { Aircraft } from "./Aircraft";
 import { Flag } from "./Flag";
 import Styles from "./Item.module.less";
 import { OverlaySidebarContext } from "./OverlaySidebarProvider";
@@ -43,6 +44,18 @@ export function Structure() {
 		}
 
 		return str;
+	});
+
+	const aircrafts = createMemo(() => {
+		const fac = faction();
+
+		if (fac == null) {
+			return;
+		}
+
+		return Object.values(fac.inventory.aircrafts).filter(
+			(ac) => ac.homeBase.name === overlayStore.structureName && ac.alive,
+		);
 	});
 
 	// Close if the structure is removed
@@ -101,13 +114,28 @@ export function Structure() {
 					</Show>
 				</div>
 			</div>
-			<Components.ScrollContainer>
-				<Components.List>
-					<For each={structure()?.buildings}>
-						{(building) => <StructureBuilding building={building} coalition={overlayStore.coalition ?? "blue"} />}
-					</For>
-				</Components.List>
-			</Components.ScrollContainer>
+			<Show when={structure()?.type != "Farp"}>
+				<Components.ScrollContainer>
+					<Components.List>
+						<For each={structure()?.buildings}>
+							{(building) => <StructureBuilding building={building} coalition={overlayStore.coalition ?? "blue"} />}
+						</For>
+					</Components.List>
+				</Components.ScrollContainer>
+			</Show>
+			<Show when={structure()?.type === "Farp"}>
+				<Components.ScrollContainer>
+					<Components.List>
+						<For each={aircrafts()}>
+							{(unit) => (
+								<Components.ListItem>
+									<Aircraft unit={unit} />
+								</Components.ListItem>
+							)}
+						</For>
+					</Components.List>
+				</Components.ScrollContainer>
+			</Show>
 		</Show>
 	);
 }

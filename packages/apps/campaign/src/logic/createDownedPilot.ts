@@ -9,7 +9,7 @@ export function createDownedPilot(
 	name: string,
 	time: number,
 	position: DcsJs.Position,
-	coalition: DcsJs.CoalitionSide,
+	coalition: DcsJs.Coalition,
 	faction: DcsJs.CampaignFaction,
 	state: DcsJs.CampaignState,
 	dataStore: Types.Campaign.DataStore,
@@ -57,7 +57,7 @@ export function createDownedPilot(
 		}
 	}
 
-	if (distance != null && distance <= Config.maxDistance.csar) {
+	if (distance != null && distance <= Config.packages.CSAR.maxDistance) {
 		faction.downedPilots.push({
 			id: createUniqueId(),
 			name,

@@ -46,7 +46,7 @@ const staticTypeImage: Record<string, keyof typeof Styles> = {
 	"Small werehouse 2": "image-small-werehouse-2",
 };
 
-export function StructureBuilding(props: { building: DcsJs.Building; coalition: DcsJs.CampaignCoalition }) {
+export function StructureBuilding(props: { building: DcsJs.Building; coalition: DcsJs.Coalition }) {
 	return (
 		<div>
 			<div class={Styles.header}>

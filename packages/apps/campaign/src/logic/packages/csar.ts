@@ -10,7 +10,7 @@ import { generateCallSign, getCoalitionFaction } from "../utils";
 import { calcFrequency, getCruiseSpeed, getPackageAircrafts, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCsarPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	downedPilot: DcsJs.DownedPilot,
@@ -41,7 +41,7 @@ export const generateCsarPackage = (
 		dataStore,
 		faction,
 		withMaxDistance: {
-			distance: Config.maxDistance.csar,
+			distance: Config.packages.CSAR.maxDistance,
 			position: downedPilot.position,
 		},
 	});
@@ -145,7 +145,7 @@ export const generateCsarPackage = (
 		taskEndTime: dropOffTime,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, faction, dataStore),
 		id: createUniqueId(),
 	};
 };

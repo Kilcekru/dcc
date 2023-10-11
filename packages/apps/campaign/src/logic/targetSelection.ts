@@ -21,7 +21,7 @@ const isInSamRange = (position: DcsJs.Position, oppFaction: DcsJs.CampaignFactio
 
 export const getCasTarget = (
 	startPosition: DcsJs.Position,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
@@ -37,7 +37,7 @@ export const getCasTarget = (
 		objectivesGroundGroups,
 		startPosition,
 		(obj) => obj?.position,
-		Config.maxDistance.cas,
+		Config.packages.CAS.maxDistance,
 	);
 
 	const aliveGroundGroups = groundGroupsInRange.filter((gg) => {
@@ -65,7 +65,7 @@ export const getCasTarget = (
 
 export const getDeadTarget = (
 	startPosition: DcsJs.Position,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
@@ -77,7 +77,7 @@ export const getDeadTarget = (
 			!faction.packages.some((pkg) => pkg.flightGroups.some((fg) => fg.task === "DEAD" && fg.target === sam.name)),
 	);
 
-	const inRange = findInside(freeTargets, startPosition, (sam) => sam.position, Config.maxDistance.dead);
+	const inRange = findInside(freeTargets, startPosition, (sam) => sam.position, Config.packages.DEAD.maxDistance);
 
 	return findNearest(inRange, startPosition, (sam) => sam.position);
 };
@@ -85,7 +85,7 @@ export const getDeadTarget = (
 export const getStrikeTarget = (
 	startPosition: DcsJs.Position,
 	objectives: Record<string, DcsJs.Objective>,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	faction: DcsJs.CampaignFaction,
 	oppFaction: DcsJs.CampaignFaction,
 ): DcsJs.Structure | undefined => {
@@ -171,7 +171,7 @@ export const getStrikeTarget = (
 };
 
 export const getAwacsTarget = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ): [DcsJs.Position, DcsJs.Position] | undefined => {
@@ -211,11 +211,11 @@ export const getAwacsTarget = (
 };
 
 export const getFrontlineTarget = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	sourcePosition: DcsJs.Position,
 	range: number,
 	state: RunningCampaignState,
-	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
+	relevantObjectives: Record<DcsJs.Coalition, Record<string, DcsJs.Objective>>,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const unprotectedObjectives = Object.values(relevantObjectives[coalition]).filter(

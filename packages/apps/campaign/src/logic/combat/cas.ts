@@ -16,7 +16,7 @@ const destroyUnit = (faction: DcsJs.CampaignFaction, id: string, timer: number) 
 	inventoryUnit.alive = false;
 	inventoryUnit.destroyedTime = timer;
 };
-export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const cas = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);

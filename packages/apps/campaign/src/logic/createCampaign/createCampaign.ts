@@ -165,19 +165,17 @@ export const createCampaign = (
 					return prev;
 				}
 
-				const objective: DcsJs.CampaignObjective = {
+				const objective: DcsJs.Objective = {
 					name: dataObjective.name,
 					position: dataObjective.position,
 					coalition: isBlue ? "blue" : "red",
-					deploymentDelay: isBlue ? Domain.Time.Minutes(30) : Domain.Time.Minutes(60),
-					deploymentTimer: state.timer,
 					incomingGroundGroups: {},
 				};
 
 				prev[objective.name] = objective;
 				return prev;
 			},
-			{} as Record<string, DcsJs.CampaignObjective>,
+			{} as Record<string, DcsJs.Objective>,
 		) ?? {};
 
 	generateGroundGroups(blueOps, state.blueFaction, state.timer, dataStore);

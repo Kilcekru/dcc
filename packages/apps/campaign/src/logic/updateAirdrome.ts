@@ -4,12 +4,12 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { Config } from "../data";
 import * as Domain from "../domain";
 import { oppositeCoalition } from "../utils";
-import { generateAirdromeAircraftInventory } from "./createCampaign/generateAircraftInventory";
+import { generateAircraftsForHomeBase } from "./createCampaign/generateAircraftInventory";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction } from "./utils";
 
 function updateCoalitionAirdromes(
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ) {
@@ -54,13 +54,9 @@ function updateCoalitionAirdromes(
 				iac.disabled = true;
 			});
 
-			const newAircrafts = generateAirdromeAircraftInventory(
-				name as DcsJs.AirdromeName,
-				oppFaction,
-				Object.values(state.objectives).filter((obj) => obj.coalition === coalition),
-				undefined,
-				dataStore,
-			);
+			const homeBase: DcsJs.CampaignHomeBase = { type: "airdrome", name };
+
+			const newAircrafts = generateAircraftsForHomeBase(faction, homeBase, dataStore, false);
 
 			newAircrafts.forEach((ac) => {
 				oppFaction.inventory.aircrafts[ac.id] = ac;

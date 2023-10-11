@@ -131,7 +131,7 @@ const deployFrontline = (
 };
 
 const moveFactionGroundGroups = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ) => {
@@ -157,7 +157,7 @@ const moveFactionGroundGroups = (
 						return;
 					}
 
-					if (objective.coalition === "neutral") {
+					if (objective.coalition === "neutrals") {
 						objective.coalition = coalition;
 						objective.incomingGroundGroups[coalition] = undefined;
 
@@ -191,9 +191,9 @@ const moveFactionGroundGroups = (
 };
 
 /* const moveBackmarkers = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
-	relevantObjectives: Record<DcsJs.CoalitionSide, Record<string, DcsJs.Objective>>,
+	relevantObjectives: Record<DcsJs.Coalition, Record<string, DcsJs.Objective>>,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
@@ -233,7 +233,7 @@ const moveFactionGroundGroups = (
 	});
 }; */
 
-function getUnitCamps(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
+function getUnitCamps(coalition: DcsJs.Coalition, state: RunningCampaignState) {
 	const faction = getCoalitionFaction(coalition, state);
 	const depotDeploymentCost = getDeploymentCost(coalition, "Depot");
 	const barrackDeploymentCost = getDeploymentCost(coalition, "Barrack");
@@ -270,10 +270,10 @@ function getUnitCamps(coalition: DcsJs.CampaignCoalition, state: RunningCampaign
 }
 
 const attackFrontline = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
+	relevantObjectives: Record<DcsJs.Coalition, Record<string, DcsJs.Objective>>,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const { total: unitCamps, readyForDeployment: unitCampsReadyForDeployment } = getUnitCamps(coalition, state);
@@ -372,7 +372,7 @@ export const updateGroundCombat = (state: RunningCampaignState, dataStore: Types
 };
 
 function reinforceCoalitionFrontline(
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	frontlineObjectives: Array<DcsJs.Objective>,
@@ -444,7 +444,7 @@ function reinforceCoalitionFrontline(
 function reinforceFrontline(
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>>,
+	relevantObjectives: Record<DcsJs.Coalition, Record<string, DcsJs.Objective>>,
 ) {
 	reinforceCoalitionFrontline("blue", state, dataStore, Object.values(relevantObjectives.blue));
 	reinforceCoalitionFrontline("red", state, dataStore, Object.values(relevantObjectives.red));
@@ -460,10 +460,10 @@ export const updateFrontline = (state: RunningCampaignState, dataStore: Types.Ca
 	const blueObjectives: Array<DcsJs.Objective> = [];
 	const redObjectives: Array<DcsJs.Objective> = [];
 
-	const relevantObjectives: Record<DcsJs.CampaignCoalition, Record<string, DcsJs.Objective>> = {
+	const relevantObjectives: Record<DcsJs.Coalition, Record<string, DcsJs.Objective>> = {
 		blue: {},
 		red: {},
-		neutral: {},
+		neutrals: {},
 	};
 
 	Object.values(state.objectives).forEach(function objectiveCoalitionAllocation(obj) {

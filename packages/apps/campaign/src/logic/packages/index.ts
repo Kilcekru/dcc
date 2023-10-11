@@ -51,7 +51,7 @@ const addPackage = (packages: Array<DcsJs.FlightPackage>, pkg: DcsJs.FlightPacka
 };
 
 const casPackages = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.FlightPackage>,
@@ -74,7 +74,7 @@ const casPackages = (
 			}).length >= 3,
 	);
 
-	const casPackageCount = Math.min(Math.ceil(possibleTargets.length / 10), Config.packages.cas[coalition]);
+	const casPackageCount = Math.min(Math.ceil(possibleTargets.length / 10), Config.packages.CAS.maxActive[coalition]);
 
 	if (taskPackages.length < casPackageCount) {
 		const pkg = generateCasPackage(coalition, state, dataStore);
@@ -90,7 +90,7 @@ const casPackages = (
 };
 
 const capPackages = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.FlightPackage>,
@@ -166,14 +166,14 @@ const capPackages = (
 };
 
 const awacsPackages = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.FlightPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "AWACS");
 
-	if (taskPackages.length < Config.packages.awacs) {
+	if (taskPackages.length < Config.packages.AWACS.maxActive[coalition]) {
 		const pkg = generateAwacsPackage(
 			coalition,
 			state,
@@ -206,14 +206,14 @@ const awacsPackages = (
 };
 
 const deadPackages = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.FlightPackage>,
 ) => {
 	const taskPackages = getRunningPackagesByTask(packages, "DEAD");
 
-	if (taskPackages.length < Config.packages.dead) {
+	if (taskPackages.length < Config.packages.DEAD.maxActive[coalition]) {
 		const pkg = generateDeadPackage(coalition, state, dataStore);
 
 		packages = addPackage(packages, pkg);
@@ -227,7 +227,7 @@ const deadPackages = (
 };
 
 const strikePackages = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.FlightPackage>,
@@ -241,7 +241,10 @@ const strikePackages = (
 		return false;
 	}
 
-	const strikePackageCount = Math.min(Math.ceil(possibleTargets.length / 5), Config.packages.strike[coalition]);
+	const strikePackageCount = Math.min(
+		Math.ceil(possibleTargets.length / 5),
+		Config.packages["Pinpoint Strike"].maxActive[coalition],
+	);
 
 	if (taskPackages.length < strikePackageCount) {
 		const pkg = generateStrikePackage(coalition, state, dataStore);
@@ -257,7 +260,7 @@ const strikePackages = (
 };
 
 const csarPackages = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	packages: Array<DcsJs.FlightPackage>,
@@ -265,7 +268,7 @@ const csarPackages = (
 	const taskPackages = getRunningPackagesByTask(packages, "CSAR");
 	const faction = getCoalitionFaction(coalition, state);
 
-	if (taskPackages.length < Config.packages.csar) {
+	if (taskPackages.length < Config.packages.CSAR.maxActive[coalition]) {
 		const validDownedPilots = faction.downedPilots.filter(
 			(dp) => !taskPackages.some((pkg) => pkg.flightGroups.some((fg) => fg.target === dp.id)),
 		);
@@ -289,7 +292,7 @@ const csarPackages = (
 };
 
 const factionPackagesTick = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	faction: DcsJs.CampaignFaction,

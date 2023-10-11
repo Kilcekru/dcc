@@ -17,7 +17,7 @@ import { calcLandingWaypoints, generateCallSign, getCoalitionFaction } from "../
 import { getCruiseSpeed, updateAircraftForFlightGroup } from "./utils";
 
 export const generateAwacsPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	startTime: number,
@@ -83,7 +83,7 @@ export const generateAwacsPackage = (
 		task: "AWACS",
 		startTime,
 		designatedStartTime: startTime,
-		tot: startTime + endEnRouteTime + 1,
+		tot: endEnRouteTime + 1,
 		landingTime,
 		waypoints: [
 			{

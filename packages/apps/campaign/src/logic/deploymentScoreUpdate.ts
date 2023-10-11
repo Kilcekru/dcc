@@ -6,7 +6,7 @@ import { getDeploymentCost, hasAmmoDepotInRange, hasFuelStorageInRange, hasPower
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction } from "./utils";
 
-function updateFactionDeploymentScore(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
+function updateFactionDeploymentScore(coalition: DcsJs.Coalition, state: RunningCampaignState) {
 	const faction = getCoalitionFaction(coalition, state);
 	Object.values(faction.structures).forEach((structure) => {
 		if (Domain.Structure.isCampaignStructureUnitCamp(structure)) {

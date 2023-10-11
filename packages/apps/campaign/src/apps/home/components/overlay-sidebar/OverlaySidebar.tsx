@@ -39,7 +39,7 @@ export function OverlaySidebar() {
 			<Show when={store.state === "ground group" || store.state === "ewr"}>
 				<GroundGroup />
 			</Show>
-			<Show when={store.state === "airdrome"}>
+			<Show when={store.state === "airdrome" || store.state === "carrier"}>
 				<Airdrome />
 			</Show>
 			<Show when={store.state === "sam"}>

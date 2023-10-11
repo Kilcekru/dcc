@@ -4,7 +4,7 @@ import * as Domain from "../domain";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction } from "./utils";
 
-function cleanupFactionInventory(coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) {
+function cleanupFactionInventory(coalition: DcsJs.Coalition, state: RunningCampaignState) {
 	const faction = getCoalitionFaction(coalition, state);
 
 	Object.values(faction.inventory.aircrafts).forEach((aircraft) => {

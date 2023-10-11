@@ -10,25 +10,27 @@ type OverlayState =
 	| "airdrome"
 	| "ewr"
 	| "sam"
-	| "downed pilot";
+	| "downed pilot"
+	| "carrier";
 type OverlayContextState = {
 	state: OverlayState;
 	structureName?: string;
-	coalition?: DcsJs.CampaignCoalition;
+	coalition?: DcsJs.Coalition;
 	flightGroupId?: string;
 	groundGroupId?: string;
-	airdromeName?: string;
+	name?: string;
 };
 type OverlayStore = [
 	OverlayContextState,
 	{
-		openStructure?: (structureName: string, coalition: DcsJs.CampaignCoalition) => void;
-		openFlightGroup?: (flightGroupId: string, coalition: DcsJs.CampaignCoalition) => void;
-		openGroundGroup?: (groundGroupId: string, coalition: DcsJs.CampaignCoalition) => void;
-		openAirdrome?: (airdromeName: string, coalition: DcsJs.CampaignCoalition) => void;
-		openEWR?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
-		openSam?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
-		openDownedPilot?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
+		openStructure?: (structureName: string, coalition: DcsJs.Coalition) => void;
+		openFlightGroup?: (flightGroupId: string, coalition: DcsJs.Coalition) => void;
+		openGroundGroup?: (groundGroupId: string, coalition: DcsJs.Coalition) => void;
+		openAirdrome?: (airdromeName: string, coalition: DcsJs.Coalition) => void;
+		openEWR?: (id: string, coalition: DcsJs.Coalition) => void;
+		openSam?: (id: string, coalition: DcsJs.Coalition) => void;
+		openDownedPilot?: (id: string, coalition: DcsJs.Coalition) => void;
+		openCarrier?: (name: string, coalition: DcsJs.Coalition) => void;
 		close?: () => void;
 	},
 ];
@@ -76,7 +78,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 				setState(
 					produce((s) => {
 						s.state = "airdrome";
-						s.airdromeName = airdromeName;
+						s.name = airdromeName;
 						s.coalition = coalition;
 					}),
 				);
@@ -104,6 +106,15 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 					produce((s) => {
 						s.state = "downed pilot";
 						s.groundGroupId = id;
+						s.coalition = coalition;
+					}),
+				);
+			},
+			openCarrier(name, coalition) {
+				setState(
+					produce((s) => {
+						s.state = "carrier";
+						s.name = name;
 						s.coalition = coalition;
 					}),
 				);

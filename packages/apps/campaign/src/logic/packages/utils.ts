@@ -11,7 +11,7 @@ import { getCoalitionFaction, getLoadoutForAircraftType } from "../utils";
 export const updateAircraftForFlightGroup = (
 	flightGroup: DcsJs.FlightGroup,
 	state: RunningCampaignState,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	dataStore: Types.Campaign.DataStore,
 ) => {
 	const faction = getCoalitionFaction(coalition, state);
@@ -32,7 +32,11 @@ export const updateAircraftForFlightGroup = (
 	});
 };
 
-export function calcFrequency(aircraftType: string | undefined, dataStore: Types.Campaign.DataStore) {
+export function calcFrequency(
+	aircraftType: string | undefined,
+	faction: DcsJs.CampaignFaction,
+	dataStore: Types.Campaign.DataStore,
+) {
 	if (aircraftType == null) {
 		return Domain.Random.number(310, 343);
 	}
@@ -41,11 +45,21 @@ export function calcFrequency(aircraftType: string | undefined, dataStore: Types
 		return Domain.Random.number(0, 50) * 0.025 + 3.75;
 	}
 
+	const usedFrequencies = faction.packages.map((pkg) => pkg.frequency);
+
 	const aircraftDefinition = dataStore.aircrafts?.[aircraftType as DcsJs.AircraftType];
 
-	return aircraftDefinition?.allowedFrequency == null
-		? Domain.Random.number(310, 343)
-		: Domain.Random.number(aircraftDefinition.allowedFrequency[0], aircraftDefinition.allowedFrequency[1]);
+	const rangeFrom = aircraftDefinition?.allowedFrequency == null ? 310 : aircraftDefinition.allowedFrequency[0];
+	const rangeTo = aircraftDefinition?.allowedFrequency == null ? 399 : aircraftDefinition.allowedFrequency[1];
+
+	const frequencyRange = Array.from({ length: rangeTo - rangeFrom + 1 }).map((v, i) => rangeFrom + i);
+
+	const selectedFrequency = Domain.Random.item(
+		frequencyRange,
+		(freq) => !usedFrequencies.some((used) => freq === used),
+	);
+
+	return selectedFrequency ?? 399;
 }
 
 export function getStartPosition(
@@ -98,7 +112,7 @@ export function getPackageAircrafts({
 }: {
 	state: RunningCampaignState;
 	faction: DcsJs.CampaignFaction;
-	coalition: DcsJs.CampaignCoalition;
+	coalition: DcsJs.Coalition;
 	aircraftTypes: Array<string> | undefined;
 	count: number;
 	dataStore: Types.Campaign.DataStore;
@@ -117,7 +131,7 @@ export function getPackageAircrafts({
 
 	if (validAircrafts == null || validAircrafts.length === 0) {
 		// eslint-disable-next-line no-console
-		console.warn("no usable aircrafts available", aircraftTypes);
+		console.warn("no usable aircrafts available", aircraftTypes, { usableAircrafts, excludedAircrafts });
 		return;
 	}
 
@@ -180,7 +194,7 @@ export function getPackageAircrafts({
 	const startPosition = getStartPosition(Domain.Utils.firstItem(selectedAircrafts)?.homeBase, faction, dataStore);
 
 	return {
-		aircrafts: selectedAircrafts,
+		aircrafts: selectedAircrafts.slice(0, count),
 		startPosition,
 	};
 }

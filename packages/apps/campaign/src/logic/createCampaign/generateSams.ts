@@ -68,12 +68,12 @@ function getTemplate(faction: DcsJs.CampaignFaction, dataStore: Types.Campaign.D
 }
 
 export const generateSams = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	faction: DcsJs.CampaignFaction,
 	dataStore: Types.Campaign.DataStore,
 	objectivePlans: Array<ObjectivePlan>,
 ) => {
-	if (coalition === "neutral") {
+	if (coalition === "neutrals") {
 		return;
 	}
 

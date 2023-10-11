@@ -107,7 +107,7 @@ export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitN
 };
 
 export const updateFactionState = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	faction: DcsJs.CampaignFaction,
 	s: DcsJs.CampaignState,
 	missionState: Types.Campaign.MissionState,

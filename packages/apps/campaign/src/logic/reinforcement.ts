@@ -4,7 +4,7 @@ import { createUniqueId } from "solid-js";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction } from "./utils";
 
-export const factionReinforcement = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const factionReinforcement = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 
 	if (faction.reinforcementTimer + faction.reinforcementDelay <= state.timer) {

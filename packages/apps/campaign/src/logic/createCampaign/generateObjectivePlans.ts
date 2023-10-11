@@ -371,7 +371,7 @@ function generateFactionStructures({
 	objectives,
 	strikeTargets,
 }: {
-	coalition: DcsJs.CampaignCoalition;
+	coalition: DcsJs.Coalition;
 	objectivePlans: Array<DynamicObjectivePlan>;
 	oppObjectivePlans: Array<DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;

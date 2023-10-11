@@ -10,7 +10,7 @@ import { useFaction } from "../utils";
 import Styles from "./FlightGroupButtons.module.less";
 
 export function FlightGroupButtons(props: {
-	coalition: DcsJs.CampaignCoalition | undefined;
+	coalition: DcsJs.Coalition | undefined;
 	flightGroup: DcsJs.FlightGroup | undefined;
 	class?: string;
 }) {

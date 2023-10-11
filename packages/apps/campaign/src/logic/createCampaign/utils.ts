@@ -14,7 +14,7 @@ export const claimsObjective = (coalition: ScenarioCoalition, objectiveName: str
 };
 
 export function factionCarrierName(
-	coalition: DcsJs.CoalitionSide,
+	coalition: DcsJs.Coalition,
 	scenario: Scenario,
 	faction: DcsJs.Faction,
 	dataStore: Types.Campaign.DataStore,

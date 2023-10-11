@@ -30,7 +30,7 @@ import {
 } from "./utils";
 
 export const generateCasPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ): DcsJs.FlightPackage | undefined => {
@@ -193,7 +193,7 @@ export const generateCasPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, faction, dataStore),
 		id: createUniqueId(),
 	};
 };

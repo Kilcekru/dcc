@@ -7,7 +7,7 @@ import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { destroyAircraft } from "./utils";
 
-export const sam = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const sam = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);

@@ -106,7 +106,7 @@ export const objectToPosition = <T extends DcsJs.Position | { position: DcsJs.Po
 };
 
 export function InFrontlineRange(
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	sourcePosition: DcsJs.Position,
 	state: RunningCampaignState,
 ) {

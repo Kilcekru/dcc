@@ -7,7 +7,7 @@ import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction } from "../../../../logic/utils";
 import Style from "./Item.module.less";
 
-export function GroundGroupUnit(props: { unitId: string; coalition: DcsJs.CampaignCoalition }) {
+export function GroundGroupUnit(props: { unitId: string; coalition: DcsJs.Coalition }) {
 	const [state] = useContext(CampaignContext);
 
 	const unit = createMemo(() => {

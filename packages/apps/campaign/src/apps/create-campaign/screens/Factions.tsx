@@ -63,7 +63,7 @@ const Faction = (props: {
 	);
 };
 export const Factions = (props: {
-	coalition: DcsJs.CampaignCoalition;
+	coalition: DcsJs.Coalition;
 	blueCountry?: string;
 	next: (faction: DcsJs.Faction) => void;
 	customFaction: (template?: DcsJs.Faction) => void;

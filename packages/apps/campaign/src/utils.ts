@@ -264,7 +264,7 @@ export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.Aircraft> | unde
 
 export const getUsableAircraftsByType = (
 	state: RunningCampaignState,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	aircraftTypes: Array<string> | undefined,
 	count: number,
 ): Array<DcsJs.Aircraft> => {
@@ -319,10 +319,7 @@ export const getAircraftStateFromFlightGroup = (
 	}
 };
 
-export const filterObjectiveCoalition = (
-	objectives: Array<DcsJs.CampaignObjective>,
-	coalition: DcsJs.CampaignCoalition,
-) => {
+export const filterObjectiveCoalition = (objectives: Array<DcsJs.Objective>, coalition: DcsJs.Coalition) => {
 	return objectives.filter((obj) => obj.coalition === coalition);
 };
 
@@ -331,17 +328,17 @@ export const getDurationEnRoute = (startPosition: DcsJs.Position, endPosition: D
 	return Math.round(distanceToObjective / speed);
 };
 
-export const oppositeCoalition = (coalition: DcsJs.CampaignCoalition | undefined): DcsJs.CampaignCoalition => {
+export const oppositeCoalition = (coalition: DcsJs.Coalition | undefined): DcsJs.Coalition => {
 	if (coalition === "blue") {
 		return "red";
 	} else if (coalition === "red") {
 		return "blue";
 	} else {
-		return "neutral";
+		return "neutrals";
 	}
 };
 
-export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | undefined) => {
+export const coalitionToFactionString = (coalition: DcsJs.Coalition | undefined) => {
 	if (coalition === "blue") {
 		return "blueFaction";
 	} else {
@@ -361,7 +358,7 @@ export const onboardNumber = () => {
 	}
 };
 
-export const getScenarioFaction = (coalition: DcsJs.CampaignCoalition, scenario: Scenario) => {
+export const getScenarioFaction = (coalition: DcsJs.Coalition, scenario: Scenario) => {
 	return coalition === "blue" ? scenario.blue : scenario.red;
 };
 
@@ -411,7 +408,7 @@ export const hasFuelStorageInRange = (
 };
 
 export const getDeploymentCost = (
-	coalition: DcsJs.CampaignCoalition | undefined,
+	coalition: DcsJs.Coalition | undefined,
 	structureType: DcsJs.StructureType | undefined,
 ) => {
 	if (coalition == null || structureType == null) {

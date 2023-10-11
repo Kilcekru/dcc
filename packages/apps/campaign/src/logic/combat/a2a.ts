@@ -23,7 +23,7 @@ const saveBattleReport = (
 	report: BattleReport,
 	faction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
-	targetCoalition: DcsJs.CoalitionSide,
+	targetCoalition: DcsJs.Coalition,
 	timer: number,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
@@ -67,7 +67,7 @@ const saveBattleReport = (
 			targetAircraft.alive = false;
 			targetAircraft.destroyedTime = timer;
 
-			if (Domain.Random.number(1, 100) > 20 && entry.targetName != null && entry.targetPosition != null) {
+			if (entry.targetName != null && entry.targetPosition != null) {
 				targetFaction = createDownedPilot(
 					entry.targetName,
 					timer,

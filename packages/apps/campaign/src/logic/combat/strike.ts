@@ -14,7 +14,7 @@ const destroyStructure = (structure: DcsJs.Structure, timer: number) => {
 	}));
 };
 
-export const strike = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const strike = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 

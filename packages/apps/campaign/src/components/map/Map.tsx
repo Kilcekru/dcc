@@ -49,7 +49,7 @@ export const Map = () => {
 	const airdromeMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const objectiveMarkers: Record<
 		string,
-		{ marker: L.Marker; symbolCode: string; color?: string; coalition: DcsJs.CampaignCoalition }
+		{ marker: L.Marker; symbolCode: string; color?: string; coalition: DcsJs.Coalition }
 	> = {};
 	const flightGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
 	const groundGroupMarkers: Record<string, { marker: L.Marker; symbolCode: string; color?: string }> = {};
@@ -59,7 +59,7 @@ export const Map = () => {
 	let flightGroupLine: L.Polyline | undefined = undefined;
 	const samCircles: Record<string, { circle: L.Circle; marker: L.Marker; symbolCode: string; color?: string }> = {};
 	let winConditionCircle: L.CircleMarker | undefined = undefined;
-	const objectiveCircles: Record<string, L.CircleMarker> = {};
+	// const objectiveCircles: Record<string, L.CircleMarker> = {};
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const selectedFlightGroupMarkers: Array<L.Marker> = [];
@@ -67,7 +67,7 @@ export const Map = () => {
 	const positionToMapPosition = usePositionToMapPosition();
 	const [
 		overlaySidebarState,
-		{ openStructure, openFlightGroup, openGroundGroup, openAirdrome, openSam, openDownedPilot },
+		{ openStructure, openFlightGroup, openGroundGroup, openAirdrome, openSam, openDownedPilot, openCarrier },
 	] = useContext(OverlaySidebarContext);
 
 	const centerAirdrome = createMemo(() => {
@@ -86,25 +86,29 @@ export const Map = () => {
 		return positionToMapPosition(airdrome);
 	});
 
-	const onClickFlightGroup = (flightGroup: DcsJs.FlightGroup, coalition: DcsJs.CampaignCoalition) => {
+	const onClickFlightGroup = (flightGroup: DcsJs.FlightGroup, coalition: DcsJs.Coalition) => {
 		selectFlightGroup?.(flightGroup);
 		openFlightGroup?.(flightGroup.id, coalition);
 	};
 
-	const onClickGroundGroup = (groundGroup: DcsJs.GroundGroup, coalition: DcsJs.CampaignCoalition) => {
+	const onClickGroundGroup = (groundGroup: DcsJs.GroundGroup, coalition: DcsJs.Coalition) => {
 		openGroundGroup?.(groundGroup.id, coalition);
 	};
 
-	const onClickAirdrome = (airdromeName: string, coalition: DcsJs.CampaignCoalition) => {
+	const onClickAirdrome = (airdromeName: string, coalition: DcsJs.Coalition) => {
 		openAirdrome?.(airdromeName, coalition);
 	};
 
-	const onClickSam = (id: string, coalition: DcsJs.CampaignCoalition) => {
+	const onClickSam = (id: string, coalition: DcsJs.Coalition) => {
 		openSam?.(id, coalition);
 	};
 
-	const onClickDownedPilot = (id: string, coalition: DcsJs.CampaignCoalition) => {
+	const onClickDownedPilot = (id: string, coalition: DcsJs.Coalition) => {
 		openDownedPilot?.(id, coalition);
+	};
+
+	const onClickCarrier = (name: string, coalition: DcsJs.Coalition) => {
+		openCarrier?.(name, coalition);
 	};
 
 	const createSymbol = ({
@@ -243,7 +247,7 @@ export const Map = () => {
 		});
 	};
 
-	const createAircraftSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	const createAircraftSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		const flightGroups = faction.packages?.reduce((prev, pkg) => {
 			return [...prev, ...pkg.flightGroups.filter((fg) => fg.waypoints.length > 0)];
 		}, [] as Array<DcsJs.FlightGroup>);
@@ -307,7 +311,7 @@ export const Map = () => {
 		});
 	};
 
-	const createGroundGroupSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	const createGroundGroupSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		faction.groundGroups.forEach((gg) => {
 			if (gg.position == null || gg.type === "sam") {
 				return;
@@ -338,7 +342,7 @@ export const Map = () => {
 		});
 	};
 
-	const createShipGroupSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	const createShipGroupSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		faction.shipGroups?.forEach((sg) => {
 			if (sg.position == null) {
 				return;
@@ -351,7 +355,7 @@ export const Map = () => {
 						hostile: coalition === "red",
 						domain: "sea",
 						unitCode: "carrier",
-						onClick: () => null,
+						onClick: () => onClickCarrier(sg.name, coalition),
 					});
 
 					if (marker == null) {
@@ -369,7 +373,7 @@ export const Map = () => {
 		});
 	};
 
-	const createDownedPilotSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	const createDownedPilotSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		faction.downedPilots.forEach((pilot) => {
 			if (pilot.position == null) {
 				return;
@@ -398,7 +402,7 @@ export const Map = () => {
 		});
 	};
 
-	const createStructureSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	const createStructureSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		Object.values(faction.structures).forEach((structure) => {
 			if (objectiveMarkers[structure.id] == null) {
 				let unitCode: SidcUnitCodeKey = "installation";
@@ -469,7 +473,7 @@ export const Map = () => {
 		});
 	};
 
-	const createSamSymbols = (coalition: DcsJs.CampaignCoalition, faction: DcsJs.CampaignFaction) => {
+	const createSamSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		Domain.Faction.getSamGroups(faction).forEach((sam) => {
 			if (sam.operational) {
 				const mapPosition = positionToMapPosition(sam.position);
@@ -561,7 +565,7 @@ export const Map = () => {
 		}
 	});
 
-	createEffect(() => {
+	/* createEffect(() => {
 		const map = leaftletMap();
 
 		if (map == null) {
@@ -590,7 +594,7 @@ export const Map = () => {
 					.bindTooltip((<span>{obj.name}</span>) as Content, { permanent: map.getZoom() >= 10 });
 			}
 		});
-	});
+	}); */
 
 	// Selected Flight Group
 	createEffect(() => {
@@ -661,7 +665,8 @@ export const Map = () => {
 			objectiveMarkers[selectedMarkerId] ??
 			ewMarkers[selectedMarkerId] ??
 			airdromeMarkers[selectedMarkerId] ??
-			samCircles[selectedMarkerId];
+			samCircles[selectedMarkerId] ??
+			shipGroupMarkers[selectedMarkerId];
 
 		if (oldMarker != null) {
 			const symbol = new MilSymbol.Symbol(oldMarker.symbolCode, {
@@ -731,7 +736,7 @@ export const Map = () => {
 		}
 
 		if (overlaySidebarState.state === "airdrome") {
-			const airdromeName = overlaySidebarState.airdromeName;
+			const airdromeName = overlaySidebarState.name;
 
 			if (airdromeName == null) {
 				return;
@@ -750,6 +755,17 @@ export const Map = () => {
 
 			marker = samCircles[ggId];
 			selectedMarkerId = ggId;
+		}
+
+		if (overlaySidebarState.state === "carrier") {
+			const shipName = overlaySidebarState.name;
+
+			if (shipName == null) {
+				return;
+			}
+
+			marker = shipGroupMarkers[shipName];
+			selectedMarkerId = shipName;
 		}
 
 		if (marker == null) {

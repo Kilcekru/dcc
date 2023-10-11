@@ -14,6 +14,7 @@ import {
 	getCoalitionFaction,
 	getLoadoutForAircraftType,
 } from "../utils";
+import { escortFlightGroup } from "./escort";
 import {
 	calcFrequency,
 	calcHoldWaypoint,
@@ -23,7 +24,7 @@ import {
 } from "./utils";
 
 export const generateDeadPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 ): DcsJs.FlightPackage | undefined => {
@@ -42,7 +43,17 @@ export const generateDeadPackage = (
 		faction,
 	});
 
-	if (packageAircrafts?.startPosition == null) {
+	const escortPackageAircrafts = getPackageAircrafts({
+		aircraftTypes: faction.aircraftTypes.CAP,
+		coalition,
+		state,
+		count: 2,
+		dataStore,
+		faction,
+		excludedAircrafts: packageAircrafts?.aircrafts,
+	});
+
+	if (packageAircrafts?.startPosition == null || escortPackageAircrafts?.startPosition == null) {
 		// eslint-disable-next-line no-console
 		console.warn("generateDeadPackage: start position not found", packageAircrafts);
 		return;
@@ -50,7 +61,9 @@ export const generateDeadPackage = (
 
 	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 
-	const cruiseSpeed = getCruiseSpeed(packageAircrafts.aircrafts, dataStore);
+	const frequency = calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, faction, dataStore);
+
+	const cruiseSpeed = getCruiseSpeed([...packageAircrafts.aircrafts, ...escortPackageAircrafts.aircrafts], dataStore);
 
 	const selectedObjective = getDeadTarget(packageAircrafts.startPosition, coalition, state);
 
@@ -61,7 +74,7 @@ export const generateDeadPackage = (
 	const ingressPosition = positionFromHeading(
 		selectedObjective.position,
 		Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition),
-		selectedObjective.range,
+		selectedObjective.range * 1.2,
 	);
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, selectedObjective.position);
 	const engressHeading =
@@ -71,7 +84,7 @@ export const generateDeadPackage = (
 	const egressPosition = positionFromHeading(
 		selectedObjective.position,
 		addHeading(engressHeading, 180),
-		selectedObjective.range,
+		selectedObjective.range * 1.2,
 	);
 
 	const startTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(5, 15));
@@ -83,16 +96,16 @@ export const generateDeadPackage = (
 
 	const durationEnRoute = getDurationEnRoute(holdPosition, selectedObjective.position, cruiseSpeed);
 	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, cruiseSpeed);
-	const durationEngress = getDurationEnRoute(selectedObjective.position, egressPosition, cruiseSpeed);
+	const durationEgress = getDurationEnRoute(selectedObjective.position, egressPosition, cruiseSpeed);
 
 	const endEnRouteTime = holdTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
-	const endEngressTime = endIngressTime + durationEngress;
+	const endEgressTime = endIngressTime + durationEgress;
 
 	const [landingWaypoints, landingTime] = calcLandingWaypoints({
 		egressPosition: egressPosition,
 		airdromePosition: packageAircrafts.startPosition,
-		prevWaypointTime: endEngressTime + 1,
+		prevWaypointTime: endEgressTime + 1,
 		cruiseSpeed,
 	});
 
@@ -155,7 +168,24 @@ export const generateDeadPackage = (
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
-	const flightGroups = [flightGroup];
+	const escort = escortFlightGroup({
+		coalition,
+		state,
+		dataStore,
+		targetFlightGroup: flightGroup,
+		holdWaypoint,
+		egressPosition,
+		egressTime: endEgressTime,
+		cruiseSpeed,
+		packageAircrafts: escortPackageAircrafts,
+		frequency,
+	});
+
+	if (escort != null) {
+		updateAircraftForFlightGroup(escort, state, coalition, dataStore);
+	}
+
+	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];
 
 	return {
 		task: "DEAD" as DcsJs.Task,
@@ -163,7 +193,7 @@ export const generateDeadPackage = (
 		taskEndTime: endEnRouteTime + 1,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, faction, dataStore),
 		id: createUniqueId(),
 	};
 };

@@ -25,7 +25,7 @@ const destroySam = (faction: DcsJs.CampaignFaction, id: string, timer: number) =
 	});
 };
 
-export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const dead = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -37,7 +37,7 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 
 		pkg.flightGroups.forEach((fg) => {
 			if (fg.task === "DEAD" && fg.target != null) {
-				const sam = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
+				const sam = oppFaction.groundGroups.find((gg) => gg.name === fg.target);
 
 				if (sam == null) {
 					return;

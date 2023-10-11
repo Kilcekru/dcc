@@ -19,7 +19,7 @@ import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, ge
 import { calcFrequency, getCruiseSpeed, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCapPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	objectiveName: string,
@@ -72,12 +72,12 @@ export const generateCapPackage = (
 							const distance = Utils.distanceToPosition(airdrome, obj.position);
 
 							if (distance < prev[1]) {
-								return [obj, distance] as [DcsJs.CampaignObjective, number];
+								return [obj, distance] as [DcsJs.Objective, number];
 							} else {
 								return prev;
 							}
 						},
-						[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number],
+						[undefined, 1000000] as [DcsJs.Objective | undefined, number],
 					)[0];
 
 					if (nearestObjective == null) {
@@ -204,7 +204,7 @@ export const generateCapPackage = (
 		taskEndTime: endOnStationTime,
 		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, faction, dataStore),
 		id: createUniqueId(),
 	};
 };

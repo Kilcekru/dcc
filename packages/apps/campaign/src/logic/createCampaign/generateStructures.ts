@@ -5,7 +5,7 @@ import { createUniqueId } from "solid-js";
 import { Config, ObjectivePlan } from "../../data";
 import * as Domain from "../../domain";
 
-function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureType: DcsJs.StructureType) {
+function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJs.StructureType) {
 	const margin = Domain.Random.number(0.8, 1.2);
 
 	switch (structureType) {
@@ -25,7 +25,7 @@ function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureTy
 }
 
 export function generateStructures(
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	objectivePlans: Array<ObjectivePlan>,
 	dataStore: Types.Campaign.DataStore,
 ) {
