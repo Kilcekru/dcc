@@ -9,7 +9,8 @@ export const factionReinforcement = (coalition: DcsJs.Coalition, state: RunningC
 
 	if (faction.reinforcementTimer + faction.reinforcementDelay <= state.timer) {
 		const destroyedAircrafts = Object.values(faction.inventory.aircrafts).filter(
-			(ac) => ac.alive === false && ac.destroyedTime != null && ac.destroyedTime > faction.reinforcementTimer,
+			(ac) =>
+				ac.alive === false && ac.destroyedTime != null && ac.destroyedTime > faction.reinforcementTimer && !ac.disabled,
 		);
 
 		destroyedAircrafts.forEach((ac) => {

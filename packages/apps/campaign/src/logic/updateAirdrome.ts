@@ -47,7 +47,7 @@ function updateCoalitionAirdromes(
 			Object.values(faction.inventory.aircrafts).forEach((ac) => {
 				const iac = faction.inventory.aircrafts[ac.id];
 
-				if (iac == null) {
+				if (iac == null || iac.homeBase.name !== name) {
 					return;
 				}
 
@@ -56,7 +56,7 @@ function updateCoalitionAirdromes(
 
 			const homeBase: DcsJs.CampaignHomeBase = { type: "airdrome", name };
 
-			const newAircrafts = generateAircraftsForHomeBase(faction, homeBase, dataStore, false);
+			const newAircrafts = generateAircraftsForHomeBase(oppFaction, homeBase, dataStore, false);
 
 			newAircrafts.forEach((ac) => {
 				oppFaction.inventory.aircrafts[ac.id] = ac;

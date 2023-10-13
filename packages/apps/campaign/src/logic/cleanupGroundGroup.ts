@@ -1,8 +1,12 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
+import * as Domain from "../domain";
 import { RunningCampaignState } from "./types";
+import { getCoalitionFaction } from "./utils";
 
-const cleanupFactionGroundGroups = (faction: DcsJs.CampaignFaction) => {
+const cleanupFactionGroundGroups = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
+	const faction = getCoalitionFaction(coalition, state);
+
 	faction.groundGroups = faction.groundGroups.filter((gg) => {
 		const hasAliveUnit = gg.unitIds.some((id) => {
 			const unit = faction.inventory.groundUnits[id];
@@ -11,10 +15,13 @@ const cleanupFactionGroundGroups = (faction: DcsJs.CampaignFaction) => {
 
 		return hasAliveUnit;
 	});
+
+	faction.groundGroups = faction.groundGroups.filter((gg) => {
+		return Domain.Location.InFrontlineRange(coalition, gg.position, state);
+	});
 };
 
 export const cleanupGroundGroups = (state: RunningCampaignState) => {
-	cleanupFactionGroundGroups(state.blueFaction);
-
-	cleanupFactionGroundGroups(state.redFaction);
+	cleanupFactionGroundGroups("blue", state);
+	cleanupFactionGroundGroups("red", state);
 };

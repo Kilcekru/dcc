@@ -666,7 +666,8 @@ export const Map = () => {
 			ewMarkers[selectedMarkerId] ??
 			airdromeMarkers[selectedMarkerId] ??
 			samCircles[selectedMarkerId] ??
-			shipGroupMarkers[selectedMarkerId];
+			shipGroupMarkers[selectedMarkerId] ??
+			downedPilotMarkers[selectedMarkerId];
 
 		if (oldMarker != null) {
 			const symbol = new MilSymbol.Symbol(oldMarker.symbolCode, {
@@ -768,6 +769,17 @@ export const Map = () => {
 			selectedMarkerId = shipName;
 		}
 
+		if (overlaySidebarState.state === "downed pilot") {
+			const id = overlaySidebarState.groundGroupId;
+
+			if (id == null) {
+				return;
+			}
+
+			marker = downedPilotMarkers[id];
+			selectedMarkerId = id;
+		}
+
 		if (marker == null) {
 			return;
 		}
@@ -859,6 +871,17 @@ export const Map = () => {
 			} else {
 				removeSymbol(marker.marker);
 				delete downedPilotMarkers[id];
+			}
+		});
+
+		const airdromes = [...state.blueFaction.airdromeNames, ...state.redFaction.airdromeNames];
+
+		Object.entries(airdromeMarkers).forEach(([name, marker]) => {
+			if (marker == null || airdromes.some((airdromeName) => airdromeName === name)) {
+				return;
+			} else {
+				removeSymbol(marker.marker);
+				delete airdromeMarkers[name];
 			}
 		});
 

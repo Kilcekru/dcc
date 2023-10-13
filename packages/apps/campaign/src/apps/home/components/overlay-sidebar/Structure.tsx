@@ -105,9 +105,12 @@ export function Structure() {
 							<Components.StatLabel>Deployment Score</Components.StatLabel>
 							<Components.StatValue>
 								{formatPercentage(
-									((structure() as DcsJs.StructureUnitCamp).deploymentScore /
-										getDeploymentCost(overlayStore.coalition, structure()?.type)) *
-										100,
+									Math.max(
+										0,
+										((structure() as DcsJs.StructureUnitCamp).deploymentScore /
+											getDeploymentCost(overlayStore.coalition, structure()?.type)) *
+											100,
+									),
 								)}
 							</Components.StatValue>
 						</Components.Stat>
