@@ -12,32 +12,35 @@ const tmpDir = Path.join(app.getPath("userData"), `.tmp/patch`);
 
 /** Detect if a patch is applied
  * @returns true if patch is applied, false if patch is not applied, undefined if state can't be detected
- * @throws Error if dcs not available or file can't be read
  */
 export async function detectPatch(id: Types.Patch.Id) {
-	if (!userConfig.data.dcs.available) {
-		throw new Error("DCS paths not available in userconfig");
-	}
-
-	const patch = patches[id];
-	const path = Path.join(userConfig.data.dcs.paths.install, patch.path);
-	const content = await FS.readFile(path, "utf-8");
-	const applied: Array<boolean | undefined> = [];
-	for (const replacement of patch.replace ?? []) {
-		if (createLineRegex(replacement.search).test(content)) {
-			applied.push(false);
-		} else if (createLineRegex(replacement.substitute).test(content)) {
-			applied.push(true);
-		} else {
+	try {
+		if (!userConfig.data.dcs.available) {
 			return undefined;
 		}
+
+		const patch = patches[id];
+		const path = Path.join(userConfig.data.dcs.paths.install, patch.path);
+		const content = await FS.readFile(path, "utf-8");
+		const applied: Array<boolean | undefined> = [];
+		for (const replacement of patch.replace ?? []) {
+			if (createLineRegex(replacement.search).test(content)) {
+				applied.push(false);
+			} else if (createLineRegex(replacement.substitute).test(content)) {
+				applied.push(true);
+			} else {
+				return undefined;
+			}
+		}
+		if (applied.every((e) => e === false)) {
+			return false;
+		} else if (applied.every((e) => e === true)) {
+			return true;
+		}
+		return undefined;
+	} catch (err) {
+		return undefined;
 	}
-	if (applied.every((e) => e === false)) {
-		return false;
-	} else if (applied.every((e) => e === true)) {
-		return true;
-	}
-	return undefined;
 }
 
 export async function executePatches(execs: Types.Patch.Execution[]) {
