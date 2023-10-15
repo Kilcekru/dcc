@@ -2,17 +2,27 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
-import { createSignal, For, onMount, useContext } from "solid-js";
+import { createMemo, createSignal, For, onMount, Show, useContext } from "solid-js";
 
-import { CampaignContext, Clock } from "../../components";
+import { CampaignContext } from "../../components";
+import { useSetDataMap } from "../../components/DataProvider";
+import { Config } from "../../data";
 import * as Domain from "../../domain";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
 
 const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: () => void }) => {
 	const [, { replaceCampaignState }] = useContext(CampaignContext);
+	const setDataMap = useSetDataMap();
+	const incompatible = createMemo(
+		() => props.synopsis.version == null || props.synopsis.version < Config.campaignVersion,
+	);
 
 	const onOpen = () => {
+		if (incompatible()) {
+			return;
+		}
+
 		rpc.campaign
 			.openCampaign(props.synopsis.id)
 			.then((loadedState) => {
@@ -22,6 +32,7 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 					return;
 				}
 
+				setDataMap(loadedState.map);
 				replaceCampaignState?.(loadedState);
 			})
 			.catch((e) => {
@@ -30,12 +41,15 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 	};
 
 	return (
-		<Components.Card class={Styles.faction} onPress={() => onOpen()}>
+		<Components.Card
+			class={cnb(Styles.faction, incompatible() ? Styles["faction--incompatible"] : null)}
+			onPress={() => onOpen()}
+		>
 			<Components.Flag class={cnb(Styles.flag)} countryName={props.synopsis.countryName ?? "USA"} />
 			<h2 class={Styles.name}>{props.synopsis.name}</h2>
 			<h3 class={Styles.year}>{props.synopsis.factionName}</h3>
 			<h3 class={Styles.timer}>
-				<Clock value={props.synopsis.timer} withDay />
+				<Components.Clock value={props.synopsis.timer} withDay />
 			</h3>
 			<h3 class={Styles.edited}>{Domain.Format.Date.formatDateTime(props.synopsis.edited)}</h3>
 			<div class={Styles["customize-button-wrapper"]}>
@@ -45,6 +59,9 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 					</Components.Button>
 				</Components.Tooltip>
 			</div>
+			<Show when={incompatible()}>
+				<div class={Styles["incompatible-overlay"]}>Incompatible</div>
+			</Show>
 		</Components.Card>
 	);
 };

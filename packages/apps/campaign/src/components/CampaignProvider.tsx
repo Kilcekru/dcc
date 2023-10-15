@@ -4,14 +4,17 @@ import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
-import { Config, scenarioList } from "../data";
+import { scenarioList } from "../data";
+import * as Domain from "../domain";
 import {
 	campaignRound,
 	clearPackages,
 	createCampaign,
 	deploymentScoreUpdate,
+	longCampaignRound,
 	missionRound,
 	repairScoreUpdate,
+	updateDownedPilots,
 	updateFactionState,
 } from "../logic";
 import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
@@ -25,8 +28,10 @@ type CampaignStore = [
 			redFaction: DcsJs.Faction,
 			aiSkill: DcsJs.AiSkill,
 			hardcore: boolean,
+			training: boolean,
 			nightMissions: boolean,
-			scenario: string
+			badWeather: boolean,
+			scenario: string,
 		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
@@ -38,20 +43,23 @@ type CampaignStore = [
 		updatePackagesState?: (factionString: "blueFaction" | "redFaction") => void;
 		updateAircraftState?: () => void;
 		destroyStructure?: (objectiveName: string) => void;
-		selectFlightGroup?: (flightGroup: DcsJs.CampaignFlightGroup | undefined) => void;
+		selectFlightGroup?: (flightGroup: DcsJs.FlightGroup | undefined) => void;
 		setClient?: (flightGroupId: string, count: number) => void;
 		submitMissionState?: (state: Types.Campaign.MissionState, dataStore: Types.Campaign.DataStore) => void;
 		saveCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
+		saveLongCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
 		updateDeploymentScore?: () => void;
 		updateRepairScore?: () => void;
-		skipToNextDay?: () => void;
+		updateWeather?: (dataStore: Types.Campaign.DataStore) => void;
+		updateDownedPilots?: () => void;
+		skipToNextDay?: (dataStore: Types.Campaign.DataStore) => void;
 		resumeNextDay?: () => void;
 		generateMissionId?: () => void;
 		resetMissionId?: () => void;
 		clearToastMessages?: (ids: Array<string>) => void;
 		replaceCampaignState?: (next: DcsJs.CampaignState) => void;
 		closeCampaign?: () => void;
-	}
+	},
 ];
 
 export const initState: DcsJs.CampaignState = {
@@ -71,12 +79,25 @@ export const initState: DcsJs.CampaignState = {
 	aiSkill: "Average",
 	name: "",
 	nextDay: false,
+	allowBadWeather: false,
+	training: false,
 	allowNightMissions: false,
 	missionId: undefined,
 	toastMessages: [],
 	map: "caucasus",
 	created: new Date(),
 	edited: new Date(),
+	weather: {
+		temperature: 0,
+		wind: {
+			direction: 0,
+			speed: 0,
+		},
+		cloudCover: 0,
+		cloudCoverData: [],
+		offset: 0,
+	},
+	version: 0,
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -85,22 +106,34 @@ export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<DcsJs.CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState) as DcsJs.CampaignState);
+	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState));
 
 	const store: CampaignStore = [
 		state,
 		{
-			activate(dataStore, blueFaction, redFaction, aiSkill, hardcore, nightMissions, scenarioName) {
+			activate(
+				dataStore,
+				blueFaction,
+				redFaction,
+				aiSkill,
+				hardcore,
+				training,
+				nightMissions,
+				badWeather,
+				scenarioName,
+			) {
 				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
-					structuredClone(initState) as DcsJs.CampaignState,
+					structuredClone(initState),
 					dataStore,
 					blueFaction,
 					redFaction,
 					aiSkill,
 					hardcore,
+					training,
 					nightMissions,
-					scenarioName
+					badWeather,
+					scenarioName,
 				);
 				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
 				setState(newState);
@@ -122,7 +155,7 @@ export function CampaignProvider(props: {
 						} else {
 							s.timer = newTimer;
 						}
-					})
+					}),
 				);
 			},
 			togglePause() {
@@ -166,8 +199,26 @@ export function CampaignProvider(props: {
 								unit.client = i < count;
 							});
 						});
+
+						const takeoffTime = Domain.Client.calcTakeoffTime(s.blueFaction.packages);
+
+						if (takeoffTime == null) {
+							s.blueFaction.packages.forEach((pkg) => {
+								pkg.flightGroups.forEach((fg) => {
+									if (fg.startTime !== fg.designatedStartTime) {
+										fg.startTime = fg.designatedStartTime;
+									}
+								});
+							});
+						} else {
+							s.blueFaction.packages.forEach((pkg) => {
+								if (Domain.Client.packageHasClient(pkg)) {
+									pkg.flightGroups.forEach((fg) => (fg.startTime = takeoffTime));
+								}
+							});
+						}
 						s.missionId = undefined;
-					})
+					}),
 				);
 			},
 			submitMissionState(state, dataStore) {
@@ -185,7 +236,7 @@ export function CampaignProvider(props: {
 							});
 
 							const clientKilled = state.killed_aircrafts.some((killedAc) =>
-								clientAircraftNames.some((name) => name === killedAc)
+								clientAircraftNames.some((name) => name === killedAc),
 							);
 
 							if (clientKilled) {
@@ -195,19 +246,22 @@ export function CampaignProvider(props: {
 						}
 
 						if (s.blueFaction != null) {
-							updateFactionState(s.blueFaction, s, state);
+							updateFactionState("blue", s.blueFaction, s, state, dataStore);
 						}
 
 						if (s.redFaction != null) {
-							updateFactionState(s.redFaction, s, state);
+							updateFactionState("red", s.redFaction, s, state, dataStore);
 						}
 
 						missionRound(s, dataStore);
-					})
+					}),
 				);
 			},
 			saveCampaignRound(dataStore) {
 				setState(produce((s) => campaignRound(s, dataStore)));
+			},
+			saveLongCampaignRound(dataStore) {
+				setState(produce((s) => longCampaignRound(s, dataStore)));
 			},
 			updateDeploymentScore() {
 				setState(produce((s) => deploymentScoreUpdate(s)));
@@ -215,7 +269,37 @@ export function CampaignProvider(props: {
 			updateRepairScore() {
 				setState(produce((s) => repairScoreUpdate(s)));
 			},
-			skipToNextDay() {
+			updateWeather(dataStore) {
+				setState(
+					produce((s) => {
+						const currentWeather = Domain.Weather.getCurrentWeather(
+							s.timer,
+							s.weather.offset,
+							s.weather.cloudCoverData,
+							s.allowBadWeather ?? false,
+							dataStore,
+						);
+						s.weather.temperature = currentWeather.temperature;
+						s.weather.cloudCover = currentWeather.cloudCover;
+						s.weather.wind = currentWeather.wind;
+
+						return s;
+					}),
+				);
+			},
+			updateDownedPilots() {
+				setState(
+					produce((s) => {
+						if (s.blueFaction == null || s.redFaction == null) {
+							return;
+						}
+
+						s.blueFaction = updateDownedPilots(s.blueFaction, s.timer);
+						s.redFaction = updateDownedPilots(s.redFaction, s.timer);
+					}),
+				);
+			},
+			skipToNextDay(dataStore) {
 				setState(
 					produce((s) => {
 						s.paused = true;
@@ -223,7 +307,7 @@ export function CampaignProvider(props: {
 
 						const d = timerToDate(s.timer);
 						d.setUTCDate(d.getUTCDate() + 1);
-						d.setUTCHours(Config.night.endHour);
+						d.setUTCHours(dataStore.mapInfo?.night.endHour ?? 7);
 						d.setUTCMinutes(0);
 						d.setUTCSeconds(0);
 
@@ -250,7 +334,7 @@ export function CampaignProvider(props: {
 
 							storeObjective.incomingGroundGroups = {};
 						});
-					})
+					}),
 				);
 			},
 			resumeNextDay() {
@@ -285,7 +369,7 @@ export function CampaignProvider(props: {
 			} else {
 				return { ...state, ...props.campaignState };
 			}
-		})
+		}),
 	);
 
 	return <CampaignContext.Provider value={store}>{props.children}</CampaignContext.Provider>;

@@ -2,8 +2,6 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { dialog } from "electron";
 import FS from "fs-extra";
 
-import { setApplicationMenu } from "../../app/menu";
-import { mainWindow } from "../../app/startup";
 import * as Domain from "../../domain";
 import {
 	findDcsPaths,
@@ -15,15 +13,13 @@ import { createSupportZip } from "../../utils/supportZip";
 
 async function setSetupComplete() {
 	if (!Domain.Persistance.State.userConfig.data.setupComplete) {
-		Domain.Persistance.State.userConfig.data.setupComplete = true;
-		await Domain.Persistance.State.userConfig.save();
-		setApplicationMenu();
+		await Domain.Persistance.State.userConfig.update("setupComplete", true);
 	}
 }
 
 const showOpenFileDialog: Types.Rpc.Home["showOpenFileDialog"] = async (args) => {
-	if (mainWindow != undefined) {
-		const res = await dialog.showOpenDialog(mainWindow, {
+	if (Domain.Window.mainWindow != undefined) {
+		const res = await dialog.showOpenDialog(Domain.Window.mainWindow, {
 			title: args.title,
 			properties: ["openDirectory", "dontAddToRecent"],
 			defaultPath: args.defaultPath,
@@ -39,19 +35,15 @@ export const home: Types.Rpc.Home = {
 	findDcsPaths,
 	findDcsSavedGamesPath,
 	setDcsPaths: async (paths) => {
-		Domain.Persistance.State.userConfig.data.dcs = {
+		await Domain.Persistance.State.userConfig.update("dcs", {
 			available: true,
 			paths,
-		};
-		await Domain.Persistance.State.userConfig.save();
-		setApplicationMenu();
+		});
 	},
 	setDcsNotAvailable: async () => {
-		Domain.Persistance.State.userConfig.data.dcs = {
+		await Domain.Persistance.State.userConfig.update("dcs", {
 			available: false,
-		};
-		await Domain.Persistance.State.userConfig.save();
-		setApplicationMenu();
+		});
 	},
 	setSetupComplete,
 	showOpenFileDialog,
@@ -66,8 +58,7 @@ export const home: Types.Rpc.Home = {
 		}
 	},
 	setDownloadsPath: async (path: string) => {
-		Domain.Persistance.State.userConfig.data.downloadsPath = path;
-		await Domain.Persistance.State.userConfig.save();
+		await Domain.Persistance.State.userConfig.update("downloadsPath", path);
 	},
 	createSupportZip: async () => {
 		return await createSupportZip();

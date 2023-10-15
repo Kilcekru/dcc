@@ -1,12 +1,13 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Domain from "../../domain";
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 import { destroyAircraft } from "./utils";
 
-export const sam = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const sam = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -14,14 +15,14 @@ export const sam = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 	Domain.Faction.getSamGroups(faction).forEach((sam) => {
 		if (sam.operational && (sam.combatTimer ?? 0) <= state.timer) {
 			oppFaction.packages.forEach((pkg) => {
-				const fg = pkg.flightGroups.find((fg) => distanceToPosition(sam.position, fg.position) <= sam.range);
+				const fg = pkg.flightGroups.find((fg) => Utils.distanceToPosition(sam.position, fg.position) <= sam.range);
 
 				if (fg == null) {
 					return;
 				}
 
 				fg.units.forEach((unit) => {
-					if (random(1, 100) <= 50) {
+					if (Domain.Random.number(1, 100) <= 50) {
 						destroyAircraft(oppFaction, unit.id, state.timer);
 						console.log(`SAM: ${sam.id} destroyed aircraft ${unit.id}`); // eslint-disable-line no-console
 					} else {
@@ -29,7 +30,7 @@ export const sam = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 					}
 				});
 
-				sam.combatTimer = state.timer + Minutes(3);
+				sam.combatTimer = state.timer + Domain.Time.Minutes(3);
 			});
 		}
 	});

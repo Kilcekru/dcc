@@ -1,14 +1,20 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { distanceToPosition, getFlightGroups, Minutes, random } from "../../utils";
+import * as Domain from "../../domain";
+import { getFlightGroups } from "../../utils";
+import { createDownedPilot } from "../createDownedPilot";
 import { RunningCampaignState } from "../types";
 import { getMaxRangeA2AMissileAvailable } from "../utils";
 
 type BattleReportEntry = {
-	unit: DcsJs.CampaignFlightGroupUnit;
+	unit: DcsJs.FlightGroupUnit;
 	aircraft: DcsJs.Aircraft;
 	weapon: DcsJs.Weapon & DcsJs.A2AWeapon;
 	targetAircraft?: DcsJs.Aircraft;
+	targetPosition?: DcsJs.Position;
+	targetName?: string;
 };
 
 type BattleReport = Array<BattleReportEntry>;
@@ -17,7 +23,10 @@ const saveBattleReport = (
 	report: BattleReport,
 	faction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
-	timer: number
+	targetCoalition: DcsJs.Coalition,
+	timer: number,
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	if (report.length > 0) {
 		report.forEach((entry) => {
@@ -27,7 +36,7 @@ const saveBattleReport = (
 				throw "aircraft not found";
 			}
 
-			aircraft.a2AWeaponReadyTimer = timer + Minutes(1);
+			aircraft.a2AWeaponReadyTimer = timer + Domain.Time.Minutes(1);
 			const pylon = aircraft.loadout.pylons.find((p) => p.weapon?.name === entry.weapon.name && p.count > 0);
 
 			if (pylon == null) {
@@ -52,22 +61,34 @@ const saveBattleReport = (
 
 			// eslint-disable-next-line no-console
 			console.log(
-				`${aircraft.aircraftType}(${aircraft.id}) destroyed ${targetAircraft.aircraftType}(${targetAircraft.id}) with ${entry.weapon.name}`
+				`${aircraft.aircraftType}(${aircraft.id}) destroyed ${targetAircraft.aircraftType}(${targetAircraft.id}) with ${entry.weapon.name}`,
 			);
 
 			targetAircraft.alive = false;
 			targetAircraft.destroyedTime = timer;
+
+			if (entry.targetName != null && entry.targetPosition != null) {
+				targetFaction = createDownedPilot(
+					entry.targetName,
+					timer,
+					entry.targetPosition,
+					targetCoalition,
+					targetFaction,
+					state,
+					dataStore,
+				);
+			}
 		});
 	}
 };
 
 const a2aRound = (
-	attackingFg: DcsJs.CampaignFlightGroup,
-	targetFg: DcsJs.CampaignFlightGroup,
+	attackingFg: DcsJs.FlightGroup,
+	targetFg: DcsJs.FlightGroup,
 	attackingFaction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
 	timer: number,
-	battleReport: BattleReport
+	battleReport: BattleReport,
 ) => {
 	attackingFg.units.forEach((attackingUnit) => {
 		const attackingAircraft = attackingFaction.inventory.aircrafts[attackingUnit.id];
@@ -76,7 +97,7 @@ const a2aRound = (
 			attackingAircraft?.alive &&
 			(attackingAircraft.a2AWeaponReadyTimer == null || attackingAircraft.a2AWeaponReadyTimer < timer)
 		) {
-			const distance = distanceToPosition(attackingFg.position, targetFg.position);
+			const distance = Utils.distanceToPosition(attackingFg.position, targetFg.position);
 			const targetUnit = targetFg.units.find((unit) => {
 				const targetAircraft = targetFaction.inventory.aircrafts[unit.id];
 
@@ -113,8 +134,10 @@ const a2aRound = (
 			};
 			const distanceFactor = 1 - distance / maxRangeWeapon.range;
 
-			if (random(1, 100) <= 100 * distanceFactor) {
+			if (Domain.Random.number(1, 100) <= 100 * distanceFactor) {
 				entry["targetAircraft"] = targetAircraft;
+				entry["targetPosition"] = targetFg.position;
+				entry["targetName"] = targetUnit.name;
 			}
 
 			battleReport.push(entry);
@@ -123,34 +146,36 @@ const a2aRound = (
 };
 
 const a2aFlightGroups = (
-	attackingFgs: Array<DcsJs.CampaignFlightGroup>,
-	targetFgs: Array<DcsJs.CampaignFlightGroup>,
+	attackingFgs: Array<DcsJs.FlightGroup>,
+	targetFgs: Array<DcsJs.FlightGroup>,
 	attackingFaction: DcsJs.CampaignFaction,
 	targetFaction: DcsJs.CampaignFaction,
-	timer: number
+	timer: number,
 ) => {
 	const battleReport: BattleReport = [];
 
-	attackingFgs.forEach((attackingFlightGroup) => {
-		const targetFlightGroup = targetFgs
-			.filter((fg) => distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
-			.map((fg) => ({
-				item: fg,
-				distance: distanceToPosition(attackingFlightGroup.position, fg.position),
-			}))
-			.sort((a, b) => b.distance - a.distance)[0]?.item;
+	attackingFgs
+		.filter((fg) => fg.task === "CAP" || fg.task === "Escort")
+		.forEach((attackingFlightGroup) => {
+			const targetFlightGroup = targetFgs
+				.filter((fg) => Utils.distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
+				.map((fg) => ({
+					item: fg,
+					distance: Utils.distanceToPosition(attackingFlightGroup.position, fg.position),
+				}))
+				.sort((a, b) => a.distance - b.distance)[0]?.item;
 
-		if (targetFlightGroup == null) {
-			return;
-		}
+			if (targetFlightGroup == null) {
+				return;
+			}
 
-		a2aRound(attackingFlightGroup, targetFlightGroup, attackingFaction, targetFaction, timer, battleReport);
-	});
+			a2aRound(attackingFlightGroup, targetFlightGroup, attackingFaction, targetFaction, timer, battleReport);
+		});
 
 	return battleReport;
 };
 
-export const a2a = (state: RunningCampaignState) => {
+export const a2a = (state: RunningCampaignState, dataStore: Types.Campaign.DataStore) => {
 	const blueFlightGroups = getFlightGroups(state.blueFaction.packages);
 	const redFlightGroups = getFlightGroups(state.redFaction.packages);
 
@@ -162,22 +187,22 @@ export const a2a = (state: RunningCampaignState) => {
 		flyingRedFgs,
 		state.blueFaction,
 		state.redFaction,
-		state.timer
+		state.timer,
 	);
 	const redBattleReport = a2aFlightGroups(
 		flyingRedFgs,
 		flyingBlueFgs,
 		state.redFaction,
 		state.blueFaction,
-		state.timer
+		state.timer,
 	);
 
 	if (blueBattleReport.length > 0) {
-		saveBattleReport(blueBattleReport, state.blueFaction, state.redFaction, state.timer);
+		saveBattleReport(blueBattleReport, state.blueFaction, state.redFaction, "red", state.timer, state, dataStore);
 	}
 
 	if (redBattleReport.length > 0) {
-		saveBattleReport(redBattleReport, state.redFaction, state.blueFaction, state.timer);
+		saveBattleReport(redBattleReport, state.redFaction, state.blueFaction, "blue", state.timer, state, dataStore);
 	}
 
 	/* if (blueBattleReport.length > 0 || redBattleReport.length > 0) {

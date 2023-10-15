@@ -19,5 +19,6 @@ export const CampaignPersistance = new MultiJson({
 		created: item.created,
 		edited: item.edited,
 		timer: item.timer,
+		version: item.version,
 	}),
 });

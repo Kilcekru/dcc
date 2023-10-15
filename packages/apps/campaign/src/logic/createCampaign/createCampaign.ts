@@ -1,15 +1,19 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
-import { createUniqueId } from "solid-js";
+import { unwrap } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
+import { Config } from "../../data";
 import { scenarioList } from "../../data/scenarios";
-import { firstItem, getUsableUnit, Minutes, random, randomList } from "../../utils";
+import * as Domain from "../../domain";
+import { getCurrentWeather } from "../../domain/weather";
+import { awacsFrequency, firstItem } from "../../utils";
 import { generateAircraftInventory } from "./generateAircraftInventory";
-import { generateGroundUnitsInventory } from "./generateGroundUnitsInventory";
+import { generateGroundGroups } from "./generateGroundGroups";
+import { generateObjectivePlans } from "./generateObjectivePlans";
 import { generateSams } from "./generateSams";
 import { generateStructures } from "./generateStructures";
-import { claimsObjective } from "./utils";
+import { factionCarrierName } from "./utils";
 
 /**
  *
@@ -23,19 +27,60 @@ export const createCampaign = (
 	redFaction: DcsJs.Faction,
 	aiSkill: DcsJs.AiSkill,
 	hardcore: boolean,
+	training: boolean,
 	nightMissions: boolean,
-	scenarioName: string
+	badWeather: boolean,
+	scenarioName: string,
 ) => {
 	const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 	const airdromes = dataStore.airdromes;
+	const objectives = dataStore.objectives;
+	const strikeTargets = dataStore.strikeTargets;
 
 	if (scenario == null) {
-		throw "createCampaign: unknown scenario";
+		throw new Error("createCampaign: unknown scenario");
 	}
 
 	if (airdromes == null) {
-		throw "createCampaign: unknown airdromes";
+		throw new Error("createCampaign: unknown airdromes");
 	}
+
+	if (objectives == null) {
+		throw new Error("createCampaign: unknown objectives");
+	}
+
+	if (strikeTargets == null) {
+		throw new Error("createCampaign: unknown objectives");
+	}
+
+	const blueAirdromes = scenario.blue.airdromeNames.map((name) => {
+		const airdrome = airdromes[name];
+
+		if (airdrome == null) {
+			throw new Error(`airdrome: ${name} not found`);
+		}
+
+		return airdrome;
+	});
+
+	const redAirdromes = scenario.red.airdromeNames.map((name) => {
+		const airdrome = airdromes[name];
+
+		if (airdrome == null) {
+			throw new Error(`airdrome: ${name} not found`);
+		}
+
+		return airdrome;
+	});
+
+	const [blueOps, redOps] = generateObjectivePlans(
+		structuredClone(unwrap(blueAirdromes)),
+		structuredClone(unwrap(redAirdromes)),
+		structuredClone(unwrap(blueAirdromes)),
+		structuredClone(unwrap(redAirdromes)),
+		scenario["blue-start-objective-range"],
+		dataStore,
+	);
 
 	const firstBlueAirdromeName = firstItem(scenario.blue.airdromeNames) as DcsJs.AirdromeName | undefined;
 
@@ -49,21 +94,10 @@ export const createCampaign = (
 		throw "unknown airdrome";
 	}
 
-	const blueObjectives: Types.Campaign.DataStore["objectives"] = [];
-	const redObjectives: Types.Campaign.DataStore["objectives"] = [];
+	const blueObjectives: Types.Campaign.DataStore["objectives"] = blueOps.map((dop) => dop.objective);
+	const redObjectives: Types.Campaign.DataStore["objectives"] = redOps.map((dop) => dop.objective);
 
-	dataStore.objectives?.forEach((dataObjective) => {
-		const isBlue = claimsObjective(scenario.blue, dataObjective.name);
-		const isRed = claimsObjective(scenario.red, dataObjective.name);
-
-		if (isBlue) {
-			blueObjectives.push(dataObjective);
-		}
-
-		if (isRed) {
-			redObjectives.push(dataObjective);
-		}
-	});
+	const blueCarrierName = factionCarrierName("blue", scenario, blueFaction, dataStore);
 
 	state.blueFaction = {
 		...blueFaction,
@@ -75,16 +109,19 @@ export const createCampaign = (
 				faction: blueFaction,
 				scenario,
 				dataStore,
-				objectives: blueObjectives,
+				objectivePlans: blueOps,
+				carrierName: blueCarrierName,
+				oppObjectives: redObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(blueFaction, "blue", scenario, dataStore),
+			groundUnits: {},
 		},
 		packages: [],
 		groundGroups: [],
-		awacsFrequency: 251,
-		structures: generateStructures("blue", scenario.blue, dataStore),
+		awacsFrequency: awacsFrequency(blueFaction, dataStore),
+		structures: generateStructures("blue", blueOps, dataStore),
 		reinforcementTimer: state.timer,
-		reinforcementDelay: Minutes(30),
+		reinforcementDelay: Domain.Time.Minutes(30),
+		downedPilots: [],
 	};
 
 	state.redFaction = {
@@ -98,124 +135,74 @@ export const createCampaign = (
 				faction: redFaction,
 				scenario,
 				dataStore,
-				objectives: redObjectives,
+				objectivePlans: redOps,
+				oppObjectives: blueObjectives,
 			}),
-			groundUnits: generateGroundUnitsInventory(redFaction, "red", scenario, dataStore),
+			groundUnits: {},
 		},
 		packages: [],
 		groundGroups: [],
 		awacsFrequency: 251,
-		structures: generateStructures("red", scenario.red, dataStore),
+		structures: generateStructures("red", redOps, dataStore),
 		reinforcementTimer: state.timer,
-		reinforcementDelay: Minutes(30),
+		reinforcementDelay: Domain.Time.Minutes(30),
+		downedPilots: [],
 	};
 
 	state.objectives =
-		dataStore.objectives?.reduce((prev, dataObjective) => {
-			const isBlue = claimsObjective(scenario.blue, dataObjective.name);
-			const isRed = claimsObjective(scenario.red, dataObjective.name);
+		dataStore.objectives?.reduce(
+			(prev, dataObjective) => {
+				const isBlue = blueOps.some((obj) => obj.objectiveName === dataObjective.name);
+				const isRed = redOps.some((obj) => obj.objectiveName === dataObjective.name);
 
-			if (!isBlue && !isRed) {
+				if (!isBlue && !isRed) {
+					return prev;
+				}
+
+				const faction = isBlue ? state.blueFaction : state.redFaction;
+
+				if (faction == null) {
+					return prev;
+				}
+
+				const objective: DcsJs.Objective = {
+					name: dataObjective.name,
+					position: dataObjective.position,
+					coalition: isBlue ? "blue" : "red",
+					incomingGroundGroups: {},
+				};
+
+				prev[objective.name] = objective;
 				return prev;
-			}
+			},
+			{} as Record<string, DcsJs.Objective>,
+		) ?? {};
 
-			const faction = isBlue ? state.blueFaction : state.redFaction;
+	generateGroundGroups(blueOps, state.blueFaction, state.timer, dataStore);
+	generateGroundGroups(redOps, state.redFaction, state.timer, dataStore);
+	generateSams("blue", state.blueFaction, dataStore, blueOps);
+	generateSams("red", state.redFaction, dataStore, redOps);
 
-			if (faction == null) {
-				return prev;
-			}
+	if (blueCarrierName && state.blueFaction.carrierName != null) {
+		const objective = dataStore.objectives?.find((obj) => obj.name === scenario.blue.carrierObjective);
 
-			const inventory = faction.inventory;
-			const groupType = random(1, 100) > 40 ? "armor" : "infantry";
-
-			const validGroundUnits = Object.values(inventory.groundUnits)
-				.filter((unit) => unit.category !== "Air Defence")
-				.filter((unit) => {
-					if (groupType === "infantry") {
-						return unit.category === "Infantry" && unit.state === "idle";
-					} else {
-						return unit.category !== "Infantry" && unit.state === "idle";
-					}
-				});
-
-			const units = randomList(validGroundUnits, random(4, 8));
-
-			if (groupType === "armor") {
-				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
-					(unit) =>
-						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
-						!unit.vehicleTypes.some((vt) => vt === "Infantry") &&
-						unit.state === "idle"
-				);
-				const count = random(0, 100) > 10 ? random(1, 2) : 0;
-
-				const usableADUnits = getUsableUnit(airDefenceUnits, "name", count);
-
-				const selectedADUnits = usableADUnits.slice(0, count);
-
-				selectedADUnits.forEach((unit) => units.push(unit));
-			} else if (groupType === "infantry") {
-				const airDefenceUnits = Object.values(inventory.groundUnits).filter(
-					(unit) =>
-						unit.vehicleTypes.some((vt) => vt === "SHORAD") &&
-						unit.vehicleTypes.some((vt) => vt === "Infantry") &&
-						unit.state === "idle"
-				);
-
-				const count = random(0, 100) > 50 ? random(1, 2) : 0;
-
-				const usableADUnits = getUsableUnit(airDefenceUnits, "name", count);
-
-				const selectedADUnits = usableADUnits.slice(0, count);
-
-				selectedADUnits.forEach((unit) => units.push(unit));
-			}
-
-			const objective: DcsJs.CampaignObjective = {
-				name: dataObjective.name,
-				position: dataObjective.position,
-				coalition: isBlue ? "blue" : "red",
-				deploymentDelay: isBlue ? Minutes(30) : Minutes(60),
-				deploymentTimer: state.timer,
-				incomingGroundGroups: {},
-			};
-
-			const vehicleTargets = dataStore.strikeTargets?.[dataObjective.name]?.filter(
-				(target) => target.type === "Vehicle"
-			);
-
-			if ((vehicleTargets?.length ?? 0) > 0) {
-				units.forEach((unit) => {
-					const inventoryUnit = inventory.groundUnits[unit.id];
-
-					if (inventoryUnit == null) {
-						console.error("inventory ground unit not found", unit.id); // eslint-disable-line no-console
-						return;
-					}
-
-					inventoryUnit.state = "on objective";
-				});
-
-				const id = createUniqueId();
-				faction.groundGroups.push({
-					id,
-					name: objective.name + "-" + id,
-					objectiveName: objective.name,
-					startObjectiveName: objective.name,
+		if (objective != null) {
+			state.blueFaction.shipGroups = [
+				{
+					name: state.blueFaction.carrierName,
 					position: objective.position,
-					state: "on objective",
-					unitIds: units.map((u) => u.id),
-					startTime: state.timer,
-					type: groupType,
-				});
-			}
+				},
+			];
+		}
+	}
 
-			prev[objective.name] = objective;
-			return prev;
-		}, {} as Record<string, DcsJs.CampaignObjective>) ?? {};
+	const weatherOffset = Domain.Random.number(-3, 3);
+	const cloudCoverData = Domain.Weather.generateCloudCover(
+		dataStore.mapInfo?.weather.cloudCover.baseCloudCover ?? 0,
+		dataStore.mapInfo?.weather.cloudCover.seasonEffect ?? 0,
+	);
 
-	generateSams("blue", state.blueFaction, dataStore, scenario);
-	generateSams("red", state.redFaction, dataStore, scenario);
+	const currentWeather = getCurrentWeather(state.timer, weatherOffset, cloudCoverData, badWeather, dataStore);
 
 	state.id = uuid();
 	state.name = scenario.name;
@@ -224,9 +211,19 @@ export const createCampaign = (
 	state.winningCondition = scenario["win-condition"];
 	state.aiSkill = aiSkill;
 	state.hardcore = hardcore;
+	state.training = training;
 	state.allowNightMissions = nightMissions;
+	state.allowBadWeather = badWeather;
 	state.winner = undefined;
 	state.toastMessages = [];
+	state.weather = {
+		temperature: currentWeather.temperature,
+		offset: weatherOffset,
+		wind: currentWeather.wind,
+		cloudCover: currentWeather.cloudCover,
+		cloudCoverData,
+	};
+	state.version = Config.campaignVersion;
 
 	return state;
 };

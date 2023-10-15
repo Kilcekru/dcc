@@ -3,49 +3,187 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
 import { Config } from "../../data";
-import { ObjectivePlan, Scenario } from "../../data/scenarios";
-import { findNearest, onboardNumber } from "../../utils";
+import { Scenario } from "../../data/scenarios";
+import { onboardNumber } from "../../utils";
 import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAircraftType } from "../utils";
+import { DynamicObjectivePlan } from "./utils";
 
-function getFrontlineFarp(
-	objectives: Array<{ name: string; position: DcsJs.Position }>,
-	objectivePlans: Array<ObjectivePlan>,
-	frontlineObjective: DcsJs.CampaignObjective
-) {
-	const farps: Array<{ name: string; position: DcsJs.Position }> = [];
+function getFarpsFromObjectivePlans(objectivePlans: Array<DynamicObjectivePlan>, dataStore: Types.Campaign.DataStore) {
+	const farps: Array<DcsJs.CampaignHomeBase> = [];
 
-	objectivePlans.forEach((plan) => {
-		const farp = plan.structures.find((str) => str.structureType === "Farp");
+	objectivePlans.forEach((op) =>
+		op.structures.forEach((str) => {
+			if (str.structureType === "Farp") {
+				const targetObjective = dataStore.strikeTargets?.[op.objectiveName];
 
-		if (farp) {
-			const objective = objectives.find((obj) => obj.name === plan.objectiveName);
+				if (targetObjective == null) {
+					return;
+				}
 
-			if (objective == null) {
-				// eslint-disable-next-line no-console
-				console.error(`getFrontlineFarp: objective ${plan.objectiveName} not found`);
+				const target = targetObjective.find((to) => to.name === str.structureName);
 
-				return;
+				if (target == null) {
+					return;
+				}
+
+				farps.push({
+					type: "farp",
+					name: str.structureName,
+				});
 			}
+		}),
+	);
 
-			farps.push({ name: farp.structureName, position: objective.position });
+	return farps;
+}
+
+function generateAircraftForTask({
+	task,
+	homeBase,
+	aircraftCategory,
+	withoutCarrierCapable,
+	faction,
+	dataStore,
+}: {
+	task: DcsJs.Task;
+	homeBase: DcsJs.CampaignHomeBase;
+	aircraftCategory: "plane" | "helicopter" | "both";
+	withoutCarrierCapable: boolean;
+	faction: DcsJs.Faction;
+	dataStore: Types.Campaign.DataStore;
+}) {
+	const aircrafts: Array<DcsJs.Aircraft> = [];
+
+	faction.aircraftTypes[task]?.forEach((acType) => {
+		const count = Math.max(2, Config.inventory.aircraft[task] / (faction.aircraftTypes[task]?.length ?? 0));
+		const aircraftType = acType as DcsJs.AircraftType;
+		const aircraft = dataStore.aircrafts?.[aircraftType];
+
+		if (aircraft?.isHelicopter && aircraftCategory === "plane") {
+			return;
 		}
+
+		if (!aircraft?.isHelicopter && aircraftCategory === "helicopter") {
+			return;
+		}
+
+		if (aircraft?.carrierCapable && withoutCarrierCapable) {
+			return;
+		}
+
+		const loadout = getLoadoutForAircraftType(aircraftType, "default", dataStore);
+
+		Array.from({ length: count }, () => {
+			aircrafts.push({
+				aircraftType,
+				homeBase,
+				state: "idle",
+				id: createUniqueId(),
+				availableTasks: [task],
+				alive: true,
+				onboardNumber: onboardNumber(),
+				loadout,
+			});
+		});
 	});
 
-	return findNearest(farps, frontlineObjective.position, (farp) => farp.position);
+	return aircrafts;
+}
+
+export function generateHelicoptersForHomeBase(
+	faction: DcsJs.Faction,
+	homeBase: DcsJs.CampaignHomeBase,
+	dataStore: Types.Campaign.DataStore,
+) {
+	const aircrafts: Array<DcsJs.Aircraft> = [
+		...generateAircraftForTask({
+			task: "CAS",
+			homeBase,
+			aircraftCategory: "helicopter",
+			withoutCarrierCapable: false,
+			faction,
+			dataStore,
+		}),
+		...generateAircraftForTask({
+			task: "CSAR",
+			homeBase,
+			aircraftCategory: "helicopter",
+			withoutCarrierCapable: false,
+			faction,
+			dataStore,
+		}),
+	];
+
+	return aircrafts;
+}
+
+export function generateAircraftsForHomeBase(
+	faction: DcsJs.Faction,
+	homeBase: DcsJs.CampaignHomeBase,
+	dataStore: Types.Campaign.DataStore,
+	withoutCarrierCapable: boolean,
+) {
+	const aircrafts = [
+		...generateAircraftForTask({
+			task: "CAP",
+			aircraftCategory: "both",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable,
+		}),
+		...generateAircraftForTask({
+			task: "CAS",
+			aircraftCategory: "both",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable,
+		}),
+		...generateAircraftForTask({
+			task: "Pinpoint Strike",
+			aircraftCategory: "both",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable,
+		}),
+		...generateAircraftForTask({
+			task: "DEAD",
+			aircraftCategory: "both",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable,
+		}),
+		...generateAircraftForTask({
+			task: "CSAR",
+			aircraftCategory: "both",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable,
+		}),
+	];
+
+	return aircrafts;
 }
 
 export const generateAircraftInventory = ({
 	coalition,
 	faction,
-	objectives,
+	objectivePlans,
 	scenario,
 	dataStore,
+	carrierName,
 }: {
-	coalition: DcsJs.CampaignCoalition;
+	coalition: DcsJs.Coalition;
 	faction: DcsJs.Faction;
-	objectives: Array<{ name: string; position: DcsJs.Position }>;
+	objectivePlans: Array<DynamicObjectivePlan>;
 	scenario: Scenario;
 	dataStore: Types.Campaign.DataStore;
+	carrierName?: string;
+	oppObjectives: Array<DcsJs.Import.Objective>;
 }) => {
 	const airdromes = dataStore.airdromes;
 	const airdromeNames: Array<DcsJs.AirdromeName> = (
@@ -59,7 +197,11 @@ export const generateAircraftInventory = ({
 		throw "airdromes not found";
 	}
 
-	const frontlineObjective = getFrontlineObjective(objectives, oppAirdromeNames, dataStore);
+	const frontlineObjective = getFrontlineObjective(
+		objectivePlans.map((op) => op.objective),
+		oppAirdromeNames,
+		dataStore,
+	);
 
 	if (frontlineObjective == null) {
 		throw `generateAircraftInventory: Frontline Objective not found: ${String(oppAirdromeNames)}`;
@@ -67,141 +209,54 @@ export const generateAircraftInventory = ({
 	const awacsAirdrome = getFarthestAirdromeFromPosition(frontlineObjective.position, airdromeNames, dataStore);
 
 	if (awacsAirdrome == null) {
-		throw "generateAircraftInventory: AWACS Airdrome not found";
+		throw new Error("generateAircraftInventory: AWACS Airdrome not found");
 	}
 
 	if (faction == null) {
-		throw "faction not found";
+		throw new Error("faction not found");
 	}
 
-	const aircrafts: Array<DcsJs.Aircraft> = [];
-	const farpObjective = getFrontlineFarp(
-		objectives,
-		scenario[coalition === "blue" ? "blue" : "red"].objectivePlans,
-		frontlineObjective
-	);
+	const awacsHomeBase: DcsJs.CampaignHomeBase = { type: "airdrome", name: awacsAirdrome.name };
 
-	faction.aircraftTypes.AWACS?.forEach((acType) => {
-		const count = Math.max(2, Config.inventory.aircraft.awacs * (faction.aircraftTypes.AWACS?.length ?? 0));
-		const aircraftType = acType as DcsJs.AircraftType;
-
-		Array.from({ length: count }, () => {
-			aircrafts.push({
-				aircraftType,
-				homeBase: {
-					name: awacsAirdrome.name,
-					type: "airdrome",
-				},
-				state: "idle",
-				id: createUniqueId(),
-				availableTasks: ["AWACS"],
-				alive: true,
-				onboardNumber: onboardNumber(),
-				loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
-			});
-		});
-	});
+	let aircrafts: Array<DcsJs.Aircraft> = [
+		...generateAircraftForTask({
+			task: "AWACS",
+			homeBase: awacsHomeBase,
+			aircraftCategory: "plane",
+			dataStore,
+			faction,
+			withoutCarrierCapable: false,
+		}),
+	];
 
 	airdromeNames.forEach((airdromeName) => {
-		const airdrome = airdromes[airdromeName];
+		const homeBase: DcsJs.CampaignHomeBase = { type: "airdrome", name: airdromeName };
+		aircrafts = [...aircrafts, ...generateAircraftsForHomeBase(faction, homeBase, dataStore, carrierName != null)];
+	});
 
-		if (airdrome == null) {
-			throw "airdrome not found";
-		}
+	if (carrierName != null) {
+		const homeBase: DcsJs.CampaignHomeBase = { type: "carrier", name: carrierName };
 
-		faction.aircraftTypes.CAP?.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.cap * (faction.aircraftTypes.CAP?.length ?? 0));
-			const aircraftType = acType as DcsJs.AircraftType;
+		aircrafts = [
+			...aircrafts,
+			...generateAircraftForTask({
+				task: "AWACS",
+				aircraftCategory: "plane",
+				dataStore,
+				faction,
+				homeBase,
+				withoutCarrierCapable: false,
+			}),
+			...generateAircraftsForHomeBase(faction, homeBase, dataStore, false),
+		];
+	}
 
-			Array.from({ length: count }, () => {
-				aircrafts.push({
-					aircraftType,
-					state: "idle",
-					id: createUniqueId(),
-					availableTasks: ["CAP"],
-					alive: true,
-					onboardNumber: onboardNumber(),
-					homeBase: {
-						name: airdrome.name,
-						type: "airdrome",
-					},
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
-				});
-			});
-		});
+	const farps = getFarpsFromObjectivePlans(objectivePlans, dataStore);
 
-		faction.aircraftTypes.CAS?.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.cas * (faction.aircraftTypes.CAS?.length ?? 0));
-			const aircraft = dataStore.aircrafts?.[acType as DcsJs.AircraftType];
-			const aircraftType = acType as DcsJs.AircraftType;
+	farps.forEach((farp) => {
+		const helicopters = generateHelicoptersForHomeBase(faction, farp, dataStore);
 
-			Array.from({ length: count }, () => {
-				aircrafts.push({
-					aircraftType,
-					homeBase:
-						aircraft?.isHelicopter && farpObjective != null
-							? {
-									type: "farp",
-									name: farpObjective.name,
-							  }
-							: {
-									type: "airdrome",
-									name: airdrome.name,
-							  },
-					state: "idle",
-					id: createUniqueId(),
-					availableTasks: ["CAS"],
-					alive: true,
-					onboardNumber: onboardNumber(),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
-				});
-			});
-		});
-
-		faction.aircraftTypes["Pinpoint Strike"]?.forEach((acType) => {
-			const count = Math.max(
-				2,
-				Config.inventory.aircraft.strike * (faction.aircraftTypes["Pinpoint Strike"]?.length ?? 0)
-			);
-			const aircraftType = acType as DcsJs.AircraftType;
-
-			Array.from({ length: count }, () => {
-				aircrafts.push({
-					aircraftType,
-					homeBase: {
-						name: airdrome.name,
-						type: "airdrome",
-					},
-					state: "idle",
-					id: createUniqueId(),
-					availableTasks: ["Pinpoint Strike"],
-					alive: true,
-					onboardNumber: onboardNumber(),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
-				});
-			});
-		});
-
-		faction.aircraftTypes.DEAD?.forEach((acType) => {
-			const count = Math.max(2, Config.inventory.aircraft.dead * (faction.aircraftTypes.DEAD?.length ?? 0));
-			const aircraftType = acType as DcsJs.AircraftType;
-
-			Array.from({ length: count }, () => {
-				aircrafts.push({
-					aircraftType,
-					homeBase: {
-						name: airdrome.name,
-						type: "airdrome",
-					},
-					state: "idle",
-					id: createUniqueId(),
-					availableTasks: ["DEAD"],
-					alive: true,
-					onboardNumber: onboardNumber(),
-					loadout: getLoadoutForAircraftType(aircraftType, "default", dataStore),
-				});
-			});
-		});
+		aircrafts = [...aircrafts, ...helicopters];
 	});
 
 	const aircraftRecord: Record<string, DcsJs.Aircraft> = {};

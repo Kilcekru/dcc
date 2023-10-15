@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { Minutes, oppositeCoalition, random } from "../../utils";
+import * as Domain from "../../domain";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction, transferObjectiveStructures } from "../utils";
 
@@ -15,11 +16,12 @@ const hasStillAliveUnits = (groundGroup: DcsJs.GroundGroup, faction: DcsJs.Campa
 
 export const conquerObjective = (
 	attackingGroundGroup: DcsJs.GroundGroup,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const objective = state.objectives[attackingGroundGroup.objectiveName];
+	const oppFaction = getCoalitionFaction(oppositeCoalition(coalition), state);
 
 	if (objective == null) {
 		// eslint-disable-next-line no-console
@@ -33,30 +35,35 @@ export const conquerObjective = (
 	objective.incomingGroundGroups["blue"] = undefined;
 	objective.incomingGroundGroups["red"] = undefined;
 
+	// eslint-disable-next-line no-console
+	console.log(`${coalition}(${attackingGroundGroup.id}) captures ${attackingGroundGroup.objectiveName}`);
+
 	transferObjectiveStructures(objective, coalition, state, dataStore);
+
+	oppFaction.groundGroups = oppFaction.groundGroups.filter((gg) => gg.objectiveName !== objective.name);
 };
 
 export const g2gBattle = (
 	blueGroundGroup: DcsJs.GroundGroup,
 	redGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
-	if (random(1, 100) <= 50) {
+	if (Domain.Random.number(1, 100) <= 50) {
 		console.log(`Ground: ${blueGroundGroup.id} destroyed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
 
 		const aliveRedUnitId = redGroundGroup.unitIds.find(
-			(unitId) => state.redFaction.inventory.groundUnits[unitId]?.alive === true
+			(unitId) => state.redFaction.inventory.groundUnits[unitId]?.alive === true,
 		);
 
 		if (aliveRedUnitId == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		const aliveRedUnit = state.redFaction.inventory.groundUnits[aliveRedUnitId];
 
 		if (aliveRedUnit == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		aliveRedUnit.alive = false;
@@ -65,21 +72,21 @@ export const g2gBattle = (
 		console.log(`Ground: ${blueGroundGroup.id} missed ground unit from group ${redGroundGroup.id}`); // eslint-disable-line no-console
 	}
 
-	if (random(1, 100) <= 50) {
+	if (Domain.Random.number(1, 100) <= 50) {
 		console.log(`Ground: ${redGroundGroup.id} destroyed ground unit from group ${blueGroundGroup.id}`); // eslint-disable-line no-console
 
 		const aliveBlueUnitId = blueGroundGroup.unitIds.find(
-			(unitId) => state.blueFaction.inventory.groundUnits[unitId]?.alive === true
+			(unitId) => state.blueFaction.inventory.groundUnits[unitId]?.alive === true,
 		);
 
 		if (aliveBlueUnitId == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		const aliveBlueUnit = state.blueFaction.inventory.groundUnits[aliveBlueUnitId];
 
 		if (aliveBlueUnit == null) {
-			throw "no alive red unit found";
+			return;
 		}
 
 		aliveBlueUnit.alive = false;
@@ -92,28 +99,35 @@ export const g2gBattle = (
 	const redAlive = hasStillAliveUnits(redGroundGroup, state.redFaction);
 
 	if (blueAlive && redAlive) {
-		blueGroundGroup.combatTimer = state.timer + Minutes(3);
+		blueGroundGroup.combatTimer = state.timer + Domain.Time.Minutes(3);
 		blueGroundGroup.state = "combat";
-		redGroundGroup.combatTimer = state.timer + Minutes(3);
+		redGroundGroup.combatTimer = state.timer + Domain.Time.Minutes(3);
 		redGroundGroup.state = "combat";
 	} else if (blueAlive) {
+		// eslint-disable-next-line no-console
+		console.log(`blue won the battle of ${blueGroundGroup.objectiveName} with ${blueGroundGroup.id}`);
 		conquerObjective(blueGroundGroup, "blue", state, dataStore);
-	} else {
+	} else if (redAlive) {
+		// eslint-disable-next-line no-console
+		console.log(`red won the battle of ${redGroundGroup.objectiveName} with ${redGroundGroup.id}`);
 		conquerObjective(redGroundGroup, "red", state, dataStore);
+	} else {
+		// eslint-disable-next-line no-console
+		console.warn(`At ${blueGroundGroup.objectiveName} both faction lost the battle`);
 	}
 };
 
 export const g2g = (
-	attackingCoalition: DcsJs.CampaignCoalition,
+	attackingCoalition: DcsJs.Coalition,
 	attackingGroundGroup: DcsJs.GroundGroup,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const defendingCoalition = oppositeCoalition(attackingCoalition);
 	const defendingFaction = getCoalitionFaction(defendingCoalition, state);
 
 	const defendingGroundGroup = defendingFaction.groundGroups.find(
-		(gg) => gg.state === "on objective" && gg.objectiveName === attackingGroundGroup.objectiveName
+		(gg) => gg.state === "on objective" && gg.objectiveName === attackingGroundGroup.objectiveName,
 	);
 
 	if (defendingGroundGroup == null) {

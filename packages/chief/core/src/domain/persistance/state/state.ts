@@ -9,30 +9,37 @@ export class State<Schema extends BaseJsonSchema> {
 	#fileName: string;
 	#data: z.infer<Schema> | undefined;
 	#migrations: Migrations | undefined;
+	#listeners: Set<OnChangeListener>;
 
 	constructor(options: StateOptions<Schema>) {
 		this.#schema = options.schema;
 		this.#default = options.default;
 		this.#fileName = `${options.name}.json`;
 		this.#migrations = options.migrations;
+		this.#listeners = new Set();
 	}
 
-	public get data(): z.infer<Schema> {
+	public get data(): DeepReadonly<z.infer<Schema>> {
 		if (this.#data == undefined) {
 			throw new Error("Persistance.State data has been accessed before it was loaded");
 		}
-		return this.#data;
+		return this.#data as DeepReadonly<z.infer<Schema>>;
 	}
 
-	public set data(data: z.infer<Schema>) {
-		this.#data = data;
+	public async update<Key extends keyof z.infer<Schema>>(key: Key, data: z.infer<Schema>[Key]) {
+		if (this.#data == undefined) {
+			throw new Error("Persistance.State data has been accessed before it was loaded");
+		}
+		this.#data[key] = data;
+		await this.#save();
 	}
 
-	public reset(): void {
+	public async reset(): Promise<void> {
 		if (this.#data == undefined) {
 			throw new Error("Persistance.State reset has been called before it was loaded");
 		}
 		this.#data = structuredClone(this.#default);
+		await this.#save();
 	}
 
 	public async load(): Promise<void> {
@@ -42,7 +49,7 @@ export class State<Schema extends BaseJsonSchema> {
 				await read({
 					namespace: "state",
 					fileName: this.#fileName,
-				})
+				}),
 			);
 			this.#data = this.#schema.parse(data);
 		} catch {
@@ -61,7 +68,7 @@ export class State<Schema extends BaseJsonSchema> {
 					}
 					if (data != undefined) {
 						this.#data = this.#schema.parse(data);
-						await this.save();
+						await this.#save();
 						return;
 					}
 				} catch (err) {
@@ -69,11 +76,11 @@ export class State<Schema extends BaseJsonSchema> {
 				}
 			}
 			this.#data = structuredClone(this.#default);
-			await this.save();
+			await this.#save();
 		}
 	}
 
-	public async save(): Promise<void> {
+	async #save(): Promise<void> {
 		if (this.#data == undefined) {
 			throw new Error("Persistance.State save has been called before it was loaded");
 		}
@@ -86,6 +93,14 @@ export class State<Schema extends BaseJsonSchema> {
 		} catch (err) {
 			console.error(`Persistance.State save failed: ${Utils.errMsg(err)}`); // eslint-disable-line no-console
 		}
+		for (const listener of this.#listeners) {
+			listener();
+		}
+	}
+
+	public onChange(listener: OnChangeListener): () => void {
+		this.#listeners.add(listener);
+		return () => this.#listeners.delete(listener);
 	}
 }
 
@@ -97,3 +112,13 @@ interface StateOptions<Schema extends BaseJsonSchema> {
 	name: string;
 	migrations?: Migrations;
 }
+
+type OnChangeListener = () => void;
+
+type DeepReadonly<T> = T extends (infer R)[]
+	? ReadonlyArray<DeepReadonly<R>>
+	: T extends object
+	? {
+			readonly [P in keyof T]: DeepReadonly<T[P]>;
+	  }
+	: T;

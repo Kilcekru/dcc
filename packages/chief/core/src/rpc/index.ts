@@ -1,7 +1,10 @@
-import { BrowserWindow, ipcMain } from "electron";
+import * as Path from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { openContextMenu } from "../app/menu";
+import { app, ipcMain, WebFrameMain } from "electron";
+
 import { config } from "../config";
+import * as Domain from "../domain";
 import { isArray, isPlainObject } from "../utils/utils";
 import { handlers } from "./handlers";
 
@@ -15,6 +18,10 @@ export function startRpc() {
 	}
 
 	ipcMain.handle("rpc", async (event, rpcArgs: unknown) => {
+		if (!validateSender(event.senderFrame)) {
+			return null;
+		}
+
 		if (typeof rpcArgs !== "string") {
 			throw new Error("Invalid RPC call: Payload not stringified");
 		}
@@ -39,15 +46,28 @@ export function startRpc() {
 		if (config.env !== "dev") {
 			return;
 		}
+
 		const { x, y } = JSON.parse(args) as { x: number; y: number };
-		const window = BrowserWindow.fromWebContents(event.sender);
-		if (window == undefined) {
-			return;
-		}
-		openContextMenu({
-			window,
+
+		Domain.Window.openContextMenu({
+			webContent: event.sender,
 			x,
 			y,
 		});
 	});
+}
+
+function validateSender(frame: WebFrameMain) {
+	const url = frame.url;
+	// sender must be loaded from file
+	if (!url.startsWith("file:///")) {
+		return false;
+	}
+	// sender must be within _appPath_/dist/apps
+	const relative = Path.relative(Path.join(app.getAppPath(), "dist/apps"), fileURLToPath(url));
+	if (Path.isAbsolute(relative) || relative.length === 0 || relative.startsWith("..")) {
+		return false;
+	}
+
+	return true;
 }

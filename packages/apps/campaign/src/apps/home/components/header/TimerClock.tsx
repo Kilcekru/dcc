@@ -2,7 +2,6 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { createEffect, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components/CampaignProvider";
-import { Clock } from "../../../../components/Clock";
 import { useSave } from "../../../../hooks";
 import { calcTakeoffTime } from "../../../../utils";
 import Styles from "./TimerClock.module.less";
@@ -44,7 +43,7 @@ export const TimerClock = () => {
 	return (
 		<div class={Styles.wrapper}>
 			<div class={Styles.clock}>
-				<Clock value={state.timer} withDay />
+				<Components.Clock value={state.timer} withDay />
 			</div>
 
 			<Components.Tooltip text="Takeoff Time reached" disabled={!takeoffTimeReached()}>

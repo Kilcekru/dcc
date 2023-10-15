@@ -1,6 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import * as Domain from "../../domain";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -14,7 +16,7 @@ const destroyUnit = (faction: DcsJs.CampaignFaction, id: string, timer: number) 
 	inventoryUnit.alive = false;
 	inventoryUnit.destroyedTime = timer;
 };
-export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const cas = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -24,7 +26,7 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 			if (fg.task === "CAS" && fg.target != null) {
 				const gg = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
 
-				if (gg != null && distanceToPosition(fg.position, gg?.position) < 3_000) {
+				if (gg != null && Utils.distanceToPosition(fg.position, gg?.position) < 3_000) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
 
@@ -33,7 +35,7 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 						}
 
 						if (aircraft.a2GWeaponReadyTimer == null) {
-							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);
+							aircraft.a2GWeaponReadyTimer = state.timer + Domain.Time.Minutes(3);
 						} else if (aircraft.a2GWeaponReadyTimer <= state.timer) {
 							const aliveUnitId = gg.unitIds.find((id) => {
 								const inventoryUnit = oppFaction.inventory.groundUnits[id];
@@ -45,14 +47,14 @@ export const cas = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignSt
 								return;
 							}
 
-							if (random(1, 100) <= 50) {
+							if (Domain.Random.number(1, 100) <= 50) {
 								destroyUnit(oppFaction, aliveUnitId, state.timer);
 								console.log(`CAS: ${aircraft.id} destroyed ${aliveUnitId} in objective ${gg.objectiveName}`); // eslint-disable-line no-console
 							} else {
 								console.log(`CAS: ${aircraft.id} missed ${aliveUnitId} in objective ${gg.objectiveName}`); // eslint-disable-line no-console
 							}
 
-							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(3);
+							aircraft.a2GWeaponReadyTimer = state.timer + Domain.Time.Minutes(3);
 						}
 					});
 				}

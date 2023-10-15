@@ -8,7 +8,7 @@ import { RunningCampaignState } from "../../../../logic/types";
 import { getCoalitionFaction, getWeaponsForFlightGroupUnit } from "../../../../logic/utils";
 import Styles from "./Item.module.less";
 
-export function FlightGroupUnit(props: { unit: DcsJs.CampaignFlightGroupUnit; coalition: DcsJs.CampaignCoalition }) {
+export function FlightGroupUnit(props: { unit: DcsJs.FlightGroupUnit; coalition: DcsJs.Coalition }) {
 	const [state] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 

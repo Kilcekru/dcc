@@ -14,7 +14,18 @@ import styles from "./Home.module.less";
 export const Home = () => {
 	const [
 		state,
-		{ tick, saveCampaignRound, pause, updateDeploymentScore, updateRepairScore, togglePause, clearToastMessages },
+		{
+			tick,
+			saveCampaignRound,
+			saveLongCampaignRound,
+			pause,
+			updateDeploymentScore,
+			updateRepairScore,
+			updateWeather,
+			updateDownedPilots,
+			togglePause,
+			clearToastMessages,
+		},
 	] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	let inter: number;
@@ -55,6 +66,17 @@ export const Home = () => {
 	const longInterval = () => {
 		updateDeploymentScore?.();
 		updateRepairScore?.();
+		updateWeather?.(dataStore);
+		updateDownedPilots?.();
+
+		try {
+			saveLongCampaignRound?.(dataStore);
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e, state);
+			stopInterval();
+		}
+
 		save();
 	};
 

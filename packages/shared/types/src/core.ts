@@ -37,3 +37,11 @@ export interface Versions {
 }
 
 export type AppName = "home" | "campaign";
+
+export type UpdateInfo = {
+	available: boolean;
+	details?: {
+		version: string;
+		url: string;
+	};
+};

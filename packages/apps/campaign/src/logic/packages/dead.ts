@@ -1,154 +1,206 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
-import {
-	addHeading,
-	calcPackageEndTime,
-	firstItem,
-	getDurationEnRoute,
-	getUsableAircraftsByType,
-	headingToPosition,
-	Minutes,
-	objectToPosition,
-	oppositeCoalition,
-	positionFromHeading,
-	random,
-} from "../../utils";
+import * as Domain from "../../domain";
+import { addHeading, calcPackageEndTime, getDurationEnRoute, objectToPosition, positionFromHeading } from "../../utils";
 import { getDeadTarget } from "../targetSelection";
 import { RunningCampaignState } from "../types";
-import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
+import {
+	calcLandingWaypoints,
+	calcNearestOppositeAirdrome,
+	generateCallSign,
+	getCoalitionFaction,
+	getLoadoutForAircraftType,
+} from "../utils";
+import { escortFlightGroup } from "./escort";
+import {
+	calcFrequency,
+	calcHoldWaypoint,
+	getCruiseSpeed,
+	getPackageAircrafts,
+	updateAircraftForFlightGroup,
+} from "./utils";
 
 export const generateDeadPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
-	dataStore: Types.Campaign.DataStore
-): DcsJs.CampaignPackage | undefined => {
+	dataStore: Types.Campaign.DataStore,
+): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
-	const oppCoalition = oppositeCoalition(coalition);
-	const oppFaction = getCoalitionFaction(oppCoalition, state);
 
 	if (faction == null || dataStore.airdromes == null) {
 		return;
 	}
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction?.aircraftTypes.DEAD, 2);
 
-	if (usableAircrafts == null || usableAircrafts.length === 0) {
+	const packageAircrafts = getPackageAircrafts({
+		aircraftTypes: faction.aircraftTypes.DEAD,
+		coalition,
+		state,
+		count: 2,
+		dataStore,
+		faction,
+	});
+
+	const escortPackageAircrafts = getPackageAircrafts({
+		aircraftTypes: faction.aircraftTypes.CAP,
+		coalition,
+		state,
+		count: 2,
+		dataStore,
+		faction,
+		excludedAircrafts: packageAircrafts?.aircrafts,
+	});
+
+	if (packageAircrafts?.startPosition == null) {
+		// eslint-disable-next-line no-console
+		console.warn("generateDeadPackage: start position not found", packageAircrafts);
 		return;
 	}
 
-	const airdromeName = firstItem(faction?.airdromeNames);
+	const aircraftType = Domain.Utils.firstItem(packageAircrafts.aircrafts)?.aircraftType as DcsJs.AircraftType;
 
-	if (airdromeName == null) {
-		throw `airdrome not found: ${airdromeName ?? ""}`;
-	}
+	const frequency = calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, faction, dataStore);
 
-	const airdrome = dataStore.airdromes[airdromeName];
+	const cruiseSpeed = getCruiseSpeed(
+		[...packageAircrafts.aircrafts, ...(escortPackageAircrafts?.aircrafts ?? [])],
+		dataStore,
+	);
 
-	if (airdrome == null) {
-		throw `generateDeadPackage: airdrome not found: ${airdromeName ?? ""}`;
-	}
-
-	const selectedObjective = getDeadTarget(airdrome, oppFaction);
+	const selectedObjective = getDeadTarget(packageAircrafts.startPosition, coalition, state);
 
 	if (selectedObjective == null) {
 		return;
 	}
 
-	const speed = 170;
 	const ingressPosition = positionFromHeading(
 		selectedObjective.position,
-		headingToPosition(selectedObjective.position, airdrome),
-		selectedObjective.range
+		Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition),
+		selectedObjective.range * 1.2,
 	);
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, selectedObjective.position);
 	const engressHeading =
 		oppAirdrome == null
-			? headingToPosition(selectedObjective.position, airdrome)
-			: headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
-	const engressPosition = positionFromHeading(
+			? Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition)
+			: Utils.headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+	const egressPosition = positionFromHeading(
 		selectedObjective.position,
 		addHeading(engressHeading, 180),
-		selectedObjective.range
+		selectedObjective.range * 1.2,
 	);
 
-	const durationEnRoute = getDurationEnRoute(airdrome, selectedObjective.position, speed);
-	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, speed);
-	const durationEngress = getDurationEnRoute(selectedObjective.position, engressPosition, speed);
+	const startTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(5, 15));
+	const [holdWaypoint, holdPosition, holdTime] = calcHoldWaypoint(
+		packageAircrafts.startPosition,
+		ingressPosition,
+		cruiseSpeed,
+	);
 
-	const startTime = Math.floor(state.timer) + Minutes(random(5, 15));
-	const endEnRouteTime = startTime + durationEnRoute;
+	const durationEnRoute = getDurationEnRoute(holdPosition, selectedObjective.position, cruiseSpeed);
+	const durationIngress = getDurationEnRoute(ingressPosition, selectedObjective.position, cruiseSpeed);
+	const durationEgress = getDurationEnRoute(selectedObjective.position, egressPosition, cruiseSpeed);
+
+	const endEnRouteTime = holdTime + durationEnRoute;
 	const endIngressTime = endEnRouteTime + durationIngress;
-	const endEngressTime = endIngressTime + durationEngress;
+	const endEgressTime = endIngressTime + durationEgress;
 
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(engressPosition, airdrome, endEngressTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints({
+		egressPosition: egressPosition,
+		airdromePosition: packageAircrafts.startPosition,
+		prevWaypointTime: endEgressTime + 1,
+		cruiseSpeed,
+	});
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
-		airdromeName,
+		airdromeName: packageAircrafts.startPosition.name,
 		units:
-			usableAircrafts?.slice(0, 2).map(
+			packageAircrafts.aircrafts?.slice(0, 2).map(
 				(aircraft, i) =>
 					({
 						id: aircraft.id,
 						callSign: cs.unitCallSign(i),
 						name: cs.unitName(i),
 						client: false,
-					} as DcsJs.CampaignFlightGroupUnit)
+						loadout: getLoadoutForAircraftType(aircraft.aircraftType as DcsJs.AircraftType, "DEAD", dataStore),
+					}) as DcsJs.FlightGroupUnit,
 			) ?? [],
 		name: cs.flightGroupName,
 		task: "DEAD",
 		startTime,
-		tot: endEnRouteTime + 1,
+		designatedStartTime: startTime,
+		tot: endIngressTime + 1,
 		landingTime: landingTime,
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(airdrome),
-				time: startTime,
-				speed,
+				position: objectToPosition(packageAircrafts.startPosition),
+				time: 0,
+				speed: cruiseSpeed,
 				onGround: true,
 			},
+			holdWaypoint,
 			{
 				name: "Ingress",
 				position: ingressPosition,
-				speed,
+				speed: cruiseSpeed,
 				time: endEnRouteTime + 1,
 				taskStart: true,
 			},
 			{
 				name: "DEAD",
 				position: selectedObjective.position,
-				time: endEnRouteTime + 1,
+				time: endIngressTime + 1,
 				onGround: true,
-				speed,
+				speed: cruiseSpeed,
 			},
 			{
-				name: "Engress",
-				position: engressPosition,
+				name: "Egress",
+				position: egressPosition,
 				time: endEnRouteTime + 2,
-				speed,
+				speed: cruiseSpeed,
 			},
 			...landingWaypoints,
 		],
-		target: selectedObjective.id,
-		position: objectToPosition(airdrome),
+		target: selectedObjective.name,
+		position: objectToPosition(packageAircrafts.startPosition),
 	};
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
-	const flightGroups = [flightGroup];
+	let escort: DcsJs.FlightGroup | undefined = undefined;
+
+	if (escortPackageAircrafts != null) {
+		escort = escortFlightGroup({
+			coalition,
+			state,
+			dataStore,
+			targetFlightGroup: flightGroup,
+			holdWaypoint,
+			egressPosition,
+			egressTime: endEgressTime,
+			cruiseSpeed,
+			packageAircrafts: escortPackageAircrafts,
+			frequency,
+		});
+	}
+
+	if (escort != null) {
+		updateAircraftForFlightGroup(escort, state, coalition, dataStore);
+	}
+
+	const flightGroups = escort == null ? [flightGroup] : [flightGroup, escort];
 
 	return {
 		task: "DEAD" as DcsJs.Task,
 		startTime,
 		taskEndTime: endEnRouteTime + 1,
-		endTime: calcPackageEndTime(flightGroups),
+		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, faction, dataStore),
 		id: createUniqueId(),
 	};
 };

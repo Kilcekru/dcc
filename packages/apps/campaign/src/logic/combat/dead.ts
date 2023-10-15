@@ -1,7 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Domain from "../../domain";
-import { distanceToPosition, Minutes, oppositeCoalition, random } from "../../utils";
+import { oppositeCoalition } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
 
@@ -24,7 +25,7 @@ const destroySam = (faction: DcsJs.CampaignFaction, id: string, timer: number) =
 	});
 };
 
-export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignState) => {
+export const dead = (coalition: DcsJs.Coalition, state: RunningCampaignState) => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -36,13 +37,16 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 
 		pkg.flightGroups.forEach((fg) => {
 			if (fg.task === "DEAD" && fg.target != null) {
-				const sam = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
+				const sam = oppFaction.groundGroups.find((gg) => gg.name === fg.target);
 
 				if (sam == null) {
 					return;
 				}
 
-				if (distanceToPosition(fg.position, sam.position) < 90_000 && fg.startTime + Minutes(1) < state.timer) {
+				if (
+					Utils.distanceToPosition(fg.position, sam.position) < 90_000 &&
+					fg.startTime + Domain.Time.Minutes(1) < state.timer
+				) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
 
@@ -52,14 +56,14 @@ export const dead = (coalition: DcsJs.CampaignCoalition, state: RunningCampaignS
 
 						if (aircraft.a2GWeaponReadyTimer == null || aircraft.a2GWeaponReadyTimer <= state.timer) {
 							// Is the attack successful
-							if (random(1, 100) <= 50) {
+							if (Domain.Random.number(1, 100) <= 50) {
 								destroySam(oppFaction, sam.id, state.timer);
 								console.log(`DEAD: ${aircraft.id} destroyed SAM in objective ${sam.id}`); // eslint-disable-line no-console
 							} else {
 								console.log(`DEAD: ${aircraft.id} missed SAM in objective ${sam.id}`); // eslint-disable-line no-console
 							}
 
-							aircraft.a2GWeaponReadyTimer = state.timer + Minutes(60);
+							aircraft.a2GWeaponReadyTimer = state.timer + Domain.Time.Minutes(60);
 						}
 					});
 				}

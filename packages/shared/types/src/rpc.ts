@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { CampaignSynopsis, DataStore, MissionState } from "./campaign";
 import { AppName, DcsPaths, SystemConfig, UserConfig, Versions } from "./core";
+import * as Patch from "./patch";
 
 export interface Misc {
 	getVersions: () => Promise<Versions>;
@@ -30,7 +31,7 @@ export interface Campaign {
 	getVehicles: () => Promise<DcsJs.GetVehicles>;
 	getDataStore: (map: DcsJs.MapName) => Promise<DataStore>;
 	generateCampaignMission: (campaign: DcsJs.CampaignState) => Promise<{ success: boolean }>;
-	resumeCampaign: () => Promise<Partial<DcsJs.CampaignState> | undefined | null>;
+	resumeCampaign: (version: number) => Promise<Partial<DcsJs.CampaignState> | undefined | null>;
 	openCampaign: (id: string) => Promise<DcsJs.CampaignState | undefined | null>;
 	loadCampaignList: () => Promise<Record<string, CampaignSynopsis>>;
 	loadMissionState: () => Promise<MissionState | undefined>;
@@ -38,4 +39,10 @@ export interface Campaign {
 	saveCustomFactions: (value: Array<DcsJs.Faction>) => Promise<void>;
 	saveCampaign: (campaign: DcsJs.CampaignState) => Promise<void>;
 	removeCampaign: (id: string) => Promise<void>;
+}
+
+export interface Patches {
+	detectPatch: (id: Patch.Id) => Promise<boolean | undefined>;
+	executePatches: (execs: Patch.Execution[]) => Promise<void>;
+	executePatchOnQuit: (id: Patch.Id, action: Patch.Action | "none") => Promise<void>;
 }

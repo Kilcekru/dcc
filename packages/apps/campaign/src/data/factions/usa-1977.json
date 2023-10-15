@@ -8,7 +8,8 @@
 		"CAS": ["A-10A", "AH-64D_BLK_II"],
 		"AWACS": ["E-3A"],
 		"DEAD": ["F-4E"],
-		"Pinpoint Strike": ["F-14A-135-GR"]
+		"Pinpoint Strike": ["F-14A-135-GR"],
+		"CSAR": ["UH-1H"]
 	},
 	"templateName": "USA - Cold War"
 }

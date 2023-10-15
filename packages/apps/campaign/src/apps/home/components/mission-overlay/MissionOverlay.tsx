@@ -2,40 +2,58 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
 import { createEffect, createMemo, createSignal, Show, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { CampaignContext, Clock } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
+import { useModalContext, useSetIsPersistanceModalOpen } from "../../../../components/modalProvider";
 import { useSave } from "../../../../hooks";
 import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
 import { ClientList } from "./ClientList";
 import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
 import Styles from "./MissionOverlay.module.less";
-import { PersistenceModal } from "./PersistenceModal";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
+	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
+	const modalContext = useModalContext();
 	const [state, { submitMissionState, pause, generateMissionId }] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
-	const [isPersistenceOpen, setIsPersistenceOpen] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
 	const [flightGroups, setFlightGroups] = createSignal<{
-		blue: Array<DcsJs.CampaignFlightGroup>;
-		red: Array<DcsJs.CampaignFlightGroup>;
+		blue: Array<DcsJs.FlightGroup>;
+		red: Array<DcsJs.FlightGroup>;
 	}>({ blue: [], red: [] });
 	const isReady = createMemo(() => overlayState() === "ready");
 	const isGenerated = createMemo(() => overlayState() === "generated");
 
 	const save = useSave();
 
+	const detectPersistance = async (): Promise<boolean> => {
+		try {
+			const patch = await rpc.patches.detectPatch("scriptFileAccess");
+			return patch ?? true;
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(`detect patch: ${Utils.errMsg(e)}`);
+			return true;
+		}
+	};
+
 	const onGenerateMission = async () => {
 		try {
 			generateMissionId?.();
-			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)) as DcsJs.CampaignState);
-			setOverlayState("generated");
+			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)));
+
+			if (modalContext.isPersistanceIgnored || (await detectPersistance())) {
+				setOverlayState("generated");
+			} else {
+				setIsPersistanceModalOpen(true);
+			}
 		} catch (e) {
 			const errorString = String(e).split("'rpc':")[1];
 
@@ -92,11 +110,11 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 			setFlightGroups({
 				blue: structuredClone(
-					unwrap(getFlightGroups(state.blueFaction?.packages))
-				) as unknown as Array<DcsJs.CampaignFlightGroup>,
+					unwrap(getFlightGroups(state.blueFaction?.packages)),
+				) as unknown as Array<DcsJs.FlightGroup>,
 				red: structuredClone(
-					unwrap(getFlightGroups(state.redFaction?.packages))
-				) as unknown as Array<DcsJs.CampaignFlightGroup>,
+					unwrap(getFlightGroups(state.redFaction?.packages)),
+				) as unknown as Array<DcsJs.FlightGroup>,
 			});
 
 			submitMissionState?.(loadedMissionState, dataStore);
@@ -129,7 +147,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					<h1 class={cnb(Styles.title, isGenerated() ? Styles["title--show"] : null)}>Mission generated</h1>
 					<h1 class={cnb(Styles.title, isReady() ? Styles["title--show"] : null)}>Ready for Takeoff</h1>
 					<div class={cnb(Styles.clock, !isGenerated() ? Styles["clock--forwarding"] : null)}>
-						<Clock value={state.timer} />
+						<Components.Clock value={state.timer} />
 					</div>
 					<div class={cnb(Styles["help-text"], isGenerated() ? Styles["help-text--show"] : null)}>
 						<div>
@@ -140,14 +158,6 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 								</Components.Button>
 							</h2>
 							<p>After the Mission you can submit the Result with the button below.</p>
-							<div class={Styles["persistent-hint"]}>
-								Make sure DCC is able to persist the mission state
-								<Components.Tooltip text="Learn more">
-									<Components.Button onPress={() => setIsPersistenceOpen(true)} unstyled>
-										<Components.Icons.QuestionCircle />
-									</Components.Button>
-								</Components.Tooltip>
-							</div>
 						</div>
 					</div>
 					<div class={Styles["client-list-wrapper"]}>
@@ -176,7 +186,6 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				</Show>
 			</div>
 
-			<PersistenceModal isOpen={isPersistenceOpen()} onClose={() => setIsPersistenceOpen(false)} />
 			<HowToStartModal isOpen={isHowToStartOpen()} onClose={() => setIsHowToStartOpen(false)} />
 		</div>
 	);

@@ -1,8 +1,10 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
+import { Config } from "../data";
 import * as Domain from "../domain";
 import { getFlightGroups } from "../utils";
+import { createDownedPilot } from "./createDownedPilot";
 
 export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircraftId: string) => {
 	const flightGroups = getFlightGroups(faction.packages);
@@ -13,7 +15,7 @@ export const findFlightGroupForAircraft = (faction: DcsJs.CampaignFaction, aircr
 export const killedGroundUnitIds = (
 	faction: DcsJs.CampaignFaction,
 	killedGroundUnitNames: Array<string>,
-	excludeSam?: boolean
+	excludeSam?: boolean,
 ) => {
 	const ids: Array<string> = [];
 
@@ -49,8 +51,8 @@ export const killedAircraftIds = (faction: DcsJs.CampaignFaction, killedAircraft
 };
 
 export const killedAircraftIdsByFlightGroups = (
-	flightGroups: Array<DcsJs.CampaignFlightGroup>,
-	killedAircraftNames: Array<string>
+	flightGroups: Array<DcsJs.FlightGroup>,
+	killedAircraftNames: Array<string>,
 ) => {
 	const ids: Array<string> = [];
 
@@ -105,9 +107,11 @@ export const killedSamNames = (faction: DcsJs.CampaignFaction, killedGroundUnitN
 };
 
 export const updateFactionState = (
+	coalition: DcsJs.Coalition,
 	faction: DcsJs.CampaignFaction,
 	s: DcsJs.CampaignState,
-	missionState: Types.Campaign.MissionState
+	missionState: Types.Campaign.MissionState,
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	const killedAircrafts = killedAircraftIds(faction, missionState.killed_aircrafts);
 	const killedGroundUnits = killedGroundUnitIds(faction, missionState.killed_ground_units);
@@ -136,7 +140,7 @@ export const updateFactionState = (
 
 	missionState.killed_ground_units.forEach((killedUnitName) => {
 		const objectStructure = Object.values(faction.structures).find((structure) =>
-			structure.buildings.some((building) => building.name === killedUnitName)
+			structure.buildings.some((building) => building.name === killedUnitName),
 		);
 
 		if (objectStructure == null) {
@@ -184,6 +188,27 @@ export const updateFactionState = (
 					unit.client = false;
 				}
 			});
+
+			const groupPosition = missionState.group_positions.find((gp) => gp.name === fg.name);
+
+			if (groupPosition == null) {
+				return;
+			}
+
+			fg.position = {
+				x: Config.mapOrigin[s.map].x + groupPosition.x,
+				y: Config.mapOrigin[s.map].y + groupPosition.y,
+			};
 		});
+	});
+
+	missionState.downed_pilots.forEach((pilot) => {
+		if (pilot.coalition === 2 && coalition === "blue") {
+			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s, dataStore);
+		}
+
+		if (pilot.coalition === 1 && coalition === "red") {
+			faction = createDownedPilot(pilot.name, pilot.time, { x: pilot.x, y: pilot.y }, coalition, faction, s, dataStore);
+		}
 	});
 };

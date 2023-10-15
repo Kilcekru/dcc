@@ -1,0 +1,17 @@
+{
+	"name": "@kilcekru/dcc-lib-document",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"clean": "rm -rf .turbo",
+		"clean:all": "rm -rf .turbo node_modules",
+		"validate:lint": "eslint src",
+		"validate:ts": "tsc --noEmit"
+	},
+	"dependencies": {
+		"solid-js": "1.7.7"
+	},
+	"devDependencies": {
+		"@foxdelta2/dcsjs": "0.3.0"
+	}
+}

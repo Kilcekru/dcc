@@ -6,6 +6,7 @@ import { createStore } from "solid-js/store";
 
 const initState: Types.Campaign.DataStore = {
 	map: "caucasus",
+	mapInfo: undefined,
 	airdromes: undefined,
 	objectives: undefined,
 	strikeTargets: undefined,
@@ -17,6 +18,7 @@ const initState: Types.Campaign.DataStore = {
 	callSigns: undefined,
 	launchers: undefined,
 	weapons: undefined,
+	ships: undefined,
 };
 
 type Store = [
@@ -25,7 +27,7 @@ type Store = [
 		getData?: () => void;
 		setMap?: (name: DcsJs.MapName) => void;
 		setFactions?: (factions: Array<DcsJs.FactionDefinition>) => void;
-	}
+	},
 ];
 
 export const DataContext = createContext<Store>([initState, {}]);

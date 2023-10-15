@@ -3,6 +3,7 @@ import { cnb } from "cnbuilder";
 import { createMemo, onCleanup, onMount, Show, useContext } from "solid-js";
 
 import { Airdrome } from "./Airdrome";
+import { DownedPilot } from "./DownedPilot";
 import { FlightGroup } from "./FlightGroup";
 import { GroundGroup } from "./GroundGroup";
 import style from "./OverlaySidebar.module.less";
@@ -38,11 +39,14 @@ export function OverlaySidebar() {
 			<Show when={store.state === "ground group" || store.state === "ewr"}>
 				<GroundGroup />
 			</Show>
-			<Show when={store.state === "airdrome"}>
+			<Show when={store.state === "airdrome" || store.state === "carrier"}>
 				<Airdrome />
 			</Show>
 			<Show when={store.state === "sam"}>
 				<Sam />
+			</Show>
+			<Show when={store.state === "downed pilot"}>
+				<DownedPilot />
 			</Show>
 
 			<Components.Button onPress={onClose} class={style["close-button"]} large>

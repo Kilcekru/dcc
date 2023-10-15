@@ -1,9 +1,11 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
 import { useDataStore } from "./components/DataProvider";
 import { Config, Scenario } from "./data";
+import * as Domain from "./domain";
 import { RunningCampaignState } from "./logic/types";
 import { getCoalitionFaction } from "./logic/utils";
 import { MapPosition, Task } from "./types";
@@ -32,19 +34,18 @@ export const positionToMapPosition =
 		}
 	};
 
-export const headingToPosition = (position1: DcsJs.Position, position2: DcsJs.Position) => {
-	return (Math.atan2(position2.y - position1.y, position2.x - position1.x) * 180) / Math.PI;
+const isPosition = (value: DcsJs.Position | { position: DcsJs.Position }): value is DcsJs.Position => {
+	return (value as DcsJs.Position).x != null;
 };
-
-export const distanceToPosition = (position1: DcsJs.Position, position2: DcsJs.Position) => {
-	return Math.sqrt(Math.pow(position2.x - position1.x, 2) + Math.pow(position2.y - position1.y, 2));
-};
-
-export const objectToPosition = <T extends DcsJs.Position>(value: T): DcsJs.Position => {
-	return {
-		x: value.x,
-		y: value.y,
-	};
+export const objectToPosition = <T extends DcsJs.Position | { position: DcsJs.Position }>(value: T): DcsJs.Position => {
+	if (isPosition(value)) {
+		return {
+			x: value.x,
+			y: value.y,
+		};
+	} else {
+		return value.position;
+	}
 };
 
 export const addHeading = (heading: number, value: number) => {
@@ -57,58 +58,11 @@ export const addHeading = (heading: number, value: number) => {
 	return sum % 360;
 };
 
-export const Minutes = (value: number) => {
-	return value * 60;
-};
-
-export const random = (min: number, max: number): number => {
-	return Math.floor(Math.random() * (max - min + 1) + min);
-};
-
-export const randomItem = <T>(arr: Array<T>, filterFn?: (value: T) => boolean): T | undefined => {
-	const filtered = filterFn == null ? arr : [...arr].filter(filterFn);
-
-	return filtered[random(0, filtered.length - 1)];
-};
-
-export const randomList = <T>(arr: Array<T>, length: number): Array<T> => {
-	const selected: Array<T> = [];
-
-	Array.from({ length: length }, () => {
-		const s = randomItem(arr, (v) => !selected.some((a) => a == v));
-
-		if (s == null) {
-			return;
-		}
-
-		selected.push(s);
-	});
-
-	return selected;
-};
-
-export const randomCallSign = (dataStore: Types.Campaign.DataStore, type: "aircraft" | "helicopter" | "awacs") => {
-	const callSigns = dataStore.callSigns?.[type];
-
-	if (callSigns == null) {
-		return {
-			name: "Enfield",
-			index: 1,
-		};
-	}
-	const selected = randomItem(callSigns) ?? "Enfield";
-
-	return {
-		name: selected,
-		index: (callSigns.indexOf(selected) ?? 1) + (type === "awacs" ? 1 : 0),
-	};
-};
-
 export const findInside = <T>(
 	values: Array<T> | undefined,
 	sourcePosition: DcsJs.Position,
 	positionSelector: (value: T) => DcsJs.Position,
-	radius: number
+	radius: number,
 ): Array<T> => {
 	return (
 		values?.filter((v) => {
@@ -119,7 +73,7 @@ export const findInside = <T>(
 				radius * radius
 			); */
 
-			return distanceToPosition(sourcePosition, position) <= radius;
+			return Utils.distanceToPosition(sourcePosition, position) <= radius;
 		}) ?? []
 	);
 };
@@ -127,12 +81,12 @@ export const findInside = <T>(
 export const findNearest = <T>(
 	values: Array<T> | undefined,
 	sourcePosition: DcsJs.Position,
-	positionSelector: (value: T) => DcsJs.Position
+	positionSelector: (value: T) => DcsJs.Position,
 ) => {
 	return values?.reduce(
 		([prevObj, prevDistance], v) => {
 			const position = positionSelector(v);
-			const distance = distanceToPosition(sourcePosition, position);
+			const distance = Utils.distanceToPosition(sourcePosition, position);
 
 			if (distance < prevDistance) {
 				return [v, distance] as [T, number];
@@ -140,7 +94,7 @@ export const findNearest = <T>(
 				return [prevObj, prevDistance] as [T, number];
 			}
 		},
-		[undefined, 10000000] as [T, number]
+		[undefined, 10000000] as [T, number],
 	)[0];
 };
 
@@ -169,41 +123,46 @@ export const positionAfterDurationToPosition = (
 	sourcePosition: DcsJs.Position,
 	targetPosition: DcsJs.Position,
 	duration: number,
-	speed: number
+	speed: number,
 ): DcsJs.Position => {
 	if (duration <= 0) {
 		return sourcePosition;
 	}
 
 	const distanceTraveled = speed * duration;
-	const heading = headingToPosition(sourcePosition, targetPosition);
+	const heading = Utils.headingToPosition(sourcePosition, targetPosition);
 
 	return positionFromHeading(sourcePosition, heading, distanceTraveled);
 };
 
-export const getActiveWaypoint = (fg: DcsJs.CampaignFlightGroup, timer: number) => {
-	return fg.waypoints.reduce((prev, wp) => {
-		if (prev == null) {
-			return wp;
-		}
+export const getActiveWaypoint = (fg: DcsJs.FlightGroup, timer: number) => {
+	return fg.waypoints.reduce(
+		(prev, wp) => {
+			if (prev == null) {
+				return wp;
+			}
 
-		if (wp.time <= timer) {
-			return wp;
-		}
+			const wpTime = fg.startTime + wp.time;
 
-		return prev;
-	}, undefined as DcsJs.CampaignWaypoint | undefined);
+			if (wpTime <= timer) {
+				return wp;
+			}
+
+			return prev;
+		},
+		undefined as DcsJs.CampaignWaypoint | undefined,
+	);
 };
 
-export const getNextWaypoint = (fg: DcsJs.CampaignFlightGroup, waypoint: DcsJs.CampaignWaypoint) => {
+export const getNextWaypoint = (fg: DcsJs.FlightGroup, waypoint: DcsJs.CampaignWaypoint) => {
 	return fg.waypoints[fg.waypoints.indexOf(waypoint) + 1];
 };
 
 export const calcFlightGroupPosition = (
-	fg: DcsJs.CampaignFlightGroup,
+	fg: DcsJs.FlightGroup,
+	lastTickTimer: number,
 	timer: number,
-	speed: number,
-	dataStore: Types.Campaign.DataStore
+	dataStore: Types.Campaign.DataStore,
 ) => {
 	if (fg.startTime >= timer) {
 		return;
@@ -219,34 +178,44 @@ export const calcFlightGroupPosition = (
 
 	const airdrome = dataStore.airdromes?.[fg.airdromeName];
 
-	if (activeWaypoint.hold) {
-		return activeWaypoint.position;
-	}
 	if (activeWaypoint?.racetrack == null) {
+		const nextPosition = nextWaypoint?.position ?? airdrome ?? activeWaypoint.position;
+		if (Utils.distanceToPosition(fg.position, nextPosition) <= 2000) {
+			return nextPosition;
+		}
+
 		return positionAfterDurationToPosition(
-			activeWaypoint.position,
-			nextWaypoint?.position ?? airdrome ?? activeWaypoint.position,
-			timer - activeWaypoint.time,
-			speed
+			fg.position,
+			nextPosition,
+			timer - lastTickTimer,
+			nextWaypoint?.speed ?? 200,
 		);
 	} else {
 		const timeOnStation = timer - activeWaypoint.time;
 		const distancesAlreadyFlown = Math.floor(timeOnStation / activeWaypoint.racetrack.duration);
-		const timeOnTrack = Math.floor(timeOnStation - distancesAlreadyFlown * activeWaypoint.racetrack.duration);
+		// const timeOnTrack = Math.floor(timeOnStation - distancesAlreadyFlown * activeWaypoint.racetrack.duration);
 
 		if (distancesAlreadyFlown % 2 === 0) {
+			if (Utils.distanceToPosition(fg.position, activeWaypoint.racetrack.position) <= 1000) {
+				return activeWaypoint.racetrack.position;
+			}
+
 			return positionAfterDurationToPosition(
-				activeWaypoint.position,
+				fg.position,
 				activeWaypoint.racetrack.position,
-				timeOnTrack,
-				speed
+				timer - lastTickTimer,
+				nextWaypoint?.speed ?? 200,
 			);
 		} else {
+			if (Utils.distanceToPosition(fg.position, activeWaypoint.position) <= 1000) {
+				return activeWaypoint.position;
+			}
+
 			return positionAfterDurationToPosition(
-				activeWaypoint.racetrack.position,
+				fg.position,
 				activeWaypoint.position,
-				timeOnTrack,
-				speed
+				timer - lastTickTimer,
+				nextWaypoint?.speed ?? 200,
 			);
 		}
 	}
@@ -260,25 +229,28 @@ export const lastItem = <T>(arr: Array<T>) => {
 	return arr[arr.length - 1];
 };
 
-export const calcPackageEndTime = (fgs: Array<DcsJs.CampaignFlightGroup>) => {
-	return fgs.reduce((prev, fg) => {
-		if (fg.landingTime > prev) {
-			return fg.landingTime;
-		} else {
-			return prev;
-		}
-	}, 0);
-};
-
-export const getFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
+export const calcPackageEndTime = (startTime: number, fgs: Array<DcsJs.FlightGroup>) => {
 	return (
-		packages?.reduce((prev, pkg) => {
-			return [...prev, ...pkg.flightGroups];
-		}, [] as Array<DcsJs.CampaignFlightGroup>) ?? []
+		startTime +
+		fgs.reduce((prev, fg) => {
+			if (fg.landingTime > prev) {
+				return fg.landingTime;
+			} else {
+				return prev;
+			}
+		}, 0)
 	);
 };
 
-export const getClientFlightGroups = (packages: Array<DcsJs.CampaignPackage> | undefined) => {
+export const getFlightGroups = (packages: Array<DcsJs.FlightPackage> | undefined) => {
+	return (
+		packages?.reduce((prev, pkg) => {
+			return [...prev, ...pkg.flightGroups];
+		}, [] as Array<DcsJs.FlightGroup>) ?? []
+	);
+};
+
+export const getClientFlightGroups = (packages: Array<DcsJs.FlightPackage> | undefined) => {
 	const fgs = getFlightGroups(packages);
 
 	return fgs.filter((fg) => fg.units.some((unit) => unit.client)) ?? [];
@@ -286,21 +258,21 @@ export const getClientFlightGroups = (packages: Array<DcsJs.CampaignPackage> | u
 
 export const getUsableAircrafts = (activeAircrafts: Array<DcsJs.Aircraft> | undefined, task: Task) => {
 	return activeAircrafts?.filter(
-		(aircraft) => aircraft.state === "idle" && aircraft.availableTasks.some((aircraftTask) => aircraftTask === task)
+		(aircraft) => aircraft.state === "idle" && aircraft.availableTasks.some((aircraftTask) => aircraftTask === task),
 	);
 };
 
 export const getUsableAircraftsByType = (
 	state: RunningCampaignState,
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	aircraftTypes: Array<string> | undefined,
-	count: number
-) => {
+	count: number,
+): Array<DcsJs.Aircraft> => {
 	const faction = getCoalitionFaction(coalition, state);
 	const aircrafts = Object.values(faction.inventory.aircrafts ?? []);
 
 	// Filter only aircrafts that are in idle state
-	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle");
+	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle" && ac.disabled !== true);
 	// Filter only aircrafts that are alive
 	const aliveAircrafts = idleAircrafts.filter((ac) => ac.alive);
 	// Filter only aircrafts of specific aircraft types
@@ -319,27 +291,15 @@ export const getUsableAircraftsByType = (
 		.map(([acType]) => acType);
 
 	// Select a random aircraft type from the valid aircraft types
-	const selectedAircraftType = randomItem(validAircraftTypes);
+	const selectedAircraftType = Domain.Random.item(validAircraftTypes);
 
 	// Return only aircraft with the selected aircraft type
 	return aliveAircrafts.filter((ac) => ac.aircraftType === selectedAircraftType);
 };
 
-export const getUsableUnit = <T>(units: Array<T>, typeParam: keyof T, count: number) => {
-	const usableUnitTypes = units.filter((ac) => {
-		const acCount = units.filter((a) => a[typeParam] === ac[typeParam]).length;
-
-		return acCount >= count;
-	});
-
-	const randomAircraft = randomItem(usableUnitTypes);
-
-	return usableUnitTypes.filter((ac) => ac[typeParam] === randomAircraft?.[typeParam]);
-};
-
 export const getAircraftStateFromFlightGroup = (
-	fg: DcsJs.CampaignFlightGroup,
-	timer: number
+	fg: DcsJs.FlightGroup,
+	timer: number,
 ): DcsJs.CampaignAircraftState | undefined => {
 	if (fg.startTime < timer) {
 		const activeWaypoint = getActiveWaypoint(fg, timer);
@@ -359,29 +319,26 @@ export const getAircraftStateFromFlightGroup = (
 	}
 };
 
-export const filterObjectiveCoalition = (
-	objectives: Array<DcsJs.CampaignObjective>,
-	coalition: DcsJs.CampaignCoalition
-) => {
+export const filterObjectiveCoalition = (objectives: Array<DcsJs.Objective>, coalition: DcsJs.Coalition) => {
 	return objectives.filter((obj) => obj.coalition === coalition);
 };
 
 export const getDurationEnRoute = (startPosition: DcsJs.Position, endPosition: DcsJs.Position, speed: number) => {
-	const distanceToObjective = distanceToPosition(startPosition, endPosition);
-	return distanceToObjective / speed;
+	const distanceToObjective = Utils.distanceToPosition(startPosition, endPosition);
+	return Math.round(distanceToObjective / speed);
 };
 
-export const oppositeCoalition = (coalition: DcsJs.CampaignCoalition | undefined): DcsJs.CampaignCoalition => {
+export const oppositeCoalition = (coalition: DcsJs.Coalition | undefined): DcsJs.Coalition => {
 	if (coalition === "blue") {
 		return "red";
 	} else if (coalition === "red") {
 		return "blue";
 	} else {
-		return "neutral";
+		return "neutrals";
 	}
 };
 
-export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | undefined) => {
+export const coalitionToFactionString = (coalition: DcsJs.Coalition | undefined) => {
 	if (coalition === "blue") {
 		return "blueFaction";
 	} else {
@@ -390,7 +347,7 @@ export const coalitionToFactionString = (coalition: DcsJs.CampaignCoalition | un
 };
 
 export const onboardNumber = () => {
-	const num = random(1, 999);
+	const num = Domain.Random.number(1, 999);
 
 	if (num > 99) {
 		return `${num}`;
@@ -401,11 +358,7 @@ export const onboardNumber = () => {
 	}
 };
 
-export const getUsableGroundUnits = (activeGroundUnits: Record<string, DcsJs.CampaignUnit>) => {
-	return Object.values(activeGroundUnits).filter((unit) => unit.state === "idle" && unit.alive);
-};
-
-export const getScenarioFaction = (coalition: DcsJs.CampaignCoalition, scenario: Scenario) => {
+export const getScenarioFaction = (coalition: DcsJs.Coalition, scenario: Scenario) => {
 	return coalition === "blue" ? scenario.blue : scenario.red;
 };
 
@@ -421,14 +374,14 @@ export const hasStructureInRange = (
 	position: DcsJs.Position | undefined,
 	faction: DcsJs.CampaignFaction | undefined,
 	structureType: DcsJs.StructureType,
-	range: number
+	range: number,
 ) => {
 	if (position == null || faction == null) {
 		return false;
 	}
 
 	const structures = Object.values(faction.structures).filter(
-		(str) => str.type === structureType && str.state === "active"
+		(str) => str.type === structureType && str.state === "active",
 	);
 
 	const inRange = findInside(structures, position, (str) => str.position, range);
@@ -442,21 +395,21 @@ export const hasPowerInRange = (position: DcsJs.Position | undefined, faction: D
 
 export const hasAmmoDepotInRange = (
 	position: DcsJs.Position | undefined,
-	faction: DcsJs.CampaignFaction | undefined
+	faction: DcsJs.CampaignFaction | undefined,
 ) => {
 	return hasStructureInRange(position, faction, "Ammo Depot", Config.structureRange.ammo);
 };
 
 export const hasFuelStorageInRange = (
 	position: DcsJs.Position | undefined,
-	faction: DcsJs.CampaignFaction | undefined
+	faction: DcsJs.CampaignFaction | undefined,
 ) => {
 	return hasStructureInRange(position, faction, "Fuel Storage", Config.structureRange.fuel);
 };
 
 export const getDeploymentCost = (
-	coalition: DcsJs.CampaignCoalition | undefined,
-	structureType: DcsJs.StructureType | undefined
+	coalition: DcsJs.Coalition | undefined,
+	structureType: DcsJs.StructureType | undefined,
 ) => {
 	if (coalition == null || structureType == null) {
 		return 999999;
@@ -485,18 +438,21 @@ export function dateToTimer(value: Date) {
 	return value.valueOf() / 1000;
 }
 
-export function calcTakeoffTime(packages: Array<DcsJs.CampaignPackage> | undefined) {
-	return packages?.reduce((prev, pkg) => {
-		const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
+export function calcTakeoffTime(packages: Array<DcsJs.FlightPackage> | undefined) {
+	return packages?.reduce(
+		(prev, pkg) => {
+			const hasClients = pkg.flightGroups.some((fg) => fg.units.some((u) => u.client));
 
-		if (hasClients) {
-			if (prev == null || pkg.startTime < prev) {
-				return pkg.startTime;
+			if (hasClients) {
+				if (prev == null || pkg.startTime < prev) {
+					return pkg.startTime;
+				}
 			}
-		}
 
-		return prev;
-	}, undefined as number | undefined);
+			return prev;
+		},
+		undefined as number | undefined,
+	);
 }
 
 export function getMissionStateTimer(missionState: Types.Campaign.MissionState, timer: number) {
@@ -506,4 +462,46 @@ export function getMissionStateTimer(missionState: Types.Campaign.MissionState, 
 	const additionalTimer = additionalDays * 86400;
 
 	return missionState.time + additionalTimer;
+}
+
+export function awacsFrequency(faction: DcsJs.Faction, dataStore: Types.Campaign.DataStore) {
+	const aircraftStore = dataStore.aircrafts;
+
+	if (aircraftStore == null) {
+		return 251;
+	}
+
+	let limitedFrequency = false;
+
+	Object.values(faction.aircraftTypes).forEach((act) => {
+		act.forEach((ac) => {
+			const aircraft = aircraftStore[ac as DcsJs.AircraftType];
+
+			if (aircraft == null) {
+				return;
+			}
+
+			if (aircraft.allowedFrequency == null) {
+				return;
+			}
+
+			limitedFrequency = true;
+		});
+	});
+
+	return limitedFrequency ? 144 : 251;
+}
+
+export function jtacFrequency(faction: DcsJs.CampaignFaction) {
+	const existingJtacFrequency = faction.packages.reduce((prev, pkg) => {
+		const fgWithJtac = pkg.flightGroups.find((fg) => fg.jtacFrequency);
+
+		if (fgWithJtac?.jtacFrequency != null && fgWithJtac.jtacFrequency > prev) {
+			return fgWithJtac.jtacFrequency;
+		}
+
+		return prev;
+	}, 240);
+
+	return existingJtacFrequency + 1;
 }

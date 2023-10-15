@@ -56,6 +56,10 @@
 			opacity: 1;
 		}
 	}
+
+	&--incompatible {
+		cursor: initial;
+	}
 }
 
 .flag {
@@ -95,6 +99,7 @@
 
 .customize-button {
 	opacity: 0;
+
 	&-wrapper {
 		position: absolute;
 		top: 0;
@@ -103,6 +108,7 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		z-index: 5;
 	}
 }
 
@@ -110,4 +116,20 @@
 	display: flex;
 	justify-content: flex-end;
 	margin-block: 20px;
+}
+
+.incompatible-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: var(--background-opacity);
+	justify-content: center;
+	align-items: center;
+	display: flex;
+	font-weight: 300;
+	font-size: 45px;
+	pointer-events: none;
+	cursor: not-allowed;
 }

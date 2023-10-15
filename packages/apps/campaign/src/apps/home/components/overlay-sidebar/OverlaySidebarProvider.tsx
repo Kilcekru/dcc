@@ -2,26 +2,37 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import { createContext, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-type OverlayState = "closed" | "structure" | "flight group" | "ground group" | "airdrome" | "ewr" | "sam";
+type OverlayState =
+	| "closed"
+	| "structure"
+	| "flight group"
+	| "ground group"
+	| "airdrome"
+	| "ewr"
+	| "sam"
+	| "downed pilot"
+	| "carrier";
 type OverlayContextState = {
 	state: OverlayState;
 	structureName?: string;
-	coalition?: DcsJs.CampaignCoalition;
+	coalition?: DcsJs.Coalition;
 	flightGroupId?: string;
 	groundGroupId?: string;
-	airdromeName?: string;
+	name?: string;
 };
 type OverlayStore = [
 	OverlayContextState,
 	{
-		openStructure?: (structureName: string, coalition: DcsJs.CampaignCoalition) => void;
-		openFlightGroup?: (flightGroupId: string, coalition: DcsJs.CampaignCoalition) => void;
-		openGroundGroup?: (groundGroupId: string, coalition: DcsJs.CampaignCoalition) => void;
-		openAirdrome?: (airdromeName: string, coalition: DcsJs.CampaignCoalition) => void;
-		openEWR?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
-		openSam?: (id: string, coalition: DcsJs.CampaignCoalition) => void;
+		openStructure?: (structureName: string, coalition: DcsJs.Coalition) => void;
+		openFlightGroup?: (flightGroupId: string, coalition: DcsJs.Coalition) => void;
+		openGroundGroup?: (groundGroupId: string, coalition: DcsJs.Coalition) => void;
+		openAirdrome?: (airdromeName: string, coalition: DcsJs.Coalition) => void;
+		openEWR?: (id: string, coalition: DcsJs.Coalition) => void;
+		openSam?: (id: string, coalition: DcsJs.Coalition) => void;
+		openDownedPilot?: (id: string, coalition: DcsJs.Coalition) => void;
+		openCarrier?: (name: string, coalition: DcsJs.Coalition) => void;
 		close?: () => void;
-	}
+	},
 ];
 
 const initState: OverlayContextState = {
@@ -42,7 +53,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "structure";
 						s.structureName = structureName;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openFlightGroup(flightGroupId, coalition) {
@@ -51,7 +62,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "flight group";
 						s.flightGroupId = flightGroupId;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openGroundGroup(groundGroupId, coalition) {
@@ -60,16 +71,16 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "ground group";
 						s.groundGroupId = groundGroupId;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openAirdrome(airdromeName, coalition) {
 				setState(
 					produce((s) => {
 						s.state = "airdrome";
-						s.airdromeName = airdromeName;
+						s.name = airdromeName;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openEWR(id, coalition) {
@@ -78,7 +89,7 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "ewr";
 						s.groundGroupId = id;
 						s.coalition = coalition;
-					})
+					}),
 				);
 			},
 			openSam(id, coalition) {
@@ -87,7 +98,25 @@ export function OverlaySidebarProvider(props: { children: JSX.Element }) {
 						s.state = "sam";
 						s.groundGroupId = id;
 						s.coalition = coalition;
-					})
+					}),
+				);
+			},
+			openDownedPilot(id, coalition) {
+				setState(
+					produce((s) => {
+						s.state = "downed pilot";
+						s.groundGroupId = id;
+						s.coalition = coalition;
+					}),
+				);
+			},
+			openCarrier(name, coalition) {
+				setState(
+					produce((s) => {
+						s.state = "carrier";
+						s.name = name;
+						s.coalition = coalition;
+					}),
 				);
 			},
 			close() {

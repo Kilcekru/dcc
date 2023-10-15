@@ -1,4 +1,4 @@
-import * as desertThunder from "./desert-thunder.json";
+import * as operationNorthernShield from "./operation-northern-shield.json";
 import * as redBullet from "./red-bullet.json";
 import * as roadToParis from "./road-to-paris.json";
 
@@ -13,6 +13,7 @@ export type ObjectivePlan = {
 };
 export type ScenarioCoalition = {
 	airdromeNames: Array<string>;
+	carrierObjective?: string;
 	objectivePlans: Array<ObjectivePlan>;
 };
 export type Scenario = {
@@ -22,6 +23,8 @@ export type Scenario = {
 	name: string;
 	era: string;
 	date: string;
+	briefing: string;
+	"blue-start-objective-range": [number, number];
 	"win-condition":
 		| {
 				type: "ground units";
@@ -35,7 +38,7 @@ export type Scenario = {
 };
 
 export const scenarioList: Array<Scenario> = [
-	redBullet as Scenario,
-	roadToParis as Scenario,
-	desertThunder as Scenario,
+	redBullet as unknown as Scenario,
+	operationNorthernShield as unknown as Scenario,
+	roadToParis as unknown as Scenario,
 ];

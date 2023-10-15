@@ -2,27 +2,32 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
-import { Config, ScenarioCoalition } from "../../data";
-import { randomItem } from "../../utils";
+import { Config, ObjectivePlan } from "../../data";
+import * as Domain from "../../domain";
 
-function calcInitDeploymentScore(coalition: DcsJs.CampaignCoalition, structureType: DcsJs.StructureType) {
-	if (coalition === "blue") {
-		switch (structureType) {
-			case "Barrack": {
-				return Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor;
-			}
-			case "Depot": {
-				return Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor;
-			}
+function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJs.StructureType) {
+	const margin = Domain.Random.number(0.8, 1.2);
+
+	switch (structureType) {
+		case "Barrack": {
+			return (
+				(Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+			);
+		}
+		case "Depot": {
+			return (
+				(Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+			);
 		}
 	}
 
 	return 0;
 }
+
 export function generateStructures(
-	coalition: DcsJs.CampaignCoalition,
-	scenarioCoalition: ScenarioCoalition,
-	dataStore: Types.Campaign.DataStore
+	coalition: DcsJs.Coalition,
+	objectivePlans: Array<ObjectivePlan>,
+	dataStore: Types.Campaign.DataStore,
 ) {
 	const structures: Record<string, DcsJs.Structure> = {};
 
@@ -32,24 +37,27 @@ export function generateStructures(
 
 	const strikeTargets = Object.values(dataStore.strikeTargets);
 
-	scenarioCoalition.objectivePlans.forEach((plan) => {
+	objectivePlans.forEach((plan) => {
 		plan.structures.forEach((structurePlan) => {
-			const strikeTarget = strikeTargets.reduce((prev, objectiveTargets) => {
-				const target = objectiveTargets.find((st) => st.name === structurePlan.structureName);
+			const strikeTarget = strikeTargets.reduce(
+				(prev, objectiveTargets) => {
+					const target = objectiveTargets.find((st) => st.name === structurePlan.structureName);
 
-				if (target == null) {
-					return prev;
-				} else {
-					return target;
-				}
-			}, undefined as DcsJs.StrikeTarget | undefined);
+					if (target == null) {
+						return prev;
+					} else {
+						return target;
+					}
+				},
+				undefined as DcsJs.StrikeTarget | undefined,
+			);
 
 			if (strikeTarget == null) {
 				return;
 			}
 
 			const structureType = structurePlan.structureType as DcsJs.StructureType;
-			const structureTemplate = randomItem(dataStore.structures?.[structureType] ?? []);
+			const structureTemplate = Domain.Random.item(dataStore.structures?.[structureType] ?? []);
 
 			if (structureType === "Barrack" || structureType === "Depot") {
 				const structure: DcsJs.StructureUnitCamp = {
@@ -59,6 +67,7 @@ export function generateStructures(
 							alive: true,
 							name: `${structurePlan.structureName}|${i + 1}`,
 							...building,
+							shapeName: building.shapeName ?? "",
 						})) ?? [],
 					groupId: strikeTarget.groupId,
 					id: createUniqueId(),
@@ -78,6 +87,7 @@ export function generateStructures(
 							alive: true,
 							name: `${structurePlan.structureName}|${i + 1}`,
 							...building,
+							shapeName: building.shapeName ?? "",
 						})) ?? [],
 					groupId: strikeTarget.groupId,
 					id: createUniqueId(),

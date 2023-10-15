@@ -7,6 +7,7 @@ import { GameOverModal } from "../game-over-modal";
 import { MissionOverlay } from "../mission-overlay";
 import Styles from "./Header.module.less";
 import { TimerClock } from "./TimerClock";
+import { Weather } from "./Weather";
 
 export const Header = () => {
 	const [state, { setMultiplier, resume }] = useContext(CampaignContext);
@@ -26,14 +27,17 @@ export const Header = () => {
 
 	return (
 		<div class={Styles.header}>
-			<div>
-				<h1 class={Styles.title}>{state.name}</h1>
-				<p class={Styles.hardcore}>
-					<Show when={state.hardcore}>
-						<span>Hardcore - </span>
-					</Show>
-					AI Skill: {AiSkillMap[state.aiSkill]}
-				</p>
+			<div class={Styles["left-col"]}>
+				<div>
+					<h1 class={Styles.title}>{state.name}</h1>
+					<p class={Styles.hardcore}>
+						<Show when={state.hardcore}>
+							<span>Hardcore - </span>
+						</Show>
+						AI Skill: {AiSkillMap[state.aiSkill]}
+					</p>
+				</div>
+				<Weather />
 			</div>
 			<div>
 				<TimerClock />

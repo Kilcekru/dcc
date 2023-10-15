@@ -1,0 +1,80 @@
+.briefing {
+	margin: 10px;
+	width: calc(100% - 20px);
+}
+
+.label {
+	background-color: rgb(219, 219, 219);
+}
+
+.title {
+	margin-bottom: 10px;
+}
+
+.airbase {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+
+	p {
+		border-bottom: 1px solid black;
+	}
+}
+
+.package {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+
+	p {
+		border-bottom: 1px solid black;
+	}
+}
+
+.radio {
+	display: grid;
+	grid-template-columns: min-content min-content 1fr;
+
+	p {
+		border-bottom: 1px solid black;
+	}
+}
+
+.comm1 {
+	display: flex;
+	grid-column-start: 1;
+	grid-column-end: span 3;
+	background-color: rgb(219, 219, 219);
+}
+
+.comm2 {
+	display: flex;
+	grid-column-start: 0;
+	grid-column-end: span 3;
+	background-color: rgb(219, 219, 219);
+}
+
+.flight-plan {
+	display: grid;
+	grid-template-columns: min-content 1fr max-content min-content min-content min-content;
+
+	p {
+		border-bottom: 1px solid black;
+	}
+}
+
+.taskDescription {
+	padding-left: 0;
+}
+
+.name {
+	margin-bottom: 0;
+}
+
+.task {
+	font-size: 30px;
+	margin-top: 0;
+	font-weight: 300;
+}
+
+.hint {
+	background-color: rgb(219, 219, 219);
+}

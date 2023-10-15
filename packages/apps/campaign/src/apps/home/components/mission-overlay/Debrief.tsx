@@ -14,13 +14,13 @@ import {
 import Styles from "./Debrief.module.less";
 
 function useFlightGroupMissionState(
-	flightGroup: DcsJs.CampaignFlightGroup,
+	flightGroup: DcsJs.FlightGroup,
 	killedBlueAircrafts: Array<string>,
-	killedRedGroundUnits: Array<string>
+	killedRedGroundUnits: Array<string>,
 ) {
 	const [state] = useContext(CampaignContext);
 	const clientsKilled = flightGroup.units.some(
-		(unit) => unit.client && killedBlueAircrafts.some((id) => id === unit.id)
+		(unit) => unit.client && killedBlueAircrafts.some((id) => id === unit.id),
 	);
 
 	if (clientsKilled) {
@@ -38,7 +38,7 @@ function useFlightGroupMissionState(
 			}
 
 			const killedUnits = targetGg.unitIds.some((targetUnitId) =>
-				killedRedGroundUnits.some((id) => targetUnitId === id)
+				killedRedGroundUnits.some((id) => targetUnitId === id),
 			);
 
 			if (killedUnits) {
@@ -49,7 +49,7 @@ function useFlightGroupMissionState(
 		}
 		case "Escort": {
 			const targetPkg = state.blueFaction?.packages.find((pkg) =>
-				pkg.flightGroups.some((fg) => fg.name === flightGroup.target)
+				pkg.flightGroups.some((fg) => fg.name === flightGroup.target),
 			);
 			const targetFg = targetPkg?.flightGroups.find((fg) => fg.name === flightGroup.target);
 
@@ -77,7 +77,7 @@ function useFlightGroupMissionState(
 			}
 
 			const buildingAlive = targetStructure.buildings.some(
-				(building) => building.alive && !killedRedGroundUnits.some((name) => name === building.name)
+				(building) => building.alive && !killedRedGroundUnits.some((name) => name === building.name),
 			);
 
 			if (buildingAlive) {
@@ -106,7 +106,7 @@ function useFlightGroupMissionState(
 	}
 }
 
-function Unit(props: { unit: DcsJs.CampaignFlightGroupUnit; killedBlueAircrafts: Array<string> }) {
+function Unit(props: { unit: DcsJs.FlightGroupUnit; killedBlueAircrafts: Array<string> }) {
 	const killed = createMemo(() => props.killedBlueAircrafts.some((id) => id === props.unit.id));
 	return (
 		<div class={Styles["aircraft-row"]}>
@@ -118,7 +118,7 @@ function Unit(props: { unit: DcsJs.CampaignFlightGroupUnit; killedBlueAircrafts:
 	);
 }
 function FlightGroup(props: {
-	flightGroup: DcsJs.CampaignFlightGroup;
+	flightGroup: DcsJs.FlightGroup;
 	killedBlueAircrafts: Array<string>;
 	killedRedGroundUnits: Array<string>;
 }) {
@@ -128,7 +128,7 @@ function FlightGroup(props: {
 		// eslint-disable-next-line solid/reactivity
 		props.killedBlueAircrafts,
 		// eslint-disable-next-line solid/reactivity
-		props.killedRedGroundUnits
+		props.killedRedGroundUnits,
 	);
 
 	return (
@@ -147,8 +147,8 @@ function FlightGroup(props: {
 export function Debrief(props: {
 	missionState: Types.Campaign.MissionState | undefined;
 	flightGroups: {
-		blue: Array<DcsJs.CampaignFlightGroup>;
-		red: Array<DcsJs.CampaignFlightGroup>;
+		blue: Array<DcsJs.FlightGroup>;
+		red: Array<DcsJs.FlightGroup>;
 	};
 	onClose: () => void;
 }) {
@@ -165,11 +165,11 @@ export function Debrief(props: {
 
 		const blueAircrafts = killedAircraftIdsByFlightGroups(
 			props.flightGroups.blue,
-			props.missionState?.killed_aircrafts ?? []
+			props.missionState?.killed_aircrafts ?? [],
 		);
 		const redAircrafts = killedAircraftIdsByFlightGroups(
 			props.flightGroups.red,
-			props.missionState?.killed_aircrafts ?? []
+			props.missionState?.killed_aircrafts ?? [],
 		);
 
 		const blueGroundUnits = killedGroundUnitIds(state.blueFaction, props.missionState?.killed_ground_units ?? [], true);
@@ -229,7 +229,7 @@ export function Debrief(props: {
 
 						<div class={Styles["stats-row"]}>
 							<p class={Styles.stat}>{stats().aircrafts.blue.length}</p>
-							<h3 class={Styles["stats-title"]}>Lost Aircrafts</h3>
+							<h3 class={Styles["stats-title"]}>Lost Aircraft</h3>
 							<p class={Styles.stat}>{stats().aircrafts.red.length}</p>
 						</div>
 

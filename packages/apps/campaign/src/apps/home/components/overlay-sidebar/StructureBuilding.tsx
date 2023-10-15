@@ -46,7 +46,7 @@ const staticTypeImage: Record<string, keyof typeof Styles> = {
 	"Small werehouse 2": "image-small-werehouse-2",
 };
 
-export function StructureBuilding(props: { building: DcsJs.Building; coalition: DcsJs.CampaignCoalition }) {
+export function StructureBuilding(props: { building: DcsJs.Building; coalition: DcsJs.Coalition }) {
 	return (
 		<div>
 			<div class={Styles.header}>
@@ -64,7 +64,7 @@ export function StructureBuilding(props: { building: DcsJs.Building; coalition: 
 							<p class={Styles["stat-label"]}>Repair</p>
 							<p class={Styles["stat-value"]}>
 								{Components.Utils.formatPercentage(
-									((props.building.repairScore ?? 0) / Config.deploymentScore.repair) * 100
+									((props.building.repairScore ?? 0) / Config.deploymentScore.repair) * 100,
 								)}
 							</p>
 						</div>

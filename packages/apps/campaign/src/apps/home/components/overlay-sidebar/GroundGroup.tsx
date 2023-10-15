@@ -51,6 +51,12 @@ export function GroundGroup() {
 					<For each={groundGroup()?.unitIds}>
 						{(unitId) => <GroundGroupUnit unitId={unitId} coalition={overlayStore.coalition ?? "blue"} />}
 					</For>
+					<Show when={(groundGroup()?.shoradUnitIds?.length ?? 0) > 0}>
+						<h3 class={Styles.category}>Anti Air</h3>
+						<For each={groundGroup()?.shoradUnitIds}>
+							{(unitId) => <GroundGroupUnit unitId={unitId} coalition={overlayStore.coalition ?? "blue"} />}
+						</For>
+					</Show>
 				</Components.List>
 			</Components.ScrollContainer>
 		</Show>

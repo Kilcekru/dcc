@@ -1,32 +1,29 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
-import { Config } from "../../data";
+import * as Domain from "../../domain";
 import {
 	addHeading,
 	calcPackageEndTime,
-	distanceToPosition,
 	findNearest,
 	getDurationEnRoute,
 	getUsableAircraftsByType,
-	headingToPosition,
-	Minutes,
 	objectToPosition,
 	oppositeCoalition,
 	positionFromHeading,
-	random,
 } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { calcLandingWaypoints, calcNearestOppositeAirdrome, generateCallSign, getCoalitionFaction } from "../utils";
-import { calcFrequency, updateAircraftForFlightGroup } from "./utils";
+import { calcFrequency, getCruiseSpeed, updateAircraftForFlightGroup } from "./utils";
 
 export const generateCapPackage = (
-	coalition: DcsJs.CampaignCoalition,
+	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
-	objectiveName: string
-): DcsJs.CampaignPackage | undefined => {
+	objectiveName: string,
+): DcsJs.FlightPackage | undefined => {
 	const faction = getCoalitionFaction(coalition, state);
 	const oppCoalition = oppositeCoalition(coalition);
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
@@ -35,9 +32,8 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const aircraftCount = random(2, 4);
-
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, aircraftCount);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, 2);
+	const aircraftType = Domain.Utils.firstItem(usableAircrafts)?.aircraftType as DcsJs.AircraftType;
 	const airdromes = dataStore.airdromes;
 
 	if (usableAircrafts == null || usableAircrafts.length === 0) {
@@ -50,7 +46,7 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const [objectivePosition, airdrome] =
+	const [objectivePosition, airdromeName] =
 		objectiveName === "Frontline"
 			? (() => {
 					const oppAirdromes = oppFaction.airdromeNames.map((name) => {
@@ -66,22 +62,22 @@ export const generateCapPackage = (
 							const obj = findNearest(
 								Object.values(state.objectives).filter((obj) => obj.coalition === coalition),
 								airdrome,
-								(obj) => obj.position
+								(obj) => obj.position,
 							);
 
 							if (obj == null) {
 								return prev;
 							}
 
-							const distance = distanceToPosition(airdrome, obj.position);
+							const distance = Utils.distanceToPosition(airdrome, obj.position);
 
 							if (distance < prev[1]) {
-								return [obj, distance] as [DcsJs.CampaignObjective, number];
+								return [obj, distance] as [DcsJs.Objective, number];
 							} else {
 								return prev;
 							}
 						},
-						[undefined, 1000000] as [DcsJs.CampaignObjective | undefined, number]
+						[undefined, 1000000] as [DcsJs.Objective | undefined, number],
 					)[0];
 
 					if (nearestObjective == null) {
@@ -99,43 +95,64 @@ export const generateCapPackage = (
 
 						const airdrome = findNearest(airdromes, nearestObjective.position, (ad) => ad);
 
-						return [nearestObjective.position, airdrome];
+						if (airdrome == null) {
+							return [undefined, undefined];
+						}
+
+						return [objectToPosition(airdrome), airdrome.name];
 					}
 			  })()
-			: [
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					objectToPosition(airdromes[objectiveName as DcsJs.AirdromeName]!),
-					airdromes[objectiveName as DcsJs.AirdromeName],
-			  ];
+			: (() => {
+					const airdrome = airdromes[objectiveName as DcsJs.AirdromeName];
 
-	if (objectiveName == null || airdrome == null || objectivePosition == null) {
+					if (airdrome == null) {
+						const carrier = faction.shipGroups?.find((sg) => sg.name === objectiveName);
+
+						if (carrier == null) {
+							return [undefined, undefined];
+						}
+
+						return [carrier.position, carrier.name];
+					}
+
+					return [objectToPosition(airdrome), airdrome.name];
+			  })();
+
+	if (objectiveName == null || airdromeName == null || objectivePosition == null) {
 		// eslint-disable-next-line no-console
 		console.warn(`airdrome not found: ${objectiveName ?? ""}`);
 		return;
 	}
 
+	const cruiseSpeed = getCruiseSpeed(usableAircrafts, dataStore);
+
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, objectivePosition);
-	const oppHeading = headingToPosition(objectivePosition, oppAirdrome);
+	const oppHeading = Utils.headingToPosition(objectivePosition, oppAirdrome);
 
 	const heading = objectiveName === "Frontline" ? addHeading(oppHeading, 180) : oppHeading;
 
 	const endPosition = positionFromHeading(objectivePosition, heading, objectiveName === "Frontline" ? 10_000 : 30_000);
-	const durationEnRoute = getDurationEnRoute(airdrome, endPosition, Config.flight.speed);
-	const headingObjectiveToAirdrome = headingToPosition(endPosition, oppAirdrome);
+	const durationEnRoute = getDurationEnRoute(objectivePosition, endPosition, cruiseSpeed);
+	const headingObjectiveToAirdrome = Utils.headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
-	const duration = Minutes(60);
-	const startTime = Math.floor(state.timer) + Minutes(random(10, 20));
+	const duration = Domain.Time.Hours(1);
+	const startTime = Math.floor(state.timer) + Domain.Time.Minutes(Domain.Random.number(10, 20));
 
-	const endEnRouteTime = startTime + durationEnRoute;
+	const endEnRouteTime = durationEnRoute;
 	const endOnStationTime = endEnRouteTime + 1 + duration;
-	const [landingWaypoints, landingTime] = calcLandingWaypoints(racetrackEnd, airdrome, endOnStationTime + 1);
+	const [landingWaypoints, landingTime] = calcLandingWaypoints({
+		egressPosition: racetrackEnd,
+		airdromePosition: objectivePosition,
+		prevWaypointTime: endOnStationTime + 1,
+		cruiseSpeed,
+	});
 
 	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
 
-	const flightGroup: DcsJs.CampaignFlightGroup = {
+	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),
-		airdromeName: airdrome.name,
+		airdromeName,
 		units:
 			usableAircrafts?.slice(0, 2).map((aircraft, i) => ({
 				id: aircraft.id,
@@ -146,33 +163,34 @@ export const generateCapPackage = (
 		name: cs.flightGroupName,
 		task: "CAP",
 		startTime,
+		designatedStartTime: startTime,
 		tot: endEnRouteTime + 1,
 		landingTime,
 		waypoints: [
 			{
 				name: "Take Off",
-				position: objectToPosition(airdrome),
+				position: objectToPosition(objectivePosition),
 				time: startTime,
-				speed: Config.flight.speed,
+				speed: cruiseSpeed,
 				onGround: true,
 			},
 			{
-				name: "Track-race start",
+				name: "Racetrack start",
 				position: racetrackStart,
-				speed: Config.flight.speed,
+				speed: cruiseSpeed,
 				duration,
 				time: endEnRouteTime + 1,
 				taskStart: true,
 				racetrack: {
 					position: racetrackEnd,
-					name: "Track-race end",
-					distance: distanceToPosition(racetrackStart, racetrackEnd),
-					duration: getDurationEnRoute(racetrackStart, racetrackEnd, Config.flight.speed),
+					name: "Racetrack end",
+					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
+					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},
 			...landingWaypoints,
 		],
-		position: objectToPosition(airdrome),
+		position: objectToPosition(objectivePosition),
 		target: objectiveName,
 	};
 
@@ -184,9 +202,9 @@ export const generateCapPackage = (
 		task: "CAP" as DcsJs.Task,
 		startTime,
 		taskEndTime: endOnStationTime,
-		endTime: calcPackageEndTime(flightGroups),
+		endTime: calcPackageEndTime(startTime, flightGroups),
 		flightGroups,
-		frequency: calcFrequency(usableAircrafts[0]?.aircraftType, dataStore),
+		frequency: calcFrequency(aircraftType, faction, dataStore),
 		id: createUniqueId(),
 	};
 };

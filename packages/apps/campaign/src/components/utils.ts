@@ -5,7 +5,7 @@ import { RunningCampaignState } from "../logic/types";
 import { getCoalitionFaction } from "../logic/utils";
 import { CampaignContext } from "./CampaignProvider";
 
-export const useFaction = (coalition: DcsJs.CampaignCoalition | undefined) => {
+export const useFaction = (coalition: DcsJs.Coalition | undefined) => {
 	const [state] = useContext(CampaignContext);
 	const faction = createMemo(() => {
 		if (coalition == null) {

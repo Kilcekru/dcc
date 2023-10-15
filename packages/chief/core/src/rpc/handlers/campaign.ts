@@ -1,7 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import fs from "fs-extra";
+import FS from "fs-extra";
 
 import * as Domain from "../../domain";
 
@@ -12,10 +12,10 @@ const saveCampaign: Types.Rpc.Campaign["saveCampaign"] = async (campaign) => {
 	});
 };
 
-const resumeCampaign: Types.Rpc.Campaign["resumeCampaign"] = async () => {
+const resumeCampaign: Types.Rpc.Campaign["resumeCampaign"] = async (version) => {
 	const list = await Domain.Persistance.CampaignPersistance.list();
 
-	const activeSynopsis = Object.values(list).find((syn) => syn.active);
+	const activeSynopsis = Object.values(list).find((syn) => syn.active && (syn.version ?? 0) >= version);
 
 	if (activeSynopsis == null) {
 		return Object.values(list).length > 0 ? undefined : null;
@@ -48,6 +48,7 @@ const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
 
 	return {
 		map,
+		mapInfo: mapData.info,
 		airdromes: mapData.airdromes,
 		objectives: mapData.objectives,
 		strikeTargets: mapData.strikeTargets,
@@ -59,6 +60,7 @@ const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
 		callSigns: DcsJs.getCallSigns(),
 		launchers: DcsJs.getLaunchers(),
 		weapons: DcsJs.getWeapons(),
+		ships: DcsJs.GetShips(),
 	};
 };
 
@@ -69,7 +71,10 @@ const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = a
 		return { success: false };
 	}
 
-	await DcsJs.generateCampaignMission(campaign, path);
+	const kneeboards = await Domain.Campaign.generateBriefingKneeboards(campaign);
+
+	await DcsJs.generateCampaignMission(campaign, path, kneeboards);
+
 	return { success: true };
 };
 
@@ -80,7 +85,7 @@ const loadMissionState: Types.Rpc.Campaign["loadMissionState"] = async () => {
 		return undefined;
 	}
 
-	return (await fs.readJSON(path)) as Types.Campaign.MissionState;
+	return (await FS.readJSON(path)) as Types.Campaign.MissionState;
 };
 
 export async function loadFactions() {

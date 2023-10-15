@@ -3,13 +3,13 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { cnb } from "cnbuilder";
 import { createMemo, For, Show, useContext } from "solid-js";
 
-import { CampaignContext, Clock, FlightGroupButtons } from "../../../../components";
+import { CampaignContext, FlightGroupButtons } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
 import { OverlaySidebarContext } from "../overlay-sidebar";
 import Styles from "./FlightGroupItem.module.less";
 
 export const FlightGroupItem = (props: {
-	flightGroup: DcsJs.CampaignFlightGroup;
+	flightGroup: DcsJs.FlightGroup;
 	faction: DcsJs.CampaignFaction | undefined;
 }) => {
 	const [state, { selectFlightGroup }] = useContext(CampaignContext);
@@ -60,19 +60,19 @@ export const FlightGroupItem = (props: {
 				<div class={Styles.stats}>
 					<div>
 						<p class={Styles.label}>Start</p>
-						<Clock value={props.flightGroup.startTime} />
+						<Components.Clock value={props.flightGroup.startTime} />
 					</div>
 					<div>
 						<p class={Styles.label}>TOT</p>
-						<Clock value={props.flightGroup.tot} />
+						<Components.Clock value={props.flightGroup.startTime + props.flightGroup.tot} />
 					</div>
 					<div>
 						<p class={Styles.label}>Duration</p>
-						<Clock value={props.flightGroup.landingTime - props.flightGroup.startTime} />
+						<Components.Clock value={props.flightGroup.landingTime} />
 					</div>
 				</div>
 				<div class={Styles["aircrafts-wrapper"]}>
-					<p class={Styles.label}>Aircrafts</p>
+					<p class={Styles.label}>Aircraft</p>
 					<div class={Styles.aircrafts}>
 						<For each={aircrafts()}>
 							{(aircraft) => (

@@ -1,7 +1,7 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { useContext } from "solid-js";
 
-import { CampaignContext, Clock } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import Styles from "./NextDayModal.module.less";
 
 export const NextDayModal = () => {
@@ -11,7 +11,7 @@ export const NextDayModal = () => {
 		<Components.Modal isOpen={state.nextDay} onClose={() => resumeNextDay?.()}>
 			<div class={Styles.content}>
 				<p class={Styles.description}>
-					<Clock value={state.timer} withDay />
+					<Components.Clock value={state.timer} withDay />
 				</p>
 				<div class={Styles.buttons}>
 					<Components.Button onPress={() => resumeNextDay?.()}>Continue</Components.Button>

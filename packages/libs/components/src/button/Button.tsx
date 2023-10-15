@@ -30,7 +30,7 @@ export const Button = (props: {
 					props.large ? Styles["button--large"] : null,
 					props.unstyled ? Styles["button--unstyled"] : null,
 					props.disabled ? Styles["button--disabled"] : null,
-					props.class
+					props.class,
 				)}
 				onClick={onClick}
 			>

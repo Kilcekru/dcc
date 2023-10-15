@@ -8,6 +8,7 @@ import { solidPlugin } from "esbuild-plugin-solid";
 import FS from "fs-extra";
 
 import { log, paths } from "./utils.mjs";
+import { watchBuild } from "./watcher.mjs";
 
 export async function buildApps({ env, watch }) {
 	const apps = await findApps();
@@ -15,33 +16,37 @@ export async function buildApps({ env, watch }) {
 	const promises = [];
 
 	for (const app of apps) {
-		promises.push(
-			esbuild.build({
-				entryPoints: {
-					index: Path.join(paths.apps, app.name, "src/index.tsx"),
+		const options = {
+			entryPoints: {
+				index: Path.join(paths.apps, app.name, "src/index.tsx"),
+			},
+			outdir: Path.join(paths.target, "apps", app.name),
+			bundle: true,
+			minify: env === "pro",
+			loader: {
+				".svg": "dataurl",
+				".png": "file",
+				".jpg": "file",
+			},
+			assetNames: "[name]",
+			plugins: [solidPlugin(), cssExtraPlugin()],
+		};
+
+		if (watch) {
+			await watchBuild({
+				options,
+				onRebuildEnd: ({ error, time }) => {
+					if (error != undefined) {
+						log("warn", `Rebuilt apps with errors (${time} ms)`);
+					} else {
+						log("info", `Rebuilt apps (${time} ms)`);
+					}
 				},
-				outdir: Path.join(paths.target, "apps", app.name),
-				bundle: true,
-				minify: env === "pro",
-				loader: {
-					".svg": "dataurl",
-					".png": "file",
-					".jpg": "file",
-				},
-				assetNames: "[name]",
-				plugins: [solidPlugin(), cssExtraPlugin()],
-				legalComments: "external",
-				watch: watch && {
-					onRebuild: (err) => {
-						if (err) {
-							log("err", `Rebuild apps failed (${err.message})`);
-						} else {
-							log("info", "Rebuilt apps");
-						}
-					},
-				},
-			})
-		);
+			});
+		} else {
+			promises.push(esbuild.build(options));
+		}
+
 		promises.push(copyAssets({ app }));
 	}
 	promises.push(buildIndex({ apps, watch }));

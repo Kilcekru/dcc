@@ -7,9 +7,13 @@ import { unwrap } from "solid-js/store";
 import { CreateCampaign, Home, Open } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
 import { DataProvider, useSetDataMap } from "./components/DataProvider";
+import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
+import { PersistenceModal } from "./components/persistance-modal";
+import { Config } from "./data";
 import { useSave } from "./hooks";
 
 const App = (props: { open: boolean }) => {
+	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
 	const [state, { closeCampaign }] = useContext(CampaignContext);
 	const save = useSave();
 	const [open, setOpen] = createSignal(false);
@@ -32,28 +36,35 @@ const App = (props: { open: boolean }) => {
 		save();
 	});
 
+	onEvent("menu.campaign.enablePersistance", () => {
+		setIsPersistanceModalOpen(true);
+	});
+
 	function onOpenCreateCampaign() {
 		setOpen(false);
 	}
 
 	return (
-		<Show when={state.loaded} fallback={<div>Loading Campaigns...</div>}>
-			<Switch fallback={<div>Not Found</div>}>
-				<Match when={state.active === true}>
-					<Home />
-				</Match>
-				<Match when={state.active === false}>
-					<Switch fallback={<div>Not Found</div>}>
-						<Match when={open()}>
-							<Open onOpenCreateCampaign={onOpenCreateCampaign} />
-						</Match>
-						<Match when={!open()}>
-							<CreateCampaign />
-						</Match>
-					</Switch>
-				</Match>
-			</Switch>
-		</Show>
+		<>
+			<Show when={state.loaded} fallback={<div>Loading Campaigns...</div>}>
+				<Switch fallback={<div>Not Found</div>}>
+					<Match when={state.active === true}>
+						<Home />
+					</Match>
+					<Match when={state.active === false}>
+						<Switch fallback={<div>Not Found</div>}>
+							<Match when={open()}>
+								<Open onOpenCreateCampaign={onOpenCreateCampaign} />
+							</Match>
+							<Match when={!open()}>
+								<CreateCampaign />
+							</Match>
+						</Switch>
+					</Match>
+				</Switch>
+			</Show>
+			<PersistenceModal />
+		</>
 	);
 };
 
@@ -64,7 +75,7 @@ const AppWithContext = () => {
 
 	onMount(() => {
 		rpc.campaign
-			.resumeCampaign()
+			.resumeCampaign(Config.campaignVersion)
 			.then((loadedState) => {
 				console.log("load", loadedState); // eslint-disable-line no-console
 
@@ -91,6 +102,9 @@ const AppWithContext = () => {
 			})
 			.catch((e) => {
 				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
+				setCampaignState({
+					loaded: true,
+				});
 			});
 	});
 
@@ -107,7 +121,9 @@ const AppWithData = () => {
 	return (
 		<Components.ToastProvider>
 			<DataProvider>
-				<AppWithContext />
+				<ModalProvider>
+					<AppWithContext />
+				</ModalProvider>
 			</DataProvider>
 		</Components.ToastProvider>
 	);

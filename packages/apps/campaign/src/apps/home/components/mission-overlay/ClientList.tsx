@@ -25,7 +25,7 @@ function Item(props: { flightGroup: DcsJs.FlightGroup }) {
 
 			acTypes.set(
 				aircraft.aircraftType as DcsJs.AircraftType,
-				(acTypes.get(aircraft.aircraftType as DcsJs.AircraftType) ?? 0) + 1
+				(acTypes.get(aircraft.aircraftType as DcsJs.AircraftType) ?? 0) + 1,
 			);
 		});
 

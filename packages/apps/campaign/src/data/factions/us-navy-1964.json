@@ -8,7 +8,9 @@
 		"CAS": ["A-4E-C"],
 		"AWACS": ["E-2C"],
 		"DEAD": ["A-4E-C"],
-		"Pinpoint Strike": ["A-4E-C"]
+		"Pinpoint Strike": ["A-4E-C"],
+		"CSAR": ["UH-1H"]
 	},
-	"templateName": "USA - Cold War"
+	"templateName": "USA - Cold War",
+	"carrierName": "CV-59 Forrestal"
 }

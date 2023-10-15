@@ -1,11 +1,8 @@
 import { app } from "electron";
 import squirrelStartupCheck from "electron-squirrel-startup";
 
-import { enableLiveReload } from "./app/liveReload";
-import { startupApp } from "./app/startup";
+import * as Domain from "./domain";
 import { startRpc } from "./rpc";
-
-declare const BUILD_ENV: boolean;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (squirrelStartupCheck) {
@@ -20,15 +17,14 @@ if (!instanceLock) {
 		app.focus();
 	});
 
-	if (BUILD_ENV) {
-		enableLiveReload();
-	}
-
-	app.on("ready", startupApp);
-
 	app.on("window-all-closed", () => {
 		app.quit();
 	});
 
+	app.on("ready", async () => {
+		await Promise.all([Domain.Persistance.State.dccConfig.load(), Domain.Persistance.State.userConfig.load()]);
+		void Domain.Update.updateCheck();
+		await Domain.Window.initialize();
+	});
 	startRpc();
 }

@@ -13,6 +13,8 @@ Still in early development we currently only offer a dynamic campaign, but more 
   - [Scenario](#scenario)
   - [Faction](#faction)
   - [Hardcore](#hardcore)
+  - [Carrier](#carrier)
+  - [Airport Capture](#airport-capture)
 - [Structures](#structures)
   - [Ammo Depot](#ammo-depot)
   - [Barrack](#barrack)
@@ -21,27 +23,31 @@ Still in early development we currently only offer a dynamic campaign, but more 
   - [Farp](#farp)
   - [Power Plant](#power-plant)
   - [Fuel Storage](#fuel-storage)
+  - [Hospital](#hospital)
+  - [Prison](#prison)
 - [Mission Types](#mission-types)
   - [DEAD](#dead)
   - [CAP](#cap)
   - [Strike](#strike)
   - [Escort](#escort)
   - [CAS](#cas)
+  - [CSAR](#csar)
 - [Persistence](#persistence)
-  - [Current Limitation](#current-limitation)
-  - [Upcoming Features](#upcoming-features)
+- [Multiplayer](#multiplayer)
+- [Current Limitation](#current-limitation)
 - [Roadmap](#roadmap)
+  - [App Features](#app-features)
+  - [Dynamic Campaign](#dynamic-campaign-1)
 - [Discord](#discord)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 
 ## Installation
-- Download the latest release `Setup.zip` from github
-- Extract the zip and run the `Setup.exe` (The Installer is not yet signed, so Windows might warn you about an unknown source)
-- The installer installs all necessary files, creates a Desktop Shortcut and launches the app. You can delete the Setup afterwards
-- Inside DCC you can setup the paths to your DCS folders and then start the campaign app
-- To allow DCS persistance, follow the steps described at [Persistance](#persistence)
-- You are ready to go, have fun
+- Download the latest release `Setup.zip` from github.
+- Extract the zip and run the `Setup.exe` (The Installer is not yet signed, so Windows might warn you about an unknown source).
+- The installer installs all necessary files, creates a Desktop Shortcut and launches the app. You can delete the Setup afterwards.
+- Inside DCC you can setup the paths to your DCS folders and then start the campaign app.
+- You are ready to go, have fun.
 
 # Dynamic Campaign
 Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liberation
@@ -51,7 +57,6 @@ Campaign Mode for Digital Combat Simulator(DCS) inspired by Falcon BMS and Liber
 
 ## How does the Campaign work
 The campaign is defined by two definition, Scenario and faction.
-The two definitions are not editable at this time. But this will be possible in the future.
 Once the campaign is started each site/faction tries to archive the defined win condition automatically.
 The player can always choose the occupy one (or more) of the planned or active flight group/mission and play the mission out in DCS.
 After flying the mission in DCS the results are processed back into the campaign.
@@ -60,10 +65,17 @@ After flying the mission in DCS the results are processed back into the campaign
 The scenario defines on which map and when the campaign takes place. It also says what the win condition is. And what objective and structures are allocated to which side at the start of the campaign.
 
 ### Faction
-This defines which planes, helicopters and ground units is available for the given faction. The aircrafts are categories into the different mission types available.
+This defines which planes, helicopters and ground units are available for the given faction. Aircraft availability can be set individually for the different mission types.
 
 ### Hardcore
 You can choose at campaign start to activate the hardcore mode. Hardcore means if you(or a client in multiplayer) dies in a mission the campaign fails.
+
+### Carrier
+A carrier will be automatically added to the campaign(if one was selected in the faction) if your faction has a carrier capable plane.
+You can switch between a super carrier or carrier in the faction.
+
+### Airport Capture
+You can capture(or lose) an airport if all surrounded objectives(5nm) are captured by your ground units.
 
 ## Structures
 Structures are a collection of building which provide a service for the controlling faction. To prevent these services the opposite faction can destroy the buildings with a Strike mission or capture the structure with ground units.
@@ -90,6 +102,12 @@ Provides electricity to structures and SAMs(IADS - coming soon) nearby to improv
 ### Fuel Storage
 Provides Fuel for Depots nearby to improve the deploy time of this structures.
 
+### Hospital
+Cares for the wounded pilots and soldiers. Which helps the deploy time for the next aircrafts or ground groups. (Not fully implemented)
+
+### Prison
+Holds captured pilots and soldiers. (Not fully implemented)
+
 ## Mission Types
 
 ### DEAD
@@ -102,17 +120,25 @@ Combat Air Patrol. Flight between the given waypoints and attack all enemy aircr
 Destroy all buildings at the given waypoint.
 
 ### Escort
-Protect the designated Strike Group from enemy air threads.
+Protect the designated Strike Group from enemy air threads. Communication Tools to find your escort target are available in the Communication Menu.
 
 ### CAS
-Close Air Support. Destroy enemy ground units between the given waypoints. You can use the Moose Designation tool (Communication Menu -> F10) to find targets via smoke or laser.
+Close Air Support. Destroy enemy ground units between the given waypoints. Communication Tools with a JTAC to find the targets are available in the Communication Menu.
+
+### CSAR
+Combat search and rescue. Find and rescue previously downed pilots with a helicopter. Communication Tools with the pilot are available in the Communication Menu.
 
 ## Persistence
-Make sure DCS allows DCC to save it state with the following step.
-These needs do be done after each DCS update.
-Change the following lines in the file in the DCS installation folder 'DCS World/Scripts/MissionScripting.lua'
+DCC will check if DCS persistance is enabled when you run a campaign (if your DCS folder are setup correctly).\
+You can enable persistance via the menu or when you generate a mission.\
+You can also select to disable persistance again when you close DCC.
+
+Enabled persistance allows DCS missions to save file on your computer (which DCC utilizes to store the mission state).\
+If you fly on online servers this should not be enabled to prevent malicious files to be stored.
+
+To manually enable persistance change the following lines in the file `DCS World/Scripts/MissionScripting.lua` in the DCS installation folder.\
 From:
-```
+```lua
 do
    sanitizeModule('os')
    sanitizeModule('io')
@@ -123,42 +149,40 @@ do
 end
 ```
 To:
-```
+```lua
 do
    sanitizeModule('os')
-   --sanitizeModule('io')
-   --sanitizeModule('lfs')
+   -- sanitizeModule('io')
+   -- sanitizeModule('lfs')
    _G['require'] = nil
    _G['loadlib'] = nil
    _G['package'] = nil
 end
 ```
 
-### Current Limitation
+## Multiplayer
+DCC can be used for multiplayer sessions.
+You can select multiple slots and multiple flight groups in DCC flight group list (currently max two clients per flight group)
+If the clients are spread over multiple flight groups the mission start time will be set to the earliest flight group start time.
+
+To start a multiplayer mission you can either start it on the PC running DCC or on an dedicated server, in which case 
+the file "dcc_state.json" created by the mission must be copied back (to the folder where the mission file was created) 
+so that DCC can take over the result of this mission. 
+
+## Current Limitation
 Many systems within the Campaign are currently implemented in a simplified way. 
 For example the ground battle currently doesn't distinguishes between the vehicle/infantry type.
 We will improve and expand these systems in the future.
 
-### Upcoming Features
-
-- Carrier
-- More Maps
-- More Scenarios
-- More Factions
-- More Package Types
-- IADS
-- In App customizing Scenarios and Factions
-- Improved Frontline logic
-- Kneeboard
-- Warehouse
-- Recon / Fog of War
-
 ## Roadmap
-
+### App Features
 - Quick Mission: Create a simple mission that offers immersion into a battlefield
 - Patcher: Apply patches to DCS to easily configure your setup
 - Controls: Drag & Drop setup for your Joystick / Throttle
 - Mods: Install and Remove supported DCS mods with a simple click
+
+### Dynamic Campaign
+[Roadmap](https://github.com/users/Kilcekru/projects/2)
 
 ## Discord
 [Join our Discord server and stay connected.](https://discord.gg/jZZ3pFpY3e)
