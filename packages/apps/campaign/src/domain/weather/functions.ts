@@ -84,11 +84,11 @@ export function getCurrentWeather(
 }
 
 export function getCloudPreset(cloudCover: number) {
-	if (cloudCover <= 15) {
+	if (cloudCover <= 0.15) {
 		return "Clear";
-	} else if (cloudCover <= 35) {
+	} else if (cloudCover <= 0.35) {
 		return "Scattered";
-	} else if (cloudCover <= 60) {
+	} else if (cloudCover <= 0.6) {
 		return "Overcast";
 	} else {
 		return "Rain";

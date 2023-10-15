@@ -1,4 +1,4 @@
-import * as desertThunder from "./desert-thunder.json";
+import * as operationNorthernShield from "./operation-northern-shield.json";
 import * as redBullet from "./red-bullet.json";
 import * as roadToParis from "./road-to-paris.json";
 
@@ -40,5 +40,5 @@ export type Scenario = {
 export const scenarioList: Array<Scenario> = [
 	redBullet as unknown as Scenario,
 	roadToParis as unknown as Scenario,
-	desertThunder as unknown as Scenario,
+	operationNorthernShield as unknown as Scenario,
 ];

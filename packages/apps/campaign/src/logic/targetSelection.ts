@@ -212,11 +212,17 @@ export const getAwacsTarget = (
 
 export const getFrontlineTarget = (
 	coalition: DcsJs.Coalition,
-	sourcePosition: DcsJs.Position,
+	camps: Array<DcsJs.Structure>,
 	range: number,
 	state: RunningCampaignState,
 	relevantObjectives: Record<DcsJs.Coalition, Record<string, DcsJs.Objective>>,
-) => {
+): { camp: DcsJs.Structure; targetObjective: DcsJs.Objective } | null => {
+	const selectedCamp = Domain.Random.item(camps);
+
+	if (selectedCamp == null) {
+		return null;
+	}
+
 	const faction = getCoalitionFaction(coalition, state);
 	const unprotectedObjectives = Object.values(relevantObjectives[coalition]).filter(
 		(obj) =>
@@ -227,7 +233,7 @@ export const getFrontlineTarget = (
 	const oppFaction = getCoalitionFaction(oppCoalition, state);
 	const oppObjectives = Object.values(relevantObjectives[oppCoalition]);
 
-	if (Domain.Location.someInside(oppObjectives, sourcePosition, range)) {
+	if (Domain.Location.someInside(oppObjectives, selectedCamp.position, range)) {
 		const unprotectedFrontlineObjectives: Array<DcsJs.Objective> = [];
 		oppFaction.groundGroups.forEach((oppGg) => {
 			const ggsInRange = Domain.Location.findInside(
@@ -250,27 +256,37 @@ export const getFrontlineTarget = (
 		});
 
 		if (unprotectedFrontlineObjectives.length > 0) {
-			return Domain.Random.item(unprotectedFrontlineObjectives);
+			const target = Domain.Random.item(unprotectedFrontlineObjectives);
+			return target == null ? null : { camp: selectedCamp, targetObjective: target };
 		}
 
 		const freeOppObjectives = oppObjectives.filter((obj) => obj.incomingGroundGroups[coalition] == null);
 		const objectivesInRange = Domain.Location.findInside(
 			freeOppObjectives,
-			sourcePosition,
+			selectedCamp.position,
 			(obj) => obj.position,
 			range,
 		);
 
 		if (objectivesInRange.length > 0) {
-			const targetObjective = Domain.Location.findNearest(objectivesInRange, sourcePosition, (obj) => obj.position);
+			const targetObjective = Domain.Location.findNearest(
+				objectivesInRange,
+				selectedCamp.position,
+				(obj) => obj.position,
+			);
 
-			if (targetObjective == null) {
-				return null;
-			}
-
-			return targetObjective;
+			return targetObjective == null ? null : { camp: selectedCamp, targetObjective };
 		}
 	}
 
+	if (camps.length > 1) {
+		return getFrontlineTarget(
+			coalition,
+			camps.filter((camp) => camp.id !== selectedCamp.id),
+			range,
+			state,
+			relevantObjectives,
+		);
+	}
 	return null;
 };

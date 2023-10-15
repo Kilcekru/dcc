@@ -12,6 +12,6 @@
 		"zod": "^3.21.4"
 	},
 	"devDependencies": {
-		"@foxdelta2/dcsjs": "0.2.230-next.18"
+		"@foxdelta2/dcsjs": "0.2.230-next.19"
 	}
 }

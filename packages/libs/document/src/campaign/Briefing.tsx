@@ -9,6 +9,7 @@ import { createMemo, For, Show } from "solid-js";
 import Styles from "./Briefing.module.less";
 
 export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
+	let wpIndex = 0;
 	const dataAircraft = createMemo(() => {
 		const unit = props.data.flightGroup.units[0];
 
@@ -207,11 +208,19 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 							prevWp == null
 								? "-"
 								: Math.round(Utils.positiveDegrees(Utils.headingToPosition(prevWp.position, wp.position))).toString();
+						const racetrackDistance =
+							wp.racetrack?.distance == null ? "-" : Math.round(Utils.metersToNauticalMiles(wp.racetrack?.distance));
+						const racetrackHeading =
+							wp.racetrack == null
+								? "-"
+								: Math.round(
+										Utils.positiveDegrees(Utils.headingToPosition(wp.position, wp.racetrack.position)),
+								  ).toString();
 						const speed = Math.round(Utils.metersPerSecondToKnots(wp.speed));
 
 						return (
 							<>
-								<p class={Styles.label}>{i()}</p>
+								<p class={Styles.label}>{wpIndex++}</p>
 								<p>{wp.name}</p>
 								<p>
 									<Components.Clock value={time} />
@@ -224,8 +233,15 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 								</p>
 								<p>{heading}</p>
 								<p>{distance}</p>
-
 								<p>{speed}</p>
+								<Show when={wp.racetrack != null}>
+									<p class={Styles.label}>{wpIndex++}</p>
+									<p>{wp.racetrack?.name}</p>
+									<p />
+									<p>{racetrackHeading}</p>
+									<p>{racetrackDistance}</p>
+									<p>{speed}</p>
+								</Show>
 							</>
 						);
 					}}

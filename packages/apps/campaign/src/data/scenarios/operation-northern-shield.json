@@ -1,0 +1,34 @@
+{
+	"map": "syria",
+	"id": "operation-northern-shield",
+	"name": "Operation Northern Shield",
+	"available": true,
+	"date": "1972-09-20",
+	"era": "Cold War",
+	"briefing": "<p>In the aftermath of Syria's invasion of Lebanon, Israel has launched a military campaign to recapture the territory and reestablish control. The conflict has escalated significantly, posing grave implications for regional stability and international security.</p><p>Under the framework of 'Operation Northern Shield', the Israel Defense Forces (IDF) executed a meticulously planned operation to <strong>capture Hama</strong>. The operation involved airborne assaults, ground forces, and precision airstrikes targeting Syrian military installations in the area. The IDF's goal was to neutralize immediate threats, degrade Syrian military capabilities, and establish a buffer zone to enhance Israeli security along its northern border.</p>",
+	"win-condition": {
+		"type": "objective",
+		"value": "Hama Center"
+	},
+	"blue-start-objective-range": [
+		5,
+		12
+	],
+	"blue": {
+		"airdromeNames": [
+			"Ramat David"
+		],
+		"carrierObjective": "Alpha",
+		"objectivePlans": []
+	},
+	"red": {
+		"airdromeNames": [
+			"Beirut-Rafic Hariri",
+			"Damascus",
+			"King Hussein Air College",
+			"Al Qusayr",
+			"Hama"
+		],
+		"objectivePlans": []
+	}
+}

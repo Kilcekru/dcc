@@ -53,4 +53,5 @@ function cleanupFactionInventory(coalition: DcsJs.Coalition, state: RunningCampa
 }
 export function cleanupInventory(state: RunningCampaignState) {
 	cleanupFactionInventory("blue", state);
+	cleanupFactionInventory("red", state);
 }

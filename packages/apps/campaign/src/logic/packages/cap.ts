@@ -175,7 +175,7 @@ export const generateCapPackage = (
 				onGround: true,
 			},
 			{
-				name: "Track-race start",
+				name: "Racetrack start",
 				position: racetrackStart,
 				speed: cruiseSpeed,
 				duration,
@@ -183,7 +183,7 @@ export const generateCapPackage = (
 				taskStart: true,
 				racetrack: {
 					position: racetrackEnd,
-					name: "Track-race end",
+					name: "Racetrack end",
 					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},

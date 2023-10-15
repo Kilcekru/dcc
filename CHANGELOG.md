@@ -3,7 +3,7 @@
 ## 0.4.0
 
 - Add Carrier
-- Add the first Syria scenario: Desert Thunder
+- Add the first Syria scenario: Operation Northern Shield
 - Add Korea War Factions(without SAMs)
 - Add SK-60 Mod
 - Add Sweden Faction

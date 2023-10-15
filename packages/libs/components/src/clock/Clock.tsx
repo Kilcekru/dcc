@@ -20,6 +20,8 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 		return d;
 	});
 
+	const day = createMemo(() => date()?.getUTCDate() ?? "-");
+
 	const hours = createMemo(() => {
 		const h = date()?.getUTCHours() ?? 0;
 
@@ -28,7 +30,7 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 
 	return (
 		<Show when={date != null}>
-			<Show when={props.withDay}>Day {date()?.getUTCDate()} - </Show>
+			<Show when={props.withDay}>Day {day()} - </Show>
 			{formatTime(hours())}:{formatTime(date()?.getMinutes())}:{formatTime(date()?.getSeconds())}
 		</Show>
 	);

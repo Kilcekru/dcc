@@ -280,7 +280,7 @@ const attackFrontline = (
 	const depotDeploymentCost = getDeploymentCost(coalition, "Depot");
 	const barrackDeploymentCost = getDeploymentCost(coalition, "Barrack");
 	const ggsEnRoute = faction.groundGroups.filter((gg) => gg.state === "combat" || gg.state === "en route");
-	const maxAllowedGg = Math.max(
+	const maxAllowedGg = Math.min(
 		Math.round(unitCamps.length * Config.deploymentScore.maxEnRoutePerUnitCamp),
 		Config.deploymentScore.maxEnRoute[coalition],
 	);
@@ -295,54 +295,48 @@ const attackFrontline = (
 		Domain.Location.InFrontlineRange(coalition, camp.position, state),
 	);
 
-	const selectedCamp = Domain.Random.item(unitCampsAtFrontline);
-
-	if (selectedCamp == null) {
-		return;
-	}
-
-	const targetObjective = getFrontlineTarget(
+	const target = getFrontlineTarget(
 		coalition,
-		selectedCamp.position,
-		Config.structureRange.frontline.barrack,
+		unitCampsAtFrontline,
+		Config.structureRange.frontline.depot,
 		state,
 		relevantObjectives,
 	);
 
-	if (targetObjective == null) {
+	if (target == null) {
 		return;
 	}
 
-	const objective = state.objectives[selectedCamp.objectiveName];
+	const objective = state.objectives[target.camp.objectiveName];
 
 	if (objective == null) {
 		return;
 	}
 
-	if (selectedCamp.type === "Depot") {
+	if (target.camp.type === "Depot") {
 		deployFrontline({
-			targetObjective,
+			targetObjective: target.targetObjective,
 			startObjective: objective,
 			state,
 			groupType: "armor",
-			depot: selectedCamp,
+			depot: target.camp,
 			dataStore,
 		});
 
-		selectedCamp.deploymentScore -= barrackDeploymentCost;
+		target.camp.deploymentScore -= barrackDeploymentCost;
 	}
 
-	if (selectedCamp.type === "Barrack") {
+	if (target.camp.type === "Barrack") {
 		deployFrontline({
-			targetObjective,
+			targetObjective: target.targetObjective,
 			startObjective: objective,
 			state,
 			groupType: "infantry",
-			barrack: selectedCamp,
+			barrack: target.camp,
 			dataStore,
 		});
 
-		selectedCamp.deploymentScore -= depotDeploymentCost;
+		target.camp.deploymentScore -= depotDeploymentCost;
 	}
 };
 
