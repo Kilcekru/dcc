@@ -100,7 +100,7 @@ export const Config: Config = {
 			red: 5,
 			neutrals: 0,
 		},
-		maxEnRoutePerUnitCamp: 0.8,
+		maxEnRoutePerUnitCamp: 1,
 		maxEnRoute: { blue: 6, red: 2, neutrals: 0 },
 	},
 	waypoint: {

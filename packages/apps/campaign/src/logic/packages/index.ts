@@ -306,16 +306,16 @@ const factionPackagesTick = (
 		(dayHour >= dataStore.mapInfo.night.endHour && dayHour < dataStore.mapInfo.night.startHour) ||
 		state.allowNightMissions
 	) {
-		if (casPackages(coalition, state, dataStore, faction.packages)) {
+		if (awacsPackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		if (deadPackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}
 		if (capPackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}
-		if (awacsPackages(coalition, state, dataStore, faction.packages)) {
-			return;
-		}
-		if (deadPackages(coalition, state, dataStore, faction.packages)) {
+		if (casPackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}
 		if (strikePackages(coalition, state, dataStore, faction.packages)) {

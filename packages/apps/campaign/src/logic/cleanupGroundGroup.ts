@@ -17,7 +17,7 @@ const cleanupFactionGroundGroups = (coalition: DcsJs.Coalition, state: RunningCa
 	});
 
 	faction.groundGroups = faction.groundGroups.filter((gg) => {
-		return Domain.Location.InFrontlineRange(coalition, gg.position, state);
+		return Domain.Location.InFrontlineRange(coalition, gg.position, state) || gg.type === "sam";
 	});
 };
 

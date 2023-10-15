@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
@@ -53,7 +53,7 @@ export const generateDeadPackage = (
 		excludedAircrafts: packageAircrafts?.aircrafts,
 	});
 
-	if (packageAircrafts?.startPosition == null || escortPackageAircrafts?.startPosition == null) {
+	if (packageAircrafts?.startPosition == null) {
 		// eslint-disable-next-line no-console
 		console.warn("generateDeadPackage: start position not found", packageAircrafts);
 		return;
@@ -63,7 +63,10 @@ export const generateDeadPackage = (
 
 	const frequency = calcFrequency(packageAircrafts.aircrafts[0]?.aircraftType, faction, dataStore);
 
-	const cruiseSpeed = getCruiseSpeed([...packageAircrafts.aircrafts, ...escortPackageAircrafts.aircrafts], dataStore);
+	const cruiseSpeed = getCruiseSpeed(
+		[...packageAircrafts.aircrafts, ...(escortPackageAircrafts?.aircrafts ?? [])],
+		dataStore,
+	);
 
 	const selectedObjective = getDeadTarget(packageAircrafts.startPosition, coalition, state);
 
@@ -168,18 +171,22 @@ export const generateDeadPackage = (
 
 	updateAircraftForFlightGroup(flightGroup, state, coalition, dataStore);
 
-	const escort = escortFlightGroup({
-		coalition,
-		state,
-		dataStore,
-		targetFlightGroup: flightGroup,
-		holdWaypoint,
-		egressPosition,
-		egressTime: endEgressTime,
-		cruiseSpeed,
-		packageAircrafts: escortPackageAircrafts,
-		frequency,
-	});
+	let escort: DcsJs.FlightGroup | undefined = undefined;
+
+	if (escortPackageAircrafts != null) {
+		escort = escortFlightGroup({
+			coalition,
+			state,
+			dataStore,
+			targetFlightGroup: flightGroup,
+			holdWaypoint,
+			egressPosition,
+			egressTime: endEgressTime,
+			cruiseSpeed,
+			packageAircrafts: escortPackageAircrafts,
+			frequency,
+		});
+	}
 
 	if (escort != null) {
 		updateAircraftForFlightGroup(escort, state, coalition, dataStore);

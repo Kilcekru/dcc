@@ -885,6 +885,18 @@ export const Map = () => {
 			}
 		});
 
+		const sams = [...Domain.Faction.getSamGroups(state.blueFaction), ...Domain.Faction.getSamGroups(state.redFaction)];
+
+		Object.entries(samCircles).forEach(([id, samObj]) => {
+			if (samObj == null || sams.some((gg) => gg.id === id)) {
+				return;
+			} else {
+				removeSymbol(samObj.marker);
+				removeSymbol(samObj.circle);
+				delete samCircles[id];
+			}
+		});
+
 		cleanupStructures();
 	});
 

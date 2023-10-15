@@ -39,6 +39,6 @@ export type Scenario = {
 
 export const scenarioList: Array<Scenario> = [
 	redBullet as unknown as Scenario,
-	roadToParis as unknown as Scenario,
 	operationNorthernShield as unknown as Scenario,
+	roadToParis as unknown as Scenario,
 ];
