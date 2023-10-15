@@ -2,32 +2,33 @@
 
 ## 0.4.0
 
-- Add Carrier
 - Add the first Syria scenario: Operation Northern Shield
+- Add Carrier
+- Add Mission Briefing Kneeboard
+- Add Mission Type CSAR (Combat Search And Rescue) - Pick up a downed pilot and bring him/her back to safety
+- Add Automated Update Check
+- Add the option to enable persistence automatically
+- Add Title Bar & Menu
+- Add Airdrome Capture
+- Add Trainings Mode
+- Add no bad weather option
+- Add map specific dynamic weather
 - Add Korea War Factions(without SAMs)
 - Add SK-60 Mod
 - Add Sweden Faction
-- Add no bad weather option
-- Add map specific dynamic weather
-- Add Mission Type CSAR (Combat Search And Rescue) - Pick up a downed pilot and bring him/her back to safety
-- Add Mission Briefing Kneeboard
 - Add Helicopter Map Symbols
-- Add Trainings Mode
-- Add the option to enable persistence automatically
 - Add Escort In-Game communication menu
 - Add AWACS VHF
 - Add Sync flight group position between mission and DCC
-- Add Title Bar & Menu
-- Add Airdrome Capture
-- Add Automated Update Check
 - Randomize the state of the campaign at the start
+- Reworked CAS In-Game communication menu
+- Improved escort mission(BRAA call via communication menu and kneeboard information)
 - Improved flightplan
 - Improved package planning
 - Improved F-15E Loadout
 - Improved F-18 Loadout
 - Improved Su-33 Loadout
 - Improved App Security
-- Reworked CAS In-Game communication menu
 - Fix: Harrier Loadout
 - Fix: MiG-15 Radio Frequency
 - Fix: F-4 Radio Frequency 
@@ -37,7 +38,6 @@
 - Fix: Dedicated Server
 - Fix: "Something went terribly" wrong in the Map
 
-* Improved escort mission(BRAA call via communication menu and kneeboard information)
 
 ## 0.3.0 (2023-07-07)
 
