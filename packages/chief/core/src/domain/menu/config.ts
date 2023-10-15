@@ -10,7 +10,12 @@ export async function getConfig(): Promise<Types.AppMenu.Config> {
 	const currentApp = Persistance.State.userConfig.data.currentApp;
 	const disableNavigation =
 		!Persistance.State.userConfig.data.setupComplete || Persistance.State.userConfig.data.dcs.available == undefined;
-	const patchScriptFileAccess = await detectPatch("scriptFileAccess");
+	let patchScriptFileAccess;
+	try {
+		patchScriptFileAccess = await detectPatch("scriptFileAccess");
+	} catch {
+		patchScriptFileAccess = undefined;
+	}
 
 	const menu: Types.AppMenu.Menu[] = [
 		{
