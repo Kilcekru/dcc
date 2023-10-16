@@ -505,3 +505,44 @@ export function jtacFrequency(faction: DcsJs.CampaignFaction) {
 
 	return existingJtacFrequency + 1;
 }
+
+function migrateFarpFaction(
+	faction: DcsJs.CampaignFaction | undefined,
+	structureBuildings: Array<DcsJs.StructureBuilding>,
+): DcsJs.CampaignFaction | undefined {
+	if (faction == null) {
+		return;
+	}
+
+	Object.values(faction.structures).map((structure) => {
+		if (structure.type === "Farp") {
+			if (structure.buildings[0]?.type !== "FARP") {
+				structure.buildings =
+					structureBuildings.map((building, i) => ({
+						alive: true,
+						name: `${structure.name}|${i + 1}`,
+						...building,
+						shapeName: building.shapeName ?? "",
+					})) ?? [];
+			}
+		}
+	});
+
+	return faction;
+}
+
+function migrateFarp(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
+	const structureTemplate = Domain.Random.item(dataStore.structures?.["Farp"] ?? []);
+
+	if (structureTemplate == null) {
+		throw new Error("structure template for Farp not found");
+	}
+
+	state.blueFaction = migrateFarpFaction(state.blueFaction, structureTemplate.buildings);
+	state.redFaction = migrateFarpFaction(state.redFaction, structureTemplate.buildings);
+
+	return state;
+}
+export function migrateState(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
+	return migrateFarp(state, dataStore);
+}

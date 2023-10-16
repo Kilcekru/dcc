@@ -6,11 +6,12 @@ import { unwrap } from "solid-js/store";
 
 import { CreateCampaign, Home, Open } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
-import { DataProvider, useSetDataMap } from "./components/DataProvider";
+import { DataProvider, useDataStore, useSetDataMap } from "./components/DataProvider";
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
 import { Config } from "./data";
 import { useSave } from "./hooks";
+import { migrateState } from "./utils";
 
 const App = (props: { open: boolean }) => {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
@@ -72,6 +73,7 @@ const AppWithContext = () => {
 	const [campaignState, setCampaignState] = createSignal<Partial<DcsJs.CampaignState> | null | undefined>(undefined);
 	const setDataMap = useSetDataMap();
 	const [open, setOpen] = createSignal(false);
+	const dataStore = useDataStore();
 
 	onMount(() => {
 		rpc.campaign
@@ -94,7 +96,7 @@ const AppWithContext = () => {
 					setDataMap(loadedState.map);
 				}
 				setCampaignState({
-					...loadedState,
+					...migrateState(loadedState, dataStore),
 					loaded: true,
 				});
 

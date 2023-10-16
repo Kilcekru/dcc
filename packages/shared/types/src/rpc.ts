@@ -32,7 +32,7 @@ export interface Campaign {
 	getDataStore: (map: DcsJs.MapName) => Promise<DataStore>;
 	generateCampaignMission: (campaign: DcsJs.CampaignState) => Promise<{ success: boolean }>;
 	resumeCampaign: (version: number) => Promise<Partial<DcsJs.CampaignState> | undefined | null>;
-	openCampaign: (id: string) => Promise<DcsJs.CampaignState | undefined | null>;
+	openCampaign: (id: string) => Promise<Partial<DcsJs.CampaignState> | undefined | null>;
 	loadCampaignList: () => Promise<Record<string, CampaignSynopsis>>;
 	loadMissionState: () => Promise<MissionState | undefined>;
 	loadFactions: () => Promise<Array<DcsJs.Faction>>;
