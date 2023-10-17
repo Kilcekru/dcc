@@ -543,6 +543,49 @@ function migrateFarp(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campa
 
 	return state;
 }
+
+function migrateNonCarrierAircraftsFaction(
+	faction: DcsJs.CampaignFaction | undefined,
+	dataStore: Types.Campaign.DataStore,
+) {
+	if (faction == null) {
+		return;
+	}
+
+	Object.values(faction?.inventory.aircrafts).map((ac) => {
+		if (ac.homeBase.type === "carrier") {
+			const dsAc = dataStore.aircrafts?.[ac.aircraftType as DcsJs.AircraftType];
+
+			if (dsAc == null) {
+				return;
+			}
+
+			if (dsAc.carrierCapable) {
+				return;
+			}
+
+			faction.packages = faction.packages.filter((pkg) => {
+				if (pkg.flightGroups.some((fg) => fg.units.some((unit) => unit.id === ac.id))) {
+					return false;
+				}
+
+				return true;
+			});
+
+			delete faction.inventory.aircrafts[ac.id];
+		}
+	});
+
+	return faction;
+}
+
+function migrateNonCarrierAircrafts(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
+	state.blueFaction = migrateNonCarrierAircraftsFaction(state.blueFaction, dataStore);
+	state.redFaction = migrateNonCarrierAircraftsFaction(state.redFaction, dataStore);
+
+	return state;
+}
+
 export function migrateState(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
-	return migrateFarp(state, dataStore);
+	return migrateNonCarrierAircrafts(migrateFarp(state, dataStore), dataStore);
 }
