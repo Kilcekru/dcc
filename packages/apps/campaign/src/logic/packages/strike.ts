@@ -40,6 +40,7 @@ export const generateStrikePackage = (
 
 	const packageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes["Pinpoint Strike"],
+		task: "Pinpoint Strike",
 		coalition,
 		state,
 		count: 2,
@@ -49,6 +50,7 @@ export const generateStrikePackage = (
 
 	const escortPackageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes.CAP,
+		task: "CAP",
 		coalition,
 		state,
 		count: 2,
@@ -189,7 +191,7 @@ export const generateStrikePackage = (
 		state,
 		dataStore,
 		targetFlightGroup: flightGroup,
-		holdWaypoint,
+		holdWaypoint: structuredClone(holdWaypoint),
 		egressPosition,
 		egressTime: endEgressTime,
 		cruiseSpeed,

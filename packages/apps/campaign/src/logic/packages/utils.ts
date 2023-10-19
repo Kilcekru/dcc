@@ -105,6 +105,7 @@ export function getPackageAircrafts({
 	faction,
 	coalition,
 	aircraftTypes,
+	task,
 	count,
 	withMaxDistance,
 	dataStore,
@@ -114,6 +115,7 @@ export function getPackageAircrafts({
 	faction: DcsJs.CampaignFaction;
 	coalition: DcsJs.Coalition;
 	aircraftTypes: Array<string> | undefined;
+	task?: DcsJs.Task;
 	count: number;
 	dataStore: Types.Campaign.DataStore;
 	withMaxDistance?: {
@@ -122,7 +124,7 @@ export function getPackageAircrafts({
 	};
 	excludedAircrafts?: Array<DcsJs.Aircraft>;
 }): { aircrafts: Array<DcsJs.Aircraft>; startPosition: ReturnType<typeof getStartPosition> } | undefined {
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, aircraftTypes, count);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, aircraftTypes, task, count);
 	const validAircrafts =
 		excludedAircrafts == null
 			? usableAircrafts
@@ -232,6 +234,7 @@ export function calcHoldWaypoint(
 		speed: cruiseSpeed,
 		duration: holdDuration,
 		hold: true,
+		taskStart: false,
 	};
 
 	return [waypoint, holdPosition, holdEndTime];

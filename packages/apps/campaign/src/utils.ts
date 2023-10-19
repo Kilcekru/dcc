@@ -266,13 +266,16 @@ export const getUsableAircraftsByType = (
 	state: RunningCampaignState,
 	coalition: DcsJs.Coalition,
 	aircraftTypes: Array<string> | undefined,
+	task: DcsJs.Task | undefined,
 	count: number,
 ): Array<DcsJs.Aircraft> => {
 	const faction = getCoalitionFaction(coalition, state);
 	const aircrafts = Object.values(faction.inventory.aircrafts ?? []);
 
 	// Filter only aircrafts that are in idle state
-	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle" && ac.disabled !== true);
+	const idleAircrafts = aircrafts.filter(
+		(ac) => ac.state === "idle" && ac.disabled !== true && (task == null || ac.availableTasks.some((t) => t === task)),
+	);
 	// Filter only aircrafts that are alive
 	const aliveAircrafts = idleAircrafts.filter((ac) => ac.alive);
 	// Filter only aircrafts of specific aircraft types

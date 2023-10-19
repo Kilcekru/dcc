@@ -32,7 +32,7 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, "CAP", 2);
 	const aircraftType = Domain.Utils.firstItem(usableAircrafts)?.aircraftType as DcsJs.AircraftType;
 	const airdromes = dataStore.airdromes;
 
