@@ -54,7 +54,6 @@ const calcNumber = (
 };
 
 export const generateCallSign = (
-	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,
 	type: "aircraft" | "helicopter" | "awacs",
@@ -65,14 +64,12 @@ export const generateCallSign = (
 
 	return {
 		unitCallSign: (index: number) => {
-			return coalition === "blue"
-				? {
-						"1": number.unit.index,
-						"2": number.unit.number,
-						"3": index + 1,
-						name: `${number.unit.name}${number.unit.number}${index + 1}`,
-				  }
-				: Domain.Random.number(100, 999);
+			return {
+				"1": number.unit.index,
+				"2": number.unit.number,
+				"3": index + 1,
+				name: `${number.unit.name}${number.unit.number}${index + 1}`,
+			};
 		},
 		unitName: (index: number) => `${number.flightGroup}-${index + 1}`,
 		flightGroupName: number.flightGroup,

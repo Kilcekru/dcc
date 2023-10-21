@@ -40,10 +40,10 @@ export function escortFlightGroup({
 		throw new Error("escortFlightGroup: start position not found");
 	}
 
-	let cs = generateCallSign(coalition, state, dataStore, "aircraft");
+	let cs = generateCallSign(state, dataStore, "aircraft");
 
 	while (cs.flightGroupName === targetFlightGroup.name) {
-		cs = generateCallSign(coalition, state, dataStore, "aircraft");
+		cs = generateCallSign(state, dataStore, "aircraft");
 	}
 
 	const [landingWaypoints] = calcLandingWaypoints({

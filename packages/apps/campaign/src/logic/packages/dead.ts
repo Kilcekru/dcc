@@ -114,7 +114,7 @@ export const generateDeadPackage = (
 		cruiseSpeed,
 	});
 
-	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
+	const cs = generateCallSign(state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),

@@ -121,7 +121,7 @@ export const generateCasPackage = (
 		cruiseSpeed,
 	});
 
-	const cs = generateCallSign(coalition, state, dataStore, isHelicopter ? "helicopter" : "aircraft");
+	const cs = generateCallSign(state, dataStore, isHelicopter ? "helicopter" : "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),

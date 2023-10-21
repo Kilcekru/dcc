@@ -67,7 +67,7 @@ export const generateAwacsPackage = (
 		cruiseSpeed,
 	});
 
-	const cs = generateCallSign(coalition, state, dataStore, "awacs");
+	const cs = generateCallSign(state, dataStore, "awacs");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),

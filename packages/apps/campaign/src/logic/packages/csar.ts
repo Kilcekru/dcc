@@ -62,7 +62,7 @@ export const generateCsarPackage = (
 	const durationIngress = getDurationEnRoute(packageAircrafts.startPosition, downedPilot.position, cruiseSpeed);
 	const durationDropLocation = getDurationEnRoute(downedPilot.position, dropStructure.position, cruiseSpeed);
 
-	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
+	const cs = generateCallSign(state, dataStore, "aircraft");
 
 	const pickUpTime = Domain.Time.Minutes(10) + durationIngress;
 	const dropOffTime = pickUpTime + Domain.Time.Minutes(2) + durationDropLocation;
