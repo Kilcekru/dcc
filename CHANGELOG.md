@@ -13,6 +13,7 @@
 - Fix: Missing Pilots in CSAR missions
 - Fix: TACAN/ICLS (Also now visible in Kneeboard)
 - Fix: Waypoint Number in Kneeboard with multiple clients
+- Fix: Red Callsigns
 - Culling: For performance reasons we don't include ground groups and structures which are not a target or nearby a target. SHORAD/AA units are still in the mission!
 - Improved persistance modal
 
