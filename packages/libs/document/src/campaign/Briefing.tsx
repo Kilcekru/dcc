@@ -140,12 +140,21 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<p class={Styles.label} />
 				<p class={Styles.label}>Name</p>
 				<p class={Styles.label}>Freq.</p>
+				<p class={Styles.label}>TCN</p>
+				<p class={Styles.label}>ICLS</p>
+				<p class={Styles.label} />
 				<p>DEP</p>
 				<p>{airdromeData().name}</p>
 				<p>{airdromeData().frequency}</p>
+				<p>{airdromeData().tcn}</p>
+				<p>{airdromeData().icls}</p>
+				<p />
 				<p>ARR</p>
 				<p>{airdromeData().name}</p>
 				<p>{airdromeData().frequency}</p>
+				<p>{airdromeData().tcn}</p>
+				<p>{airdromeData().icls}</p>
+				<p />
 			</div>
 			<h2 class={Styles.title}>Package</h2>
 			<div class={Styles.package}>
@@ -217,6 +226,10 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 										Utils.positiveDegrees(Utils.headingToPosition(wp.position, wp.racetrack.position)),
 								  ).toString();
 						const speed = Math.round(Utils.metersPerSecondToKnots(wp.speed));
+
+						if (i() === 0) {
+							wpIndex = 0;
+						}
 
 						return (
 							<>

@@ -82,8 +82,8 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1-next.1
-        version: 0.3.1-next.1
+        specifier: 0.3.1-next.2
+        version: 0.3.1-next.2
       '@types/leaflet':
         specifier: 1.9.3
         version: 1.9.3
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1-next.1
-        version: 0.3.1-next.1
+        specifier: 0.3.1-next.2
+        version: 0.3.1-next.2
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -216,8 +216,8 @@ importers:
         version: 1.7.7
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1-next.1
-        version: 0.3.1-next.1
+        specifier: 0.3.1-next.2
+        version: 0.3.1-next.2
 
   packages/libs/document:
     dependencies:
@@ -226,8 +226,8 @@ importers:
         version: 1.7.7
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1-next.1
-        version: 0.3.1-next.1
+        specifier: 0.3.1-next.2
+        version: 0.3.1-next.2
 
   packages/libs/rpc:
     devDependencies:
@@ -242,14 +242,14 @@ importers:
         version: 3.21.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1-next.1
-        version: 0.3.1-next.1
+        specifier: 0.3.1-next.2
+        version: 0.3.1-next.2
 
   packages/shared/utils:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1-next.1
-        version: 0.3.1-next.1
+        specifier: 0.3.1-next.2
+        version: 0.3.1-next.2
 
   utils/build:
     dependencies:
@@ -891,8 +891,8 @@ packages:
       '@floating-ui/core': 1.3.1
     dev: false
 
-  /@foxdelta2/dcsjs@0.3.1-next.1:
-    resolution: {integrity: sha512-WLEDf2m2m7TaOOFuxT3U5zh53/gDB/cTEy4ji8rTEtaXsfhERKnm177z0par5fHKmGSLmpGSqeFpHW6iksEGSA==}
+  /@foxdelta2/dcsjs@0.3.1-next.2:
+    resolution: {integrity: sha512-HYuUhsbea93ESE2KeRSUsMGMrJQUNPdsdmhtPOKRz80JBSSGBJU7ty8UzmPi/vX7qnhLziHnjTzm153m0PWb3A==}
     dependencies:
       '@kilcekru/lua-table': 1.1.2
       adm-zip: 0.5.10
@@ -1139,8 +1139,8 @@ packages:
     resolution: {integrity: sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==}
     dev: true
 
-  /@types/yauzl@2.10.1:
-    resolution: {integrity: sha512-CHzgNU3qYBnp/O4S3yv2tXPlvMTq0YWSTVg2/JYLqWZGHwwgJGAwd00poay/11asPq8wLFwHzubyInqHIFmmiw==}
+  /@types/yauzl@2.10.2:
+    resolution: {integrity: sha512-Km7XAtUIduROw7QPgvcft0lIupeG8a8rdKL8RiSyKvlE7dYY31fEn41HVuQsRFDuROA8tA4K2UVL+WdfFmErBA==}
     requiresBuild: true
     dependencies:
       '@types/node': 20.4.1
@@ -2370,7 +2370,7 @@ packages:
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
-      '@types/yauzl': 2.10.1
+      '@types/yauzl': 2.10.2
     transitivePeerDependencies:
       - supports-color
     dev: true
