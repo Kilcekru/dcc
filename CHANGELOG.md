@@ -1,6 +1,21 @@
 # Change Log
 
-## 0.4.0
+
+## 0.4.1 (2023-10-21)
+
+- Fix: Non-Carrier Aircrafts spawn on Carrier
+- Fix: Invalid FARP Positions (Replaced the "Invisible FARP" with "FARP")
+- Fix: targetAAGroup Error Message
+- Fix: Large Aircraft Spawn (Disabled large bombers, not enough space on some airports)
+- Fix: Mirage 2000C Loadout
+- Fix: AI doesn't wait on hold waypoints
+- Fix: Missing Strike Flight Groups
+- Fix: Missing Pilots in CSAR missions
+- Fix: TACAN/ICLS (Also now visible in Kneeboard)
+- Fix: Waypoint Number in Kneeboard with multiple clients
+
+
+## 0.4.0 (2023-10-15)
 
 - Add the first Syria scenario: Operation Northern Shield
 - Add Carrier
