@@ -123,7 +123,7 @@ export const Settings = () => {
 					onChange={(value) => setWithoutLocalDCS(value)}
 					class={Styles.switch}
 				>
-					Use without local DCS Installation(Server)
+					Use without local DCS Installation (Server)
 				</Components.Switch>
 				<PathSelector
 					label="DCS Installation Directory"

@@ -6,51 +6,19 @@ import FS from "fs-extra";
 import sudo from "sudo-prompt";
 
 import { userConfig } from "../persistance/state";
-import { patches } from "./config";
+import { patchesConfig } from "./config";
+import { createLineRegex } from "./utils";
 
 const tmpDir = Path.join(app.getPath("userData"), `.tmp/patch`);
 
-/** Detect if a patch is applied
- * @returns true if patch is applied, false if patch is not applied, undefined if state can't be detected
- */
-export async function detectPatch(id: Types.Patch.Id) {
-	try {
-		if (!userConfig.data.dcs.available) {
-			return undefined;
-		}
-
-		const patch = patches[id];
-		const path = Path.join(userConfig.data.dcs.paths.install, patch.path);
-		const content = await FS.readFile(path, "utf-8");
-		const applied: Array<boolean | undefined> = [];
-		for (const replacement of patch.replace ?? []) {
-			if (createLineRegex(replacement.search).test(content)) {
-				applied.push(false);
-			} else if (createLineRegex(replacement.substitute).test(content)) {
-				applied.push(true);
-			} else {
-				return undefined;
-			}
-		}
-		if (applied.every((e) => e === false)) {
-			return false;
-		} else if (applied.every((e) => e === true)) {
-			return true;
-		}
-		return undefined;
-	} catch (err) {
-		return undefined;
-	}
-}
-
-export async function executePatches(execs: Types.Patch.Execution[]) {
+export async function executePatches(execs: Types.Patch.Execution) {
 	if (!userConfig.data.dcs.available) {
 		throw new Error("DCS paths not available in userconfig");
 	}
 	const filesToWrite: Array<{ path: string; content: string }> = [];
 
 	for (const execution of execs) {
-		const patch = patches[execution.id];
+		const patch = patchesConfig[execution.id];
 		const path = Path.join(userConfig.data.dcs.paths.install, patch.path);
 		let content = await FS.readFile(path, "utf-8");
 		let changed = false;
@@ -79,27 +47,6 @@ function replaceLine(content: string, search: string, substitute: string) {
 		return { content: content.replace(regex, `$<ws>${substitute}`), changed: true };
 	}
 	return { content, changed: false };
-}
-
-function createLineRegex(search: string) {
-	return new RegExp(`(?<=\\r?\\n)(?<ws>[\\t ]*)${escapeForRegex(search)}[\\t ]*(?=\\r?\\n)`, "g");
-}
-
-function escapeForRegex(value: string): string {
-	return value.replace(/[. ()]/g, (value) => {
-		switch (value) {
-			case ".":
-				return "\\.";
-			case " ":
-				return "[\\t ]*";
-			case "(":
-				return "\\(";
-			case ")":
-				return "\\)";
-			default:
-				throw new Error("escapeForRegex: invalid replacement");
-		}
-	});
 }
 
 async function writePatchFiles(files: Array<{ path: string; content: string }>) {

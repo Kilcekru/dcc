@@ -37,7 +37,7 @@ const App = (props: { open: boolean }) => {
 		save();
 	});
 
-	onEvent("menu.campaign.enablePersistance", () => {
+	onEvent("menu.campaign.persistance", () => {
 		setIsPersistanceModalOpen(true);
 	});
 

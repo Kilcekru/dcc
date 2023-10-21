@@ -3,10 +3,11 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import { CampaignSynopsis, DataStore, MissionState } from "./campaign";
 import { AppName, DcsPaths, SystemConfig, UserConfig, Versions } from "./core";
 import * as Patch from "./patch";
+import { DeepReadonly } from "./util";
 
 export interface Misc {
 	getVersions: () => Promise<Versions>;
-	getUserConfig: () => Promise<UserConfig>;
+	getUserConfig: () => Promise<DeepReadonly<UserConfig>>;
 	getSystemConfig: () => Promise<SystemConfig>;
 	loadApp: (name: AppName) => Promise<void>;
 	openExternalLink: (url: string) => Promise<void>;
@@ -42,7 +43,8 @@ export interface Campaign {
 }
 
 export interface Patches {
-	detectPatch: (id: Patch.Id) => Promise<boolean | undefined>;
-	executePatches: (execs: Patch.Execution[]) => Promise<void>;
-	executePatchOnQuit: (id: Patch.Id, action: Patch.Action | "none") => Promise<void>;
+	detectPatch: (id: Patch.Id) => Promise<boolean | null>;
+	executePatches: (execs: Patch.Execution) => Promise<void>;
+	getPatchMode: (id: Patch.Id) => Promise<Patch.Mode | null>;
+	setPatchModes: (patches: Patch.SetMode) => Promise<void>;
 }

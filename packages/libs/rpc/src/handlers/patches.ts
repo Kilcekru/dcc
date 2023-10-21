@@ -5,5 +5,6 @@ import { rpc } from "../utils";
 export const patches: Types.Rpc.Patches = {
 	detectPatch: rpc<Types.Rpc.Patches["detectPatch"]>("patches", "detectPatch"),
 	executePatches: rpc<Types.Rpc.Patches["executePatches"]>("patches", "executePatches"),
-	executePatchOnQuit: rpc<Types.Rpc.Patches["executePatchOnQuit"]>("patches", "executePatchOnQuit"),
+	getPatchMode: rpc<Types.Rpc.Patches["getPatchMode"]>("patches", "getPatchMode"),
+	setPatchModes: rpc<Types.Rpc.Patches["setPatchModes"]>("patches", "setPatchModes"),
 };

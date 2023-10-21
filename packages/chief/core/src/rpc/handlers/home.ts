@@ -39,6 +39,7 @@ export const home: Types.Rpc.Home = {
 			available: true,
 			paths,
 		});
+		await Domain.Patches.autoPatch();
 	},
 	setDcsNotAvailable: async () => {
 		await Domain.Persistance.State.userConfig.update("dcs", {

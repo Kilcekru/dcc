@@ -13,7 +13,7 @@
 - Fix: Missing Pilots in CSAR missions
 - Fix: TACAN/ICLS (Also now visible in Kneeboard)
 - Fix: Waypoint Number in Kneeboard with multiple clients
-
+- Improved persistance modal
 
 ## 0.4.0 (2023-10-15)
 

@@ -5,3 +5,4 @@ export * as Core from "./core";
 export * as Events from "./events";
 export * as Patch from "./patch";
 export * as Rpc from "./rpc";
+export * as Util from "./util";

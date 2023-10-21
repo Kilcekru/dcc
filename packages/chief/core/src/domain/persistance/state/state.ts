@@ -1,3 +1,4 @@
+import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { z } from "zod";
 
@@ -19,18 +20,26 @@ export class State<Schema extends BaseJsonSchema> {
 		this.#listeners = new Set();
 	}
 
-	public get data(): DeepReadonly<z.infer<Schema>> {
+	public get data(): Types.Util.DeepReadonly<z.infer<Schema>> {
 		if (this.#data == undefined) {
 			throw new Error("Persistance.State data has been accessed before it was loaded");
 		}
-		return this.#data as DeepReadonly<z.infer<Schema>>;
+		return this.#data as Types.Util.DeepReadonly<z.infer<Schema>>;
 	}
 
-	public async update<Key extends keyof z.infer<Schema>>(key: Key, data: z.infer<Schema>[Key]) {
+	public async update<Key extends keyof z.infer<Schema>>(
+		key: Key,
+		data: z.infer<Schema>[Key] | ((data: z.infer<Schema>[Key]) => z.infer<Schema>[Key]),
+	) {
 		if (this.#data == undefined) {
 			throw new Error("Persistance.State data has been accessed before it was loaded");
 		}
-		this.#data[key] = data;
+		if (typeof data === "function") {
+			const fn = data as (data: z.infer<Schema>[Key]) => z.infer<Schema>[Key];
+			this.#data[key] = fn(this.#data[key]);
+		} else {
+			this.#data[key] = data;
+		}
 		await this.#save();
 	}
 
@@ -114,11 +123,3 @@ interface StateOptions<Schema extends BaseJsonSchema> {
 }
 
 type OnChangeListener = () => void;
-
-type DeepReadonly<T> = T extends (infer R)[]
-	? ReadonlyArray<DeepReadonly<R>>
-	: T extends object
-	? {
-			readonly [P in keyof T]: DeepReadonly<T[P]>;
-	  }
-	: T;
