@@ -54,4 +54,4 @@ export type Action =
 	| "updateDcc"
 	| "campaign_new"
 	| "campaign_open"
-	| "campaign_enablePersistance";
+	| "campaign_persistance";

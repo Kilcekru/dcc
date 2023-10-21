@@ -5,15 +5,17 @@ import { cnb } from "cnbuilder";
 import { createMemo, createSignal, For, onMount, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { useSetDataMap } from "../../components/DataProvider";
+import { useDataStore, useSetDataMap } from "../../components/DataProvider";
 import { Config } from "../../data";
 import * as Domain from "../../domain";
+import { migrateState } from "../../utils";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
 
 const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: () => void }) => {
 	const [, { replaceCampaignState }] = useContext(CampaignContext);
 	const setDataMap = useSetDataMap();
+	const dataStore = useDataStore();
 	const incompatible = createMemo(
 		() => props.synopsis.version == null || props.synopsis.version < Config.campaignVersion,
 	);
@@ -32,8 +34,8 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 					return;
 				}
 
-				setDataMap(loadedState.map);
-				replaceCampaignState?.(loadedState);
+				setDataMap(loadedState.map ?? "caucasus");
+				replaceCampaignState?.(migrateState(loadedState, dataStore));
 			})
 			.catch((e) => {
 				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console

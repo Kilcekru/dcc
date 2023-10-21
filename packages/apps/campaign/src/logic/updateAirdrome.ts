@@ -56,7 +56,7 @@ function updateCoalitionAirdromes(
 
 			const homeBase: DcsJs.CampaignHomeBase = { type: "airdrome", name };
 
-			const newAircrafts = generateAircraftsForHomeBase(oppFaction, homeBase, dataStore, false);
+			const newAircrafts = generateAircraftsForHomeBase(oppFaction, homeBase, dataStore, false, false);
 
 			newAircrafts.forEach((ac) => {
 				oppFaction.inventory.aircrafts[ac.id] = ac;

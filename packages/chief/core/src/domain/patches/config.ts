@@ -7,7 +7,7 @@ interface PatchConfig {
 	replace?: Array<{ search: string; substitute: string }>;
 }
 
-export const patches: Record<Types.Patch.Id, PatchConfig> = {
+export const patchesConfig: Record<Types.Patch.Id, PatchConfig> = {
 	scriptFileAccess: {
 		name: "Script File-Access",
 		description: "Allows DCS scripts to access the file-system",

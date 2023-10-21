@@ -67,7 +67,11 @@ const saveBattleReport = (
 			targetAircraft.alive = false;
 			targetAircraft.destroyedTime = timer;
 
-			if (entry.targetName != null && entry.targetPosition != null) {
+			if (
+				entry.targetName != null &&
+				entry.targetPosition != null &&
+				!targetFaction.downedPilots.some((p) => p.name === entry.targetName)
+			) {
 				targetFaction = createDownedPilot(
 					entry.targetName,
 					timer,

@@ -266,6 +266,7 @@ export const getUsableAircraftsByType = (
 	state: RunningCampaignState,
 	coalition: DcsJs.Coalition,
 	aircraftTypes: Array<string> | undefined,
+	task: DcsJs.Task | undefined,
 	count: number,
 ): Array<DcsJs.Aircraft> => {
 	const faction = getCoalitionFaction(coalition, state);
@@ -273,8 +274,24 @@ export const getUsableAircraftsByType = (
 
 	// Filter only aircrafts that are in idle state
 	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle" && ac.disabled !== true);
+
+	// Double check that the aircrafts aren't used by another flight group
+	const checkedAircrafts = idleAircrafts.filter((ac) => {
+		const pkg = faction.packages.find((pkg) =>
+			pkg.flightGroups.some((fg) => fg.units.some((unit) => unit.id === ac.id)),
+		);
+
+		if (pkg == null) {
+			return true;
+		}
+
+		// console.warn(`aircraft ${ac.id} with state ${ac.state} is already in use with package ${pkg.id}`, pkg);
+
+		return false;
+	});
+
 	// Filter only aircrafts that are alive
-	const aliveAircrafts = idleAircrafts.filter((ac) => ac.alive);
+	const aliveAircrafts = checkedAircrafts.filter((ac) => ac.alive);
 	// Filter only aircrafts of specific aircraft types
 	const typeAircrafts = aliveAircrafts.filter((ac) => aircraftTypes?.some((acType) => ac.aircraftType === acType));
 
@@ -504,4 +521,88 @@ export function jtacFrequency(faction: DcsJs.CampaignFaction) {
 	}, 240);
 
 	return existingJtacFrequency + 1;
+}
+
+function migrateFarpFaction(
+	faction: DcsJs.CampaignFaction | undefined,
+	structureBuildings: Array<DcsJs.StructureBuilding>,
+): DcsJs.CampaignFaction | undefined {
+	if (faction == null) {
+		return;
+	}
+
+	Object.values(faction.structures).map((structure) => {
+		if (structure.type === "Farp") {
+			if (structure.buildings[0]?.type !== "FARP") {
+				structure.buildings =
+					structureBuildings.map((building, i) => ({
+						alive: true,
+						name: `${structure.name}|${i + 1}`,
+						...building,
+						shapeName: building.shapeName ?? "",
+					})) ?? [];
+			}
+		}
+	});
+
+	return faction;
+}
+
+function migrateFarp(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
+	const structureTemplate = Domain.Random.item(dataStore.structures?.["Farp"] ?? []);
+
+	if (structureTemplate == null) {
+		throw new Error("structure template for Farp not found");
+	}
+
+	state.blueFaction = migrateFarpFaction(state.blueFaction, structureTemplate.buildings);
+	state.redFaction = migrateFarpFaction(state.redFaction, structureTemplate.buildings);
+
+	return state;
+}
+
+function migrateNonCarrierAircraftsFaction(
+	faction: DcsJs.CampaignFaction | undefined,
+	dataStore: Types.Campaign.DataStore,
+) {
+	if (faction == null) {
+		return;
+	}
+
+	Object.values(faction?.inventory.aircrafts).map((ac) => {
+		if (ac.homeBase.type === "carrier") {
+			const dsAc = dataStore.aircrafts?.[ac.aircraftType as DcsJs.AircraftType];
+
+			if (dsAc == null) {
+				return;
+			}
+
+			if (dsAc.carrierCapable) {
+				return;
+			}
+
+			faction.packages = faction.packages.filter((pkg) => {
+				if (pkg.flightGroups.some((fg) => fg.units.some((unit) => unit.id === ac.id))) {
+					return false;
+				}
+
+				return true;
+			});
+
+			delete faction.inventory.aircrafts[ac.id];
+		}
+	});
+
+	return faction;
+}
+
+function migrateNonCarrierAircrafts(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
+	state.blueFaction = migrateNonCarrierAircraftsFaction(state.blueFaction, dataStore);
+	state.redFaction = migrateNonCarrierAircraftsFaction(state.redFaction, dataStore);
+
+	return state;
+}
+
+export function migrateState(state: Partial<DcsJs.CampaignState>, dataStore: Types.Campaign.DataStore) {
+	return migrateNonCarrierAircrafts(migrateFarp(state, dataStore), dataStore);
 }

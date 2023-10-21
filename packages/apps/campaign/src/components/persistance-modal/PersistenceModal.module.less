@@ -1,24 +1,24 @@
 .modal {
 	z-index: 100000;
 
-	&.modal__backdrop {
+	&:global(.modal__backdrop) {
 		z-index: 100000;
 	}
 
-	&.modal__container {
+	&:global(.modal__container) {
 		z-index: 100001;
 	}
 
-	&.modal__content {
+	&:global(.modal__content) {
 		padding: 30px;
+		width: 600px;
 	}
 }
 
 .content {
 	display: flex;
 	flex-direction: column;
-	padding-top: 20px;
-	width: 400px;
+	gap: 10px;
 }
 
 .header {

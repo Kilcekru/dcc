@@ -9,7 +9,7 @@ interface State {
 	loading?: boolean;
 	error?: Error;
 	action?: Action;
-	userConfig?: Types.Core.UserConfig;
+	userConfig?: Types.Util.DeepReadonly<Types.Core.UserConfig>;
 }
 
 type Store = [

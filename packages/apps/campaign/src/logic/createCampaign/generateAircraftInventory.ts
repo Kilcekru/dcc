@@ -42,6 +42,7 @@ function generateAircraftForTask({
 	homeBase,
 	aircraftCategory,
 	withoutCarrierCapable,
+	onlyCarrierCapable,
 	faction,
 	dataStore,
 }: {
@@ -49,6 +50,7 @@ function generateAircraftForTask({
 	homeBase: DcsJs.CampaignHomeBase;
 	aircraftCategory: "plane" | "helicopter" | "both";
 	withoutCarrierCapable: boolean;
+	onlyCarrierCapable: boolean;
 	faction: DcsJs.Faction;
 	dataStore: Types.Campaign.DataStore;
 }) {
@@ -68,6 +70,10 @@ function generateAircraftForTask({
 		}
 
 		if (aircraft?.carrierCapable && withoutCarrierCapable) {
+			return;
+		}
+
+		if (onlyCarrierCapable && aircraft?.carrierCapable !== true) {
 			return;
 		}
 
@@ -103,6 +109,7 @@ export function generateHelicoptersForHomeBase(
 			withoutCarrierCapable: false,
 			faction,
 			dataStore,
+			onlyCarrierCapable: false,
 		}),
 		...generateAircraftForTask({
 			task: "CSAR",
@@ -111,6 +118,7 @@ export function generateHelicoptersForHomeBase(
 			withoutCarrierCapable: false,
 			faction,
 			dataStore,
+			onlyCarrierCapable: false,
 		}),
 	];
 
@@ -122,6 +130,7 @@ export function generateAircraftsForHomeBase(
 	homeBase: DcsJs.CampaignHomeBase,
 	dataStore: Types.Campaign.DataStore,
 	withoutCarrierCapable: boolean,
+	onlyCarrierCapable: boolean,
 ) {
 	const aircrafts = [
 		...generateAircraftForTask({
@@ -131,6 +140,7 @@ export function generateAircraftsForHomeBase(
 			faction,
 			homeBase,
 			withoutCarrierCapable,
+			onlyCarrierCapable,
 		}),
 		...generateAircraftForTask({
 			task: "CAS",
@@ -139,6 +149,7 @@ export function generateAircraftsForHomeBase(
 			faction,
 			homeBase,
 			withoutCarrierCapable,
+			onlyCarrierCapable,
 		}),
 		...generateAircraftForTask({
 			task: "Pinpoint Strike",
@@ -147,6 +158,7 @@ export function generateAircraftsForHomeBase(
 			faction,
 			homeBase,
 			withoutCarrierCapable,
+			onlyCarrierCapable,
 		}),
 		...generateAircraftForTask({
 			task: "DEAD",
@@ -155,6 +167,7 @@ export function generateAircraftsForHomeBase(
 			faction,
 			homeBase,
 			withoutCarrierCapable,
+			onlyCarrierCapable,
 		}),
 		...generateAircraftForTask({
 			task: "CSAR",
@@ -163,6 +176,7 @@ export function generateAircraftsForHomeBase(
 			faction,
 			homeBase,
 			withoutCarrierCapable,
+			onlyCarrierCapable,
 		}),
 	];
 
@@ -226,12 +240,16 @@ export const generateAircraftInventory = ({
 			dataStore,
 			faction,
 			withoutCarrierCapable: false,
+			onlyCarrierCapable: false,
 		}),
 	];
 
 	airdromeNames.forEach((airdromeName) => {
 		const homeBase: DcsJs.CampaignHomeBase = { type: "airdrome", name: airdromeName };
-		aircrafts = [...aircrafts, ...generateAircraftsForHomeBase(faction, homeBase, dataStore, carrierName != null)];
+		aircrafts = [
+			...aircrafts,
+			...generateAircraftsForHomeBase(faction, homeBase, dataStore, carrierName != null, false),
+		];
 	});
 
 	if (carrierName != null) {
@@ -246,8 +264,9 @@ export const generateAircraftInventory = ({
 				faction,
 				homeBase,
 				withoutCarrierCapable: false,
+				onlyCarrierCapable: true,
 			}),
-			...generateAircraftsForHomeBase(faction, homeBase, dataStore, false),
+			...generateAircraftsForHomeBase(faction, homeBase, dataStore, false, true),
 		];
 	}
 

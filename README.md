@@ -33,6 +33,7 @@ Still in early development we currently only offer a dynamic campaign, but more 
   - [CAS](#cas)
   - [CSAR](#csar)
 - [Persistence](#persistence)
+  - [Manually enabling persistance](#manually-enabling-persistance)
 - [Multiplayer](#multiplayer)
 - [Current Limitation](#current-limitation)
 - [Roadmap](#roadmap)
@@ -129,14 +130,19 @@ Close Air Support. Destroy enemy ground units between the given waypoints. Commu
 Combat search and rescue. Find and rescue previously downed pilots with a helicopter. Communication Tools with the pilot are available in the Communication Menu.
 
 ## Persistence
-DCC will check if DCS persistance is enabled when you run a campaign (if your DCS folder are setup correctly).\
-You can enable persistance via the menu or when you generate a mission.\
-You can also select to disable persistance again when you close DCC.
+DCS does not allow saving files from missions per default for security reasons.\
+File access for DCS allows missions to write files, which can be used by DCC to save the result when you fly a mission.\
+But it also allows missions to write malicious files, so it should only be enabled when you trust the missions you fly (also when you join online servers).
 
-Enabled persistance allows DCS missions to save file on your computer (which DCC utilizes to store the mission state).\
-If you fly on online servers this should not be enabled to prevent malicious files to be stored.
+A small change in DCS settings is necessary for persistance to work (only on the machine hosting the mission).\
+If the generated mission is hosted on a dedicated server, the change needs to be applied there.
 
-To manually enable persistance change the following lines in the file `DCS World/Scripts/MissionScripting.lua` in the DCS installation folder.\
+DCC can automatically enable / disable this setting for you.\
+By default DCC will enable persistance when it is started and disable it on quit.\
+You can change this behaviour in the Menu Campaign -> Persistance.
+
+### Manually enabling persistance
+To manually enable persistance change the following lines in the file `Scripts\MissionScripting.lua` in the DCS installation folder.\
 From:
 ```lua
 do
@@ -159,6 +165,7 @@ do
    _G['package'] = nil
 end
 ```
+To disable it again just revert this change.
 
 ## Multiplayer
 DCC can be used for multiplayer sessions.

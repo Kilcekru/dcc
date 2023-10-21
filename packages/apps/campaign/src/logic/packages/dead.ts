@@ -36,6 +36,7 @@ export const generateDeadPackage = (
 
 	const packageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes.DEAD,
+		task: "DEAD",
 		coalition,
 		state,
 		count: 2,
@@ -45,6 +46,7 @@ export const generateDeadPackage = (
 
 	const escortPackageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes.CAP,
+		task: "CAP",
 		coalition,
 		state,
 		count: 2,
@@ -112,7 +114,7 @@ export const generateDeadPackage = (
 		cruiseSpeed,
 	});
 
-	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
+	const cs = generateCallSign(state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),

@@ -57,7 +57,7 @@ type CampaignStore = [
 		generateMissionId?: () => void;
 		resetMissionId?: () => void;
 		clearToastMessages?: (ids: Array<string>) => void;
-		replaceCampaignState?: (next: DcsJs.CampaignState) => void;
+		replaceCampaignState?: (next: Partial<DcsJs.CampaignState>) => void;
 		closeCampaign?: () => void;
 	},
 ];

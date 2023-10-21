@@ -18,7 +18,12 @@ export function updateDownedPilots(faction: DcsJs.CampaignFaction, timer: number
 			return false;
 		}
 
-		return Domain.Location.distanceToPosition(pilot.position, csarFg.position) < 100;
+		if (Domain.Location.distanceToPosition(pilot.position, csarFg.position) <= 100) {
+			// eslint-disable-next-line no-console
+			console.log("updateDownedPilots", "downed pilot " + pilot.id + " was picked up by " + csarFg.name);
+		}
+
+		return Domain.Location.distanceToPosition(pilot.position, csarFg.position) > 100;
 	});
 
 	return faction;

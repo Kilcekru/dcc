@@ -32,7 +32,7 @@ export const generateCapPackage = (
 		return;
 	}
 
-	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, 2);
+	const usableAircrafts = getUsableAircraftsByType(state, coalition, faction.aircraftTypes.CAP, "CAP", 2);
 	const aircraftType = Domain.Utils.firstItem(usableAircrafts)?.aircraftType as DcsJs.AircraftType;
 	const airdromes = dataStore.airdromes;
 
@@ -148,7 +148,7 @@ export const generateCapPackage = (
 		cruiseSpeed,
 	});
 
-	const cs = generateCallSign(coalition, state, dataStore, "aircraft");
+	const cs = generateCallSign(state, dataStore, "aircraft");
 
 	const flightGroup: DcsJs.FlightGroup = {
 		id: createUniqueId() + "-" + String(startTime),

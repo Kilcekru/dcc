@@ -2,7 +2,6 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { BrowserWindow } from "electron";
 
 import { config } from "../../config";
-import { detectPatch } from "../patches";
 import * as Persistance from "../persistance";
 import { updateInfo } from "../update";
 
@@ -10,12 +9,6 @@ export async function getConfig(): Promise<Types.AppMenu.Config> {
 	const currentApp = Persistance.State.userConfig.data.currentApp;
 	const disableNavigation =
 		!Persistance.State.userConfig.data.setupComplete || Persistance.State.userConfig.data.dcs.available == undefined;
-	let patchScriptFileAccess;
-	try {
-		patchScriptFileAccess = await detectPatch("scriptFileAccess");
-	} catch {
-		patchScriptFileAccess = undefined;
-	}
 
 	const menu: Types.AppMenu.Menu[] = [
 		{
@@ -97,7 +90,6 @@ export async function getConfig(): Promise<Types.AppMenu.Config> {
 		{
 			label: "Campaign",
 			hidden: currentApp !== "campaign",
-			highlight: patchScriptFileAccess === false,
 			submenu: [
 				{
 					label: "New Campaign",
@@ -108,10 +100,8 @@ export async function getConfig(): Promise<Types.AppMenu.Config> {
 					action: "campaign_open",
 				},
 				{
-					label: "Enable persistance",
-					action: "campaign_enablePersistance",
-					hidden: patchScriptFileAccess !== false,
-					highlight: true,
+					label: "Persistance",
+					action: "campaign_persistance",
 				},
 			],
 		},

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import * as Patch from "./patch";
 export interface SystemConfig {
 	env: "dev" | "pro";
 }
@@ -11,7 +12,7 @@ export const DcsPathsSchema = z.object({
 export type DcsPaths = z.infer<typeof DcsPathsSchema>;
 
 export const UserConfigSchema = z.object({
-	version: z.literal(1),
+	version: z.literal(2),
 	setupComplete: z.boolean(),
 	dcs: z.discriminatedUnion("available", [
 		z.object({ available: z.undefined() }),
@@ -25,6 +26,10 @@ export const UserConfigSchema = z.object({
 	]),
 	downloadsPath: z.string(),
 	currentApp: z.enum(["home", "campaign"]),
+	patch: z.object({
+		initialized: z.boolean(),
+		auto: z.array(Patch.idSchema),
+	}),
 });
 export type UserConfig = z.infer<typeof UserConfigSchema>;
 

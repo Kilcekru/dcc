@@ -23,7 +23,9 @@ export function DownedPilot() {
 	return (
 		<div>
 			<Flag countryName={faction()?.countryName} />
-			<h2 class={Style.title}>Pilot</h2>
+			<h2 class={Style.title}>
+				Pilot {faction()?.downedPilots.find((p) => p.id === overlayStore.groundGroupId)?.name}
+			</h2>
 		</div>
 	);
 }

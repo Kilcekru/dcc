@@ -65,5 +65,5 @@ export const actions: Record<Types.AppMenu.Action, () => void> = {
 	},
 	campaign_new: () => Events.send("menu.campaign.new", undefined),
 	campaign_open: () => Events.send("menu.campaign.open", undefined),
-	campaign_enablePersistance: () => Events.send("menu.campaign.enablePersistance", undefined),
+	campaign_persistance: () => Events.send("menu.campaign.persistance", undefined),
 };
