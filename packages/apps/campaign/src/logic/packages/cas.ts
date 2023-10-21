@@ -42,6 +42,7 @@ export const generateCasPackage = (
 
 	const packageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes["CAS"],
+		task: "CAS",
 		coalition,
 		state,
 		count: 2,

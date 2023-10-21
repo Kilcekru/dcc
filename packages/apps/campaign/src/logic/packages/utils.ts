@@ -133,7 +133,7 @@ export function getPackageAircrafts({
 
 	if (validAircrafts == null || validAircrafts.length === 0) {
 		// eslint-disable-next-line no-console
-		console.warn("no usable aircrafts available", aircraftTypes, { usableAircrafts, excludedAircrafts });
+		console.warn("no usable aircrafts available", aircraftTypes, task, { usableAircrafts, excludedAircrafts });
 		return;
 	}
 

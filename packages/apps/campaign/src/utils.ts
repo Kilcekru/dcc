@@ -273,11 +273,25 @@ export const getUsableAircraftsByType = (
 	const aircrafts = Object.values(faction.inventory.aircrafts ?? []);
 
 	// Filter only aircrafts that are in idle state
-	const idleAircrafts = aircrafts.filter(
-		(ac) => ac.state === "idle" && ac.disabled !== true && (task == null || ac.availableTasks.some((t) => t === task)),
-	);
+	const idleAircrafts = aircrafts.filter((ac) => ac.state === "idle" && ac.disabled !== true);
+
+	// Double check that the aircrafts aren't used by another flight group
+	const checkedAircrafts = idleAircrafts.filter((ac) => {
+		const pkg = faction.packages.find((pkg) =>
+			pkg.flightGroups.some((fg) => fg.units.some((unit) => unit.id === ac.id)),
+		);
+
+		if (pkg == null) {
+			return true;
+		}
+
+		// console.warn(`aircraft ${ac.id} with state ${ac.state} is already in use with package ${pkg.id}`, pkg);
+
+		return false;
+	});
+
 	// Filter only aircrafts that are alive
-	const aliveAircrafts = idleAircrafts.filter((ac) => ac.alive);
+	const aliveAircrafts = checkedAircrafts.filter((ac) => ac.alive);
 	// Filter only aircrafts of specific aircraft types
 	const typeAircrafts = aliveAircrafts.filter((ac) => aircraftTypes?.some((acType) => ac.aircraftType === acType));
 

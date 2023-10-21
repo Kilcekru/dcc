@@ -35,6 +35,7 @@ export const generateCsarPackage = (
 
 	const packageAircrafts = getPackageAircrafts({
 		aircraftTypes: faction.aircraftTypes["CSAR"],
+		task: "CSAR",
 		coalition,
 		state,
 		count: 1,

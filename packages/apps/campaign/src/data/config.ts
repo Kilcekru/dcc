@@ -51,10 +51,10 @@ type Config = {
 export const Config: Config = {
 	inventory: {
 		aircraft: {
-			CAP: 8,
+			CAP: 12,
 			CAS: 4,
 			AWACS: 3,
-			"Pinpoint Strike": 6,
+			"Pinpoint Strike": 8,
 			DEAD: 4,
 			CSAR: 2,
 			Escort: 2,
