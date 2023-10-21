@@ -25,6 +25,7 @@ if (!instanceLock) {
 		await Promise.all([Domain.Persistance.State.dccConfig.load(), Domain.Persistance.State.userConfig.load()]);
 		void Domain.Update.updateCheck();
 		await Domain.Window.initialize();
+		await Domain.Patches.autoPatch();
 	});
 	startRpc();
 }

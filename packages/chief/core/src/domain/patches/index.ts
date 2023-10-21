@@ -1,2 +1,4 @@
-export { detectPatch, executePatches } from "./patches";
-export { executePatchOnQuit } from "./schedule";
+export { autoPatch } from "./auto";
+export { detectPatch } from "./detect";
+export { executePatches } from "./execute";
+export { getPatchMode, setPatchModes } from "./mode";
