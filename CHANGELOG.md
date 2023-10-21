@@ -16,6 +16,8 @@
 - Fix: Red Callsigns
 - Culling: For performance reasons we don't include ground groups and structures which are not a target or nearby a target. SHORAD/AA units are still in the mission!
 - Improved persistance modal
+- Add Israel Country & Faction
+
 
 ## 0.4.0 (2023-10-15)
 
