@@ -15,6 +15,8 @@ export function Flag(props: { countryName: string; class?: string }) {
 				return Styles.iran;
 			case "Iraq":
 				return Styles.iraq;
+			case "Israel":
+				return Styles.israel;
 			case "Russia":
 				return Styles.russia;
 			case "Spain":

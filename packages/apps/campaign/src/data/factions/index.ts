@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import * as france82 from "./france-1982.json";
+import * as israel67 from "./israel-1967.json";
 import * as russia55 from "./russia-1955.json";
 import * as russia71 from "./russia-1971.json";
 import * as russia84 from "./russia-1984.json";
@@ -16,6 +17,7 @@ export const factionList: Array<DcsJs.Faction> = [
 	usa52,
 	russia55,
 	usnavy64,
+	israel67,
 	sweden70,
 	russia71,
 	usa77,
