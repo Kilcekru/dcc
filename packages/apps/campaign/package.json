@@ -5,28 +5,28 @@
 	"scripts": {
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
-		"validate:lint": "eslint src",
+		"validate:lint": "eslint src --max-warnings 0",
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@kilcekru/dcs-coordinates": "1.0.0",
-		"@zag-js/checkbox": "0.10.5",
-		"@zag-js/dialog": "0.10.5",
-		"@zag-js/editable": "0.10.5",
-		"@zag-js/pressable": "0.10.5",
-		"@zag-js/solid": "0.10.5",
+		"@zag-js/checkbox": "0.26.0",
+		"@zag-js/dialog": "0.26.0",
+		"@zag-js/editable": "0.26.0",
+		"@zag-js/pressable": "0.25.0",
+		"@zag-js/solid": "0.26.0",
 		"cnbuilder": "3.1.0",
-		"esri-leaflet": "3.0.10",
+		"esri-leaflet": "3.0.11",
 		"fast-astar": "1.0.6",
 		"leaflet": "1.9.4",
 		"milsymbol": "2.2.0",
-		"solid-js": "1.7.7",
-		"uuid": "9.0.0",
-		"zod": "3.21.4"
+		"solid-js": "1.8.3",
+		"uuid": "9.0.1",
+		"zod": "3.22.4"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.3.1",
-		"@types/leaflet": "1.9.3",
-		"@types/uuid": "9.0.2"
+		"@types/leaflet": "1.9.7",
+		"@types/uuid": "9.0.6"
 	}
 }

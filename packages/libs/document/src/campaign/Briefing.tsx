@@ -227,7 +227,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 								  ).toString();
 						const speed = Math.round(Utils.metersPerSecondToKnots(wp.speed));
 
-						if (i() === 0) {
+						if (i() === 0 /* eslint-disable-line solid/reactivity */) {
 							wpIndex = 0;
 						}
 

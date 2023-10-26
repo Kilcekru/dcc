@@ -31,7 +31,7 @@ export const Modal = (props: {
 		<Show when={api().isOpen}>
 			<Portal>
 				<div {...api().backdropProps} class={cnb("modal__backdrop", props.class)} />
-				<div {...api().containerProps} class={cnb("modal__container", props.class)}>
+				<div {...api().positionerProps} class={cnb("modal__container", props.class)}>
 					<div {...api().contentProps} class={cnb("modal__content", props.class)}>
 						{props.children}
 						<Show when={props.disableClose !== true}>

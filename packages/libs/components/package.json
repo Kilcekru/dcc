@@ -5,22 +5,22 @@
 	"scripts": {
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
-		"validate:lint": "eslint src",
+		"validate:lint": "eslint src --max-warnings 0",
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@zag-js/checkbox": "0.10.5",
-		"@zag-js/dialog": "0.10.5",
-		"@zag-js/editable": "0.10.5",
-		"@zag-js/hover-card": "0.10.5",
-		"@zag-js/pressable": "0.10.5",
-		"@zag-js/radio-group": "0.10.5",
-		"@zag-js/solid": "0.10.5",
-		"@zag-js/switch": "0.10.5",
-		"@zag-js/toast": "0.10.5",
-		"@zag-js/tooltip": "0.10.5",
+		"@zag-js/checkbox": "0.26.0",
+		"@zag-js/dialog": "0.26.0",
+		"@zag-js/editable": "0.26.0",
+		"@zag-js/hover-card": "0.26.0",
+		"@zag-js/pressable": "0.25.0",
+		"@zag-js/radio-group": "0.26.0",
+		"@zag-js/solid": "0.26.0",
+		"@zag-js/switch": "0.26.0",
+		"@zag-js/toast": "0.26.0",
+		"@zag-js/tooltip": "0.26.0",
 		"cnbuilder": "3.1.0",
-		"solid-js": "1.7.7"
+		"solid-js": "1.8.3"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.3.1"

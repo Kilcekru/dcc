@@ -5,7 +5,7 @@
 	"scripts": {
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
-		"validate:lint": "eslint src",
+		"validate:lint": "eslint src --max-warnings 0",
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
@@ -18,14 +18,14 @@
 		"regedit": "^5.1.2",
 		"semver": "^7.5.4",
 		"sudo-prompt": "^9.2.1",
-		"zod": "^3.21.4"
+		"zod": "^3.22.4"
 	},
 	"devDependencies": {
 		"@kilcekru/dcc-shared-types": "workspace:*",
-		"@types/adm-zip": "^0.5.0",
-		"@types/fs-extra": "^11.0.1",
-		"@types/node": "^20.4.1",
-		"@types/semver": "^7.5.1",
-		"electron": "25.2.0"
+		"@types/adm-zip": "^0.5.3",
+		"@types/fs-extra": "^11.0.3",
+		"@types/node": "^20.8.9",
+		"@types/semver": "^7.5.4",
+		"electron": "27.0.2"
 	}
 }

@@ -23,6 +23,7 @@ export function TextField(props: TextFieldProps) {
 			onChange={onChange}
 			class={cnb(Styles.input, props.class)}
 			disabled={props.disabled}
+			spellcheck={false}
 		/>
 	);
 }

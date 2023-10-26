@@ -6,16 +6,16 @@
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
 		"build": "node src/build.mjs",
-		"validate:lint": "eslint src --ext .mjs",
+		"validate:lint": "eslint src --ext .mjs --max-warnings 0",
 		"watch": "node src/build.mjs --watch"
 	},
 	"dependencies": {
 		"@kilcekru/esbuild-plugin-css-extra": "^0.1.2",
 		"chokidar": "^3.5.3",
-		"esbuild": "^0.18.11",
+		"esbuild": "^0.19.5",
 		"esbuild-plugin-solid": "^0.5.0",
 		"fs-extra": "^11.1.1",
-		"solid-js": "1.7.7"
+		"solid-js": "1.8.3"
 	},
 	"devDependencies": {
 		"regedit": "^5.1.2"

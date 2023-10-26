@@ -4,24 +4,12 @@
 	"year": 1967,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": [
-			"Mirage-F1CE"
-		],
-		"CAS": [
-			"A-4E-C"
-		],
-		"AWACS": [
-			"E-2C"
-		],
-		"DEAD": [
-			"A-4E-C"
-		],
-		"Pinpoint Strike": [
-			"A-4E-C"
-		],
-		"CSAR": [
-			"UH-1H"
-		]
+		"CAP": ["Mirage-F1CE"],
+		"CAS": ["A-4E-C"],
+		"AWACS": ["E-2C"],
+		"DEAD": ["A-4E-C"],
+		"Pinpoint Strike": ["A-4E-C"],
+		"CSAR": ["UH-1H"]
 	},
 	"templateName": "USA - Cold War"
 }

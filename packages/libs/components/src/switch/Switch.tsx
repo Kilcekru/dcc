@@ -19,7 +19,7 @@ export function Switch(props: {
 			disabled: props.disabled,
 			// eslint-disable-next-line solid/reactivity
 			checked: props.checked,
-			onChange({ checked }) {
+			onCheckedChange({ checked }) {
 				props.onChange?.(checked);
 			},
 		}),
@@ -29,7 +29,7 @@ export function Switch(props: {
 
 	return (
 		<label {...api().rootProps} class={cnb(Styles.root, props.class)}>
-			<input {...api().inputProps} />
+			<input {...api().hiddenInputProps} />
 			<div {...api().controlProps} class={Styles.control}>
 				<div {...api().thumbProps} class={Styles.thumb} />
 			</div>

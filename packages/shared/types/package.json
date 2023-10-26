@@ -5,11 +5,11 @@
 	"scripts": {
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
-		"validate:lint": "eslint src",
+		"validate:lint": "eslint src --max-warnings 0",
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"zod": "^3.21.4"
+		"zod": "^3.22.4"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.3.1"

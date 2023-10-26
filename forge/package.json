@@ -15,16 +15,16 @@
 		"pnpm": ">=8.6.2"
 	},
 	"scripts": {
-		"clean": "rm -rf dist out",
-		"clean:all": "rm -rf dist out node_modules",
+		"clean": "rm -rf dist out vbs",
+		"clean:all": "rm -rf dist out vbs node_modules",
 		"start": "node start.mjs",
 		"package": "electron-forge package",
 		"make": "electron-forge make"
 	},
 	"devDependencies": {
-		"@electron-forge/cli": "^6.2.1",
-		"@electron-forge/maker-squirrel": "^6.2.1",
+		"@electron-forge/cli": "^6.4.2",
+		"@electron-forge/maker-squirrel": "^6.4.2",
 		"chokidar": "^3.5.3",
-		"electron": "25.2.0"
+		"electron": "27.0.2"
 	}
 }

@@ -15,12 +15,12 @@ function useRadioApi() {
 export function RadioItem(props: { id: string; children?: JSX.Element }) {
 	const api = useRadioApi();
 	return (
-		<label {...api.getRadioProps({ value: props.id })} class={Styles.radio}>
-			<div {...api.getRadioControlProps({ value: props.id })} class={Styles.control} />
-			<span {...api.getRadioLabelProps({ value: props.id })} class={Styles.label}>
+		<label {...api.getItemProps({ value: props.id })} class={Styles.radio}>
+			<div {...api.getItemControlProps({ value: props.id })} class={Styles.control} />
+			<span {...api.getItemTextProps({ value: props.id })} class={Styles.label}>
 				{props.children}
 			</span>
-			<input {...api.getRadioInputProps({ value: props.id })} />
+			<input {...api.getItemHiddenInputProps({ value: props.id })} />
 		</label>
 	);
 }

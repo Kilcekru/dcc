@@ -12,7 +12,7 @@ export function RadioGroup(props: { children?: JSX.Element; id?: string; onChang
 			id: createUniqueId(),
 			// eslint-disable-next-line solid/reactivity
 			value: props.id,
-			onChange({ value }) {
+			onValueChange({ value }) {
 				props.onChange(value);
 			},
 		}),
