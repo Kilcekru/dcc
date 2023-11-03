@@ -59,6 +59,7 @@ type CampaignStore = [
 		clearToastMessages?: (ids: Array<string>) => void;
 		replaceCampaignState?: (next: Partial<DcsJs.CampaignState>) => void;
 		closeCampaign?: () => void;
+		toggleHotStart?: () => void;
 	},
 ];
 
@@ -358,6 +359,9 @@ export function CampaignProvider(props: {
 			},
 			closeCampaign() {
 				setState("active", false);
+			},
+			toggleHotStart() {
+				setState("hotStart", (s) => !s);
 			},
 		},
 	];

@@ -82,8 +82,8 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.0-next.1
+        version: 0.4.0-next.1
       '@types/leaflet':
         specifier: 1.9.7
         version: 1.9.7
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.0-next.1
+        version: 0.4.0-next.1
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -216,8 +216,8 @@ importers:
         version: 1.8.3
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.0-next.1
+        version: 0.4.0-next.1
 
   packages/libs/document:
     dependencies:
@@ -226,8 +226,8 @@ importers:
         version: 1.8.3
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.0-next.1
+        version: 0.4.0-next.1
 
   packages/libs/rpc:
     devDependencies:
@@ -242,14 +242,14 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.0-next.1
+        version: 0.4.0-next.1
 
   packages/shared/utils:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.0-next.1
+        version: 0.4.0-next.1
 
   utils/build:
     dependencies:
@@ -884,8 +884,8 @@ packages:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
-  /@foxdelta2/dcsjs@0.3.1:
-    resolution: {integrity: sha512-XUjzUK+WcEFs2EF5y42xSrKQPPFb7kxFY66zVTmQS4MCz/cDSxzoIbESxjLBWiMoIY7nsHYVW+3QTJs7Hqe/lw==}
+  /@foxdelta2/dcsjs@0.4.0-next.1:
+    resolution: {integrity: sha512-xhAhiyruWu+tszuNnnigqkn8eOn9AjoYuuEKZQaU0gTSKZpqXA5ZuqmsD5Ec+MJt1R1u05h9SF7BzbKH9/MFBA==}
     dependencies:
       '@kilcekru/lua-table': 1.1.2
       adm-zip: 0.5.10
@@ -3959,6 +3959,7 @@ packages:
 
   /sax@1.3.0:
     resolution: {integrity: sha512-0s+oAmw9zLl1V1cS9BtZN7JAd0cW5e0QH4W3LWEK6a4LaLEA2OTpGYWDY+6XasBLtz6wkm3u1xRw95mRuJ59WA==}
+    requiresBuild: true
     optional: true
 
   /semver-compare@1.0.0:
@@ -4102,6 +4103,7 @@ packages:
 
   /sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
+    requiresBuild: true
     dev: true
     optional: true
 

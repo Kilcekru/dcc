@@ -70,6 +70,15 @@
 		opacity: 1;
 		pointer-events: initial;
 	}
+
+	&--generate {
+		flex-direction: column;
+	}
+
+	&__container {
+		display: flex;
+		gap: 20px;
+	}
 }
 
 .button {
@@ -146,4 +155,9 @@
 	right: 0;
 	bottom: 0;
 	pointer-events: none;
+}
+
+.hot-start {
+	background-color: var(--background);
+	padding: 10px;
 }

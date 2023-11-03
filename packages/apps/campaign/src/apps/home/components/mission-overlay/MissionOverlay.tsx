@@ -20,7 +20,7 @@ import Styles from "./MissionOverlay.module.less";
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
 	const modalContext = useModalContext();
-	const [state, { submitMissionState, pause, generateMissionId }] = useContext(CampaignContext);
+	const [state, { submitMissionState, pause, generateMissionId, toggleHotStart }] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
@@ -172,13 +172,22 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 							Submit Mission State
 						</Components.Button>
 					</div>
-					<div class={cnb(Styles["buttons"], isReady() ? Styles["buttons--show"] : null)}>
-						<Components.Button onPress={onClose} class={Styles.button} large>
-							Cancel
-						</Components.Button>
-						<Components.Button onPress={onGenerateMission} class={Styles.button} large>
-							Generate Mission
-						</Components.Button>
+					<div class={cnb(Styles["buttons"], isReady() ? Styles["buttons--show"] : null, Styles["buttons--generate"])}>
+						<Components.Switch
+							checked={state.hotStart ?? false}
+							onChange={() => toggleHotStart?.()}
+							class={Styles["hot-start"]}
+						>
+							Hot Start
+						</Components.Switch>
+						<div class={Styles.buttons__container}>
+							<Components.Button onPress={onClose} class={Styles.button} large>
+								Cancel
+							</Components.Button>
+							<Components.Button onPress={onGenerateMission} class={Styles.button} large>
+								Generate Mission
+							</Components.Button>
+						</div>
 					</div>
 				</Show>
 				<Show when={missionState() != undefined}>
