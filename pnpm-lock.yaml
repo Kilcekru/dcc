@@ -71,6 +71,9 @@ importers:
       milsymbol:
         specifier: 2.2.0
         version: 2.2.0
+      posthog-js:
+        specifier: 1.88.1
+        version: 1.88.1
       solid-js:
         specifier: 1.8.3
         version: 1.8.3
@@ -2573,6 +2576,10 @@ packages:
       pend: 1.2.0
     dev: true
 
+  /fflate@0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
+    dev: false
+
   /file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -3740,6 +3747,12 @@ packages:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
+
+  /posthog-js@1.88.1:
+    resolution: {integrity: sha512-+8kFFU5KIcFSm8zB3tX8l0GSPyq/OtMtdrS9dYpMJk6nsEwXvOjkwFEpSrYzL5eGEpTPdbM65M52HvMqqsjpXw==}
+    dependencies:
+      fflate: 0.4.8
+    dev: false
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}

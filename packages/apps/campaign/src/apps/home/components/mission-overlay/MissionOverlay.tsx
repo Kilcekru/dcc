@@ -10,8 +10,9 @@ import { unwrap } from "solid-js/store";
 import { CampaignContext } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
 import { useModalContext, useSetIsPersistanceModalOpen } from "../../../../components/modalProvider";
+import * as Domain from "../../../../domain";
 import { useSave } from "../../../../hooks";
-import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
+import { calcTakeoffTime, getClientFlightGroups, getFlightGroups } from "../../../../utils";
 import { ClientList } from "./ClientList";
 import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
@@ -51,6 +52,12 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 			if (modalContext.isPersistanceIgnored || (await detectPersistance())) {
 				setOverlayState("generated");
+
+				const clientFlightGroups = getClientFlightGroups(state.blueFaction?.packages);
+
+				Domain.Tracking.capture("generated mission", {
+					clients: clientFlightGroups.reduce((prev, fg) => prev + fg.units.filter((u) => u.client).length, 0),
+				});
 			} else {
 				setIsPersistanceModalOpen(true);
 			}
@@ -107,6 +114,10 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				});
 				return;
 			}
+
+			Domain.Tracking.capture("submitted mission", {
+				duration: loadedMissionState.time - state.timer,
+			});
 
 			setFlightGroups({
 				blue: structuredClone(

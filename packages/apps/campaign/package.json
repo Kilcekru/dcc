@@ -22,7 +22,8 @@
 		"milsymbol": "2.2.0",
 		"solid-js": "1.8.3",
 		"uuid": "9.0.1",
-		"zod": "3.22.4"
+		"zod": "3.22.4",
+		"posthog-js": "1.88.1"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.4.0-next.1",

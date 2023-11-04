@@ -10,6 +10,7 @@ import { DataProvider, useDataStore, useSetDataMap } from "./components/DataProv
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
 import { Config } from "./data";
+import * as Domain from "./domain";
 import { useSave } from "./hooks";
 import { migrateState } from "./utils";
 
@@ -108,6 +109,8 @@ const AppWithContext = () => {
 					loaded: true,
 				});
 			});
+
+		Domain.Tracking.init();
 	});
 
 	return (

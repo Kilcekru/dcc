@@ -66,6 +66,13 @@ export function FlightGroupButtons(props: {
 			return;
 		}
 
+		if (value > 0) {
+			Domain.Tracking.capture("join flight group", {
+				task: props.flightGroup?.task,
+				aircraftType: aircrafts()?.[0]?.aircraftType,
+			});
+		}
+
 		setClient?.(fg.id, clientCount() + value);
 	};
 

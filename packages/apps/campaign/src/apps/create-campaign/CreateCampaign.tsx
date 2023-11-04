@@ -5,9 +5,9 @@ import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js
 import { CampaignContext } from "../../components";
 import { useDataStore, useSetDataMap } from "../../components/DataProvider";
 import { Scenario } from "../../data";
+import * as Domain from "../../domain";
 import styles from "./CreateCampaign.module.less";
 import { CustomFaction, Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
-
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
 };
@@ -38,6 +38,17 @@ export const CreateCampaign = () => {
 
 		try {
 			activate?.(dataStore, blue, red, aiSkill, hardcore, training, nightMissions, badWeather, scenario());
+
+			Domain.Tracking.capture("start campaign", {
+				aiSkill,
+				hardcore,
+				training,
+				nightMissions,
+				badWeather,
+				blueFaction: blue,
+				redFaction: red,
+				scenario: scenario(),
+			});
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(e);

@@ -7,6 +7,7 @@ export * as Random from "./random";
 export * as Sort from "./sort";
 export * as Structure from "./structure";
 export * as Time from "./time";
+export * as Tracking from "./tracking";
 export * as Unit from "./unit";
 export * as Utils from "./utils";
 export * as Weather from "./weather";
