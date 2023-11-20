@@ -9,7 +9,8 @@
 		"AWACS": ["E-2C"],
 		"DEAD": ["FA-18C_hornet"],
 		"Pinpoint Strike": ["AV8BNA", "FA-18C_hornet"],
-		"CSAR": ["UH-1H"]
+		"CSAR": ["UH-1H"],
+		"Air Assault": ["UH-1H"]
 	},
 	"templateName": "USA - Modern",
 	"carrierName": "CVN-72 Abraham Lincoln"

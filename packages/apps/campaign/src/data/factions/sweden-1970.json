@@ -9,7 +9,8 @@
 		"AWACS": ["E-3A"],
 		"DEAD": ["AJS37"],
 		"Pinpoint Strike": ["AJS37"],
-		"CSAR": ["SA342L"]
+		"CSAR": ["SA342L"],
+		"Air Assault": ["UH-1H"]
 	},
 	"templateName": "Russia - Korea War"
 }

@@ -313,7 +313,7 @@ export const Map = () => {
 
 	const createGroundGroupSymbols = (coalition: DcsJs.Coalition, faction: DcsJs.CampaignFaction) => {
 		faction.groundGroups.forEach((gg) => {
-			if (gg.position == null || gg.type === "sam") {
+			if (gg.position == null || gg.type === "sam" || gg.state === "air assault") {
 				return;
 			}
 

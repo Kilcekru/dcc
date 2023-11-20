@@ -120,6 +120,15 @@ export function generateHelicoptersForHomeBase(
 			dataStore,
 			onlyCarrierCapable: false,
 		}),
+		...generateAircraftForTask({
+			task: "Air Assault",
+			aircraftCategory: "helicopter",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable: false,
+			onlyCarrierCapable: false,
+		}),
 	];
 
 	return aircrafts;
@@ -171,6 +180,15 @@ export function generateAircraftsForHomeBase(
 		}),
 		...generateAircraftForTask({
 			task: "CSAR",
+			aircraftCategory: "both",
+			dataStore,
+			faction,
+			homeBase,
+			withoutCarrierCapable,
+			onlyCarrierCapable,
+		}),
+		...generateAircraftForTask({
+			task: "Air Assault",
 			aircraftCategory: "both",
 			dataStore,
 			faction,

@@ -1,13 +1,12 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import { createUniqueId } from "solid-js";
 
 import { Config } from "../data";
 import * as Domain from "../domain";
 import { getDeploymentCost, positionAfterDurationToPosition, timerToDate } from "../utils";
 import { conquerObjective, g2g, g2gBattle } from "./combat";
-import { generateGroundGroupInventory } from "./createCampaign/generateGroundUnitsInventory";
+import * as Deploy from "./deploy";
 import { getFrontlineTarget } from "./targetSelection";
 import { RunningCampaignState } from "./types";
 import { getCoalitionFaction, transferObjectiveStructures, unitIdsToGroundUnit } from "./utils";
@@ -94,39 +93,14 @@ const deployFrontline = (
 ) => {
 	// Is no other ground group on the way
 	if (p.targetObjective.incomingGroundGroups[p.startObjective.coalition] == null) {
-		const faction = getCoalitionFaction(p.startObjective.coalition, p.state);
-
-		const { groundUnits, shoradGroundUnits } = generateGroundGroupInventory(faction, p.dataStore, p.groupType);
-
-		const id = createUniqueId();
-
-		const gg: DcsJs.GroundGroup = {
-			id,
-			name: p.targetObjective.name + "-" + id,
-			startObjectiveName: p.startObjective.name,
-			objectiveName: p.targetObjective.name,
-			position: p.onObjective ? p.targetObjective.position : p.startObjective.position,
-			startTime: p.state.timer + Domain.Time.Minutes(Domain.Random.number(5, 15)),
-			state: p.onObjective ? "on objective" : "en route",
-			unitIds: groundUnits.map((u) => u.id),
-			shoradUnitIds: shoradGroundUnits.map((u) => u.id),
-			type: p.groupType,
-		};
-
-		// create ground group
-		faction.groundGroups.push(gg);
-
-		// update inventory
-		[...groundUnits, ...shoradGroundUnits].forEach((u) => {
-			faction.inventory.groundUnits[u.id] = {
-				...u,
-				state: p.onObjective ? "on objective" : "en route",
-			};
+		Deploy.groundGroup({
+			dataStore: p.dataStore,
+			groupType: p.groupType,
+			groupState: p.onObjective ? "on objective" : "en route",
+			state: p.state,
+			startObjective: p.startObjective,
+			targetObjective: p.targetObjective,
 		});
-
-		// update objective
-		p.targetObjective.incomingGroundGroups[p.startObjective.coalition] = id;
-		// p.startObjective.deploymentTimer = p.state.timer;
 	}
 };
 

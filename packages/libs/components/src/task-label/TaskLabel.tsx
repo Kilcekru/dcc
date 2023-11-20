@@ -17,6 +17,10 @@ export const TaskLabel = (props: { task: DcsJs.Task; class?: string }) => {
 				return Styles["task--strike"];
 			case "Escort":
 				return Styles["task--escort"];
+			case "CSAR":
+				return Styles["task--csar"];
+			case "Air Assault":
+				return Styles["task--air-assault"];
 			default:
 				return undefined;
 		}

@@ -9,7 +9,8 @@
 		"AWACS": ["E-3A"],
 		"DEAD": ["F-16C_50"],
 		"Pinpoint Strike": ["F-16C_50", "F-15ESE"],
-		"CSAR": ["UH-1H"]
+		"CSAR": ["UH-1H"],
+		"Air Assault": ["UH-1H"]
 	},
 	"templateName": "USA - Modern"
 }

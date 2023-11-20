@@ -127,6 +127,7 @@ export const CustomFaction = (props: {
 	const [dead, setDead] = createSignal<Array<string>>(props.template?.aircraftTypes.DEAD ?? []);
 	const [strike, setStrike] = createSignal<Array<string>>(props.template?.aircraftTypes["Pinpoint Strike"] ?? []);
 	const [csar, setCsar] = createSignal<Array<string>>(props.template?.aircraftTypes.CSAR ?? []);
+	const [airAssault, setAirAssault] = createSignal<Array<string>>(props.template?.aircraftTypes["Air Assault"] ?? []);
 	const [templateName, setTemplateName] = createSignal(props.template?.templateName ?? "USA - Modern");
 	const [carrierName, setCarrierName] = createSignal<string | undefined>(props.template?.carrierName);
 	const [country, setCountry] = createSignal(props.template?.countryName ?? "USA");
@@ -167,6 +168,11 @@ export const CustomFaction = (props: {
 				setter = setCsar;
 				break;
 			}
+			case "Air Assault": {
+				list = airAssault();
+				setter = setAirAssault;
+				break;
+			}
 			default: {
 				list = cap();
 				setter = setCap;
@@ -189,6 +195,7 @@ export const CustomFaction = (props: {
 				DEAD: dead(),
 				"Pinpoint Strike": strike(),
 				CSAR: csar(),
+				"Air Assault": airAssault(),
 			},
 			countryName: country(),
 			name: name() == "" ? "Custom" : name(),
@@ -248,6 +255,12 @@ export const CustomFaction = (props: {
 					/>
 					<h2 class={Styles["mission-task"]}>CSAR</h2>
 					<AircraftList missionTask="CSAR" selectedAircrafts={csar()} toggle={(name) => toggleAircraft("CSAR", name)} />
+					<h2 class={Styles["mission-task"]}>Air Assault</h2>
+					<AircraftList
+						missionTask="Air Assault"
+						selectedAircrafts={airAssault()}
+						toggle={(name) => toggleAircraft("Air Assault", name)}
+					/>
 					<h2 class={Styles["mission-task"]}>Ground Units</h2>
 					<TemplateList selectedTemplateName={templateName()} toggle={setTemplateName} />
 					<h2 class={Styles["mission-task"]}>Carrier</h2>

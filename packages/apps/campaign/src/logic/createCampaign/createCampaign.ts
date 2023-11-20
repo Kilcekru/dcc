@@ -8,6 +8,7 @@ import { scenarioList } from "../../data/scenarios";
 import * as Domain from "../../domain";
 import { getCurrentWeather } from "../../domain/weather";
 import { awacsFrequency, firstItem } from "../../utils";
+import { RunningCampaignState } from "../types";
 import { generateAircraftInventory } from "./generateAircraftInventory";
 import { generateGroundGroups } from "./generateGroundGroups";
 import { generateObjectivePlans } from "./generateObjectivePlans";
@@ -178,8 +179,8 @@ export const createCampaign = (
 			{} as Record<string, DcsJs.Objective>,
 		) ?? {};
 
-	generateGroundGroups(blueOps, state.blueFaction, state.timer, dataStore);
-	generateGroundGroups(redOps, state.redFaction, state.timer, dataStore);
+	generateGroundGroups(blueOps, "blue", state as RunningCampaignState, dataStore);
+	generateGroundGroups(redOps, "red", state as RunningCampaignState, dataStore);
 	generateSams("blue", state.blueFaction, dataStore, blueOps);
 	generateSams("red", state.redFaction, dataStore, redOps);
 

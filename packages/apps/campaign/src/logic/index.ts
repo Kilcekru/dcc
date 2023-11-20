@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
+import { airAssault } from "./airAssault";
 import { cleanupFlightGroups } from "./cleanupFlightGroups";
 import { cleanupGroundGroups } from "./cleanupGroundGroup";
 import { cleanupInventory } from "./cleanupInventory";
@@ -30,6 +31,7 @@ export const campaignRound = (state: DcsJs.CampaignState, dataStore: Types.Campa
 	updatePackagesStateRound(state as RunningCampaignState, dataStore);
 	moveGroundGroups(state as RunningCampaignState, dataStore);
 	combatRound(state as RunningCampaignState, dataStore);
+	airAssault(state as RunningCampaignState);
 	updateGroundCombat(state as RunningCampaignState, dataStore);
 
 	return state;

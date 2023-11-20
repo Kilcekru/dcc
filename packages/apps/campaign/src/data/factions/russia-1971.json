@@ -9,7 +9,8 @@
 		"AWACS": ["A-50"],
 		"DEAD": ["Su-17M4"],
 		"Pinpoint Strike": ["Su-17M4", "MiG-21Bis"],
-		"CSAR": ["Mi-24P"]
+		"CSAR": ["Mi-8MT", "Mi-24P"],
+		"Air Assault": ["Mi-8MT", "Mi-24P"]
 	},
 	"templateName": "Russia - Cold War"
 }

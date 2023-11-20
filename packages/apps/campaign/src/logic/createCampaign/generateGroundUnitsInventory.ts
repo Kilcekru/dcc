@@ -7,7 +7,7 @@ import * as Domain from "../../domain";
 export function generateGroundGroupInventory(
 	faction: DcsJs.Faction,
 	dataStore: Types.Campaign.DataStore,
-	groupType: "armor" | "infantry",
+	groupType: DcsJs.GroundGroupType,
 ) {
 	const template = dataStore.groundUnitsTemplates?.find((t) => faction.templateName === t.name);
 

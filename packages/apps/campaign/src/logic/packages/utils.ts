@@ -100,7 +100,7 @@ export function getStartPosition(
 	return undefined;
 }
 
-export function getPackageAircrafts({
+export function getPackageAircrafts<Position extends DcsJs.Position>({
 	state,
 	faction,
 	coalition,
@@ -120,7 +120,7 @@ export function getPackageAircrafts({
 	dataStore: Types.Campaign.DataStore;
 	withMaxDistance?: {
 		distance: number;
-		position: DcsJs.Position;
+		position: DcsJs.Position | Array<Position>;
 	};
 	excludedAircrafts?: Array<DcsJs.Aircraft>;
 }): { aircrafts: Array<DcsJs.Aircraft>; startPosition: ReturnType<typeof getStartPosition> } | undefined {
@@ -129,7 +129,6 @@ export function getPackageAircrafts({
 		excludedAircrafts == null
 			? usableAircrafts
 			: usableAircrafts.filter((ac) => !excludedAircrafts.some((eac) => ac.id === eac.id));
-	const airdromes = dataStore.airdromes ?? {};
 
 	if (validAircrafts == null || validAircrafts.length === 0) {
 		// eslint-disable-next-line no-console
@@ -147,42 +146,60 @@ export function getPackageAircrafts({
 		}
 	});
 
+	// Only allow home bases with at least the min count of aircrafts
 	const validHomeBaseNames = Object.entries(aircraftsPerAirdrome)
 		.filter(([_, value]) => value.length >= count)
 		.map(([key]) => key);
 
+	// Filter the home bases by distance if needed
 	const homeBasesInRange = withMaxDistance
 		? validHomeBaseNames
-				.map((name) => {
-					const airdrome = airdromes[name];
-
-					// Hombase is not a airdrome
-					if (airdrome == null) {
-						const shipGroup = faction.shipGroups?.find((grp) => grp.name === name);
-
-						// Homebase is not a ship
-						if (shipGroup == null) {
-							const farp = Object.values(faction.structures).find((str) => str.name === name);
-
-							return farp;
-						}
-					}
-
-					return airdrome;
-				})
+				.map((name) => Domain.Structure.getHomeBaseFromName(name, faction, dataStore))
 				.filter((homeBase) => {
 					if (homeBase == null) {
 						return false;
 					}
 
-					const distance = Domain.Location.distanceToPosition(withMaxDistance.position, objectToPosition(homeBase));
+					if (Array.isArray(withMaxDistance.position)) {
+						return withMaxDistance.position.some((pos) => {
+							const distance = Domain.Location.distanceToPosition(pos, objectToPosition(homeBase));
 
-					return distance <= withMaxDistance.distance;
+							return distance <= withMaxDistance.distance;
+						});
+					} else {
+						const distance = Domain.Location.distanceToPosition(withMaxDistance.position, objectToPosition(homeBase));
+
+						return distance <= withMaxDistance.distance;
+					}
 				})
 				.map((airdrome) => airdrome?.name ?? "")
 		: validHomeBaseNames;
 
-	const selectedHomeBase = Domain.Random.item(homeBasesInRange);
+	// Check if the home bases are in range of a ready barrack if needed
+	const barrackHomeBases =
+		task === "Air Assault"
+			? (() => {
+					// Get barracks that are ready
+					const barracks = Domain.Structure.getAirAssaultReadyBarracks(faction);
+
+					// Filter the home bases which are in range of a ready barrack
+					return homeBasesInRange.filter((homeBaseName) => {
+						const homeBase = Domain.Structure.getHomeBaseFromName(homeBaseName, faction, dataStore);
+
+						if (homeBase == null) {
+							return false;
+						}
+
+						return Domain.Location.someInside(
+							barracks,
+							objectToPosition(homeBase),
+							Config.structureRange.frontline.barrack * 0.75,
+						);
+					});
+			  })()
+			: homeBasesInRange;
+
+	const selectedHomeBase = Domain.Random.item(barrackHomeBases);
 
 	if (selectedHomeBase == null || selectedHomeBase == "") {
 		return;

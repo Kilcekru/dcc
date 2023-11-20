@@ -58,6 +58,7 @@ export const Config: Config = {
 			DEAD: 4,
 			CSAR: 2,
 			Escort: 2,
+			"Air Assault": 4,
 		},
 	},
 	packages: {
@@ -68,6 +69,7 @@ export const Config: Config = {
 		DEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000 },
 		CSAR: { maxActive: { blue: 2, red: 2, neutrals: 1 }, maxDistance: 30_000 },
 		CAP: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 100_000 },
+		"Air Assault": { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 40_000 },
 	},
 	structureRange: {
 		power: 50_000,

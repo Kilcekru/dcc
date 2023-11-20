@@ -82,8 +82,8 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.1
-        version: 0.4.0-next.1
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
       '@types/leaflet':
         specifier: 1.9.7
         version: 1.9.7
@@ -109,8 +109,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.1
-        version: 0.4.0-next.1
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -216,8 +216,8 @@ importers:
         version: 1.8.3
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.1
-        version: 0.4.0-next.1
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
 
   packages/libs/document:
     dependencies:
@@ -226,8 +226,8 @@ importers:
         version: 1.8.3
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.1
-        version: 0.4.0-next.1
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
 
   packages/libs/rpc:
     devDependencies:
@@ -242,14 +242,14 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.1
-        version: 0.4.0-next.1
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
 
   packages/shared/utils:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.1
-        version: 0.4.0-next.1
+        specifier: 0.4.0-next.2
+        version: 0.4.0-next.2
 
   utils/build:
     dependencies:
@@ -884,8 +884,8 @@ packages:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
-  /@foxdelta2/dcsjs@0.4.0-next.1:
-    resolution: {integrity: sha512-xhAhiyruWu+tszuNnnigqkn8eOn9AjoYuuEKZQaU0gTSKZpqXA5ZuqmsD5Ec+MJt1R1u05h9SF7BzbKH9/MFBA==}
+  /@foxdelta2/dcsjs@0.4.0-next.2:
+    resolution: {integrity: sha512-c4/b9Zz8liUIOpCvesEduKYUVQGckGLwk0fwzZ1puqsvYXJVfG2rGZ4AaKpcO1RnxnZhb+ojOt2V6WoWsoyOdw==}
     dependencies:
       '@kilcekru/lua-table': 1.1.2
       adm-zip: 0.5.10
@@ -1123,8 +1123,8 @@ packages:
     resolution: {integrity: sha512-BT2Krtx4xaO6iwzwMFUYvWBWkV2pr37zD68Vmp1CDV196MzczBRxuEpD6Pr395HAgebC/co7hOphs53r8V7jew==}
     dev: true
 
-  /@types/yauzl@2.10.2:
-    resolution: {integrity: sha512-Km7XAtUIduROw7QPgvcft0lIupeG8a8rdKL8RiSyKvlE7dYY31fEn41HVuQsRFDuROA8tA4K2UVL+WdfFmErBA==}
+  /@types/yauzl@2.10.3:
+    resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
     requiresBuild: true
     dependencies:
       '@types/node': 20.8.9
@@ -2529,7 +2529,7 @@ packages:
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
-      '@types/yauzl': 2.10.2
+      '@types/yauzl': 2.10.3
     transitivePeerDependencies:
       - supports-color
     dev: true

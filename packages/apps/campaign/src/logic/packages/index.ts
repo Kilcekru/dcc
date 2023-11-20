@@ -6,6 +6,7 @@ import * as Domain from "../../domain";
 import { calcFlightGroupPosition, oppositeCoalition, timerToDate } from "../../utils";
 import { RunningCampaignState } from "../types";
 import { getCoalitionFaction } from "../utils";
+import { generateAirAssaultPackage } from "./airAssault";
 import { generateAwacsPackage } from "./awacs";
 import { generateCapPackage } from "./cap";
 import { generateCasPackage } from "./cas";
@@ -291,6 +292,27 @@ const csarPackages = (
 	return false;
 };
 
+const airAssaultPackages = (
+	coalition: DcsJs.Coalition,
+	state: RunningCampaignState,
+	dataStore: Types.Campaign.DataStore,
+	packages: Array<DcsJs.FlightPackage>,
+) => {
+	const taskPackages = getRunningPackagesByTask(packages, "Air Assault");
+
+	if (taskPackages.length < Config.packages.CSAR.maxActive[coalition]) {
+		const pkg = generateAirAssaultPackage(coalition, state, dataStore);
+
+		packages = addPackage(packages, pkg);
+
+		if (pkg != null) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 const factionPackagesTick = (
 	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
@@ -321,7 +343,14 @@ const factionPackagesTick = (
 		if (strikePackages(coalition, state, dataStore, faction.packages)) {
 			return;
 		}
-		csarPackages(coalition, state, dataStore, faction.packages);
+		if (csarPackages(coalition, state, dataStore, faction.packages)) {
+			return;
+		}
+		if (coalition === "blue") {
+			if (airAssaultPackages(coalition, state, dataStore, faction.packages)) {
+				return;
+			}
+		}
 	}
 };
 
