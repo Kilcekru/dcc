@@ -7,6 +7,7 @@
 		"module": "ES2020",
 		"target": "ES2021",
 		"plugins": [{ "name": "typescript-plugin-css-modules" }],
+		"experimentalDecorators": true,
 		"paths": {
 			// for easier development of campaign using dcsjs, uncomment following line
 			// "@foxdelta2/dcsjs": ["../../../dcsjs/src/index.ts"],

@@ -22,6 +22,9 @@
 		"milsymbol": "2.2.0",
 		"solid-js": "1.8.3",
 		"uuid": "9.0.1",
+		"bitecs": "0.3.40",
+		"miniplex": "2.0.0",
+		"@lastolivegames/becsy": "0.15.5",
 		"zod": "3.22.4"
 	},
 	"devDependencies": {
