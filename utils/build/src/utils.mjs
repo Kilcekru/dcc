@@ -7,6 +7,7 @@ const repoPath = Path.join(dirname, "../../..");
 export const paths = {
 	apps: Path.join(repoPath, "packages/apps"),
 	chief: Path.join(repoPath, "packages/chief"),
+	workers: Path.join(repoPath, "packages/workers"),
 	indexHtml: Path.join(dirname, "../assets/index.html"),
 	target: Path.join(repoPath, "forge/dist"),
 	vbs: Path.join(repoPath, "forge/vbs"),

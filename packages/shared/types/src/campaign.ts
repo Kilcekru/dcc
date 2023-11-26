@@ -61,3 +61,7 @@ export interface BriefingDocument {
 	dataAircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>>;
 	mapData: DcsJs.MapData;
 }
+
+export type WorkerMessage = { name: "resume" } | { name: "pause" };
+
+export type WorkerEvent = { name: "tick"; dt: number };

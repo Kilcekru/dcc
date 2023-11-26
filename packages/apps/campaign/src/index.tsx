@@ -1,4 +1,5 @@
 import "./index.less";
+import "./worker";
 
 import { render } from "solid-js/web";
 
