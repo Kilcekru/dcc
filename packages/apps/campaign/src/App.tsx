@@ -5,17 +5,13 @@ import { createEffect, createSignal, Match, onMount, Show, Switch, useContext } 
 import { unwrap } from "solid-js/store";
 
 import { CreateCampaign, Home, Open } from "./apps";
-import { loadArray } from "./array";
-import { load } from "./bec";
-import { loadBit } from "./bit";
 import { CampaignContext, CampaignProvider } from "./components";
 import { DataProvider, useDataStore, useSetDataMap } from "./components/DataProvider";
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
 import { Config } from "./data";
+import * as ECS from "./ecs";
 import { useSave } from "./hooks";
-import { loadMini } from "./mini";
-import { loadOld } from "./old";
 import { migrateState } from "./utils";
 
 const App = (props: { open: boolean }) => {
@@ -74,32 +70,6 @@ const App = (props: { open: boolean }) => {
 	);
 };
 
-/* type Entity = {
-	Coalition?: DcsJs.Coalition;
-	Package?: {
-		flightGroups: Array<number>;
-	};
-	FlightGroup?: {
-		name: string;
-	};
-	Position?: {
-		x: number;
-		y: number;
-	};
-	Task?: {
-		task: DcsJs.Task;
-	};
-	Aircraft?: {
-		aircraftType: DcsJs.AircraftType;
-	};
-	Destroyed?: {
-		time: number;
-	};
-	MaintenanceTime?: {
-		time: number;
-	};
-}; */
-
 const AppWithContext = () => {
 	const [campaignState, setCampaignState] = createSignal<Partial<DcsJs.CampaignState> | null | undefined>(undefined);
 	const setDataMap = useSetDataMap();
@@ -107,21 +77,6 @@ const AppWithContext = () => {
 	const dataStore = useDataStore();
 
 	onMount(async () => {
-		/* const world = bitECS.createWorld();
-		const Task = bitECS.defineComponent();
-		const Frequency = bitECS.defineComponent();
-		const Package = bitECS.defineComponent<{ flightGroups: Array<number> }>();
-		const FlightGroup = bitECS.defineComponent({
-			name: bitECS.Types.ui8,
-			number: bitECS.Types.ui8,
-			index: bitECS.Types.ui8,
-			task: bitECS.Types.ui8,
-		});
-		const Coalition = bitECS.defineComponent({ coalition: bitECS.Types.ui8 });
-		const Position = bitECS.defineComponent({ x: bitECS.Types.f32, y: bitECS.Types.f32 }); */
-
-		// const world = new miniplex.World<Entity>();
-
 		rpc.campaign
 			.resumeCampaign(Config.campaignVersion)
 			.then((loadedState) => {
@@ -135,24 +90,15 @@ const AppWithContext = () => {
 					if (loadedState === undefined) {
 						setOpen(true);
 					}
+
+					void ECS.world.fetchDataStore("caucasus");
 					return;
 				}
 
 				if (loadedState.map != null) {
 					setDataMap(loadedState.map);
+					void ECS.world.fetchDataStore(loadedState.map);
 				}
-
-				const loops = 10;
-				console.log("--becsy--"); // eslint-disable-line no-console
-				void load(loadedState);
-				console.log("--MiniPlex--"); // eslint-disable-line no-console
-				loadMini(loadedState, loops);
-				console.log("--Old School--"); // eslint-disable-line no-console
-				loadOld(loadedState, loops);
-				console.log("--bitECS--"); // eslint-disable-line no-console
-				loadBit(loadedState, loops);
-				console.log("--Array--"); // eslint-disable-line no-console
-				loadArray(loadedState, loops);
 
 				setCampaignState({
 					...migrateState(loadedState, dataStore),

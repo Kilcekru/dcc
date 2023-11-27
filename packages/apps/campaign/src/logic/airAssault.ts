@@ -12,14 +12,14 @@ export const airAssault = (state: RunningCampaignState) => {
 				const targetObjective = state.objectives[fg.target];
 
 				if (targetObjective != null && Utils.distanceToPosition(fg.position, targetObjective.position) < 500) {
-					const groundGroup = faction.groundGroups.find((gg) => gg.flightGroupId === fg.id);
+					/* const groundGroup = faction.groundGroups.find((gg) => gg.flightGroupId === fg.id);
 
 					if (groundGroup == null) {
 						return;
 					}
 
 					groundGroup.position = fg.position;
-					groundGroup.state = "en route";
+					groundGroup.state = "en route"; */
 				}
 			}
 		});

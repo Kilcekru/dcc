@@ -128,7 +128,6 @@ function MovementSystem(world: Miniplex.World<Entity>, coalition: DcsJs.Coalitio
 	const coalitionFgs = coalition === "blue" ? blueFgs.entities : redFgs.entities;
 	const oppFgs = coalition === "blue" ? redFgs.entities : (blueFgs.entities as Array<Entity>);
 
-	coalitionFgs;
 	for (const fg of coalitionFgs) {
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 		const nearby = Domain.Location.findInside(oppFgs, fg.Position, (f) => f.Position!, 100000);

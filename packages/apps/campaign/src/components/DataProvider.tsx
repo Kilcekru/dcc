@@ -9,6 +9,7 @@ const initState: Types.Campaign.DataStore = {
 	mapInfo: undefined,
 	airdromes: undefined,
 	objectives: undefined,
+	tasks: undefined,
 	strikeTargets: undefined,
 	groundUnitsTemplates: undefined,
 	samTemplates: undefined,

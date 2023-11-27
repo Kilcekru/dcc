@@ -16,6 +16,7 @@ export type DataStore = {
 	launchers: DcsJs.GetLaunchers | undefined;
 	weapons: DcsJs.GetWeapons | undefined;
 	ships: DcsJs.GetShips | undefined;
+	tasks: DcsJs.GetTasks | undefined;
 };
 
 export type MissionState = {

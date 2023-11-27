@@ -60,7 +60,8 @@ const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
 		callSigns: DcsJs.getCallSigns(),
 		launchers: DcsJs.getLaunchers(),
 		weapons: DcsJs.getWeapons(),
-		ships: DcsJs.GetShips(),
+		ships: DcsJs.getShips(),
+		tasks: DcsJs.getTasks(),
 	};
 };
 

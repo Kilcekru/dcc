@@ -14,16 +14,16 @@ import * as usa77 from "./usa-1977.json";
 import * as usa04 from "./usa-2004.json";
 
 export const factionList: Array<DcsJs.Faction> = [
-	usa52,
-	russia55,
-	usnavy64,
-	israel67,
-	sweden70,
-	russia71,
-	usa77,
-	france82,
-	russia84,
-	usnavy87,
-	russia96,
-	usa04,
+	usa52 as DcsJs.Faction,
+	russia55 as DcsJs.Faction,
+	usnavy64 as DcsJs.Faction,
+	israel67 as DcsJs.Faction,
+	sweden70 as DcsJs.Faction,
+	russia71 as DcsJs.Faction,
+	usa77 as DcsJs.Faction,
+	france82 as DcsJs.Faction,
+	russia84 as DcsJs.Faction,
+	usnavy87 as DcsJs.Faction,
+	russia96 as DcsJs.Faction,
+	usa04 as DcsJs.Faction,
 ];

@@ -1,8 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { addComponent, addEntity, createWorld, defineComponent, defineQuery, IWorld, Types } from "bitecs";
 
-import * as Domain from "./domain";
-
 const moves = 0;
 export function loadBit(state: Partial<DcsJs.CampaignState>, loops: number) {
 	const world = createWorld();
@@ -242,6 +240,23 @@ function flightPackage(
 
 const movementQuery = defineQuery([Position, FlightGroup, Coalition]);
 
+export const hasInside = <T extends { x: number; y: number }>(
+	values: Array<T>,
+	sourcePosition: DcsJs.Position,
+	radius: number,
+): boolean => {
+	for (const v of values) {
+		const diffX = sourcePosition.x - v.x;
+		const diffY = sourcePosition.y - v.y;
+
+		if (diffX >= -radius && diffX <= radius && diffY >= -radius && diffY <= radius) {
+			return true; // distanceToPosition(sourcePosition, position) <= radius;
+		}
+	}
+
+	return false;
+};
+
 const movementSystem = (world: IWorld) => {
 	// apply system logic
 	const ents = movementQuery(world);
@@ -262,9 +277,10 @@ const movementSystem = (world: IWorld) => {
 
 		const pos = { x: Position.x[eid] ?? 0, y: Position.y[eid] ?? 0 };
 
-		const nearby = Domain.Location.findInside(oppPosition, pos, (p) => p, 100000);
+		/* const nearby = Domain.Location.findInside(oppPosition, pos, (p) => p, 100000);
 
-		if (nearby.length > 0) {
+		if (nearby.length > 0) { */
+		if (hasInside(oppPosition, pos, 100000)) {
 			Position.x[eid] += 100;
 			Position.y[eid] += 50;
 		}

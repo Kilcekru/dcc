@@ -187,15 +187,15 @@ export const CustomFaction = (props: {
 	};
 
 	const onNext = () => {
-		const f = {
+		const f: DcsJs.Faction = {
 			aircraftTypes: {
-				CAP: cap(),
-				CAS: cas(),
-				AWACS: awacs(),
-				DEAD: dead(),
-				"Pinpoint Strike": strike(),
-				CSAR: csar(),
-				"Air Assault": airAssault(),
+				CAP: cap() as DcsJs.AircraftType[],
+				CAS: cas() as DcsJs.AircraftType[],
+				AWACS: awacs() as DcsJs.AircraftType[],
+				DEAD: dead() as DcsJs.AircraftType[],
+				"Pinpoint Strike": strike() as DcsJs.AircraftType[],
+				CSAR: csar() as DcsJs.AircraftType[],
+				"Air Assault": airAssault() as DcsJs.AircraftType[],
 			},
 			countryName: country(),
 			name: name() == "" ? "Custom" : name(),

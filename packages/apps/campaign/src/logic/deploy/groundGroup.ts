@@ -13,7 +13,6 @@ export function groundGroup({
 	state,
 	dataStore,
 	groupState,
-	flightGroupId,
 }: {
 	targetObjective: DcsJs.Objective;
 	startObjective: DcsJs.Objective;
@@ -21,7 +20,6 @@ export function groundGroup({
 	groupState: DcsJs.GroundGroup["state"];
 	state: RunningCampaignState;
 	dataStore: Types.Campaign.DataStore;
-	flightGroupId?: string;
 }) {
 	const faction = getCoalitionFaction(startObjective.coalition, state);
 
@@ -40,7 +38,6 @@ export function groundGroup({
 		unitIds: groundUnits.map((u) => u.id),
 		shoradUnitIds: shoradGroundUnits.map((u) => u.id),
 		type: groupType,
-		flightGroupId,
 	};
 
 	// create ground group

@@ -5,9 +5,9 @@ import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js
 import { CampaignContext } from "../../components";
 import { useDataStore, useSetDataMap } from "../../components/DataProvider";
 import { Scenario } from "../../data";
+import * as ECS from "../../ecs";
 import styles from "./CreateCampaign.module.less";
 import { CustomFaction, Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
-
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
 };
@@ -15,6 +15,7 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
 	const [scenario, setScenario] = createSignal("");
+	const [scenarioMap, setScenarioMap] = createSignal<DcsJs.MapName | undefined>(undefined);
 	const [blueFaction, setBlueFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [redFaction, setRedFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
@@ -23,7 +24,7 @@ export const CreateCampaign = () => {
 	const setDataMap = useSetDataMap();
 	const createToast = useCreateErrorToast();
 
-	const onActivate = (
+	const onActivate = async (
 		aiSkill: DcsJs.AiSkill,
 		hardcore: boolean,
 		training: boolean,
@@ -34,6 +35,25 @@ export const CreateCampaign = () => {
 		const red = redFaction();
 		if (blue == null || red == null) {
 			return;
+		}
+
+		try {
+			await ECS.world.fetchDataStore(scenarioMap() ?? "caucasus");
+			ECS.world.generate({
+				blueFactionDefinition: blue,
+				redFactionDefinition: red,
+				scenarioName: scenario(),
+			});
+
+			// eslint-disable-next-line no-console
+			console.log("world", ECS.world);
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+			createToast({
+				title: "Campaign not created",
+				description: e instanceof Error ? e.message : "Unknown Error",
+			});
 		}
 
 		try {
@@ -67,6 +87,7 @@ export const CreateCampaign = () => {
 
 	const onSelectScenario = (scenario: Scenario) => {
 		setScenario(scenario.name);
+		setScenarioMap(scenario.map as DcsJs.MapName);
 		setCurrentScreen("Start");
 		setDataMap(scenario.map as DcsJs.MapName);
 	};

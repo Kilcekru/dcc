@@ -213,7 +213,6 @@ export const generateAirAssaultPackage = (
 		groupState: "air assault",
 		startObjective: startObjective,
 		state,
-		flightGroupId: flightGroup.id,
 	});
 
 	const barracks = Domain.Structure.getAirAssaultReadyBarracks(faction);
