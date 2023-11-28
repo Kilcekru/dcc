@@ -1,10 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { unwrap } from "solid-js/store";
 
-import { Config, StructurePlan } from "../../data";
 import * as Domain from "../../domain";
-import { DynamicObjectivePlan } from "./utils";
 
 type Lane = {
 	current: DcsJs.Position | undefined;
@@ -32,10 +31,10 @@ function selectObjective(
 }
 
 function addObjectivePlan(
-	objectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objective: DcsJs.Import.Objective,
 	groundUnit?: string,
-	structure?: StructurePlan,
+	structure?: Types.Campaign.StructurePlan,
 ) {
 	const next = structuredClone(unwrap(objectivePlans));
 	const index = objectivePlans.findIndex((plan) => plan.objectiveName === objective.name);
@@ -64,8 +63,8 @@ function addObjectivePlan(
 
 function addBasicObjective(
 	lanes: Array<Lane>,
-	objectivePlans: Array<DynamicObjectivePlan>,
-	oppObjectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objectives: Array<DcsJs.Import.Objective>,
 ) {
 	lanes.forEach((lane) => {
@@ -105,10 +104,10 @@ function addBasicObjective(
 }
 
 function fillObjectives(
-	bluePlans: Array<DynamicObjectivePlan>,
-	redPlans: Array<DynamicObjectivePlan>,
+	bluePlans: Array<Types.Campaign.DynamicObjectivePlan>,
+	redPlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objectives: Array<DcsJs.Import.Objective>,
-): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
+): [Array<Types.Campaign.DynamicObjectivePlan>, Array<Types.Campaign.DynamicObjectivePlan>] {
 	let blue = bluePlans;
 	let red = redPlans;
 
@@ -147,7 +146,7 @@ function addAirdromeSamObjectives(
 	oppAirdromes: Array<DcsJs.DCS.Airdrome>,
 	targets: Record<string, DcsJs.StrikeTarget[]>,
 	objectives: Array<DcsJs.Import.Objective>,
-	objectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 ) {
 	airdromes.forEach((airdrome) => {
 		const oppAirdrome = Domain.Location.findNearest(oppAirdromes, airdrome, (ad) => ad);
@@ -210,8 +209,8 @@ function validStructureObjective({
 	range,
 }: {
 	sourcePosition: DcsJs.Position;
-	objectivePlans: Array<DynamicObjectivePlan>;
-	oppObjectivePlans: Array<DynamicObjectivePlan>;
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
 	strikeTargets: Record<string, Array<DcsJs.StrikeTarget>>;
 	range: number;
@@ -270,8 +269,8 @@ function addStructures({
 	range,
 	structureType,
 }: {
-	objectivePlans: Array<DynamicObjectivePlan>;
-	oppObjectivePlans: Array<DynamicObjectivePlan>;
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
 	strikeTargets: Record<string, Array<DcsJs.StrikeTarget>>;
 	range: number;
@@ -326,8 +325,8 @@ function addStructures({
 }
 
 function addFrontline(
-	objectivePlans: Array<DynamicObjectivePlan>,
-	oppObjectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objectives: Array<DcsJs.Import.Objective>,
 ) {
 	objectives.forEach((obj) => {
@@ -342,7 +341,7 @@ function addFrontline(
 		const distanceFriendly = Domain.Location.distanceToPosition(obj.position, nearestFriendly.objective.position);
 		const distanceOpp = Domain.Location.distanceToPosition(obj.position, nearestOpp.objective.position);
 
-		if (distanceOpp <= Config.structureRange.frontline.barrack && distanceFriendly < distanceOpp) {
+		if (distanceOpp <= Utils.Config.structureRange.frontline.barrack && distanceFriendly < distanceOpp) {
 			objectivePlans = addObjectivePlan(objectivePlans, obj, "vehicles");
 		}
 	});
@@ -372,8 +371,8 @@ function generateFactionStructures({
 	strikeTargets,
 }: {
 	coalition: DcsJs.Coalition;
-	objectivePlans: Array<DynamicObjectivePlan>;
-	oppObjectivePlans: Array<DynamicObjectivePlan>;
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
 	strikeTargets: Record<string, Array<DcsJs.StrikeTarget>>;
 }) {
@@ -382,7 +381,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.depot * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.frontline.depot * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Depot",
 	});
 	objectivePlans = addStructures({
@@ -390,7 +389,8 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.barrack * Config.structureRange.generateRangeMultiplier[coalition],
+		range:
+			Utils.Config.structureRange.frontline.barrack * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Barrack",
 	});
 	objectivePlans = addStructures({
@@ -398,7 +398,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.power * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.power * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Power Plant",
 	});
 	objectivePlans = addStructures({
@@ -406,7 +406,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.ammo * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.ammo * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Ammo Depot",
 	});
 	objectivePlans = addStructures({
@@ -414,7 +414,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.fuel * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.fuel * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Fuel Storage",
 	});
 	objectivePlans = addStructures({
@@ -422,7 +422,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.hospital * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.hospital * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Hospital",
 	});
 	objectivePlans = addStructures({
@@ -430,7 +430,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.farp * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.frontline.farp * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Farp",
 	});
 
@@ -444,7 +444,7 @@ export function generateObjectivePlans(
 	redAirdromes: Array<DcsJs.DCS.Airdrome>,
 	blueRange: [number, number],
 	dataStore: Types.Campaign.DataStore,
-): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
+): [Array<Types.Campaign.DynamicObjectivePlan>, Array<Types.Campaign.DynamicObjectivePlan>] {
 	const objectives = dataStore.objectives?.filter(
 		(obj) => obj.type === "Town" || obj.type === "Terrain" || obj.type === "POI",
 	);
@@ -462,9 +462,9 @@ export function generateObjectivePlans(
 	const blueLanes = generateLanes(bluePositions, redPositions);
 	const redLanes = generateLanes(redPositions, bluePositions);
 
-	let blueObjs: Array<DynamicObjectivePlan> = [];
+	let blueObjs: Array<Types.Campaign.DynamicObjectivePlan> = [];
 	const maxBlueObjsCount = Domain.Random.number(blueRange[0], blueRange[1]);
-	let redObjs: Array<DynamicObjectivePlan> = [];
+	let redObjs: Array<Types.Campaign.DynamicObjectivePlan> = [];
 
 	// Basic Objectives
 	while (!endOfLine) {

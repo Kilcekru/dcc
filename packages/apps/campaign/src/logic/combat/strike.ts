@@ -37,7 +37,7 @@ export const strike = (coalition: DcsJs.Coalition, state: RunningCampaignState) 
 				}
 
 				if (
-					Utils.distanceToPosition(fg.position, targetStructure.position) < 5_000 &&
+					Utils.Location.distanceToPosition(fg.position, targetStructure.position) < 5_000 &&
 					fg.startTime + Domain.Time.Minutes(1) < state.timer
 				) {
 					fg.units.forEach((unit) => {

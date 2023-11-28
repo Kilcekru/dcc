@@ -1,6 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import * as Domain from "../../domain";
 import { world } from "../world";
 import { Aircraft } from "./Aircraft";
 import { HomeBase, HomeBaseProps } from "./HomeBase";
@@ -13,8 +14,9 @@ export class Airdrome extends HomeBase {
 	public frequencyList: number[];
 
 	public constructor(args: AirdromeProps) {
-		super({ ...args, type: "airdrome" });
+		super({ ...args, type: "airdrome", queries: ["airdromes"] });
 		this.frequencyList = args.frequencyList;
+		this.name = args.name;
 
 		world.queries.airdromes[args.coalition].add(this);
 
@@ -36,8 +38,17 @@ export class Airdrome extends HomeBase {
 				coalition: args.coalition,
 				frequencyList: airdrome.frequencyList ?? [],
 				name: airdrome.name,
-				position: Domain.Location.objectToPosition(airdrome),
+				position: Utils.Location.objectToPosition(airdrome),
 			});
 		}
+	}
+
+	override toMapJSON(): Types.Campaign.MapItem {
+		return {
+			...super.toMapJSON(),
+			coalition: this.coalition,
+			type: "airdrome",
+			name: this.name,
+		};
 	}
 }

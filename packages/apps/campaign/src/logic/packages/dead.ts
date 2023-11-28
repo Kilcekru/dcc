@@ -78,14 +78,14 @@ export const generateDeadPackage = (
 
 	const ingressPosition = positionFromHeading(
 		selectedObjective.position,
-		Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition),
+		Utils.Location.headingToPosition(selectedObjective.position, packageAircrafts.startPosition),
 		selectedObjective.range * 1.2,
 	);
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, selectedObjective.position);
 	const engressHeading =
 		oppAirdrome == null
-			? Utils.headingToPosition(selectedObjective.position, packageAircrafts.startPosition)
-			: Utils.headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+			? Utils.Location.headingToPosition(selectedObjective.position, packageAircrafts.startPosition)
+			: Utils.Location.headingToPosition(selectedObjective.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const egressPosition = positionFromHeading(
 		selectedObjective.position,
 		addHeading(engressHeading, 180),

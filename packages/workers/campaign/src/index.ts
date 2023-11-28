@@ -1,5 +1,6 @@
 import { Campaign } from "@kilcekru/dcc-shared-types";
 
+import { world } from "./ecs";
 import { pauseTicker, resumeTicker } from "./ticker";
 
 addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
@@ -10,6 +11,14 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 		}
 		case "pause": {
 			pauseTicker();
+			break;
+		}
+		case "setDataStore": {
+			world.setDataStore(e.data.payload);
+			break;
+		}
+		case "generate": {
+			world.generate(e.data.payload);
 			break;
 		}
 		default: {

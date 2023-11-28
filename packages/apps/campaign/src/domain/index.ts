@@ -1,5 +1,4 @@
 export * as Array from "./array";
-export * as Campaign from "./campaign";
 export * as Client from "./client";
 export * as Faction from "./faction";
 export * as FlightGroup from "./flight-group";

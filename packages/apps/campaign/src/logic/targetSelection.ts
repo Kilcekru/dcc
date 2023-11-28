@@ -16,7 +16,7 @@ import {
 const isInSamRange = (position: DcsJs.Position, oppFaction: DcsJs.CampaignFaction) => {
 	return Domain.Faction.getSamGroups(oppFaction)
 		.filter((sam) => sam.operational)
-		.some((sam) => Utils.distanceToPosition(position, sam.position) <= sam.range);
+		.some((sam) => Utils.Location.distanceToPosition(position, sam.position) <= sam.range);
 };
 
 export const getCasTarget = (
@@ -119,7 +119,7 @@ export const getStrikeTarget = (
 	});
 
 	const scoredStructures = structures.map((str) => {
-		const distance = Utils.distanceToPosition(startPosition, str.position);
+		const distance = Utils.Location.distanceToPosition(startPosition, str.position);
 
 		let prio = 0;
 
@@ -196,7 +196,7 @@ export const getAwacsTarget = (
 		return undefined;
 	}
 
-	const heading = Utils.headingToPosition(frontlineObjective.position, farthestAirdrome);
+	const heading = Utils.Location.headingToPosition(frontlineObjective.position, farthestAirdrome);
 
 	const centerPosition = positionFromHeading(
 		frontlineObjective.position,

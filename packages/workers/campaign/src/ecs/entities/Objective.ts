@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { DynamicObjectivePlan } from "../../logic/createCampaign/utils";
+import { DynamicObjectivePlan } from "../../../../../apps/campaign/src/logic/createCampaign/utils";
 import { Coalition, Position } from "../components";
 import { world } from "../world";
 

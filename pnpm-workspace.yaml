@@ -3,4 +3,5 @@ packages:
   - packages/chief/*
   - packages/libs/*
   - packages/shared/*
+  - packages/workers/*
   - utils/*

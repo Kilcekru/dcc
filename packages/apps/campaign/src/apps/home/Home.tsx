@@ -3,7 +3,7 @@ import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import { createEffect, createMemo, ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { CampaignContext, Map } from "../../components";
+import { CampaignContext, MapContainer } from "../../components";
 import { useDataStore } from "../../components/DataProvider";
 import * as Domain from "../../domain";
 import { useSave } from "../../hooks";
@@ -149,7 +149,7 @@ export const Home = () => {
 				<OverlaySidebar />
 				<div class={styles.content}>
 					<ErrorBoundary fallback={<div>Something went terribly wrong</div>}>
-						<Map />
+						<MapContainer />
 					</ErrorBoundary>
 				</div>
 				<NextDayModal />

@@ -1,11 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { ObjectivePlan, Scenario, ScenarioCoalition } from "../../data";
+export type DynamicObjectivePlan = Types.Campaign.ObjectivePlan & { objective: DcsJs.Import.Objective };
 
-export type DynamicObjectivePlan = ObjectivePlan & { objective: DcsJs.Import.Objective };
-
-export const claimsObjective = (coalition: ScenarioCoalition, objectiveName: string) => {
+export const claimsObjective = (coalition: Types.Campaign.ScenarioCoalition, objectiveName: string) => {
 	if (coalition.objectivePlans.some((plan) => objectiveName.toLowerCase() === plan.objectiveName.toLowerCase())) {
 		return true;
 	}
@@ -15,7 +13,7 @@ export const claimsObjective = (coalition: ScenarioCoalition, objectiveName: str
 
 export function factionCarrierName(
 	coalition: DcsJs.Coalition,
-	scenario: Scenario,
+	scenario: Types.Campaign.Scenario,
 	faction: DcsJs.Faction,
 	dataStore: Types.Campaign.DataStore,
 ) {

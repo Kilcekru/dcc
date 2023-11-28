@@ -101,7 +101,7 @@ const a2aRound = (
 			attackingAircraft?.alive &&
 			(attackingAircraft.a2AWeaponReadyTimer == null || attackingAircraft.a2AWeaponReadyTimer < timer)
 		) {
-			const distance = Utils.distanceToPosition(attackingFg.position, targetFg.position);
+			const distance = Utils.Location.distanceToPosition(attackingFg.position, targetFg.position);
 			const targetUnit = targetFg.units.find((unit) => {
 				const targetAircraft = targetFaction.inventory.aircrafts[unit.id];
 
@@ -162,10 +162,10 @@ const a2aFlightGroups = (
 		.filter((fg) => fg.task === "CAP" || fg.task === "Escort")
 		.forEach((attackingFlightGroup) => {
 			const targetFlightGroup = targetFgs
-				.filter((fg) => Utils.distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
+				.filter((fg) => Utils.Location.distanceToPosition(attackingFlightGroup.position, fg.position) <= 177_000)
 				.map((fg) => ({
 					item: fg,
-					distance: Utils.distanceToPosition(attackingFlightGroup.position, fg.position),
+					distance: Utils.Location.distanceToPosition(attackingFlightGroup.position, fg.position),
 				}))
 				.sort((a, b) => a.distance - b.distance)[0]?.item;
 

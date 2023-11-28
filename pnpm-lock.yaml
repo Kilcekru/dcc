@@ -260,6 +260,12 @@ importers:
         specifier: 0.4.0-next.3
         version: 0.4.0-next.3
 
+  packages/workers/campaign:
+    devDependencies:
+      '@foxdelta2/dcsjs':
+        specifier: 0.4.0-next.3
+        version: 0.4.0-next.3
+
   utils/build:
     dependencies:
       '@kilcekru/esbuild-plugin-css-extra':

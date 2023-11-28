@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Config } from "../../data";
 import { world } from "../world";
 import { Airdrome } from "./Airdrome";
 import { FlightGroup } from "./FlightGroup";
@@ -18,18 +18,20 @@ export class Aircraft extends Unit {
 	public homeBase: HomeBase;
 
 	public constructor(args: AircraftProps) {
-		super(args);
+		super({
+			coalition: args.coalition,
+			queries: ["aircrafts"],
+		});
 		this.aircraftType = args.aircraftType;
 		this.homeBase = args.homeBase;
 
 		this.homeBase.aircrafts.add(this);
-		world.queries.aircrafts[args.coalition].add(this);
 	}
 
-	public deconstructor() {
+	override deconstructor() {
+		super.deconstructor();
 		this.homeBase.aircrafts.delete(this);
 		this.flightGroup?.aircrafts.delete(this);
-		world.queries.aircrafts[this.coalition].delete(this);
 	}
 
 	static generateAircraftsForAirdrome(args: { coalition: DcsJs.Coalition; airdrome: Airdrome }) {
@@ -50,7 +52,7 @@ export class Aircraft extends Unit {
 		}
 
 		for (const aircraftType of taskAircraftTypes) {
-			const count = Math.max(2, Config.inventory.aircraft[args.task] / taskAircraftTypes.length);
+			const count = Math.max(2, Utils.Config.inventory.aircraft[args.task] / taskAircraftTypes.length);
 			const aircraft = world.dataStore?.aircrafts?.[aircraftType];
 
 			if (aircraft == null) {

@@ -69,7 +69,7 @@ export const generateCapPackage = (
 								return prev;
 							}
 
-							const distance = Utils.distanceToPosition(airdrome, obj.position);
+							const distance = Utils.Location.distanceToPosition(airdrome, obj.position);
 
 							if (distance < prev[1]) {
 								return [obj, distance] as [DcsJs.Objective, number];
@@ -127,13 +127,13 @@ export const generateCapPackage = (
 	const cruiseSpeed = getCruiseSpeed(usableAircrafts, dataStore);
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, objectivePosition);
-	const oppHeading = Utils.headingToPosition(objectivePosition, oppAirdrome);
+	const oppHeading = Utils.Location.headingToPosition(objectivePosition, oppAirdrome);
 
 	const heading = objectiveName === "Frontline" ? addHeading(oppHeading, 180) : oppHeading;
 
 	const endPosition = positionFromHeading(objectivePosition, heading, objectiveName === "Frontline" ? 10_000 : 30_000);
 	const durationEnRoute = getDurationEnRoute(objectivePosition, endPosition, cruiseSpeed);
-	const headingObjectiveToAirdrome = Utils.headingToPosition(endPosition, oppAirdrome);
+	const headingObjectiveToAirdrome = Utils.Location.headingToPosition(endPosition, oppAirdrome);
 	const racetrackStart = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, -90), 20_000);
 	const racetrackEnd = positionFromHeading(endPosition, addHeading(headingObjectiveToAirdrome, 90), 20_000);
 	const duration = Domain.Time.Hours(1);
@@ -184,7 +184,7 @@ export const generateCapPackage = (
 				racetrack: {
 					position: racetrackEnd,
 					name: "Racetrack end",
-					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
+					distance: Utils.Location.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},

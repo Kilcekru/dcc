@@ -1,9 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
-import { Config } from "../../data";
-import { Scenario } from "../../data/scenarios";
 import { onboardNumber } from "../../utils";
 import { getFarthestAirdromeFromPosition, getFrontlineObjective, getLoadoutForAircraftType } from "../utils";
 import { DynamicObjectivePlan } from "./utils";
@@ -57,7 +56,7 @@ function generateAircraftForTask({
 	const aircrafts: Array<DcsJs.Aircraft> = [];
 
 	faction.aircraftTypes[task]?.forEach((acType) => {
-		const count = Math.max(2, Config.inventory.aircraft[task] / (faction.aircraftTypes[task]?.length ?? 0));
+		const count = Math.max(2, Utils.Config.inventory.aircraft[task] / (faction.aircraftTypes[task]?.length ?? 0));
 		const aircraftType = acType as DcsJs.AircraftType;
 		const aircraft = dataStore.aircrafts?.[aircraftType];
 
@@ -212,7 +211,7 @@ export const generateAircraftInventory = ({
 	coalition: DcsJs.Coalition;
 	faction: DcsJs.Faction;
 	objectivePlans: Array<DynamicObjectivePlan>;
-	scenario: Scenario;
+	scenario: Types.Campaign.Scenario;
 	dataStore: Types.Campaign.DataStore;
 	carrierName?: string;
 	oppObjectives: Array<DcsJs.Import.Objective>;

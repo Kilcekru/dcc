@@ -1,11 +1,13 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useCreateErrorToast } from "@kilcekru/dcc-lib-components";
+import { rpc } from "@kilcekru/dcc-lib-rpc";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { useDataStore, useSetDataMap } from "../../components/DataProvider";
-import { Scenario } from "../../data";
-import * as ECS from "../../ecs";
+import { scenarioList } from "../../data";
+import { sendWorkerMessage } from "../../worker";
 import styles from "./CreateCampaign.module.less";
 import { CustomFaction, Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
 export const optionalClass = (className: string, optionalClass?: string) => {
@@ -15,7 +17,6 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
 	const [scenario, setScenario] = createSignal("");
-	const [scenarioMap, setScenarioMap] = createSignal<DcsJs.MapName | undefined>(undefined);
 	const [blueFaction, setBlueFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [redFaction, setRedFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
@@ -38,15 +39,23 @@ export const CreateCampaign = () => {
 		}
 
 		try {
-			await ECS.world.fetchDataStore(scenarioMap() ?? "caucasus");
-			ECS.world.generate({
-				blueFactionDefinition: blue,
-				redFactionDefinition: red,
-				scenarioName: scenario(),
+			const scenarioDefinition = scenarioList.find((s) => s.name === scenario());
+
+			if (scenarioDefinition == null) {
+				throw new Error("Scenario not found");
+			}
+
+			const data = await rpc.campaign.getDataStore(scenarioDefinition.map as DcsJs.MapName);
+
+			sendWorkerMessage({
+				name: "setDataStore",
+				payload: data,
 			});
 
-			// eslint-disable-next-line no-console
-			console.log("world", ECS.world);
+			sendWorkerMessage({
+				name: "generate",
+				payload: { blueFactionDefinition: blue, redFactionDefinition: red, scenario: scenarioDefinition },
+			});
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(e);
@@ -85,9 +94,8 @@ export const CreateCampaign = () => {
 		}
 	};
 
-	const onSelectScenario = (scenario: Scenario) => {
+	const onSelectScenario = (scenario: Types.Campaign.Scenario) => {
 		setScenario(scenario.name);
-		setScenarioMap(scenario.map as DcsJs.MapName);
 		setCurrentScreen("Start");
 		setDataMap(scenario.map as DcsJs.MapName);
 	};

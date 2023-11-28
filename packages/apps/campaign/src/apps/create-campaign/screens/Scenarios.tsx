@@ -1,11 +1,15 @@
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { For, Show } from "solid-js";
 
-import { Scenario, scenarioList } from "../../../data";
+import { scenarioList } from "../../../data";
 import Styles from "./Scenarios.module.less";
 
-const ScenarioItem = (props: { scenario: Scenario; onPress: (name: Scenario) => void }) => {
+const ScenarioItem = (props: {
+	scenario: Types.Campaign.Scenario;
+	onPress: (name: Types.Campaign.Scenario) => void;
+}) => {
 	const scenarioImage = () => {
 		switch (props.scenario.id) {
 			case "red-bullet":
@@ -60,7 +64,7 @@ const ScenarioItem = (props: { scenario: Scenario; onPress: (name: Scenario) => 
 		</Components.Card>
 	);
 };
-export const Scenarios = (props: { next: (scenario: Scenario) => void }) => {
+export const Scenarios = (props: { next: (scenario: Types.Campaign.Scenario) => void }) => {
 	return (
 		<div class={Styles.wrapper}>
 			<h1 class={Styles.title}>Select a Scenario</h1>

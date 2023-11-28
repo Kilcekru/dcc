@@ -26,7 +26,7 @@ export const cas = (coalition: DcsJs.Coalition, state: RunningCampaignState) => 
 			if (fg.task === "CAS" && fg.target != null) {
 				const gg = oppFaction.groundGroups.find((gg) => gg.id === fg.target);
 
-				if (gg != null && Utils.distanceToPosition(fg.position, gg?.position) < 3_000) {
+				if (gg != null && Utils.Location.distanceToPosition(fg.position, gg?.position) < 3_000) {
 					fg.units.forEach((unit) => {
 						const aircraft = faction.inventory.aircrafts[unit.id];
 

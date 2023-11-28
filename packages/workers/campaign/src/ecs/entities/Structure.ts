@@ -1,11 +1,11 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { ObjectivePlan } from "../../data";
-import { Config } from "../../data";
-import * as Domain from "../../domain";
 import { Coalition, Position } from "../components";
-import { world } from "../world";
+import { QueryNames, world } from "../world";
 import { Building } from "./Building";
+import { MapEntity } from "./MapEntity";
 import { Objective } from "./Objective";
 
 export interface StructureProps extends Coalition, Position {
@@ -15,23 +15,26 @@ export interface StructureProps extends Coalition, Position {
 	type: DcsJs.StructureType;
 }
 
-export class Structure implements Coalition, Position {
+export class Structure extends MapEntity implements Coalition, Position {
 	public name: string;
 	public objective: Objective;
-	public coalition: DcsJs.Coalition;
-	public position: DcsJs.Position;
 	public type: DcsJs.StructureType;
 	public state: DcsJs.StructureState = "active";
 	public buildings: Array<Building>;
 
-	public constructor(args: StructureProps) {
+	public constructor(args: StructureProps & { queries?: Array<QueryNames> }) {
+		super({
+			coalition: args.coalition,
+			position: args.position,
+			queries: (args.queries ?? []).concat(["structures", "mapEntities"]),
+		});
 		this.name = args.name;
 		this.objective = args.objective;
 		this.position = args.position;
 		this.type = args.type;
 		this.coalition = args.coalition;
 
-		const structureTemplate = Domain.Random.item(world.dataStore?.structures?.[args.type] ?? []);
+		const structureTemplate = Utils.Random.item(world.dataStore?.structures?.[args.type] ?? []);
 
 		if (structureTemplate == null) {
 			throw new Error("structureTemplate not found");
@@ -44,11 +47,9 @@ export class Structure implements Coalition, Position {
 				offset: buildingTemplate.offset,
 			});
 		});
-
-		world.queries.structures[args.coalition].add(this);
 	}
 
-	static generate(args: { coalition: DcsJs.Coalition; objectivePlans: Array<ObjectivePlan> }) {
+	static generate(args: { coalition: DcsJs.Coalition; objectivePlans: Array<Types.Campaign.ObjectivePlan> }) {
 		const strikeTargets = world.dataStore?.strikeTargets;
 
 		if (strikeTargets == null) {
@@ -98,20 +99,51 @@ export class Structure implements Coalition, Position {
 			}
 		}
 	}
+
+	static toMapItems() {
+		const blueStructures = world.queries.structures["blue"];
+		const redStructures = world.queries.structures["red"];
+
+		const items: Set<Types.Campaign.MapItem> = new Set();
+
+		for (const structure of blueStructures) {
+			items.add(structure.toMapJSON());
+		}
+
+		for (const structure of redStructures) {
+			items.add(structure.toMapJSON());
+		}
+
+		return items;
+	}
+
+	override toMapJSON(): Types.Campaign.MapItem {
+		return {
+			name: this.name,
+			position: this.position,
+			type: "structure",
+			coalition: this.coalition,
+			structureType: this.type,
+		};
+	}
 }
 
 function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJs.StructureType) {
-	const margin = Domain.Random.number(0.8, 1.2);
+	const margin = Utils.Random.number(0.8, 1.2);
 
 	switch (structureType) {
 		case "Barrack": {
 			return (
-				(Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+				(Utils.Config.deploymentScore.frontline.barrack /
+					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
+				margin
 			);
 		}
 		case "Depot": {
 			return (
-				(Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+				(Utils.Config.deploymentScore.frontline.depot /
+					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
+				margin
 			);
 		}
 	}
@@ -128,7 +160,7 @@ export class UnitCamp extends Structure {
 	public override type: DcsJs.StructureTypeUnitCamp;
 
 	constructor(args: UnitCampProps) {
-		super(args);
+		super({ ...args, queries: ["unitCamps"] });
 		this.type = args.type;
 		this.deploymentScore = calcInitDeploymentScore(args.coalition, args.type);
 

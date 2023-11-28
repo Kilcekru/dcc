@@ -95,15 +95,15 @@ export const generateStrikePackage = (
 
 	const ingressPosition = positionFromHeading(
 		targetStructure.position,
-		Utils.headingToPosition(targetStructure.position, packageAircrafts.startPosition),
+		Utils.Location.headingToPosition(targetStructure.position, packageAircrafts.startPosition),
 		15000,
 	);
 
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, targetStructure.position);
 	const egressHeading =
 		oppAirdrome == null
-			? Utils.headingToPosition(targetStructure.position, packageAircrafts.startPosition)
-			: Utils.headingToPosition(targetStructure.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+			? Utils.Location.headingToPosition(targetStructure.position, packageAircrafts.startPosition)
+			: Utils.Location.headingToPosition(targetStructure.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const egressPosition = positionFromHeading(targetStructure.position, addHeading(egressHeading, 180), 20000);
 
 	const durationIngress = getDurationEnRoute(ingressPosition, targetStructure.position, cruiseSpeed);

@@ -75,7 +75,7 @@ export const generateCasPackage = (
 	// const racetrackEnd = positionFromHeading(groundGroupTarget.position, headingObjectiveToAirdrome + 90, 7500);
 	const ingressPosition = positionFromHeading(
 		groundGroupTarget.position,
-		Utils.headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition),
+		Utils.Location.headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition),
 		15000,
 	);
 
@@ -88,8 +88,8 @@ export const generateCasPackage = (
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, groundGroupTarget.position);
 	const egressHeading =
 		oppAirdrome == null
-			? Utils.headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition)
-			: Utils.headingToPosition(groundGroupTarget.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+			? Utils.Location.headingToPosition(groundGroupTarget.position, packageAircrafts.startPosition)
+			: Utils.Location.headingToPosition(groundGroupTarget.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const egressPosition = positionFromHeading(groundGroupTarget.position, addHeading(egressHeading, 180), 20000);
 
 	const casDuration = Domain.Time.Minutes(30);

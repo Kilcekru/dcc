@@ -1,7 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
 import { Task } from "../components";
-import { QueryNames } from "../world";
 import { Aircraft } from "./Aircraft";
 import { GroundGroup } from "./GroundGroup";
 import { Group, GroupProps } from "./Group";
@@ -20,10 +19,9 @@ export class FlightGroup extends Group implements Task {
 	public task: DcsJs.Task;
 	public package: Package;
 	public waypoints: Array<Waypoint> = [];
-	override queries: Array<QueryNames> = ["flightGroups"];
 
 	public constructor(args: FlightGroupProps) {
-		super(args);
+		super({ ...args, queries: ["flightGroups"] });
 		this.task = args.task;
 		this.package = args.package;
 		this.waypoints = args.waypoints;

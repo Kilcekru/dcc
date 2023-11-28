@@ -1,23 +1,20 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Config, StructurePlan } from "../../data";
-import * as ECS from "../../ecs";
-import { DynamicObjectivePlan } from "../../logic/createCampaign/utils";
-import { Random } from "..";
-import { distanceToPosition, findInside, findNearest, objectToPosition } from "../location";
+import * as Entities from "../entities";
 
 type Lane = {
 	current: DcsJs.Position | undefined;
 	target: DcsJs.Position;
 };
 
-function generateLanes(startPositions: Array<ECS.Entities.Airdrome>, targetPositions: Array<ECS.Entities.Airdrome>) {
+function generateLanes(startPositions: Array<Entities.Airdrome>, targetPositions: Array<Entities.Airdrome>) {
 	const lanes: Array<Lane> = [];
 
 	startPositions.forEach(({ position: start }) => {
 		targetPositions.forEach(({ position: target }) => {
-			if (distanceToPosition(start, target) < 200_000) {
+			if (Utils.Location.distanceToPosition(start, target) < 200_000) {
 				lanes.push({ current: start, target: target });
 			}
 		});
@@ -31,26 +28,26 @@ function selectObjective(
 	targetPosition: DcsJs.Position,
 	objectives: Array<DcsJs.Import.Objective>,
 ) {
-	const sourceDistance = distanceToPosition(sourcePosition, targetPosition);
+	const sourceDistance = Utils.Location.distanceToPosition(sourcePosition, targetPosition);
 
-	const nearbyObjectives = findInside(objectives, sourcePosition, (obj) => obj.position, 20_000);
+	const nearbyObjectives = Utils.Location.findInside(objectives, sourcePosition, (obj) => obj.position, 20_000);
 
 	const forwardObjectives = nearbyObjectives.filter((obj) => {
-		const objDistance = distanceToPosition(obj.position, targetPosition);
+		const objDistance = Utils.Location.distanceToPosition(obj.position, targetPosition);
 
 		return objDistance < sourceDistance && objDistance > 20_000;
 	});
 
-	const selectedObjective = Random.item(forwardObjectives);
+	const selectedObjective = Utils.Random.item(forwardObjectives);
 
 	return selectedObjective;
 }
 
 function addObjectivePlan(
-	objectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objective: DcsJs.Import.Objective,
 	groundUnit?: string,
-	structure?: StructurePlan,
+	structure?: Types.Campaign.StructurePlan,
 ) {
 	const next = structuredClone(objectivePlans);
 	const index = objectivePlans.findIndex((plan) => plan.objectiveName === objective.name);
@@ -79,8 +76,8 @@ function addObjectivePlan(
 
 function addBasicObjective(
 	lanes: Array<Lane>,
-	objectivePlans: Array<DynamicObjectivePlan>,
-	oppObjectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objectives: Array<DcsJs.Import.Objective>,
 ) {
 	lanes.forEach((lane) => {
@@ -93,7 +90,7 @@ function addBasicObjective(
 		if (selectedObjective != null) {
 			objectivePlans = addObjectivePlan(objectivePlans, selectedObjective);
 
-			const oppObjectivesInRange = findInside(
+			const oppObjectivesInRange = Utils.Location.findInside(
 				oppObjectivePlans,
 				selectedObjective.position,
 				(obj) => obj.objective.position,
@@ -114,10 +111,10 @@ function addBasicObjective(
 }
 
 function fillObjectives(
-	bluePlans: Array<DynamicObjectivePlan>,
-	redPlans: Array<DynamicObjectivePlan>,
+	bluePlans: Array<Types.Campaign.DynamicObjectivePlan>,
+	redPlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objectives: Array<DcsJs.Import.Objective>,
-): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
+): [Array<Types.Campaign.DynamicObjectivePlan>, Array<Types.Campaign.DynamicObjectivePlan>] {
 	let blue = bluePlans;
 	let red = redPlans;
 
@@ -129,13 +126,15 @@ function fillObjectives(
 			return;
 		}
 
-		const nearestBlue = findNearest(bluePlans, obj.position, (op) => op.objective.position);
-		const nearestRed = findNearest(redPlans, obj.position, (op) => op.objective.position);
+		const nearestBlue = Utils.Location.findNearest(bluePlans, obj.position, (op) => op.objective.position);
+		const nearestRed = Utils.Location.findNearest(redPlans, obj.position, (op) => op.objective.position);
 
 		const distanceBlue =
-			nearestBlue == null ? 999_999_999 : distanceToPosition(nearestBlue.objective.position, obj.position);
+			nearestBlue == null
+				? 999_999_999
+				: Utils.Location.distanceToPosition(nearestBlue.objective.position, obj.position);
 		const distanceRed =
-			nearestRed == null ? 999_999_999 : distanceToPosition(nearestRed.objective.position, obj.position);
+			nearestRed == null ? 999_999_999 : Utils.Location.distanceToPosition(nearestRed.objective.position, obj.position);
 
 		if (distanceBlue <= distanceRed) {
 			blue = addObjectivePlan(blue, obj);
@@ -148,14 +147,16 @@ function fillObjectives(
 }
 
 function addAirdromeSamObjectives(
-	airdromes: Array<ECS.Entities.Airdrome>,
-	oppAirdromes: Array<ECS.Entities.Airdrome>,
+	airdromes: Array<Entities.Airdrome>,
+	oppAirdromes: Array<Entities.Airdrome>,
 	targets: Record<string, DcsJs.StrikeTarget[]>,
 	objectives: Array<DcsJs.Import.Objective>,
-	objectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 ) {
 	airdromes.forEach((airdrome) => {
-		const oppAirdrome = findNearest(oppAirdromes, airdrome.position, (ad) => objectToPosition(ad));
+		const oppAirdrome = Utils.Location.findNearest(oppAirdromes, airdrome.position, (ad) =>
+			Utils.Location.objectToPosition(ad),
+		);
 
 		if (oppAirdrome == null) {
 			return;
@@ -171,25 +172,30 @@ function addAirdromeSamObjectives(
 			return objTargets.some((target) => target.type === "SAM");
 		});
 
-		const nearbyObjectives = findInside(validObjectives, airdrome.position, (obj) => obj.position, 20_000);
-		const sourceDistance = distanceToPosition(airdrome.position, oppAirdrome.position);
+		const nearbyObjectives = Utils.Location.findInside(
+			validObjectives,
+			airdrome.position,
+			(obj) => obj.position,
+			20_000,
+		);
+		const sourceDistance = Utils.Location.distanceToPosition(airdrome.position, oppAirdrome.position);
 
 		const forwardObjectives = nearbyObjectives.filter((obj) => {
-			const objDistance = distanceToPosition(obj.position, oppAirdrome.position);
+			const objDistance = Utils.Location.distanceToPosition(obj.position, oppAirdrome.position);
 
 			return objDistance < sourceDistance && objDistance > 30_000;
 		});
 
-		const selectedObjective = Random.item(forwardObjectives);
+		const selectedObjective = Utils.Random.item(forwardObjectives);
 
 		if (selectedObjective == null) {
 			const farEnoughFromOppAirdrome = nearbyObjectives.filter((obj) => {
-				const objDistance = distanceToPosition(obj.position, oppAirdrome.position);
+				const objDistance = Utils.Location.distanceToPosition(obj.position, oppAirdrome.position);
 
 				return objDistance > 30_000;
 			});
 
-			const fallbackObjective = Random.item(farEnoughFromOppAirdrome);
+			const fallbackObjective = Utils.Random.item(farEnoughFromOppAirdrome);
 
 			if (fallbackObjective == null) {
 				return;
@@ -215,13 +221,13 @@ function validStructureObjective({
 	range,
 }: {
 	sourcePosition: DcsJs.Position;
-	objectivePlans: Array<DynamicObjectivePlan>;
-	oppObjectivePlans: Array<DynamicObjectivePlan>;
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
 	strikeTargets: Record<string, Array<DcsJs.StrikeTarget>>;
 	range: number;
 }) {
-	const objectivesInRange = findInside(objectives, sourcePosition, (obj) => obj.position, range);
+	const objectivesInRange = Utils.Location.findInside(objectives, sourcePosition, (obj) => obj.position, range);
 
 	const freeObjectives = objectivesInRange.filter((obj) => {
 		const plan = objectivePlans.find((op) => op.objectiveName === obj.name);
@@ -247,8 +253,8 @@ function validStructureObjective({
 	});
 
 	const friendlyObjectives = freeObjectives.filter((obj) => {
-		const nearestCoalition = findNearest(objectivePlans, obj.position, (op) => op.objective.position);
-		const nearestOpp = findNearest(oppObjectivePlans, obj.position, (op) => op.objective.position);
+		const nearestCoalition = Utils.Location.findNearest(objectivePlans, obj.position, (op) => op.objective.position);
+		const nearestOpp = Utils.Location.findNearest(oppObjectivePlans, obj.position, (op) => op.objective.position);
 
 		if (nearestCoalition == null) {
 			return false;
@@ -258,13 +264,13 @@ function validStructureObjective({
 			return true;
 		}
 
-		const coalitionDistance = distanceToPosition(nearestCoalition.objective.position, obj.position);
-		const oppDistance = distanceToPosition(nearestOpp.objective.position, obj.position);
+		const coalitionDistance = Utils.Location.distanceToPosition(nearestCoalition.objective.position, obj.position);
+		const oppDistance = Utils.Location.distanceToPosition(nearestOpp.objective.position, obj.position);
 
 		return coalitionDistance <= oppDistance;
 	});
 
-	return Random.item(friendlyObjectives);
+	return Utils.Random.item(friendlyObjectives);
 }
 
 function addStructures({
@@ -275,8 +281,8 @@ function addStructures({
 	range,
 	structureType,
 }: {
-	objectivePlans: Array<DynamicObjectivePlan>;
-	oppObjectivePlans: Array<DynamicObjectivePlan>;
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
 	strikeTargets: Record<string, Array<DcsJs.StrikeTarget>>;
 	range: number;
@@ -287,7 +293,7 @@ function addStructures({
 			op.structures.some((str) => str.structureType === structureType),
 		);
 
-		const existingStructuresInRange = findInside(
+		const existingStructuresInRange = Utils.Location.findInside(
 			existingStructures,
 			plan.objective.position,
 			(pp) => pp.objective.position,
@@ -338,8 +344,8 @@ function generateFactionStructures({
 	strikeTargets,
 }: {
 	coalition: DcsJs.Coalition;
-	objectivePlans: Array<DynamicObjectivePlan>;
-	oppObjectivePlans: Array<DynamicObjectivePlan>;
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>;
 	objectives: Array<DcsJs.Import.Objective>;
 	strikeTargets: Record<string, Array<DcsJs.StrikeTarget>>;
 }) {
@@ -348,7 +354,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.depot * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.frontline.depot * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Depot",
 	});
 	objectivePlans = addStructures({
@@ -356,7 +362,8 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.barrack * Config.structureRange.generateRangeMultiplier[coalition],
+		range:
+			Utils.Config.structureRange.frontline.barrack * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Barrack",
 	});
 	objectivePlans = addStructures({
@@ -364,7 +371,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.power * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.power * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Power Plant",
 	});
 	objectivePlans = addStructures({
@@ -372,7 +379,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.ammo * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.ammo * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Ammo Depot",
 	});
 	objectivePlans = addStructures({
@@ -380,7 +387,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.fuel * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.fuel * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Fuel Storage",
 	});
 	objectivePlans = addStructures({
@@ -388,7 +395,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.hospital * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.hospital * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Hospital",
 	});
 	objectivePlans = addStructures({
@@ -396,7 +403,7 @@ function generateFactionStructures({
 		oppObjectivePlans,
 		objectives,
 		strikeTargets,
-		range: Config.structureRange.frontline.farp * Config.structureRange.generateRangeMultiplier[coalition],
+		range: Utils.Config.structureRange.frontline.farp * Utils.Config.structureRange.generateRangeMultiplier[coalition],
 		structureType: "Farp",
 	});
 
@@ -404,23 +411,23 @@ function generateFactionStructures({
 }
 
 function addFrontline(
-	objectivePlans: Array<DynamicObjectivePlan>,
-	oppObjectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
+	oppObjectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	objectives: Array<DcsJs.Import.Objective>,
 ) {
 	objectives.forEach((obj) => {
-		const nearestFriendly = findNearest(objectivePlans, obj.position, (op) => op.objective.position);
+		const nearestFriendly = Utils.Location.findNearest(objectivePlans, obj.position, (op) => op.objective.position);
 
-		const nearestOpp = findNearest(oppObjectivePlans, obj.position, (op) => op.objective.position);
+		const nearestOpp = Utils.Location.findNearest(oppObjectivePlans, obj.position, (op) => op.objective.position);
 
 		if (nearestOpp == null || nearestFriendly == null) {
 			return;
 		}
 
-		const distanceFriendly = distanceToPosition(obj.position, nearestFriendly.objective.position);
-		const distanceOpp = distanceToPosition(obj.position, nearestOpp.objective.position);
+		const distanceFriendly = Utils.Location.distanceToPosition(obj.position, nearestFriendly.objective.position);
+		const distanceOpp = Utils.Location.distanceToPosition(obj.position, nearestOpp.objective.position);
 
-		if (distanceOpp <= Config.structureRange.frontline.barrack && distanceFriendly < distanceOpp) {
+		if (distanceOpp <= Utils.Config.structureRange.frontline.barrack && distanceFriendly < distanceOpp) {
 			objectivePlans = addObjectivePlan(objectivePlans, obj, "vehicles");
 		}
 	});
@@ -434,11 +441,11 @@ export function generateObjectivePlans({
 	blueRange,
 	dataStore,
 }: {
-	blueAirdromes: Array<ECS.Entities.Airdrome>;
-	redAirdromes: Array<ECS.Entities.Airdrome>;
+	blueAirdromes: Array<Entities.Airdrome>;
+	redAirdromes: Array<Entities.Airdrome>;
 	blueRange: [number, number];
 	dataStore: Types.Campaign.DataStore;
-}): [Array<DynamicObjectivePlan>, Array<DynamicObjectivePlan>] {
+}): [Array<Types.Campaign.DynamicObjectivePlan>, Array<Types.Campaign.DynamicObjectivePlan>] {
 	const objectives = dataStore.objectives?.filter(
 		(obj) => obj.type === "Town" || obj.type === "Terrain" || obj.type === "POI",
 	);
@@ -456,9 +463,9 @@ export function generateObjectivePlans({
 	const blueLanes = generateLanes(blueAirdromes, redAirdromes);
 	const redLanes = generateLanes(redAirdromes, blueAirdromes);
 
-	let blueObjs: Array<DynamicObjectivePlan> = [];
-	const maxBlueObjsCount = Random.number(blueRange[0], blueRange[1]);
-	let redObjs: Array<DynamicObjectivePlan> = [];
+	let blueObjs: Array<Types.Campaign.DynamicObjectivePlan> = [];
+	const maxBlueObjsCount = Utils.Random.number(blueRange[0], blueRange[1]);
+	let redObjs: Array<Types.Campaign.DynamicObjectivePlan> = [];
 
 	// Basic Objectives
 	while (!endOfLine) {

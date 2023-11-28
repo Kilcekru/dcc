@@ -1,3 +1,4 @@
+import { world } from "./ecs";
 import { postEvent } from "./events";
 
 let lastTickTime: number;
@@ -22,5 +23,6 @@ function tick() {
 	const dt = currentTickTime - lastTickTime;
 	lastTickTime = currentTickTime;
 
+	world.frameTick();
 	postEvent({ name: "tick", dt });
 }

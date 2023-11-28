@@ -92,7 +92,7 @@ export const generateAirAssaultPackage = (
 
 	const ingressPosition = positionFromHeading(
 		target.position,
-		Utils.headingToPosition(target.position, packageAircrafts.startPosition),
+		Utils.Location.headingToPosition(target.position, packageAircrafts.startPosition),
 		15000,
 	);
 
@@ -117,8 +117,8 @@ export const generateAirAssaultPackage = (
 	const oppAirdrome = calcNearestOppositeAirdrome(coalition, state, dataStore, target.position);
 	const egressHeading =
 		oppAirdrome == null
-			? Utils.headingToPosition(target.position, packageAircrafts.startPosition)
-			: Utils.headingToPosition(target.position, { x: oppAirdrome.x, y: oppAirdrome.y });
+			? Utils.Location.headingToPosition(target.position, packageAircrafts.startPosition)
+			: Utils.Location.headingToPosition(target.position, { x: oppAirdrome.x, y: oppAirdrome.y });
 	const egressPosition = positionFromHeading(target.position, addHeading(egressHeading, 180), 20000);
 
 	const durationEnRoute = getDurationEnRoute(holdPosition, ingressPosition, cruiseSpeed);

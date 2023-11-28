@@ -77,7 +77,7 @@ export const generateCallSign = (
 };
 
 const landingNavPosition = (engressPosition: DcsJs.Position, airdromePosition: DcsJs.Position) => {
-	const heading = Utils.headingToPosition(engressPosition, airdromePosition);
+	const heading = Utils.Location.headingToPosition(engressPosition, airdromePosition);
 	return positionFromHeading(airdromePosition, addHeading(heading, 180), 32000);
 };
 
@@ -269,7 +269,7 @@ export function getFrontlineObjective(
 				return prev;
 			}
 
-			const distance = Utils.distanceToPosition(airdrome, obj.position);
+			const distance = Utils.Location.distanceToPosition(airdrome, obj.position);
 
 			if (distance < prev[1]) {
 				return [obj, distance] as [DcsJs.Objective, number];
@@ -307,7 +307,7 @@ export function getFarthestAirdromeFromPosition(
 
 	const [farthestAirdrome] = airdromesInRange.reduce(
 		(prev, airdrome) => {
-			const distance = Utils.distanceToPosition(position, airdrome);
+			const distance = Utils.Location.distanceToPosition(position, airdrome);
 
 			if (distance > prev[1]) {
 				return [airdrome, distance] as [DcsJs.DCS.Airdrome, number];

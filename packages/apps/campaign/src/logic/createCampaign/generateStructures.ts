@@ -1,8 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createUniqueId } from "solid-js";
 
-import { Config, ObjectivePlan } from "../../data";
 import * as Domain from "../../domain";
 
 function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJs.StructureType) {
@@ -11,12 +11,16 @@ function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJ
 	switch (structureType) {
 		case "Barrack": {
 			return (
-				(Config.deploymentScore.frontline.barrack / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+				(Utils.Config.deploymentScore.frontline.barrack /
+					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
+				margin
 			);
 		}
 		case "Depot": {
 			return (
-				(Config.deploymentScore.frontline.depot / Config.deploymentScore.frontline.initialFactor[coalition]) * margin
+				(Utils.Config.deploymentScore.frontline.depot /
+					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
+				margin
 			);
 		}
 	}
@@ -26,7 +30,7 @@ function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJ
 
 export function generateStructures(
 	coalition: DcsJs.Coalition,
-	objectivePlans: Array<ObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.ObjectivePlan>,
 	dataStore: Types.Campaign.DataStore,
 ) {
 	const structures: Record<string, DcsJs.Structure> = {};

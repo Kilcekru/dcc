@@ -122,7 +122,7 @@ const moveFactionGroundGroups = (
 					return;
 				}
 
-				if (Utils.distanceToPosition(gg.position, objective.position) < 500) {
+				if (Utils.Location.distanceToPosition(gg.position, objective.position) < 500) {
 					const objective = state.objectives[gg.objectiveName];
 
 					if (objective == null) {

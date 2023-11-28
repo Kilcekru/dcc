@@ -235,7 +235,7 @@ export function calcHoldWaypoint(
 	targetPosition: DcsJs.Position,
 	cruiseSpeed: number,
 ): [DcsJs.CampaignWaypoint, DcsJs.Position, number] {
-	const targetHeading = Utils.headingToPosition(startPosition, targetPosition);
+	const targetHeading = Utils.Location.headingToPosition(startPosition, targetPosition);
 
 	const holdPosition = positionFromHeading(startPosition, targetHeading, 20_000);
 	const durationIngress = getDurationEnRoute(startPosition, holdPosition, cruiseSpeed);

@@ -2,7 +2,6 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createUniqueId } from "solid-js";
 
-import { ObjectivePlan } from "../../data/scenarios";
 import * as Domain from "../../domain";
 
 function getTemplate(faction: DcsJs.CampaignFaction, dataStore: Types.Campaign.DataStore) {
@@ -71,7 +70,7 @@ export const generateSams = (
 	coalition: DcsJs.Coalition,
 	faction: DcsJs.CampaignFaction,
 	dataStore: Types.Campaign.DataStore,
-	objectivePlans: Array<ObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.ObjectivePlan>,
 ) => {
 	if (coalition === "neutrals") {
 		return;

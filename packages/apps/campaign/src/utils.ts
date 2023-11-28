@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 
 import { useDataStore } from "./components/DataProvider";
-import { Config, Scenario } from "./data";
+import { Config } from "./data";
 import * as Domain from "./domain";
 import { RunningCampaignState } from "./logic/types";
 import { getCoalitionFaction } from "./logic/utils";
@@ -73,7 +73,7 @@ export const findInside = <T>(
 				radius * radius
 			); */
 
-			return Utils.distanceToPosition(sourcePosition, position) <= radius;
+			return Utils.Location.distanceToPosition(sourcePosition, position) <= radius;
 		}) ?? []
 	);
 };
@@ -86,7 +86,7 @@ export const findNearest = <T>(
 	return values?.reduce(
 		([prevObj, prevDistance], v) => {
 			const position = positionSelector(v);
-			const distance = Utils.distanceToPosition(sourcePosition, position);
+			const distance = Utils.Location.distanceToPosition(sourcePosition, position);
 
 			if (distance < prevDistance) {
 				return [v, distance] as [T, number];
@@ -130,7 +130,7 @@ export const positionAfterDurationToPosition = (
 	}
 
 	const distanceTraveled = speed * duration;
-	const heading = Utils.headingToPosition(sourcePosition, targetPosition);
+	const heading = Utils.Location.headingToPosition(sourcePosition, targetPosition);
 
 	return positionFromHeading(sourcePosition, heading, distanceTraveled);
 };
@@ -180,7 +180,7 @@ export const calcFlightGroupPosition = (
 
 	if (activeWaypoint?.racetrack == null) {
 		const nextPosition = nextWaypoint?.position ?? airdrome ?? activeWaypoint.position;
-		if (Utils.distanceToPosition(fg.position, nextPosition) <= 2000) {
+		if (Utils.Location.distanceToPosition(fg.position, nextPosition) <= 2000) {
 			return nextPosition;
 		}
 
@@ -196,7 +196,7 @@ export const calcFlightGroupPosition = (
 		// const timeOnTrack = Math.floor(timeOnStation - distancesAlreadyFlown * activeWaypoint.racetrack.duration);
 
 		if (distancesAlreadyFlown % 2 === 0) {
-			if (Utils.distanceToPosition(fg.position, activeWaypoint.racetrack.position) <= 1000) {
+			if (Utils.Location.distanceToPosition(fg.position, activeWaypoint.racetrack.position) <= 1000) {
 				return activeWaypoint.racetrack.position;
 			}
 
@@ -207,7 +207,7 @@ export const calcFlightGroupPosition = (
 				nextWaypoint?.speed ?? 200,
 			);
 		} else {
-			if (Utils.distanceToPosition(fg.position, activeWaypoint.position) <= 1000) {
+			if (Utils.Location.distanceToPosition(fg.position, activeWaypoint.position) <= 1000) {
 				return activeWaypoint.position;
 			}
 
@@ -341,7 +341,7 @@ export const filterObjectiveCoalition = (objectives: Array<DcsJs.Objective>, coa
 };
 
 export const getDurationEnRoute = (startPosition: DcsJs.Position, endPosition: DcsJs.Position, speed: number) => {
-	const distanceToObjective = Utils.distanceToPosition(startPosition, endPosition);
+	const distanceToObjective = Utils.Location.distanceToPosition(startPosition, endPosition);
 	return Math.round(distanceToObjective / speed);
 };
 
@@ -375,7 +375,7 @@ export const onboardNumber = () => {
 	}
 };
 
-export const getScenarioFaction = (coalition: DcsJs.Coalition, scenario: Scenario) => {
+export const getScenarioFaction = (coalition: DcsJs.Coalition, scenario: Types.Campaign.Scenario) => {
 	return coalition === "blue" ? scenario.blue : scenario.red;
 };
 

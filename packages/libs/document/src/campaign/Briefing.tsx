@@ -211,21 +211,29 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 							prevWp == null
 								? "-"
 								: Math.round(
-										Utils.metersToNauticalMiles(Utils.distanceToPosition(wp.position, prevWp.position)),
+										Utils.Location.metersToNauticalMiles(
+											Utils.Location.distanceToPosition(wp.position, prevWp.position),
+										),
 								  ).toString();
 						const heading =
 							prevWp == null
 								? "-"
-								: Math.round(Utils.positiveDegrees(Utils.headingToPosition(prevWp.position, wp.position))).toString();
+								: Math.round(
+										Utils.Location.positiveDegrees(Utils.Location.headingToPosition(prevWp.position, wp.position)),
+								  ).toString();
 						const racetrackDistance =
-							wp.racetrack?.distance == null ? "-" : Math.round(Utils.metersToNauticalMiles(wp.racetrack?.distance));
+							wp.racetrack?.distance == null
+								? "-"
+								: Math.round(Utils.Location.metersToNauticalMiles(wp.racetrack?.distance));
 						const racetrackHeading =
 							wp.racetrack == null
 								? "-"
 								: Math.round(
-										Utils.positiveDegrees(Utils.headingToPosition(wp.position, wp.racetrack.position)),
+										Utils.Location.positiveDegrees(
+											Utils.Location.headingToPosition(wp.position, wp.racetrack.position),
+										),
 								  ).toString();
-						const speed = Math.round(Utils.metersPerSecondToKnots(wp.speed));
+						const speed = Math.round(Utils.Location.metersPerSecondToKnots(wp.speed));
 
 						if (i() === 0 /* eslint-disable-line solid/reactivity */) {
 							wpIndex = 0;

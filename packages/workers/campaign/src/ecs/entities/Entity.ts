@@ -5,35 +5,44 @@ import { QueryNames, world } from "../world";
 
 export interface EntityProps {
 	coalition: DcsJs.Coalition;
+	queries: Array<QueryNames>;
 }
 
 export class Entity implements Coalition {
+	/**
+	 * only reference to global world
+	 */
 	world = world;
-	queries: Array<QueryNames> = [];
+	#queries: Array<QueryNames> = [];
 	coalition: DcsJs.Coalition;
 
 	constructor(args: EntityProps) {
 		this.coalition = args.coalition;
+		this.#queries = args.queries ?? [];
 
-		for (const queryName of this.queries) {
+		for (const queryName of this.#queries) {
 			const query = this.world.queries[queryName];
 
 			if (query instanceof Set) {
-				query.add(this);
+				const q: Set<Entity> = query;
+				q.add(this);
 			} else {
-				// query[this.coalition].add(this);
+				const q: Set<Entity> = query[this.coalition];
+				q.add(this);
 			}
 		}
 	}
 
 	deconstructor() {
-		for (const queryName of this.queries) {
+		for (const queryName of this.#queries) {
 			const query = this.world.queries[queryName];
 
 			if (query instanceof Set) {
-				query.delete(this);
+				const q: Set<Entity> = query;
+				q.delete(this);
 			} else {
-				query[this.coalition];
+				const q: Set<Entity> = query[this.coalition];
+				q.delete(this);
 			}
 		}
 	}

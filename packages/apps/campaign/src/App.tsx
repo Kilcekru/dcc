@@ -10,7 +10,6 @@ import { DataProvider, useDataStore, useSetDataMap } from "./components/DataProv
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
 import { Config } from "./data";
-import * as ECS from "./ecs";
 import { useSave } from "./hooks";
 import { migrateState } from "./utils";
 
@@ -91,13 +90,11 @@ const AppWithContext = () => {
 						setOpen(true);
 					}
 
-					void ECS.world.fetchDataStore("caucasus");
 					return;
 				}
 
 				if (loadedState.map != null) {
 					setDataMap(loadedState.map);
-					void ECS.world.fetchDataStore(loadedState.map);
 				}
 
 				setCampaignState({

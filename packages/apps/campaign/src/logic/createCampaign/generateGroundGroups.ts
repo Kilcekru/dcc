@@ -4,10 +4,9 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Domain from "../../domain";
 import * as Deploy from "../deploy";
 import { RunningCampaignState } from "../types";
-import { DynamicObjectivePlan } from "./utils";
 
 export function generateGroundGroups(
-	objectivePlans: Array<DynamicObjectivePlan>,
+	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
 	coalition: DcsJs.Coalition,
 	state: RunningCampaignState,
 	dataStore: Types.Campaign.DataStore,

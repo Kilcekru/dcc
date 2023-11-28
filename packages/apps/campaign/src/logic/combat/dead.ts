@@ -44,7 +44,7 @@ export const dead = (coalition: DcsJs.Coalition, state: RunningCampaignState) =>
 				}
 
 				if (
-					Utils.distanceToPosition(fg.position, sam.position) < 90_000 &&
+					Utils.Location.distanceToPosition(fg.position, sam.position) < 90_000 &&
 					fg.startTime + Domain.Time.Minutes(1) < state.timer
 				) {
 					fg.units.forEach((unit) => {

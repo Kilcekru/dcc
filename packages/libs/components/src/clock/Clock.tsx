@@ -15,7 +15,7 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 			return undefined;
 		}
 
-		const d = Utils.timerToDate(props.value);
+		const d = Utils.DateTime.timerToDate(props.value);
 
 		return d;
 	});

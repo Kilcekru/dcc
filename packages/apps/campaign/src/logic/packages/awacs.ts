@@ -103,7 +103,7 @@ export const generateAwacsPackage = (
 				racetrack: {
 					position: racetrackEnd,
 					name: "Track-race end",
-					distance: Utils.distanceToPosition(racetrackStart, racetrackEnd),
+					distance: Utils.Location.distanceToPosition(racetrackStart, racetrackEnd),
 					duration: getDurationEnRoute(racetrackStart, racetrackEnd, cruiseSpeed),
 				},
 			},

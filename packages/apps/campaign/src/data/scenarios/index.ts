@@ -1,44 +1,11 @@
+import { Campaign } from "@kilcekru/dcc-shared-types";
+
 import * as operationNorthernShield from "./operation-northern-shield.json";
 import * as redBullet from "./red-bullet.json";
 import * as roadToParis from "./road-to-paris.json";
 
-export type StructurePlan = {
-	structureName: string;
-	structureType: string;
-};
-export type ObjectivePlan = {
-	objectiveName: string;
-	structures: Array<StructurePlan>;
-	groundUnitTypes: Array<string>;
-};
-export type ScenarioCoalition = {
-	airdromeNames: Array<string>;
-	carrierObjective?: string;
-	objectivePlans: Array<ObjectivePlan>;
-};
-export type Scenario = {
-	map: string;
-	id: string;
-	available: boolean;
-	name: string;
-	era: string;
-	date: string;
-	briefing: string;
-	"blue-start-objective-range": [number, number];
-	"win-condition":
-		| {
-				type: "ground units";
-		  }
-		| {
-				type: "objective";
-				value: string;
-		  };
-	blue: ScenarioCoalition;
-	red: ScenarioCoalition;
-};
-
-export const scenarioList: Array<Scenario> = [
-	redBullet as unknown as Scenario,
-	operationNorthernShield as unknown as Scenario,
-	roadToParis as unknown as Scenario,
+export const scenarioList: Array<Campaign.Scenario> = [
+	redBullet as unknown as Campaign.Scenario,
+	operationNorthernShield as unknown as Campaign.Scenario,
+	roadToParis as unknown as Campaign.Scenario,
 ];

@@ -63,6 +63,91 @@ export interface BriefingDocument {
 	mapData: DcsJs.MapData;
 }
 
-export type WorkerMessage = { name: "resume" } | { name: "pause" };
+export type StructurePlan = {
+	structureName: string;
+	structureType: string;
+};
+export type ObjectivePlan = {
+	objectiveName: string;
+	structures: Array<StructurePlan>;
+	groundUnitTypes: Array<string>;
+};
 
-export type WorkerEvent = { name: "tick"; dt: number };
+export type DynamicObjectivePlan = ObjectivePlan & { objective: DcsJs.Import.Objective };
+
+export type ScenarioCoalition = {
+	airdromeNames: Array<string>;
+	carrierObjective?: string;
+	objectivePlans: Array<ObjectivePlan>;
+};
+export type Scenario = {
+	map: string;
+	id: string;
+	available: boolean;
+	name: string;
+	era: string;
+	date: string;
+	briefing: string;
+	"blue-start-objective-range": [number, number];
+	"win-condition":
+		| {
+				type: "ground units";
+		  }
+		| {
+				type: "objective";
+				value: string;
+		  };
+	blue: ScenarioCoalition;
+	red: ScenarioCoalition;
+};
+
+export type StructureMapItem = {
+	name: string;
+	type: "structure";
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+	structureType: DcsJs.StructureType;
+};
+
+export type AirdromeMapItem = {
+	name: string;
+	type: "airdrome";
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+};
+
+export type GroundGroupMapItem = {
+	name: string;
+	type: "groundGroup";
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+};
+
+export type MapEntityMapItem = {
+	type: "unknown";
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+};
+
+export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem;
+
+export type WorkerMessage =
+	| { name: "resume" }
+	| { name: "pause" }
+	| {
+			name: "generate";
+			payload: {
+				blueFactionDefinition: DcsJs.Faction;
+				redFactionDefinition: DcsJs.Faction;
+				scenario: Scenario;
+			};
+	  }
+	| {
+			name: "setDataStore";
+			payload: DataStore;
+	  };
+
+export type WorkerEventTick = { name: "tick"; dt: number };
+export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Set<MapItem> };
+
+export type WorkerEvent = WorkerEventTick | WorkerEventMapUpdate;
