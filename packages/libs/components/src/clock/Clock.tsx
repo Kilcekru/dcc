@@ -16,7 +16,6 @@ export const Clock = (props: { value: number | undefined; withDay?: boolean }) =
 		}
 
 		const d = Utils.DateTime.timerToDate(props.value);
-
 		return d;
 	});
 

@@ -4,14 +4,10 @@ const worker = new Worker("./worker.js");
 
 worker.addEventListener("message", (e: MessageEvent<Campaign.WorkerEvent>) => {
 	switch (e.data.name) {
-		case "tick": {
-			// eslint-disable-next-line no-console
-			console.log("tick", e.data);
-			break;
-		}
-		case "mapUpdate": {
-			// eslint-disable-next-line no-console
-			console.log("mapUpdate", e.data);
+		case "mapUpdate":
+		case "blueFlightGroupsUpdate":
+		case "timeUpdate": {
+			// handled in onWorkerEvent
 			break;
 		}
 		default: {

@@ -1,6 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
 import { Coalition, Task } from "../components";
+import { Entity } from "./Entity";
 import { FlightGroup, FlightGroupProps } from "./FlightGroup";
 
 export interface PackageProps {
@@ -8,14 +9,19 @@ export interface PackageProps {
 	task: DcsJs.Task;
 }
 
-export class Package implements Coalition, Task {
+export class Package extends Entity implements Coalition, Task {
 	public flightGroups: Set<FlightGroup> = new Set();
-	public coalition: DcsJs.Coalition;
 	public task: DcsJs.Task;
 
 	public constructor(args: PackageProps) {
+		super({
+			coalition: args.coalition,
+			queries: ["packages"],
+		});
 		this.coalition = args.coalition;
 		this.task = args.task;
+
+		this.world.queries.packages[this.coalition].add(this, ["CAP"]);
 	}
 
 	public createFlightGroup(args: Omit<FlightGroupProps, "package">) {

@@ -8,6 +8,7 @@ import { useDataStore } from "../../components/DataProvider";
 import * as Domain from "../../domain";
 import { useSave } from "../../hooks";
 import { calcTakeoffTime } from "../../utils";
+import { sendWorkerMessage } from "../../worker";
 import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
@@ -80,6 +81,7 @@ export const Home = () => {
 		save();
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const startInterval = () => {
 		stopInterval();
 		inter = window.setInterval(interval, intervalTimeout());
@@ -92,9 +94,15 @@ export const Home = () => {
 
 	createEffect(() => {
 		if (state.paused) {
-			stopInterval();
+			sendWorkerMessage({
+				name: "pause",
+			});
+			// stopInterval();
 		} else if (state.active) {
-			startInterval();
+			sendWorkerMessage({
+				name: "resume",
+			});
+			// startInterval();
 		}
 	});
 

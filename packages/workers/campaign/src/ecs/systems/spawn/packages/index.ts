@@ -1,7 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { cas } from "./cas";
+import { cap } from "./cap";
 
 export function packages(coalition: DcsJs.Coalition) {
-	cas(coalition);
+	cap(coalition);
 }

@@ -131,6 +131,17 @@ export type MapEntityMapItem = {
 
 export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem;
 
+export type EntityItem = {
+	id: string;
+	coalition: DcsJs.Coalition;
+};
+
+export type FlightGroupItem = EntityItem & {
+	startTime: number;
+	task: DcsJs.Task;
+	name: string;
+};
+
 export type WorkerMessage =
 	| { name: "resume" }
 	| { name: "pause" }
@@ -148,6 +159,12 @@ export type WorkerMessage =
 	  };
 
 export type WorkerEventTick = { name: "tick"; dt: number };
-export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Set<MapItem> };
+export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Map<string, MapItem> };
+export type WorkerEventTimeUpdate = { name: "timeUpdate"; time: number };
+export type WorkerEventBlueFlightGroupsUpdate = { name: "blueFlightGroupsUpdate"; items: Set<FlightGroupItem> };
 
-export type WorkerEvent = WorkerEventTick | WorkerEventMapUpdate;
+export type WorkerEvent =
+	| WorkerEventTick
+	| WorkerEventMapUpdate
+	| WorkerEventTimeUpdate
+	| WorkerEventBlueFlightGroupsUpdate;

@@ -1,28 +1,41 @@
 import { world } from "./ecs";
-import { postEvent } from "./events";
+// import { postEvent } from "./events";
 
-let lastTickTime: number;
-let tickInterval: number | undefined;
+let lastFrameTickTime: number;
+let frameTickInterval: number | undefined;
+let logicTickInterval: number | undefined;
 
 export function resumeTicker() {
-	if (tickInterval == undefined) {
-		lastTickTime = Date.now();
-		tickInterval = setInterval(tick, 500);
+	if (frameTickInterval == null) {
+		lastFrameTickTime = Date.now();
+		frameTickInterval = setInterval(tick, 16);
+	}
+
+	if (logicTickInterval == null) {
+		logicTickInterval = setInterval(logicTick, 1000);
 	}
 }
 
 export function pauseTicker() {
-	if (tickInterval != undefined) {
-		clearInterval(tickInterval);
-		tickInterval = undefined;
+	if (frameTickInterval != null) {
+		clearInterval(frameTickInterval);
+		frameTickInterval = undefined;
+	}
+
+	if (logicTickInterval != null) {
+		clearInterval(logicTickInterval);
+		logicTickInterval = undefined;
 	}
 }
 
 function tick() {
 	const currentTickTime = Date.now();
-	const dt = currentTickTime - lastTickTime;
-	lastTickTime = currentTickTime;
+	const dt = currentTickTime - lastFrameTickTime;
+	lastFrameTickTime = currentTickTime;
 
-	world.frameTick();
-	postEvent({ name: "tick", dt });
+	world.frameTick(dt);
+}
+
+function logicTick() {
+	world.logicTick();
 }

@@ -8,12 +8,12 @@ import { HomeBase } from "./HomeBase";
 import { Unit, UnitProps } from "./Unit";
 
 export interface AircraftProps extends UnitProps {
-	aircraftType: DcsJs.AircraftType;
+	aircraftType: DcsJs.DCS.Aircraft;
 	homeBase: HomeBase;
 }
 
 export class Aircraft extends Unit {
-	public aircraftType: DcsJs.AircraftType;
+	public aircraftType: DcsJs.DCS.Aircraft;
 	public flightGroup: FlightGroup | undefined = undefined;
 	public homeBase: HomeBase;
 
@@ -61,7 +61,7 @@ export class Aircraft extends Unit {
 
 			Array.from({ length: count }).forEach(() => {
 				new Aircraft({
-					aircraftType,
+					aircraftType: aircraft,
 					coalition: args.coalition,
 					homeBase: args.homeBase,
 				});

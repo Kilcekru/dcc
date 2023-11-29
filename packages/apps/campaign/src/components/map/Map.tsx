@@ -87,49 +87,62 @@ export const MapContainer = () => {
 	let mapDiv: HTMLDivElement;
 	let workerSubscription: { dispose: () => void } | undefined;
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
-	const markers: Map<Types.Campaign.MapItem, L.Marker | L.Circle | L.CircleMarker | L.Polyline> = new Map();
+	const markers: Map<string, L.Marker | L.Circle | L.CircleMarker | L.Polyline> = new Map();
 	const positionToMapPosition = usePositionToMapPosition();
 
 	onMount(() => {
-		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) =>
-			onMapUpdate(event.items),
-		);
+		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
+			onMapUpdate(event.items);
+		});
 	});
 
 	onCleanup(() => {
 		workerSubscription?.dispose();
 	});
 
-	function onMapUpdate(items: Set<Types.Campaign.MapItem>) {
-		if (leaftletMap() == null) {
-			const [item] = items;
+	function initializeMap(items: Map<string, Types.Campaign.MapItem>) {
+		const [item] = items;
 
-			if (item == null) {
-				return;
-			}
-
-			const firstPosition = positionToMapPosition(item.position);
-			setMap(L.map(mapDiv).setView(firstPosition, 8));
+		if (item == null) {
+			return;
 		}
-		for (const [item, marker] of markers.entries()) {
-			if (items.has(item)) {
+
+		const firstPosition = positionToMapPosition(item[1].position);
+
+		const m = L.map(mapDiv).setView(firstPosition, 8);
+
+		// Create Tile Layer
+		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		}).addTo(m);
+
+		setMap(m);
+	}
+
+	function onMapUpdate(items: Map<string, Types.Campaign.MapItem>) {
+		if (leaftletMap() == null) {
+			initializeMap(items);
+		}
+
+		for (const [id, marker] of markers.entries()) {
+			if (items.has(id)) {
 				continue;
 			}
 
 			deleteMarker(marker);
-			markers.delete(item);
+			markers.delete(id);
 		}
 
-		for (const item of items) {
-			if (markers.has(item)) {
+		for (const [id, item] of items) {
+			if (markers.has(id)) {
 				continue;
 			}
 
-			addMarker(item);
+			addMarker(id, item);
 		}
 	}
 
-	function addMarker(item: Types.Campaign.MapItem) {
+	function addMarker(id: string, item: Types.Campaign.MapItem) {
 		const map = leaftletMap();
 
 		if (map == null) {
@@ -169,7 +182,7 @@ export const MapContainer = () => {
 
 		const marker = L.marker(mapPosition, { icon, riseOnHover, zIndexOffset: riseOnHover ? 100 : 0 }).addTo(map);
 
-		markers.set(item, marker);
+		markers.set(id, marker);
 	}
 
 	function deleteMarker(marker: L.Marker | L.Circle | L.CircleMarker | L.Polyline | undefined) {

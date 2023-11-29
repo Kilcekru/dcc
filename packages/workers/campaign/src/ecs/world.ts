@@ -3,6 +3,8 @@ import * as Types from "@kilcekru/dcc-shared-types";
 
 import { postEvent } from "../events";
 import * as Entities from "./entities";
+import { SuperSet } from "./SuperSet";
+import { frameTickSystems, logicTickSystems } from "./systems";
 import { generateObjectivePlans } from "./utils";
 
 export type Faction = {
@@ -14,6 +16,7 @@ export type Faction = {
 };
 
 export type QueryNames = keyof World["queries"];
+const taskSubQueries = ["CAP"] as const;
 
 export class World {
 	#coalitions: Record<DcsJs.Coalition, Faction> = {
@@ -39,10 +42,13 @@ export class World {
 			structures: new Set(),
 		},
 	};
+	public time = 32400000; // 09:00 in milliseconds
 	public objectives: Map<string, Entities.Objective> = new Map();
+
 	public queries: {
 		airdromes: Record<DcsJs.Coalition, Set<Entities.Airdrome>>;
-		flightGroups: Record<DcsJs.Coalition, Set<Entities.FlightGroup>>;
+		packages: Record<DcsJs.Coalition, SuperSet<Entities.Package, (typeof taskSubQueries)[number]>>;
+		flightGroups: Record<DcsJs.Coalition, SuperSet<Entities.FlightGroup, (typeof taskSubQueries)[number]>>;
 		groundGroups: Record<DcsJs.Coalition, Set<Entities.GroundGroup>>;
 		aircrafts: Record<DcsJs.Coalition, Set<Entities.Aircraft>>;
 		structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
@@ -54,10 +60,15 @@ export class World {
 			red: new Set(),
 			neutrals: new Set(),
 		},
+		packages: {
+			blue: new SuperSet(["CAP"]),
+			red: new SuperSet(["CAP"]),
+			neutrals: new SuperSet(["CAP"]),
+		},
 		flightGroups: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
+			blue: new SuperSet(["CAP"]),
+			red: new SuperSet(["CAP"]),
+			neutrals: new SuperSet(["CAP"]),
 		},
 		groundGroups: {
 			blue: new Set(),
@@ -88,6 +99,21 @@ export class World {
 	};
 
 	#dataStore: Types.Campaign.DataStore | undefined;
+
+	constructor() {
+		this.queries.flightGroups.blue.subscribe(() => {
+			const items: Set<Types.Campaign.FlightGroupItem> = new Set();
+
+			for (const fg of this.queries.flightGroups.blue) {
+				items.add(fg.toJSON());
+			}
+
+			postEvent({
+				name: "blueFlightGroupsUpdate",
+				items,
+			});
+		});
+	}
 
 	public get dataStore() {
 		return this.#dataStore;
@@ -135,13 +161,22 @@ export class World {
 
 		// eslint-disable-next-line no-console
 		console.log("world", this);
+
+		this.timeUpdate();
+		this.mapUpdate();
 	}
 
+	public timeUpdate() {
+		postEvent({
+			name: "timeUpdate",
+			time: this.time,
+		});
+	}
 	public mapUpdate() {
-		const items: Set<Types.Campaign.MapItem> = new Set();
+		const items: Map<string, Types.Campaign.MapItem> = new Map();
 
 		for (const entity of this.queries.mapEntities) {
-			items.add(entity.toMapJSON());
+			items.set(entity.id, entity.toMapJSON());
 		}
 
 		postEvent({
@@ -158,111 +193,18 @@ export class World {
 	}
 
 	public logicTick() {
-		null;
+		logicTickSystems();
+
+		this.timeUpdate();
 	}
 
-	public frameTick() {
-		// eslint-disable-next-line no-console
-		console.log("frameTick");
+	public frameTick(deltaMs: number) {
+		world.time += deltaMs;
+
+		frameTickSystems();
+
+		this.mapUpdate();
 	}
 }
 
 export const world = new World();
-
-class SuperSet<T, SubSet extends string> extends Set<T> {
-	#subSets: Record<SubSet, Set<T>>;
-
-	constructor(subSets: Array<SubSet>) {
-		super();
-
-		this.#subSets = {} as Record<SubSet, Set<T>>;
-
-		for (const subSet of subSets) {
-			this.#subSets[subSet] = new Set();
-		}
-	}
-
-	static create<T>(subSets: Array<string>) {
-		return new SuperSet<T, (typeof subSets)[number]>(subSets);
-	}
-
-	public override add(item: T, subSets?: Array<SubSet>) {
-		super.add(item);
-
-		subSets?.forEach((subSet) => {
-			this.#subSets[subSet]?.add(item);
-		});
-
-		return this;
-	}
-
-	public override delete(item: T) {
-		const retVal = super.delete(item);
-
-		for (const subSet of Object.values<Set<T>>(this.#subSets)) {
-			subSet.delete(item);
-		}
-
-		return retVal;
-	}
-
-	public override clear() {
-		super.clear();
-
-		for (const subSet of Object.values<Set<T>>(this.#subSets)) {
-			subSet.clear();
-		}
-	}
-
-	public override has(item: T, subSet?: SubSet) {
-		if (subSet == null) {
-			return super.has(item);
-		}
-
-		return this.#subSets[subSet].has(item);
-	}
-
-	public override values(subSet?: SubSet) {
-		if (subSet == null) {
-			return super.values();
-		}
-
-		return this.#subSets[subSet].values();
-	}
-
-	public override keys(subSet?: SubSet) {
-		if (subSet == null) {
-			return super.keys();
-		}
-
-		return this.#subSets[subSet].keys();
-	}
-
-	public override entries(subSet?: SubSet) {
-		if (subSet == null) {
-			return super.entries();
-		}
-
-		return this.#subSets[subSet].entries();
-	}
-
-	public override forEach(callbackfn: (value: T, value2: T, set: Set<T>) => void, subSet?: SubSet) {
-		if (subSet == null) {
-			return super.forEach(callbackfn);
-		}
-
-		return this.#subSets[subSet].forEach(callbackfn);
-	}
-
-	public sizeOf(subSet?: SubSet) {
-		if (subSet == null) {
-			return super.size;
-		}
-
-		return this.#subSets[subSet].size;
-	}
-}
-
-const ss = SuperSet.create<string>(["a", "b", "c"]);
-
-ss.add("a", ["e"]);

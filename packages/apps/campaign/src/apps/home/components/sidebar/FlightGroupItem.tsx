@@ -1,18 +1,10 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { cnb } from "cnbuilder";
-import { createMemo, For, Show, useContext } from "solid-js";
+import * as Types from "@kilcekru/dcc-shared-types";
 
-import { CampaignContext, FlightGroupButtons } from "../../../../components";
-import { useDataStore } from "../../../../components/DataProvider";
-import { OverlaySidebarContext } from "../overlay-sidebar";
 import Styles from "./FlightGroupItem.module.less";
 
-export const FlightGroupItem = (props: {
-	flightGroup: DcsJs.FlightGroup;
-	faction: DcsJs.CampaignFaction | undefined;
-}) => {
-	const [state, { selectFlightGroup }] = useContext(CampaignContext);
+export const FlightGroupItem = (props: { flightGroup: Types.Campaign.FlightGroupItem }) => {
+	/* const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	const [, { openFlightGroup }] = useContext(OverlaySidebarContext);
 
@@ -88,6 +80,20 @@ export const FlightGroupItem = (props: {
 								</>
 							)}
 						</For>
+					</div>
+				</div>
+			</Components.Card>
+		</Components.ListItem>
+	); */
+
+	return (
+		<Components.ListItem class={Styles.item}>
+			<Components.Card class={Styles.card}>
+				<div class={Styles.name}>{props.flightGroup.name}</div>
+				<div class={Styles.stats}>
+					<div>
+						<p class={Styles.label}>Start</p>
+						<Components.Clock value={props.flightGroup.startTime} />
 					</div>
 				</div>
 			</Components.Card>

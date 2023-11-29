@@ -1,4 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Coalition } from "../components";
 import { QueryNames, world } from "../world";
@@ -15,8 +16,10 @@ export class Entity implements Coalition {
 	world = world;
 	#queries: Array<QueryNames> = [];
 	coalition: DcsJs.Coalition;
+	id: string;
 
 	constructor(args: EntityProps) {
+		this.id = crypto.randomUUID();
 		this.coalition = args.coalition;
 		this.#queries = args.queries ?? [];
 
@@ -45,5 +48,12 @@ export class Entity implements Coalition {
 				q.delete(this);
 			}
 		}
+	}
+
+	toJSON(): Types.Campaign.EntityItem {
+		return {
+			coalition: this.coalition,
+			id: this.id,
+		};
 	}
 }
