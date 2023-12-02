@@ -15,4 +15,12 @@ export class Building {
 		this.alive = args.alive;
 		this.offset = args.offset;
 	}
+
+	toJSON() {
+		return {
+			name: this.name,
+			alive: this.alive,
+			offset: this.offset,
+		};
+	}
 }

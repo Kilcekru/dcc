@@ -6,7 +6,7 @@ import { pauseTicker, resumeTicker } from "./ticker";
 addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 	switch (e.data.name) {
 		case "resume": {
-			resumeTicker();
+			resumeTicker(e.data.payload);
 			break;
 		}
 		case "pause": {

@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Position } from "../components";
-import { QueryNames } from "../world";
+import { QueryKey } from "../world";
 import { Entity } from "./Entity";
 
 export interface GroupProps {
@@ -13,10 +13,12 @@ export interface GroupProps {
 export class MapEntity extends Entity implements Position {
 	public position: DcsJs.Position;
 
-	public constructor(args: GroupProps & { queries: Array<QueryNames> }) {
+	public constructor(args: GroupProps & { queries: Set<QueryKey> }) {
+		args.queries.add("mapEntities");
+
 		super({
 			coalition: args.coalition,
-			queries: (args.queries ?? []).concat(["mapEntities"]),
+			queries: args.queries,
 		});
 
 		this.position = args.position;

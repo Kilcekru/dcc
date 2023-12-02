@@ -38,4 +38,12 @@ export class Objective implements Coalition, Position {
 			});
 		}
 	}
+
+	toJSON() {
+		return {
+			name: this.name,
+			coalition: this.coalition,
+			position: this.position,
+		};
+	}
 }

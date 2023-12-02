@@ -101,6 +101,8 @@ export type Scenario = {
 	red: ScenarioCoalition;
 };
 
+export type Id = string;
+
 export type StructureMapItem = {
 	name: string;
 	type: "structure";
@@ -116,6 +118,14 @@ export type AirdromeMapItem = {
 	position: DcsJs.Position;
 };
 
+export type FlightGroupMapItem = {
+	name: string;
+	type: "flightGroup";
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+	task: DcsJs.Task;
+};
+
 export type GroundGroupMapItem = {
 	name: string;
 	type: "groundGroup";
@@ -129,21 +139,60 @@ export type MapEntityMapItem = {
 	position: DcsJs.Position;
 };
 
-export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem;
+export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem | FlightGroupMapItem;
 
 export type EntityItem = {
 	id: string;
 	coalition: DcsJs.Coalition;
 };
 
+export type AircraftItem = EntityItem & {
+	aircraftType: DcsJs.AircraftType;
+	homeBase: Id;
+	flightGroup: Id | undefined;
+	displayName: string;
+	isClient: boolean;
+};
+
+export type WaypointItem = {
+	name: string;
+	position: DcsJs.Position;
+	onGround: boolean;
+	duration: number | undefined;
+};
+
+export type FlightplanItem = Array<WaypointItem>;
+
 export type FlightGroupItem = EntityItem & {
 	startTime: number;
 	task: DcsJs.Task;
 	name: string;
+	aircrafts: Array<AircraftItem>;
+	flightplan: FlightplanItem;
+};
+
+export type GroundGroupItem = EntityItem & {
+	name: string;
+	start: string;
+	target: string;
+};
+
+export type BuildingItem = {
+	name: string;
+	alive: boolean;
+	offset: DcsJs.Position;
+};
+
+export type StructureItem = EntityItem & {
+	name: string;
+	objective: string;
+	type: DcsJs.StructureType;
+	state: DcsJs.StructureState;
+	buildings: Array<BuildingItem>;
 };
 
 export type WorkerMessage =
-	| { name: "resume" }
+	| { name: "resume"; payload: { multiplier: number } }
 	| { name: "pause" }
 	| {
 			name: "generate";

@@ -13,6 +13,11 @@ export const radiansToDegrees = (value: number) => {
 	return (degrees + 360) % 360;
 };
 
+export const degreesToRadians = (degrees: number) => {
+	// return parseFloat(((degrees * Math.PI) / 180).toFixed(2));
+	return (degrees / 360) * 2 * Math.PI;
+};
+
 export const positiveDegrees = (value: number) => {
 	return (value + 360) % 360;
 };
@@ -71,23 +76,28 @@ export const someInside = <T extends DcsJs.Position | { position: DcsJs.Position
 };
 
 export const findNearest = <T>(
-	values: Array<T> | undefined,
+	values: Array<T> | Set<T> | undefined,
 	sourcePosition: DcsJs.Position,
 	positionSelector: (value: T) => DcsJs.Position,
 ) => {
-	return values?.reduce(
-		([prevObj, prevDistance], v) => {
-			const position = positionSelector(v);
-			const distance = distanceToPosition(sourcePosition, position);
+	if (values == null) {
+		return;
+	}
 
-			if (distance < prevDistance) {
-				return [v, distance] as [T, number];
-			} else {
-				return [prevObj, prevDistance] as [T, number];
-			}
-		},
-		[undefined, 10000000] as [T, number],
-	)[0];
+	let selected: T | undefined = undefined;
+	let selectedDistance = 10000000;
+
+	for (const value of values) {
+		const position = positionSelector(value);
+		const distance = distanceToPosition(sourcePosition, position);
+
+		if (distance < selectedDistance) {
+			selected = value;
+			selectedDistance = distance;
+		}
+	}
+
+	return selected;
 };
 
 export const findFarthest = <T>(
@@ -122,4 +132,30 @@ export const objectToPosition = <T extends DcsJs.Position | { position: DcsJs.Po
 	} else {
 		return value.position;
 	}
+};
+
+export const positionFromHeading = (pos: DcsJs.Position, heading: number, distance: number): DcsJs.Position => {
+	let positiveHeading = heading;
+	while (positiveHeading < 0) {
+		positiveHeading += 360;
+	}
+
+	positiveHeading %= 360;
+
+	const radHeading = degreesToRadians(positiveHeading);
+
+	return {
+		x: pos.x + Math.cos(radHeading) * distance,
+		y: pos.y + Math.sin(radHeading) * distance,
+	};
+};
+
+export const addHeading = (heading: number, value: number) => {
+	let sum = heading + value;
+
+	while (sum < 0) {
+		sum += 360;
+	}
+
+	return sum % 360;
 };

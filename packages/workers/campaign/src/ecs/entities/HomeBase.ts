@@ -1,5 +1,5 @@
 import { Coalition, Position } from "../components";
-import { QueryNames } from "../world";
+import { QueryName } from "../world";
 import { Aircraft } from "./Aircraft";
 import { MapEntity } from "./MapEntity";
 
@@ -15,7 +15,7 @@ export class HomeBase extends MapEntity implements Coalition {
 	type: HomeBaseType;
 	aircrafts: Set<Aircraft> = new Set();
 
-	public constructor(args: HomeBaseProps & { queries: Array<QueryNames> }) {
+	public constructor(args: HomeBaseProps & { queries: Set<QueryName> }) {
 		super({
 			coalition: args.coalition,
 			queries: args.queries,
@@ -25,5 +25,14 @@ export class HomeBase extends MapEntity implements Coalition {
 		this.type = args.type;
 		this.coalition = args.coalition;
 		this.position = args.position;
+	}
+
+	override toJSON() {
+		return {
+			...super.toJSON(),
+			name: this.name,
+			type: this.type,
+			aircrafts: Array.from(this.aircrafts).map((aircraft) => aircraft.id),
+		};
 	}
 }

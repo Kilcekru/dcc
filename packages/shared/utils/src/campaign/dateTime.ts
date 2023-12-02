@@ -4,6 +4,14 @@ export function timerToDate(value: number) {
 	return d;
 }
 
+export function toSeconds(value: number) {
+	return value / 1000;
+}
+
+export const Seconds = (value: number) => {
+	return value * 1000;
+};
+
 export const Minutes = (value: number) => {
 	return value * 60 * 1000;
 };

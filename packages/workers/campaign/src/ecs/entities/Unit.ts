@@ -1,14 +1,14 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
 import { Coalition } from "../components";
-import { QueryNames } from "../world";
+import { QueryKey } from "../world";
 import { Entity } from "./Entity";
 
 export interface UnitProps {
 	coalition: DcsJs.Coalition;
 }
 export class Unit extends Entity implements Coalition {
-	public constructor(args: UnitProps & { queries: Array<QueryNames> }) {
+	public constructor(args: UnitProps & { queries: Set<QueryKey> }) {
 		super(args);
 	}
 }

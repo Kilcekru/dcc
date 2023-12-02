@@ -14,11 +14,9 @@ export class Airdrome extends HomeBase {
 	public frequencyList: number[];
 
 	public constructor(args: AirdromeProps) {
-		super({ ...args, type: "airdrome", queries: ["airdromes"] });
+		super({ ...args, type: "airdrome", queries: new Set(["airdromes"]) });
 		this.frequencyList = args.frequencyList;
 		this.name = args.name;
-
-		world.queries.airdromes[args.coalition].add(this);
 
 		Aircraft.generateAircraftsForAirdrome({
 			coalition: args.coalition,
@@ -48,6 +46,14 @@ export class Airdrome extends HomeBase {
 			...super.toMapJSON(),
 			coalition: this.coalition,
 			type: "airdrome",
+			name: this.name,
+		};
+	}
+
+	override toJSON() {
+		return {
+			...super.toJSON(),
+			frequencyList: this.frequencyList,
 			name: this.name,
 		};
 	}

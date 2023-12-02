@@ -3,7 +3,8 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Coalition, Position } from "../components";
-import { QueryNames, world } from "../world";
+import { calcInitDeploymentScore } from "../utils";
+import { QueryName, world } from "../world";
 import { Building } from "./Building";
 import { MapEntity } from "./MapEntity";
 import { Objective } from "./Objective";
@@ -22,11 +23,18 @@ export class Structure extends MapEntity implements Coalition, Position {
 	public state: DcsJs.StructureState = "active";
 	public buildings: Array<Building>;
 
-	public constructor(args: StructureProps & { queries?: Array<QueryNames> }) {
+	public constructor(args: StructureProps & { queries?: Set<QueryName> }) {
+		if (args.queries == null) {
+			args.queries = new Set();
+		}
+
+		args.queries.add("structures");
+		args.queries.add("mapEntities");
+
 		super({
 			coalition: args.coalition,
 			position: args.position,
-			queries: (args.queries ?? []).concat(["structures", "mapEntities"]),
+			queries: args.queries,
 		});
 		this.name = args.name;
 		this.objective = args.objective;
@@ -126,29 +134,17 @@ export class Structure extends MapEntity implements Coalition, Position {
 			structureType: this.type,
 		};
 	}
-}
 
-function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureType: DcsJs.StructureType) {
-	const margin = Utils.Random.number(0.8, 1.2);
-
-	switch (structureType) {
-		case "Barrack": {
-			return (
-				(Utils.Config.deploymentScore.frontline.barrack /
-					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
-				margin
-			);
-		}
-		case "Depot": {
-			return (
-				(Utils.Config.deploymentScore.frontline.depot /
-					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
-				margin
-			);
-		}
+	override toJSON(): Types.Campaign.StructureItem {
+		return {
+			...super.toJSON(),
+			name: this.name,
+			objective: this.objective.name,
+			type: this.type,
+			buildings: this.buildings.map((building) => building.toJSON()),
+			state: this.state,
+		};
 	}
-
-	return 0;
 }
 
 export interface UnitCampProps extends StructureProps {
@@ -160,7 +156,7 @@ export class UnitCamp extends Structure {
 	public override type: DcsJs.StructureTypeUnitCamp;
 
 	constructor(args: UnitCampProps) {
-		super({ ...args, queries: ["unitCamps"] });
+		super({ ...args, queries: new Set(["unitCamps"]) });
 		this.type = args.type;
 		this.deploymentScore = calcInitDeploymentScore(args.coalition, args.type);
 

@@ -10,6 +10,7 @@ type Config = {
 	packages: PerTask<{
 		maxActive: PerCoalition;
 		maxDistance: number;
+		aircrafts: number;
 	}>;
 	structureRange: {
 		power: number;
@@ -45,6 +46,11 @@ type Config = {
 		takeOff: number;
 	};
 	mapOrigin: Record<DcsJs.MapName, DcsJs.Position>;
+	defaults: {
+		cruiseSpeed: number;
+		a2aRangeMultiplier: number;
+		a2aCooldownDuration: number;
+	};
 	campaignVersion: number;
 };
 
@@ -62,14 +68,14 @@ export const Config: Config = {
 		},
 	},
 	packages: {
-		AWACS: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 300_000 },
-		"Pinpoint Strike": { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000 },
-		Escort: { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000 },
-		CAS: { maxActive: { blue: 3, red: 2, neutrals: 0 }, maxDistance: 100_000 },
-		DEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000 },
-		CSAR: { maxActive: { blue: 2, red: 2, neutrals: 1 }, maxDistance: 30_000 },
-		CAP: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 100_000 },
-		"Air Assault": { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 40_000 },
+		AWACS: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 300_000, aircrafts: 1 },
+		"Pinpoint Strike": { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000, aircrafts: 2 },
+		Escort: { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000, aircrafts: 2 },
+		CAS: { maxActive: { blue: 3, red: 2, neutrals: 0 }, maxDistance: 100_000, aircrafts: 2 },
+		DEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000, aircrafts: 2 },
+		CSAR: { maxActive: { blue: 2, red: 2, neutrals: 1 }, maxDistance: 30_000, aircrafts: 1 },
+		CAP: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 100_000, aircrafts: 2 },
+		"Air Assault": { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 40_000, aircrafts: 2 },
 	},
 	structureRange: {
 		power: 50_000,
@@ -129,6 +135,11 @@ export const Config: Config = {
 			x: -587.411551255995,
 			y: -56132.3249950192,
 		},
+	},
+	defaults: {
+		cruiseSpeed: 200,
+		a2aRangeMultiplier: 0.66,
+		a2aCooldownDuration: 30_000,
 	},
 	campaignVersion: 1,
 };

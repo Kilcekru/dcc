@@ -1,13 +1,16 @@
 import { world } from "./ecs";
 // import { postEvent } from "./events";
 
-let lastFrameTickTime: number;
+// let lastFrameTickTime: number;
 let frameTickInterval: number | undefined;
 let logicTickInterval: number | undefined;
+let multiplier = 1;
 
-export function resumeTicker() {
+export function resumeTicker(args: { multiplier: number }) {
+	multiplier = args.multiplier;
+
 	if (frameTickInterval == null) {
-		lastFrameTickTime = Date.now();
+		// lastFrameTickTime = Date.now();
 		frameTickInterval = setInterval(tick, 16);
 	}
 
@@ -29,11 +32,11 @@ export function pauseTicker() {
 }
 
 function tick() {
-	const currentTickTime = Date.now();
-	const dt = currentTickTime - lastFrameTickTime;
-	lastFrameTickTime = currentTickTime;
+	// const currentTickTime = Date.now();
+	// const dt = currentTickTime - lastFrameTickTime;
+	// lastFrameTickTime = currentTickTime;
 
-	world.frameTick(dt);
+	world.frameTick(16, multiplier);
 }
 
 function logicTick() {

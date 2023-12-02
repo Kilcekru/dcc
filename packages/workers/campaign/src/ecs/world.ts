@@ -15,8 +15,11 @@ export type Faction = {
 	structures: Set<Entities.Structure>;
 };
 
-export type QueryNames = keyof World["queries"];
-const taskSubQueries = ["CAP"] as const;
+export type QueryName = keyof World["queries"];
+export type QueryKey = QueryName | `${QueryName}-${string}`;
+
+const taskSubQueries = ["CAP"];
+const aircraftSubQueries = ["idle", "in use"];
 
 export class World {
 	#coalitions: Record<DcsJs.Coalition, Faction> = {
@@ -50,7 +53,7 @@ export class World {
 		packages: Record<DcsJs.Coalition, SuperSet<Entities.Package, (typeof taskSubQueries)[number]>>;
 		flightGroups: Record<DcsJs.Coalition, SuperSet<Entities.FlightGroup, (typeof taskSubQueries)[number]>>;
 		groundGroups: Record<DcsJs.Coalition, Set<Entities.GroundGroup>>;
-		aircrafts: Record<DcsJs.Coalition, Set<Entities.Aircraft>>;
+		aircrafts: Record<DcsJs.Coalition, SuperSet<Entities.Aircraft, (typeof aircraftSubQueries)[number]>>;
 		structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
 		unitCamps: Record<DcsJs.Coalition, Set<Entities.Structure>>;
 		mapEntities: Set<Entities.MapEntity>;
@@ -61,14 +64,14 @@ export class World {
 			neutrals: new Set(),
 		},
 		packages: {
-			blue: new SuperSet(["CAP"]),
-			red: new SuperSet(["CAP"]),
-			neutrals: new SuperSet(["CAP"]),
+			blue: new SuperSet(taskSubQueries),
+			red: new SuperSet(taskSubQueries),
+			neutrals: new SuperSet(taskSubQueries),
 		},
 		flightGroups: {
-			blue: new SuperSet(["CAP"]),
-			red: new SuperSet(["CAP"]),
-			neutrals: new SuperSet(["CAP"]),
+			blue: new SuperSet(taskSubQueries),
+			red: new SuperSet(taskSubQueries),
+			neutrals: new SuperSet(taskSubQueries),
 		},
 		groundGroups: {
 			blue: new Set(),
@@ -76,9 +79,9 @@ export class World {
 			neutrals: new Set(),
 		},
 		aircrafts: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
+			blue: new SuperSet(aircraftSubQueries),
+			red: new SuperSet(aircraftSubQueries),
+			neutrals: new SuperSet(aircraftSubQueries),
 		},
 		structures: {
 			blue: new Set(),
@@ -99,21 +102,6 @@ export class World {
 	};
 
 	#dataStore: Types.Campaign.DataStore | undefined;
-
-	constructor() {
-		this.queries.flightGroups.blue.subscribe(() => {
-			const items: Set<Types.Campaign.FlightGroupItem> = new Set();
-
-			for (const fg of this.queries.flightGroups.blue) {
-				items.add(fg.toJSON());
-			}
-
-			postEvent({
-				name: "blueFlightGroupsUpdate",
-				items,
-			});
-		});
-	}
 
 	public get dataStore() {
 		return this.#dataStore;
@@ -184,26 +172,31 @@ export class World {
 			items,
 		});
 	}
+	public flightGroupsUpdate() {
+		const items: Set<Types.Campaign.FlightGroupItem> = new Set();
 
-	public createPackage(args: Entities.PackageProps) {
-		const pkg = new Entities.Package({ coalition: args.coalition, task: args.task });
-		this.#coalitions[args.coalition].packages.add(pkg);
+		for (const fg of this.queries.flightGroups.blue) {
+			items.add(fg.toJSON());
+		}
 
-		return pkg;
+		postEvent({
+			name: "blueFlightGroupsUpdate",
+			items,
+		});
 	}
 
 	public logicTick() {
 		logicTickSystems();
-
-		this.timeUpdate();
 	}
 
-	public frameTick(deltaMs: number) {
-		world.time += deltaMs;
+	public frameTick(tickDelta: number, multiplier: number) {
+		const worldDelta = tickDelta * multiplier;
+		world.time += worldDelta;
 
-		frameTickSystems();
+		frameTickSystems(worldDelta);
 
 		this.mapUpdate();
+		this.timeUpdate();
 	}
 }
 

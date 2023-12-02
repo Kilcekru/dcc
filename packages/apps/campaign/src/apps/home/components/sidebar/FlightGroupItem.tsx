@@ -1,5 +1,7 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
+import { cnb } from "cnbuilder";
+import { For } from "solid-js";
 
 import Styles from "./FlightGroupItem.module.less";
 
@@ -94,6 +96,22 @@ export const FlightGroupItem = (props: { flightGroup: Types.Campaign.FlightGroup
 					<div>
 						<p class={Styles.label}>Start</p>
 						<Components.Clock value={props.flightGroup.startTime} />
+					</div>
+				</div>
+				<div class={Styles["aircrafts-wrapper"]}>
+					<p class={Styles.label}>Aircraft</p>
+					<div class={Styles.aircrafts}>
+						<For each={props.flightGroup.aircrafts}>
+							{(aircraft) => (
+								<>
+									<div class={cnb(aircraft.isClient ? Styles["is-client"] : null)}>Callsign</div>
+									<div class={cnb(aircraft.isClient ? Styles["is-client"] : null)}>{aircraft.displayName}</div>
+									<div class={cnb(aircraft.isClient ? Styles["is-client"] : null)}>
+										{aircraft.isClient ? "Player" : ""}
+									</div>
+								</>
+							)}
+						</For>
 					</div>
 				</div>
 			</Components.Card>

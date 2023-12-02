@@ -1,9 +1,11 @@
+import { Entity } from "./entities";
+
 export type Listener<T> = (item: T) => void;
 export type Subscription = {
 	dispose: () => void;
 };
 
-export class SuperSet<T, SubSet extends string> extends Set<T> {
+export class SuperSet<T extends Entity, SubSet extends string> extends Set<T> {
 	#subSets: Record<SubSet, Set<T>>;
 	#listeners: Set<Listener<Set<T>>> = new Set();
 
@@ -17,7 +19,7 @@ export class SuperSet<T, SubSet extends string> extends Set<T> {
 		}
 	}
 
-	static create<T>(subSets: Array<string>) {
+	static create<T extends Entity>(subSets: Array<string>) {
 		return new SuperSet<T, (typeof subSets)[number]>(subSets);
 	}
 
@@ -109,6 +111,46 @@ export class SuperSet<T, SubSet extends string> extends Set<T> {
 		return {
 			dispose: () => this.#listeners.delete(listener),
 		};
+	}
+
+	public get(subSet?: SubSet) {
+		if (subSet == null) {
+			return this;
+		}
+		return this.#subSets[subSet];
+	}
+
+	public moveSubSet(item: T, from: SubSet, to: SubSet) {
+		this.#subSets[from].delete(item);
+		this.#subSets[to].add(item);
+	}
+
+	public difference(other: Set<Entity>, subSet?: SubSet) {
+		const retVal = new Set<T>();
+
+		const a = subSet == null ? this : this.#subSets[subSet];
+
+		for (const item of a) {
+			if (!other.has(item)) {
+				retVal.add(item);
+			}
+		}
+
+		return retVal;
+	}
+
+	public intersection(other: Set<Entity>, subSet?: SubSet) {
+		const retVal = new Set<T>();
+
+		const a = subSet == null ? this : this.#subSets[subSet];
+
+		for (const item of a) {
+			if (other.has(item)) {
+				retVal.add(item);
+			}
+		}
+
+		return retVal;
 	}
 
 	#notify() {

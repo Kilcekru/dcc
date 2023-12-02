@@ -1,6 +1,7 @@
 import "./Map.less";
 import "leaflet/dist/leaflet.css";
 
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import L from "leaflet";
 import MilSymbol from "milsymbol";
@@ -39,35 +40,36 @@ type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 
 function getUnitCode(item: Types.Campaign.MapItem): SidcUnitCodeKey {
 	if (item.type === "structure") {
-		let unitCode: SidcUnitCodeKey = "installation";
-
 		switch (item.structureType) {
 			case "Fuel Storage":
-				unitCode = "fuelStorage";
-				break;
+				return "fuelStorage";
 			case "Power Plant":
-				unitCode = "powerPlant";
-				break;
+				return "powerPlant";
 			case "Depot":
-				unitCode = "depot";
-				break;
+				return "depot";
 			case "Ammo Depot":
-				unitCode = "ammoDepot";
-				break;
+				return "ammoDepot";
 			case "Hospital":
-				unitCode = "hospital";
-				break;
+				return "hospital";
 			case "Farp":
-				unitCode = "militaryBase";
-				break;
+				return "militaryBase";
 			case "Barrack":
-				unitCode = "transport";
-				break;
+				return "transport";
+			default:
+				return "installation";
 		}
-
-		return unitCode;
 	} else if (item.type === "airdrome") {
 		return "airport";
+	} else if (item.type === "flightGroup") {
+		switch (item.task) {
+			case "CAS":
+			case "Pinpoint Strike":
+				return "attack";
+			case "CSAR":
+				return "csar";
+			default:
+				return "fighter";
+		}
 	} else {
 		return "waypoint";
 	}
@@ -78,16 +80,24 @@ function getDomain(item: Types.Campaign.MapItem): "air" | "ground" | "sea" {
 		case "structure":
 		case "airdrome":
 			return "ground";
+		case "flightGroup":
+			return "air";
 		default:
 			return "sea";
 	}
 }
 
+type MarkerItem = {
+	marker: L.Marker;
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+};
+
 export const MapContainer = () => {
 	let mapDiv: HTMLDivElement;
 	let workerSubscription: { dispose: () => void } | undefined;
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
-	const markers: Map<string, L.Marker | L.Circle | L.CircleMarker | L.Polyline> = new Map();
+	const markers: Map<string, MarkerItem> = new Map();
 	const positionToMapPosition = usePositionToMapPosition();
 
 	onMount(() => {
@@ -124,21 +134,37 @@ export const MapContainer = () => {
 			initializeMap(items);
 		}
 
-		for (const [id, marker] of markers.entries()) {
+		// Check if any markers need to be deleted
+		for (const [id, item] of markers.entries()) {
 			if (items.has(id)) {
 				continue;
 			}
 
-			deleteMarker(marker);
-			markers.delete(id);
+			deleteMarker(id, item.marker);
 		}
 
+		// Check if any markers need to be added
 		for (const [id, item] of items) {
-			if (markers.has(id)) {
+			if (!markers.has(id)) {
+				addMarker(id, item);
 				continue;
 			}
 
-			addMarker(id, item);
+			const m = markers.get(id);
+
+			if (m == null) {
+				// eslint-disable-next-line no-console
+				console.warn("Marker not found");
+				continue;
+			}
+
+			if (m.position.x !== item.position.x || m.position.y !== item.position.y) {
+				updatePosition(id, m, item.position);
+			}
+
+			if (m.coalition !== item.coalition) {
+				updateCoalition(id, item);
+			}
 		}
 	}
 
@@ -182,10 +208,14 @@ export const MapContainer = () => {
 
 		const marker = L.marker(mapPosition, { icon, riseOnHover, zIndexOffset: riseOnHover ? 100 : 0 }).addTo(map);
 
-		markers.set(id, marker);
+		markers.set(id, {
+			marker,
+			coalition: item.coalition,
+			position: item.position,
+		});
 	}
 
-	function deleteMarker(marker: L.Marker | L.Circle | L.CircleMarker | L.Polyline | undefined) {
+	function deleteMarker(id: Types.Campaign.Id, marker: L.Marker | L.Circle | L.CircleMarker | L.Polyline | undefined) {
 		const map = leaftletMap();
 
 		if (map == null || marker == null) {
@@ -195,7 +225,20 @@ export const MapContainer = () => {
 		if (map.hasLayer(marker)) {
 			map.removeLayer(marker);
 		}
+
+		markers.delete(id);
 	}
 
+	function updatePosition(id: Types.Campaign.Id, item: MarkerItem, position: DcsJs.Position) {
+		const mapPosition = positionToMapPosition(position);
+
+		item.marker.setLatLng?.(mapPosition);
+		item.position = position;
+	}
+
+	function updateCoalition(id: Types.Campaign.Id, item: Types.Campaign.MapItem) {
+		deleteMarker(id, markers.get(id)?.marker);
+		addMarker(id, item);
+	}
 	return <div class="map" ref={(el) => (mapDiv = el)} />;
 };

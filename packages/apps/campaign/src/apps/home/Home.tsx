@@ -101,6 +101,7 @@ export const Home = () => {
 		} else if (state.active) {
 			sendWorkerMessage({
 				name: "resume",
+				payload: { multiplier: state.multiplier },
 			});
 			// startInterval();
 		}
