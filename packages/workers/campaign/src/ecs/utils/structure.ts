@@ -7,16 +7,14 @@ export function calcInitDeploymentScore(coalition: DcsJs.Coalition, structureTyp
 	switch (structureType) {
 		case "Barrack": {
 			return (
-				(Utils.Config.deploymentScore.frontline.barrack /
-					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
-				margin
+				Utils.Config.deploymentScore.frontline.barrack *
+				(Utils.Config.deploymentScore.frontline.initialFactor[coalition] * margin)
 			);
 		}
 		case "Depot": {
 			return (
-				(Utils.Config.deploymentScore.frontline.depot /
-					Utils.Config.deploymentScore.frontline.initialFactor[coalition]) *
-				margin
+				Utils.Config.deploymentScore.frontline.depot *
+				(Utils.Config.deploymentScore.frontline.initialFactor[coalition] * margin)
 			);
 		}
 	}

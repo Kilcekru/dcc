@@ -70,6 +70,14 @@ function getUnitCode(item: Types.Campaign.MapItem): SidcUnitCodeKey {
 			default:
 				return "fighter";
 		}
+	} else if (item.type === "groundGroup") {
+		switch (item.groundGroupType) {
+			case "infantry":
+				return "infantry";
+			default:
+				return "armor";
+		}
+		return "armor";
 	} else {
 		return "waypoint";
 	}
@@ -79,6 +87,7 @@ function getDomain(item: Types.Campaign.MapItem): "air" | "ground" | "sea" {
 	switch (item.type) {
 		case "structure":
 		case "airdrome":
+		case "groundGroup":
 			return "ground";
 		case "flightGroup":
 			return "air";

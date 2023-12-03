@@ -20,6 +20,7 @@ export type QueryKey = QueryName | `${QueryName}-${string}`;
 
 const taskSubQueries = ["CAP"];
 const aircraftSubQueries = ["idle", "in use"];
+const groundGroupSubQueries = ["en route"];
 
 export class World {
 	#coalitions: Record<DcsJs.Coalition, Faction> = {
@@ -46,16 +47,18 @@ export class World {
 		},
 	};
 	public time = 32400000; // 09:00 in milliseconds
+	public multiplier = 1;
 	public objectives: Map<string, Entities.Objective> = new Map();
 
 	public queries: {
 		airdromes: Record<DcsJs.Coalition, Set<Entities.Airdrome>>;
 		packages: Record<DcsJs.Coalition, SuperSet<Entities.Package, (typeof taskSubQueries)[number]>>;
 		flightGroups: Record<DcsJs.Coalition, SuperSet<Entities.FlightGroup, (typeof taskSubQueries)[number]>>;
-		groundGroups: Record<DcsJs.Coalition, Set<Entities.GroundGroup>>;
+		groundGroups: Record<DcsJs.Coalition, SuperSet<Entities.GroundGroup, (typeof groundGroupSubQueries)[number]>>;
 		aircrafts: Record<DcsJs.Coalition, SuperSet<Entities.Aircraft, (typeof aircraftSubQueries)[number]>>;
+		groundUnits: Record<DcsJs.Coalition, Set<Entities.GroundUnit>>;
 		structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
-		unitCamps: Record<DcsJs.Coalition, Set<Entities.Structure>>;
+		unitCamps: Record<DcsJs.Coalition, Set<Entities.UnitCamp>>;
 		mapEntities: Set<Entities.MapEntity>;
 	} = {
 		airdromes: {
@@ -74,14 +77,19 @@ export class World {
 			neutrals: new SuperSet(taskSubQueries),
 		},
 		groundGroups: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
+			blue: new SuperSet(groundGroupSubQueries),
+			red: new SuperSet(groundGroupSubQueries),
+			neutrals: new SuperSet(groundGroupSubQueries),
 		},
 		aircrafts: {
 			blue: new SuperSet(aircraftSubQueries),
 			red: new SuperSet(aircraftSubQueries),
 			neutrals: new SuperSet(aircraftSubQueries),
+		},
+		groundUnits: {
+			blue: new Set(),
+			red: new Set(),
+			neutrals: new Set(),
 		},
 		structures: {
 			blue: new Set(),
@@ -137,12 +145,22 @@ export class World {
 		// Create objectives
 		Entities.Objective.generate({ blueOps, redOps });
 
+		// Create structures
 		Entities.Structure.generate({
 			coalition: "blue",
 			objectivePlans: blueOps,
 		});
-
 		Entities.Structure.generate({
+			coalition: "red",
+			objectivePlans: redOps,
+		});
+
+		// Create ground groups
+		Entities.GroundGroup.generate({
+			coalition: "blue",
+			objectivePlans: blueOps,
+		});
+		Entities.GroundGroup.generate({
 			coalition: "red",
 			objectivePlans: redOps,
 		});
@@ -192,6 +210,7 @@ export class World {
 	public frameTick(tickDelta: number, multiplier: number) {
 		const worldDelta = tickDelta * multiplier;
 		world.time += worldDelta;
+		world.multiplier = multiplier;
 
 		frameTickSystems(worldDelta);
 

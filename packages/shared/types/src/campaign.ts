@@ -101,6 +101,8 @@ export type Scenario = {
 	red: ScenarioCoalition;
 };
 
+export type GroundUnitCategory = DcsJs.CampaignGroundGroupType | "air defense";
+
 export type Id = string;
 
 export type StructureMapItem = {
@@ -131,6 +133,7 @@ export type GroundGroupMapItem = {
 	type: "groundGroup";
 	coalition: DcsJs.Coalition;
 	position: DcsJs.Position;
+	groundGroupType: DcsJs.CampaignGroundGroupType;
 };
 
 export type MapEntityMapItem = {
@@ -140,6 +143,13 @@ export type MapEntityMapItem = {
 };
 
 export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem | FlightGroupMapItem;
+
+export type ObjectiveItem = {
+	name: string;
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+	incomingGroundGroup: Id | undefined;
+};
 
 export type EntityItem = {
 	id: string;
@@ -171,10 +181,19 @@ export type FlightGroupItem = EntityItem & {
 	flightplan: FlightplanItem;
 };
 
+export type GroundUnitItem = EntityItem & {
+	name: string;
+	alive: boolean;
+	category: GroundUnitCategory;
+};
+
 export type GroundGroupItem = EntityItem & {
 	name: string;
 	start: string;
 	target: string;
+	units: Array<GroundUnitItem>;
+	shoradUnits: Array<GroundUnitItem>;
+	type: DcsJs.CampaignGroundGroupType;
 };
 
 export type BuildingItem = {

@@ -1,13 +1,16 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import { DynamicObjectivePlan } from "../../../../../apps/campaign/src/logic/createCampaign/utils";
 import { Coalition, Position } from "../components";
 import { world } from "../world";
+import { GroundGroup } from "./GroundGroup";
 
 export class Objective implements Coalition, Position {
 	public name: string;
 	public coalition: DcsJs.Coalition;
 	public position: DcsJs.Position;
+	public incomingGroundGroup: GroundGroup | undefined;
 
 	public constructor(args: { name: string; coalition: DcsJs.Coalition; position: DcsJs.Position }) {
 		this.name = args.name;
@@ -39,11 +42,12 @@ export class Objective implements Coalition, Position {
 		}
 	}
 
-	toJSON() {
+	toJSON(): Types.Campaign.ObjectiveItem {
 		return {
 			name: this.name,
 			coalition: this.coalition,
 			position: this.position,
+			incomingGroundGroup: this.incomingGroundGroup?.id,
 		};
 	}
 }

@@ -3,6 +3,7 @@ export * from "./Airdrome";
 export * from "./Entity";
 export * from "./FlightGroup";
 export * from "./GroundGroup";
+export * from "./GroundUnit";
 export * from "./HomeBase";
 export * from "./MapEntity";
 export * from "./Objective";

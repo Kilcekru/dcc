@@ -100,7 +100,7 @@ export const Config: Config = {
 		frontline: {
 			barrack: 60_000,
 			depot: 50_000,
-			initialFactor: { blue: 0.75, red: 0.1, neutrals: 0 },
+			initialFactor: { blue: 0.4, red: 0.1, neutrals: 0 },
 		},
 		repair: 100_000,
 		coalitionMultiplier: {

@@ -159,3 +159,7 @@ export const addHeading = (heading: number, value: number) => {
 
 	return sum % 360;
 };
+
+export function inRange(sourcePosition: DcsJs.Position, targetPosition: DcsJs.Position, range: number) {
+	return distanceToPosition(sourcePosition, targetPosition) <= range;
+}

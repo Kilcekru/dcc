@@ -23,6 +23,16 @@ export class Structure extends MapEntity implements Coalition, Position {
 	public state: DcsJs.StructureState = "active";
 	public buildings: Array<Building>;
 
+	get alive() {
+		for (const building of this.buildings) {
+			if (building.alive) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public constructor(args: StructureProps & { queries?: Set<QueryName> }) {
 		if (args.queries == null) {
 			args.queries = new Set();
@@ -154,6 +164,57 @@ export interface UnitCampProps extends StructureProps {
 export class UnitCamp extends Structure {
 	public deploymentScore: number;
 	public override type: DcsJs.StructureTypeUnitCamp;
+
+	get range() {
+		return this.type === "Barrack"
+			? Utils.Config.structureRange.frontline.barrack
+			: Utils.Config.structureRange.frontline.depot;
+	}
+
+	get deploymentCost() {
+		const baseline =
+			this.type === "Barrack"
+				? Utils.Config.deploymentScore.frontline.barrack
+				: Utils.Config.deploymentScore.frontline.depot;
+
+		return baseline * Utils.Config.deploymentScore.coalitionMultiplier[this.coalition];
+	}
+
+	get hasPower() {
+		for (const structure of world.queries.structures[this.coalition]) {
+			if (structure.type === "Power Plant" && structure.alive) {
+				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.power)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	get hasAmmo() {
+		for (const structure of world.queries.structures[this.coalition]) {
+			if (structure.type === "Ammo Depot" && structure.alive) {
+				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.ammo)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	get hasFuel() {
+		for (const structure of world.queries.structures[this.coalition]) {
+			if (structure.type === "Fuel Storage" && structure.alive) {
+				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.fuel)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	constructor(args: UnitCampProps) {
 		super({ ...args, queries: new Set(["unitCamps"]) });
