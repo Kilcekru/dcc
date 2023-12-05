@@ -58,6 +58,14 @@ export class GroundGroup extends Group {
 		}
 	}
 
+	move(worldDelta: number) {
+		const heading = Utils.Location.headingToPosition(this.position, this.target.position);
+		// Calculate the distance traveled in meters in the tick
+		const distanceTraveled = Math.round(Utils.DateTime.toSeconds(worldDelta) * Utils.Config.defaults.groundGroupSpeed);
+		// Calculate the new position
+		this.position = Utils.Location.positionFromHeading(this.position, heading, distanceTraveled);
+	}
+
 	toMapJSON(): Types.Campaign.MapItem {
 		return {
 			coalition: this.coalition,

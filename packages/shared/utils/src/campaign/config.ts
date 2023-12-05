@@ -50,6 +50,8 @@ type Config = {
 		cruiseSpeed: number;
 		a2aRangeMultiplier: number;
 		a2aCooldownDuration: number;
+		groundGroupSpeed: number;
+		g2gRange: number;
 	};
 	campaignVersion: number;
 };
@@ -140,6 +142,8 @@ export const Config: Config = {
 		cruiseSpeed: 200,
 		a2aRangeMultiplier: 0.66,
 		a2aCooldownDuration: 30_000,
+		groundGroupSpeed: 6,
+		g2gRange: 500,
 	},
 	campaignVersion: 1,
 };

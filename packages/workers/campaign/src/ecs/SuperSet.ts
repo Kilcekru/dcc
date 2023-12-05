@@ -113,11 +113,14 @@ export class SuperSet<T extends Entity, SubSet extends string> extends Set<T> {
 		};
 	}
 
-	public get(subSet?: SubSet) {
-		if (subSet == null) {
-			return this;
+	public get(subSet: SubSet): Set<T> {
+		const s = this.#subSets[subSet];
+
+		if (s == null) {
+			throw new Error(`SuperSet: subSet ${subSet ?? ""} not found`);
 		}
-		return this.#subSets[subSet];
+
+		return s;
 	}
 
 	public moveSubSet(item: T, from: SubSet, to: SubSet) {
