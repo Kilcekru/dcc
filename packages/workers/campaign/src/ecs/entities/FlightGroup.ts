@@ -1,17 +1,17 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import * as Types from "@kilcekru/dcc-shared-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Task } from "../components";
 import { generateCallSign } from "../utils";
-import { QueryKey, world } from "../world";
-import { Aircraft } from "./Aircraft";
+import type { QueryKey } from "../world";
+import type { Aircraft } from "./Aircraft";
 import { Flightplan } from "./Flightplan";
-import { GroundGroup } from "./GroundGroup";
+import type { GroundGroup } from "./GroundGroup";
 import { Group, GroupProps } from "./Group";
-import { HomeBase } from "./HomeBase";
-import { Package } from "./Package";
-import { Structure } from "./Structure";
+import type { HomeBase } from "./HomeBase";
+import type { Package } from "./Package";
+import type { Structure } from "./Structure";
 import { WaypointTemplate, WaypointType } from "./Waypoint";
 
 export interface FlightGroupProps extends GroupProps {
@@ -61,7 +61,9 @@ export class FlightGroup extends Group implements Task {
 		const cs = generateCallSign(args.coalition, "aircraft");
 		this.task = args.task;
 		this.package = args.package;
-		this.startTime = Utils.DateTime.toFullMinutes(world.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
+		this.startTime = Utils.DateTime.toFullMinutes(
+			this.world.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)),
+		);
 		this.name = cs.flightGroupName;
 		this.aircrafts = args.aircrafts;
 		this.homeBase = args.homeBase;
@@ -73,7 +75,7 @@ export class FlightGroup extends Group implements Task {
 		args.package.flightGroups.add(this);
 
 		if (this.coalition === "blue") {
-			world.flightGroupsUpdate();
+			this.world.flightGroupsUpdate();
 		}
 	}
 
@@ -117,7 +119,7 @@ export class FlightGroup extends Group implements Task {
 				// Calculate the distance between the racetrack points
 				const racetrackDistance = Utils.Location.distanceToPosition(target.position, target.racetrack.position);
 				const distancesAlreadyFlown =
-					Utils.DateTime.toSeconds(world.time - target.arrivalTime) * this.package.cruiseSpeed;
+					Utils.DateTime.toSeconds(this.world.time - target.arrivalTime) * this.package.cruiseSpeed;
 
 				const racetrackRounds = Math.floor(distancesAlreadyFlown / racetrackDistance);
 
@@ -133,7 +135,7 @@ export class FlightGroup extends Group implements Task {
 				const distance = Utils.Location.distanceToPosition(this.position, target.position);
 
 				// How long in seconds till the flight group arrives at the waypoint
-				const timeTillArrival = this.flightplan.arrivalTime - world.time;
+				const timeTillArrival = this.flightplan.arrivalTime - this.world.time;
 				// Calculate the speed in meters per second to reach the waypoint in time
 				const speed = distance / Utils.DateTime.toSeconds(timeTillArrival);
 				// Calculate the distance traveled in meters in the tick
@@ -148,7 +150,7 @@ export class FlightGroup extends Group implements Task {
 		this.combat = {
 			type: "a2a",
 			target: enemy,
-			cooldownTime: world.time,
+			cooldownTime: this.world.time,
 		};
 	}
 
@@ -162,7 +164,7 @@ export class FlightGroup extends Group implements Task {
 
 			for (const weapon of a2aWeapons.values()) {
 				if (weapon.count > 0) {
-					if (distance < weapon.item.range * Utils.Config.defaults.a2aRangeMultiplier) {
+					if (distance < weapon.item.range * Utils.Config.combat.a2a.rangeMultiplier) {
 						weapon.count -= 1;
 
 						// Does the missile hit?
@@ -172,7 +174,7 @@ export class FlightGroup extends Group implements Task {
 							// eslint-disable-next-line no-console
 							console.log("fire", weapon.item.name, "at", this.combat.target.name, "from", this.name);
 
-							this.combat.cooldownTime = world.time + Utils.Config.defaults.a2aCooldownDuration;
+							this.combat.cooldownTime = this.world.time + Utils.Config.combat.a2a.cooldownDuration;
 
 							const flightGroupDestroyed = this.combat.target.destroyAircraft();
 
@@ -272,7 +274,7 @@ export class CapFlightGroup extends FlightGroup {
 	}
 
 	static create(args: Omit<CapFlightGroupProps, "taskWaypoints">) {
-		const oppAirdromes = world.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
+		const oppAirdromes = this.world.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
 
 		const oppAirdrome = Utils.Location.findNearest(oppAirdromes, args.target.position, (ad) => ad.position);
 

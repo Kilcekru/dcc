@@ -22,7 +22,7 @@ function battleRoundCoalition(coalition: DcsJs.Coalition) {
 			const range = flightGroup.a2aRange;
 			const distance = Utils.Location.distanceToPosition(flightGroup.position, flightGroup.combat.target.position);
 
-			if (distance <= range * Utils.Config.defaults.a2aRangeMultiplier) {
+			if (distance <= range * Utils.Config.combat.a2a.rangeMultiplier) {
 				flightGroup.fireA2A(distance);
 			}
 		}

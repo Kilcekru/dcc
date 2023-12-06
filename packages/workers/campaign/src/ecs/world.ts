@@ -20,7 +20,7 @@ export type QueryKey = QueryName | `${QueryName}-${string}`;
 
 const taskSubQueries = ["CAP"];
 const aircraftSubQueries = ["idle", "in use"];
-const groundGroupSubQueries = ["en route"];
+const groundGroupSubQueries = ["en route", "on target"];
 
 export class World {
 	#coalitions: Record<DcsJs.Coalition, Faction> = {
@@ -60,6 +60,7 @@ export class World {
 		structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
 		unitCamps: Record<DcsJs.Coalition, Set<Entities.UnitCamp>>;
 		mapEntities: Set<Entities.MapEntity>;
+		objectives: Record<DcsJs.Coalition, Set<Entities.Objective>>;
 	} = {
 		airdromes: {
 			blue: new Set(),
@@ -102,6 +103,11 @@ export class World {
 			neutrals: new Set(),
 		},
 		mapEntities: new Set(),
+		objectives: {
+			blue: new Set(),
+			red: new Set(),
+			neutrals: new Set(),
+		},
 	};
 	public factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined> = {
 		blue: undefined,

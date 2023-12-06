@@ -1,7 +1,7 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { Position } from "../components";
-import { QueryKey } from "../world";
+import type { QueryKey } from "../world";
 import { Entity } from "./Entity";
 
 export interface GroupProps {

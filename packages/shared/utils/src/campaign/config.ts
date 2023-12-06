@@ -48,10 +48,17 @@ type Config = {
 	mapOrigin: Record<DcsJs.MapName, DcsJs.Position>;
 	defaults: {
 		cruiseSpeed: number;
-		a2aRangeMultiplier: number;
-		a2aCooldownDuration: number;
 		groundGroupSpeed: number;
-		g2gRange: number;
+	};
+	combat: {
+		a2a: {
+			rangeMultiplier: number;
+			cooldownDuration: number;
+		};
+		g2g: {
+			range: number;
+			hitChange: number;
+		};
 	};
 	campaignVersion: number;
 };
@@ -140,10 +147,18 @@ export const Config: Config = {
 	},
 	defaults: {
 		cruiseSpeed: 200,
-		a2aRangeMultiplier: 0.66,
-		a2aCooldownDuration: 30_000,
+
 		groundGroupSpeed: 6,
-		g2gRange: 500,
+	},
+	combat: {
+		a2a: {
+			rangeMultiplier: 0.66,
+			cooldownDuration: 30_000,
+		},
+		g2g: {
+			range: 500,
+			hitChange: 30,
+		},
 	},
 	campaignVersion: 1,
 };

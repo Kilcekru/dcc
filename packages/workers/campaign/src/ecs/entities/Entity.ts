@@ -1,5 +1,5 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import * as Types from "@kilcekru/dcc-shared-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Coalition } from "../components";
 import { SuperSet } from "../SuperSet";
@@ -15,9 +15,14 @@ export class Entity implements Coalition {
 	 * only reference to global world
 	 */
 	world = world;
+	static world = world;
 	#queries: Set<QueryKey> = new Set();
 	coalition: DcsJs.Coalition;
 	id: string;
+
+	get queries(): Set<QueryKey> {
+		return this.#queries;
+	}
 
 	constructor(args: EntityProps) {
 		this.id = crypto.randomUUID();
@@ -31,7 +36,7 @@ export class Entity implements Coalition {
 
 	addToQuery(key: QueryKey) {
 		const [name, subSet] = key.split("-");
-		const query = this.world.queries[name as QueryName];
+		const query = world.queries[name as QueryName];
 		this.#queries.add(key);
 
 		if (query instanceof SuperSet) {

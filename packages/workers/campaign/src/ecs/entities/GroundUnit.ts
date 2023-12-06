@@ -1,9 +1,8 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import * as Types from "@kilcekru/dcc-shared-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { world } from "../world";
-import { GroundGroup } from "./GroundGroup";
+import type { GroundGroup } from "./GroundGroup";
 import { Unit, UnitProps } from "./Unit";
 
 export interface GroundUnitProps extends UnitProps {
@@ -25,13 +24,13 @@ export class GroundUnit extends Unit {
 	}
 
 	static generate(coalition: DcsJs.Coalition, groundGroup: GroundGroup, groupType: DcsJs.CampaignGroundGroupType) {
-		const template = world.dataStore?.groundUnitsTemplates?.find(
-			(t) => world.factionDefinitions[coalition]?.templateName === t.name,
+		const template = this.world.dataStore?.groundUnitsTemplates?.find(
+			(t) => this.world.factionDefinitions[coalition]?.templateName === t.name,
 		);
 
 		if (template == null) {
 			throw new Error(
-				`ground units template: ${world.factionDefinitions[coalition]?.templateName ?? "unknown"} not found`,
+				`ground units template: ${this.world.factionDefinitions[coalition]?.templateName ?? "unknown"} not found`,
 			);
 		}
 
@@ -103,6 +102,10 @@ export class GroundUnit extends Unit {
 		}
 
 		return { groundUnits, shoradGroundUnits };
+	}
+
+	destroy() {
+		this.alive = false;
 	}
 
 	override toJSON(): Types.Campaign.GroundUnitItem {

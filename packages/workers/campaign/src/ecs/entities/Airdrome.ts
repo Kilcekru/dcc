@@ -1,8 +1,7 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
-import * as Types from "@kilcekru/dcc-shared-types";
+import type * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { world } from "../world";
 import { Aircraft } from "./Aircraft";
 import { HomeBase, HomeBaseProps } from "./HomeBase";
 
@@ -26,7 +25,7 @@ export class Airdrome extends HomeBase {
 
 	static generate(args: { coalition: DcsJs.Coalition; airdromeNames: Array<string> }) {
 		for (const name of args.airdromeNames) {
-			const airdrome = world.dataStore?.airdromes?.[name];
+			const airdrome = this.world.dataStore?.airdromes?.[name];
 
 			if (airdrome == null) {
 				throw new Error(`airdrome: ${name} not found`);

@@ -1,12 +1,12 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Coalition, Task } from "../components";
 import { getAircraftBundle } from "../utils";
-import { QueryKey } from "../world";
+import type { QueryKey } from "../world";
 import { Entity } from "./Entity";
 import { CapFlightGroup, FlightGroup } from "./FlightGroup";
-import { HomeBase } from "./HomeBase";
+import type { HomeBase } from "./HomeBase";
 
 type BasicProps = {
 	coalition: DcsJs.Coalition;

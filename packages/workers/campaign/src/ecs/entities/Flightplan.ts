@@ -1,8 +1,8 @@
-import * as Types from "@kilcekru/dcc-shared-types";
+import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { world } from "../world";
-import { FlightGroup } from "./FlightGroup";
+import type { FlightGroup } from "./FlightGroup";
 import { Waypoint, WaypointTemplate } from "./Waypoint";
 
 export class Flightplan extends Array {

@@ -3,9 +3,9 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { world } from "../world";
-import { Airdrome } from "./Airdrome";
-import { FlightGroup } from "./FlightGroup";
-import { HomeBase } from "./HomeBase";
+import type { Airdrome } from "./Airdrome";
+import type { FlightGroup } from "./FlightGroup";
+import type { HomeBase } from "./HomeBase";
 import { Unit, UnitProps } from "./Unit";
 export interface AircraftProps extends UnitProps {
 	aircraftType: DcsJs.DCS.Aircraft;

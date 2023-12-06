@@ -145,6 +145,7 @@ export type MapEntityMapItem = {
 export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem | FlightGroupMapItem;
 
 export type ObjectiveItem = {
+	id: string;
 	name: string;
 	coalition: DcsJs.Coalition;
 	position: DcsJs.Position;

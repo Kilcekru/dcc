@@ -1,6 +1,6 @@
 import { Coalition, Position } from "../components";
-import { QueryName } from "../world";
-import { Aircraft } from "./Aircraft";
+import type { QueryName } from "../world";
+import type { Aircraft } from "./Aircraft";
 import { MapEntity } from "./MapEntity";
 
 export type HomeBaseType = "airdrome" | "carrier" | "farp";
