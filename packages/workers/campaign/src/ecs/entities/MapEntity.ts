@@ -10,7 +10,7 @@ export interface GroupProps {
 	position: DcsJs.Position;
 }
 
-export class MapEntity extends Entity implements Position {
+export abstract class MapEntity extends Entity implements Position {
 	public position: DcsJs.Position;
 
 	public constructor(args: GroupProps & { queries: Set<QueryKey> }) {

@@ -1,4 +1,7 @@
 {
 	"extends": "../../../utils/config/tsconfig.ui.json",
+	"compilerOptions": {
+		"lib": ["WebWorker", "ES2021"]
+	},
 	"include": ["src"]
 }

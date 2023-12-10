@@ -3,22 +3,19 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Coalition } from "../components";
 import { SuperSet } from "../SuperSet";
-import { QueryKey, QueryName, world } from "../world";
+import { QueryKey, QueryName, splitQueryKey, world } from "../world";
+
+export type EntityId = string;
 
 export interface EntityProps {
 	coalition: DcsJs.Coalition;
 	queries: Set<QueryKey>;
 }
 
-export class Entity implements Coalition {
-	/**
-	 * only reference to global world
-	 */
-	world = world;
-	static world = world;
+export abstract class Entity implements Coalition {
 	#queries: Set<QueryKey> = new Set();
 	coalition: DcsJs.Coalition;
-	id: string;
+	id: EntityId;
 
 	get queries(): Set<QueryKey> {
 		return this.#queries;
@@ -29,74 +26,34 @@ export class Entity implements Coalition {
 		this.coalition = args.coalition;
 		this.#queries = args.queries ?? [];
 
+		world.entities.set(this.id, this);
 		for (const queryKey of this.#queries) {
 			this.addToQuery(queryKey);
 		}
 	}
 
-	addToQuery(key: QueryKey) {
-		const [name, subSet] = key.split("-");
-		const query = world.queries[name as QueryName];
-		this.#queries.add(key);
-
-		if (query instanceof SuperSet) {
-			query.add(this, [subSet]);
-		} else if (query instanceof Set) {
-			const q: Set<Entity> = query;
-			q.add(this);
-		} else {
-			const q: Set<Entity> = query[this.coalition];
-
-			if (q instanceof SuperSet) {
-				q.add(this, [subSet]);
-			} else {
-				q.add(this);
-			}
-		}
-	}
-
 	deconstructor() {
+		world.entities.delete(this.id);
 		for (const queryName of this.#queries) {
 			this.removeFromQuery(queryName);
 		}
 	}
 
-	removeFromQuery(key: QueryKey) {
-		const [name] = key.split("-");
-		this.#queries.delete(key);
+	addToQuery(key: QueryKey) {
+		this.#queries.add(key);
+		const [, subSet] = splitQueryKey(key);
+		const query = this.#getQuery(key);
 
-		const query = this.world.queries[name as QueryName];
-
-		if (query instanceof Set) {
-			const q: Set<Entity> = query;
-			q.delete(this);
-		} else if (query instanceof SuperSet) {
-			query.delete(this);
-		} else {
-			const q: Set<Entity> = query[this.coalition];
-			q.delete(this);
+		if (query instanceof SuperSet && subSet != undefined) {
+			query.add(this, [subSet]);
+		} else if (query instanceof Set) {
+			query.add(this);
 		}
 	}
 
-	#getQuery(name: QueryName) {
-		const query = this.world.queries[name];
-		if (query instanceof SuperSet) {
-			return query;
-		} else if (query instanceof Set) {
-			const q: Set<Entity> = query;
-
-			return q;
-		} else {
-			const cQuery = query[this.coalition];
-
-			if (cQuery instanceof SuperSet) {
-				return cQuery;
-			} else {
-				const q: Set<Entity> = cQuery;
-
-				return q;
-			}
-		}
+	removeFromQuery(key: QueryKey) {
+		this.#queries.delete(key);
+		this.#getQuery(key).delete(this);
 	}
 
 	moveSubQuery(base: QueryName, from: string, to: string) {
@@ -115,5 +72,15 @@ export class Entity implements Coalition {
 			coalition: this.coalition,
 			id: this.id,
 		};
+	}
+
+	#getQuery(key: QueryKey): Set<Entity> {
+		const [name] = splitQueryKey(key);
+		const query = world.queries[name];
+		if (query instanceof Set) {
+			return query;
+		} else {
+			return query[this.coalition];
+		}
 	}
 }

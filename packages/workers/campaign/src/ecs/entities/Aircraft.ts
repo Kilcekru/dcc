@@ -7,7 +7,7 @@ import type { Airdrome } from "./Airdrome";
 import type { FlightGroup } from "./FlightGroup";
 import type { HomeBase } from "./HomeBase";
 import { Unit, UnitProps } from "./Unit";
-export interface AircraftProps extends UnitProps {
+export interface AircraftProps extends Omit<UnitProps, "queries"> {
 	aircraftType: DcsJs.DCS.Aircraft;
 	homeBase: HomeBase;
 }

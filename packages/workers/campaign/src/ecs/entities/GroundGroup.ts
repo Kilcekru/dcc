@@ -2,7 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { QueryKey } from "../world";
+import { QueryKey, world } from "../world";
 import { GroundUnit } from "./GroundUnit";
 import { Group, GroupProps } from "./Group";
 import type { Objective } from "./Objective";
@@ -50,7 +50,7 @@ export class GroundGroup extends Group {
 	static generate(args: { coalition: DcsJs.Coalition; objectivePlans: Array<Types.Campaign.ObjectivePlan> }) {
 		for (const plan of args.objectivePlans) {
 			if (plan.groundUnitTypes.some((gut) => gut === "vehicles")) {
-				const obj = this.world.objectives.get(plan.objectiveName);
+				const obj = world.objectives.get(plan.objectiveName);
 
 				if (obj == null) {
 					throw new Error(`Objective ${plan.objectiveName} not found`);

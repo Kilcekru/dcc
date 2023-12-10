@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Coalition, Position } from "../components";
 import { calcInitDeploymentScore } from "../utils";
-import { QueryName } from "../world";
+import { QueryName, world } from "../world";
 import { Building } from "./Building";
 import { MapEntity } from "./MapEntity";
 import type { Objective } from "./Objective";
@@ -52,7 +52,7 @@ export class Structure extends MapEntity implements Coalition, Position {
 		this.type = args.type;
 		this.coalition = args.coalition;
 
-		const structureTemplate = Utils.Random.item(this.world.dataStore?.structures?.[args.type] ?? []);
+		const structureTemplate = Utils.Random.item(world.dataStore?.structures?.[args.type] ?? []);
 
 		if (structureTemplate == null) {
 			throw new Error("structureTemplate not found");
@@ -68,7 +68,7 @@ export class Structure extends MapEntity implements Coalition, Position {
 	}
 
 	static generate(args: { coalition: DcsJs.Coalition; objectivePlans: Array<Types.Campaign.ObjectivePlan> }) {
-		const strikeTargets = this.world.dataStore?.strikeTargets;
+		const strikeTargets = world.dataStore?.strikeTargets;
 
 		if (strikeTargets == null) {
 			throw new Error("strikeTargets not found");
@@ -89,7 +89,7 @@ export class Structure extends MapEntity implements Coalition, Position {
 
 				const structureType = structurePlan.structureType as DcsJs.StructureType;
 
-				const objective = this.world.objectives.get(plan.objectiveName);
+				const objective = world.objectives.get(plan.objectiveName);
 
 				if (objective == null) {
 					// eslint-disable-next-line no-console
@@ -119,8 +119,8 @@ export class Structure extends MapEntity implements Coalition, Position {
 	}
 
 	static toMapItems() {
-		const blueStructures = this.world.queries.structures["blue"];
-		const redStructures = this.world.queries.structures["red"];
+		const blueStructures = world.queries.structures["blue"];
+		const redStructures = world.queries.structures["red"];
 
 		const items: Set<Types.Campaign.MapItem> = new Set();
 
@@ -181,7 +181,7 @@ export class UnitCamp extends Structure {
 	}
 
 	get hasPower() {
-		for (const structure of this.world.queries.structures[this.coalition]) {
+		for (const structure of world.queries.structures[this.coalition]) {
 			if (structure.type === "Power Plant" && structure.alive) {
 				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.power)) {
 					return true;
@@ -193,7 +193,7 @@ export class UnitCamp extends Structure {
 	}
 
 	get hasAmmo() {
-		for (const structure of this.world.queries.structures[this.coalition]) {
+		for (const structure of world.queries.structures[this.coalition]) {
 			if (structure.type === "Ammo Depot" && structure.alive) {
 				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.ammo)) {
 					return true;
@@ -205,7 +205,7 @@ export class UnitCamp extends Structure {
 	}
 
 	get hasFuel() {
-		for (const structure of this.world.queries.structures[this.coalition]) {
+		for (const structure of world.queries.structures[this.coalition]) {
 			if (structure.type === "Fuel Storage" && structure.alive) {
 				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.fuel)) {
 					return true;
@@ -221,6 +221,6 @@ export class UnitCamp extends Structure {
 		this.type = args.type;
 		this.deploymentScore = calcInitDeploymentScore(args.coalition, args.type);
 
-		this.world.queries.unitCamps[args.coalition].add(this);
+		world.queries.unitCamps[args.coalition].add(this);
 	}
 }

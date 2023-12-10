@@ -18,6 +18,10 @@ export type Faction = {
 export type QueryName = keyof World["queries"];
 export type QueryKey = QueryName | `${QueryName}-${string}`;
 
+export function splitQueryKey(key: QueryKey) {
+	return key.split("-", 2) as [QueryName] | [QueryName, string];
+}
+
 const taskSubQueries = ["CAP"];
 const aircraftSubQueries = ["idle", "in use"];
 const groundGroupSubQueries = ["en route", "on target"];
@@ -49,6 +53,15 @@ export class World {
 	public time = 32400000; // 09:00 in milliseconds
 	public multiplier = 1;
 	public objectives: Map<string, Entities.Objective> = new Map();
+
+	public entities = new Map<Entities.EntityId, Entities.Entity>();
+	public getEntity<Type extends Entities.Entity>(id: Entities.EntityId): Type {
+		const entity = this.entities.get(id);
+		if (entity == undefined) {
+			throw new Error(`World.getEntity: invalid id ${id}`);
+		}
+		return entity as Type;
+	}
 
 	public queries: {
 		airdromes: Record<DcsJs.Coalition, Set<Entities.Airdrome>>;

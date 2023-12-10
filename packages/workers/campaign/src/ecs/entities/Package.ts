@@ -3,9 +3,9 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Coalition, Task } from "../components";
 import { getAircraftBundle } from "../utils";
-import type { QueryKey } from "../world";
-import { Entity } from "./Entity";
-import { CapFlightGroup, FlightGroup } from "./FlightGroup";
+import { world } from "../world";
+import { Entity, EntityId } from "./Entity";
+import { type FlightGroup, CapFlightGroup } from "./FlightGroup";
 import type { HomeBase } from "./HomeBase";
 
 type BasicProps = {
@@ -25,14 +25,14 @@ export interface PackageProps {
 }
 
 export class Package extends Entity implements Coalition, Task {
-	public flightGroups: Set<FlightGroup> = new Set();
+	#flightGroups = new Set<EntityId>();
 	public task: DcsJs.Task;
 	public cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
 
 	private constructor(args: PackageProps) {
 		super({
 			coalition: args.coalition,
-			queries: new Set([`packages-${args.task}` as QueryKey]),
+			queries: new Set([`packages-${args.task}` as const]),
 		});
 		this.coalition = args.coalition;
 		this.task = args.task;
@@ -75,18 +75,22 @@ export class Package extends Entity implements Coalition, Task {
 		}
 	}
 
+	addFlightGroup(flightGroup: FlightGroup) {
+		this.#flightGroups.add(flightGroup.id);
+	}
+
 	removeFlightGroup(flightGroup: FlightGroup) {
-		this.flightGroups.delete(flightGroup);
+		this.#flightGroups.delete(flightGroup.id);
 
 		// If there are no more flight groups in this package, remove it from the world
-		if (this.flightGroups.size === 0) {
+		if (this.#flightGroups.size === 0) {
 			this.deconstructor();
 		}
 	}
 
 	override deconstructor(): void {
-		for (const flightGroup of this.flightGroups) {
-			flightGroup.deconstructor();
+		for (const id of this.#flightGroups) {
+			world.getEntity(id).deconstructor();
 		}
 
 		super.deconstructor();
@@ -96,7 +100,7 @@ export class Package extends Entity implements Coalition, Task {
 		return {
 			...super.toJSON(),
 			task: this.task,
-			flightGroups: Array.from(this.flightGroups).map((fg) => fg.toJSON()),
+			flightGroups: Array.from(this.#flightGroups).map((id) => world.getEntity(id).toJSON()),
 		};
 	}
 }
