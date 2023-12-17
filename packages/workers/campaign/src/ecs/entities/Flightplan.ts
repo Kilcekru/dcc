@@ -2,16 +2,20 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { world } from "../world";
+import { EntityId } from "./Entity";
 import type { FlightGroup } from "./FlightGroup";
 import { Waypoint, WaypointTemplate } from "./Waypoint";
 
-export class Flightplan extends Array {
-	#flightGroup: FlightGroup;
+export class Flightplan {
+	readonly #flightGroupId: EntityId;
 	#list: Array<Waypoint> = [];
 
 	constructor(flightGroup: FlightGroup) {
-		super();
-		this.#flightGroup = flightGroup;
+		this.#flightGroupId = flightGroup.id;
+	}
+
+	get flightGroup() {
+		return world.getEntity<FlightGroup>(this.#flightGroupId);
 	}
 
 	get prevWaypoint() {
@@ -22,7 +26,7 @@ export class Flightplan extends Array {
 		let waypoint: Waypoint | undefined;
 		let flightPlanTime = this.startTime;
 
-		if (world.time < this.#flightGroup.startTime) {
+		if (world.time < this.startTime) {
 			return;
 		}
 
@@ -78,7 +82,7 @@ export class Flightplan extends Array {
 	}
 
 	get startTime() {
-		return this.#flightGroup.startTime;
+		return this.flightGroup.startTime;
 	}
 
 	get waypoints() {
@@ -93,7 +97,8 @@ export class Flightplan extends Array {
 		}
 
 		const distance = Utils.Location.distanceToPosition(prev.position, waypoint.position);
-		const speed = this.#flightGroup.package.cruiseSpeed;
+
+		const speed = this.flightGroup.package.cruiseSpeed;
 
 		const arrivalDuration = Utils.DateTime.Seconds(Math.round(distance / speed));
 

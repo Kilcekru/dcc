@@ -1,16 +1,35 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Position } from "../components";
 import { world } from "../world";
-import { Entity } from "./Entity";
-import type { GroundGroup } from "./GroundGroup";
+import { Entity, EntityId } from "./Entity";
+import { GroundGroup } from "./GroundGroup";
 import { Structure } from "./Structure";
 
-export class Objective extends Entity implements Position {
-	public name: string;
-	public position: DcsJs.Position;
-	public incomingGroundGroup: GroundGroup | undefined;
+export class Objective extends Entity {
+	public readonly name: string;
+	public readonly position: DcsJs.Position;
+	public override coalition: DcsJs.Coalition;
+	#incomingGroundGroupId: EntityId | undefined;
+
+	get incomingGroundGroup(): GroundGroup | undefined {
+		if (this.#incomingGroundGroupId == undefined) {
+			return undefined;
+		}
+
+		return world.getEntity<GroundGroup>(this.#incomingGroundGroupId);
+	}
+
+	/**
+	 * Set the incoming ground group
+	 */
+	set incomingGroundGroup(groundGroup: GroundGroup) {
+		if (this.#incomingGroundGroupId != undefined) {
+			throw new Error("incoming ground group is already set");
+		}
+
+		this.#incomingGroundGroupId = groundGroup.id;
+	}
 
 	public constructor(args: { name: string; coalition: DcsJs.Coalition; position: DcsJs.Position }) {
 		super({ ...args, queries: new Set(["objectives"]) });
@@ -60,7 +79,7 @@ export class Objective extends Entity implements Position {
 		this.removeFromQuery("objectives");
 		this.coalition = groundGroup.coalition;
 		this.addToQuery("objectives");
-		this.incomingGroundGroup = undefined;
+		this.#incomingGroundGroupId = undefined;
 
 		// Create new structures
 		for (const structure of structures) {
@@ -82,7 +101,7 @@ export class Objective extends Entity implements Position {
 			name: this.name,
 			coalition: this.coalition,
 			position: this.position,
-			incomingGroundGroup: this.incomingGroundGroup?.id,
+			incomingGroundGroup: this.#incomingGroundGroupId,
 		};
 	}
 }

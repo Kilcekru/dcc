@@ -11,12 +11,11 @@ export interface AirdromeProps extends Omit<HomeBaseProps, "type"> {
 }
 
 export class Airdrome extends HomeBase {
-	public frequencyList: number[];
+	public readonly frequencyList: number[];
 
 	public constructor(args: AirdromeProps) {
 		super({ ...args, type: "airdrome", queries: new Set(["airdromes"]) });
 		this.frequencyList = args.frequencyList;
-		this.name = args.name;
 
 		Aircraft.generateAircraftsForAirdrome({
 			coalition: args.coalition,

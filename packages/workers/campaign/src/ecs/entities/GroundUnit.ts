@@ -3,6 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { world } from "../world";
+import { EntityId } from "./Entity";
 import type { GroundGroup } from "./GroundGroup";
 import { Unit, UnitProps } from "./Unit";
 
@@ -12,16 +13,24 @@ export interface GroundUnitProps extends Omit<UnitProps, "queries"> {
 	groundGroup: GroundGroup;
 }
 export class GroundUnit extends Unit {
-	name: string;
-	alive = true;
-	category: Types.Campaign.GroundUnitCategory;
-	groundGroup: GroundGroup;
+	public readonly name: string;
+	#alive = true;
+	public readonly category: Types.Campaign.GroundUnitCategory;
+	#groundGroupId: EntityId;
+
+	get groundGroup() {
+		return world.getEntity<GroundGroup>(this.#groundGroupId);
+	}
+
+	get alive() {
+		return this.#alive;
+	}
 
 	constructor(args: GroundUnitProps) {
 		super({ ...args, queries: new Set(["groundUnits"]) });
 		this.name = args.name;
 		this.category = args.category;
-		this.groundGroup = args.groundGroup;
+		this.#groundGroupId = args.groundGroup.id;
 	}
 
 	static generate(coalition: DcsJs.Coalition, groundGroup: GroundGroup, groupType: DcsJs.CampaignGroundGroupType) {
@@ -106,7 +115,7 @@ export class GroundUnit extends Unit {
 	}
 
 	destroy() {
-		this.alive = false;
+		this.#alive = false;
 	}
 
 	override toJSON(): Types.Campaign.GroundUnitItem {
@@ -114,7 +123,7 @@ export class GroundUnit extends Unit {
 			...super.toJSON(),
 			name: this.name,
 			category: this.category,
-			alive: this.alive,
+			alive: this.#alive,
 		};
 	}
 }

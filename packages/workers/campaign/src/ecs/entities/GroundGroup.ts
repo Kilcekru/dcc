@@ -13,12 +13,12 @@ export interface GroundGroupProps extends Omit<GroupProps, "position"> {
 }
 
 export class GroundGroup extends Group {
-	public name: string;
-	public start: Objective;
-	public target: Objective;
-	public type: DcsJs.CampaignGroundGroupType;
-	public units: Array<GroundUnit>;
-	public shoradUnits: Array<GroundUnit>;
+	public readonly name: string;
+	public readonly start: Objective;
+	public readonly target: Objective;
+	public readonly type: DcsJs.CampaignGroundGroupType;
+	public readonly units: Array<GroundUnit>;
+	public readonly shoradUnits: Array<GroundUnit>;
 
 	get aliveUnits(): Array<GroundUnit> {
 		return this.units.filter((u) => u.alive);

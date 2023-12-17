@@ -1,21 +1,24 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Coalition, Task } from "../components";
-import { getAircraftBundle } from "../utils";
+import { AircraftBundle, getAircraftBundle } from "../utils";
 import { world } from "../world";
 import { Entity, EntityId } from "./Entity";
-import { type FlightGroup, CapFlightGroup } from "./FlightGroup";
+import { CapFlightGroup, CasFlightGroup, FlightGroup } from "./FlightGroup";
 import type { HomeBase } from "./HomeBase";
 
 type BasicProps = {
 	coalition: DcsJs.Coalition;
 };
 
-type TaskProps = {
-	task: "CAP";
-	target: HomeBase;
-};
+type TaskProps =
+	| {
+			task: "CAP";
+			target: HomeBase;
+	  }
+	| {
+			task: "CAS";
+	  };
 
 export type PackageCreateProps = BasicProps & TaskProps;
 
@@ -24,7 +27,7 @@ export interface PackageProps {
 	task: DcsJs.Task;
 }
 
-export class Package extends Entity implements Coalition, Task {
+export class Package extends Entity {
 	#flightGroups = new Set<EntityId>();
 	public task: DcsJs.Task;
 	public cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
@@ -34,20 +37,72 @@ export class Package extends Entity implements Coalition, Task {
 			coalition: args.coalition,
 			queries: new Set([`packages-${args.task}` as const]),
 		});
-		this.coalition = args.coalition;
 		this.task = args.task;
 	}
 
-	static create(args: PackageCreateProps) {
-		const aircraftBundle = getAircraftBundle({
-			coalition: args.coalition,
-			task: args.task,
-		});
+	static #createAircraftBundle(args: PackageCreateProps) {
+		let aircraftBundle: AircraftBundle | undefined = undefined;
+
+		switch (args.task) {
+			case "CAP":
+				aircraftBundle = getAircraftBundle({
+					coalition: args.coalition,
+					task: args.task,
+					target: args.target,
+				});
+				break;
+			case "CAS":
+				aircraftBundle = getAircraftBundle({
+					coalition: args.coalition,
+					task: args.task,
+				});
+				break;
+		}
+
+		return aircraftBundle;
+	}
+
+	static isAvailable(args: PackageCreateProps) {
+		const aircraftBundle = Package.#createAircraftBundle(args);
 
 		if (aircraftBundle == null) {
-			// eslint-disable-next-line no-console
-			console.warn("package creation failed. no aircraft bundle found", args);
-			return;
+			return false;
+		}
+
+		switch (args.task) {
+			case "CAP": {
+				const isAvailable = CapFlightGroup.isAvailable({
+					coalition: args.coalition,
+					position: aircraftBundle.homeBase.position,
+					target: args.target,
+					aircrafts: aircraftBundle.aircrafts,
+					homeBase: aircraftBundle.homeBase,
+				});
+
+				return isAvailable;
+			}
+			case "CAS": {
+				const isAvailable = CasFlightGroup.isAvailable({
+					coalition: args.coalition,
+					homeBase: aircraftBundle.homeBase,
+				});
+
+				return isAvailable;
+			}
+		}
+
+		return true;
+	}
+
+	static create(args: PackageCreateProps) {
+		if (!Package.isAvailable(args)) {
+			throw new Error("Package is not available");
+		}
+
+		const aircraftBundle = Package.#createAircraftBundle(args);
+
+		if (aircraftBundle == null) {
+			throw new Error("Package is not available");
 		}
 
 		const pkg = new Package({
@@ -62,8 +117,8 @@ export class Package extends Entity implements Coalition, Task {
 		}
 
 		switch (args.task) {
-			case "CAP":
-				CapFlightGroup.create({
+			case "CAP": {
+				const fg = CapFlightGroup.create({
 					coalition: args.coalition,
 					position: aircraftBundle.homeBase.position,
 					package: pkg,
@@ -71,12 +126,33 @@ export class Package extends Entity implements Coalition, Task {
 					aircrafts: aircraftBundle.aircrafts,
 					homeBase: aircraftBundle.homeBase,
 				});
-				break;
-		}
-	}
 
-	addFlightGroup(flightGroup: FlightGroup) {
-		this.#flightGroups.add(flightGroup.id);
+				if (fg == null) {
+					return;
+				}
+
+				pkg.#flightGroups.add(fg.id);
+
+				break;
+			}
+			case "CAS": {
+				const fg = CasFlightGroup.create({
+					coalition: args.coalition,
+					position: aircraftBundle.homeBase.position,
+					package: pkg,
+					aircrafts: aircraftBundle.aircrafts,
+					homeBase: aircraftBundle.homeBase,
+				});
+
+				if (fg == null) {
+					return;
+				}
+
+				pkg.#flightGroups.add(fg.id);
+
+				break;
+			}
+		}
 	}
 
 	removeFlightGroup(flightGroup: FlightGroup) {

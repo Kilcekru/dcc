@@ -1,19 +1,18 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Position } from "../components";
 import type { QueryKey } from "../world";
 import { Entity } from "./Entity";
 
-export interface GroupProps {
+export interface MapEntityProps {
 	coalition: DcsJs.Coalition;
 	position: DcsJs.Position;
 }
 
-export abstract class MapEntity extends Entity implements Position {
+export abstract class MapEntity extends Entity {
 	public position: DcsJs.Position;
 
-	public constructor(args: GroupProps & { queries: Set<QueryKey> }) {
+	public constructor(args: MapEntityProps & { queries: Set<QueryKey> }) {
 		args.queries.add("mapEntities");
 
 		super({

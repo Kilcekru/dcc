@@ -2,21 +2,20 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Coalition, Position } from "../components";
 import { calcInitDeploymentScore } from "../utils";
 import { QueryName, world } from "../world";
 import { Building } from "./Building";
-import { MapEntity } from "./MapEntity";
+import { MapEntity, MapEntityProps } from "./MapEntity";
 import type { Objective } from "./Objective";
 
-export interface StructureProps extends Coalition, Position {
+export interface StructureProps extends MapEntityProps {
 	name: string;
 	objective: Objective;
 	position: DcsJs.Position;
 	type: DcsJs.StructureType;
 }
 
-export class Structure extends MapEntity implements Coalition, Position {
+export class Structure extends MapEntity {
 	public name: string;
 	public objective: Objective;
 	public type: DcsJs.StructureType;
@@ -50,7 +49,6 @@ export class Structure extends MapEntity implements Coalition, Position {
 		this.objective = args.objective;
 		this.position = args.position;
 		this.type = args.type;
-		this.coalition = args.coalition;
 
 		const structureTemplate = Utils.Random.item(world.dataStore?.structures?.[args.type] ?? []);
 

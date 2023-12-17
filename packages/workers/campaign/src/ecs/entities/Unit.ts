@@ -1,8 +1,7 @@
-import { Coalition } from "../components";
 import { Entity, EntityProps } from "./Entity";
 
 export type UnitProps = EntityProps;
-export abstract class Unit extends Entity implements Coalition {
+export abstract class Unit extends Entity {
 	public constructor(args: UnitProps) {
 		super(args);
 	}

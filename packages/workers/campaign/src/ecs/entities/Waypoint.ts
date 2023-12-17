@@ -2,7 +2,6 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Position } from "../components";
 import { world } from "../world";
 import { Flightplan } from "./Flightplan";
 import { HomeBase } from "./HomeBase";
@@ -14,9 +13,10 @@ export enum WaypointType {
 	Nav,
 }
 
-export interface WaypointTemplateProps extends Position {
+export interface WaypointTemplateProps {
 	name: string;
 	onGround: boolean;
+	position: DcsJs.Position;
 	duration?: number;
 	type: WaypointType;
 	raceTrack?: {
@@ -25,13 +25,13 @@ export interface WaypointTemplateProps extends Position {
 	};
 }
 
-export class WaypointTemplate implements Position {
-	public name: string;
-	public position: DcsJs.Position;
-	public onGround: boolean;
-	public duration: number | undefined;
-	public type: WaypointType;
-	public racetrack:
+export class WaypointTemplate {
+	public readonly name: string;
+	public readonly position: DcsJs.Position;
+	public readonly onGround: boolean;
+	public readonly duration: number | undefined;
+	public readonly type: WaypointType;
+	public readonly racetrack:
 		| {
 				name: string;
 				position: DcsJs.Position;
@@ -45,6 +45,16 @@ export class WaypointTemplate implements Position {
 		this.duration = args.duration;
 		this.type = args.type;
 		this.racetrack = args.raceTrack;
+	}
+
+	static waypoint(args: {
+		name: string;
+		position: DcsJs.Position;
+		onGround: boolean;
+		duration?: number;
+		type: WaypointType;
+	}) {
+		return new WaypointTemplate(args);
 	}
 
 	static takeOffWaypoint(homeBase: HomeBase) {
@@ -159,7 +169,7 @@ export interface WaypointProps extends WaypointTemplateProps {
 }
 
 export class Waypoint extends WaypointTemplate {
-	arrivalDuration: number;
+	public readonly arrivalDuration: number;
 	#flightplan: Flightplan;
 
 	constructor(args: WaypointProps) {

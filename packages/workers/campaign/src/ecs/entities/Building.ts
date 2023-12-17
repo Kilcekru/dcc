@@ -6,20 +6,24 @@ export interface BuildingProps {
 	offset: DcsJs.Position;
 }
 export class Building {
-	public name: string;
-	public alive: boolean;
-	public offset: DcsJs.Position;
+	public readonly name: string;
+	#alive: boolean;
+	public readonly offset: DcsJs.Position;
+
+	get alive() {
+		return this.#alive;
+	}
 
 	constructor(args: BuildingProps) {
 		this.name = args.name;
-		this.alive = args.alive;
+		this.#alive = args.alive;
 		this.offset = args.offset;
 	}
 
 	toJSON() {
 		return {
 			name: this.name,
-			alive: this.alive,
+			alive: this.#alive,
 			offset: this.offset,
 		};
 	}

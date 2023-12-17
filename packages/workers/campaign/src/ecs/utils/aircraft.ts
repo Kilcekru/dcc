@@ -56,16 +56,26 @@ function getUsableAircraftsByTask(args: {
 	return aircraftsPerAircraftType.get(selectedAircraftType) ?? new Set();
 }
 
+type TaskProps =
+	| {
+			task: "CAP";
+			target: Entities.HomeBase;
+	  }
+	| {
+			task: "CAS";
+	  };
+
 /**
  *	Returns a set of aircrafts which are available for a task at one home base and the home base they are stationed at
  * @param args Coalition, the task of the desired aircrafts and optionally a set of excluded aircrafts
  * @returns Returns a set of aircrafts and the home base they are stationed at
  */
-export function getAircraftBundle(args: {
-	coalition: DcsJs.Coalition;
-	task: DcsJs.Task;
-	excludedAircrafts?: Set<Entities.Aircraft>;
-}): AircraftBundle | undefined {
+export function getAircraftBundle(
+	args: {
+		coalition: DcsJs.Coalition;
+		excludedAircrafts?: Set<Entities.Aircraft>;
+	} & TaskProps,
+): AircraftBundle | undefined {
 	const aircrafts = getUsableAircraftsByTask(args);
 
 	// Map the aircrafts to their home bases
@@ -90,8 +100,42 @@ export function getAircraftBundle(args: {
 		}
 	}
 
+	let selectedHomeBase: Entities.HomeBase | undefined;
+
 	// Select one of the home bases
-	const selectedHomeBase = Utils.Random.item(homeBasesWithMinAmount);
+	switch (args.task) {
+		case "CAP": {
+			let distanceToHomeBase = 99999999;
+
+			for (const homeBase of homeBasesWithMinAmount) {
+				const distance = Utils.Location.distanceToPosition(homeBase.position, args.target.position);
+
+				if (distance < distanceToHomeBase) {
+					selectedHomeBase = homeBase;
+					distanceToHomeBase = distance;
+				}
+			}
+			break;
+		}
+		case "CAS": {
+			const oppCoalition = Utils.Coalition.opposite(args.coalition);
+			const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
+			let distanceToHomeBase = 99999999;
+
+			for (const homeBase of homeBasesWithMinAmount) {
+				for (const oppGroundGroup of oppGroundGroups) {
+					const distance = Utils.Location.distanceToPosition(homeBase.position, oppGroundGroup.position);
+
+					if (distance < distanceToHomeBase && distance <= Utils.Config.packages.CAS.maxDistance) {
+						selectedHomeBase = homeBase;
+						distanceToHomeBase = distance;
+					}
+				}
+			}
+
+			break;
+		}
+	}
 
 	if (selectedHomeBase == null) {
 		return;

@@ -1,7 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Coalition } from "../components";
 import { SuperSet } from "../SuperSet";
 import { QueryKey, QueryName, splitQueryKey, world } from "../world";
 
@@ -12,10 +11,10 @@ export interface EntityProps {
 	queries: Set<QueryKey>;
 }
 
-export abstract class Entity implements Coalition {
+export abstract class Entity {
 	#queries: Set<QueryKey> = new Set();
-	coalition: DcsJs.Coalition;
-	id: EntityId;
+	public readonly coalition: DcsJs.Coalition;
+	public readonly id: EntityId;
 
 	get queries(): Set<QueryKey> {
 		return this.#queries;

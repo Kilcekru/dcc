@@ -4,6 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { world } from "../world";
 import type { Airdrome } from "./Airdrome";
+import { EntityId } from "./Entity";
 import type { FlightGroup } from "./FlightGroup";
 import type { HomeBase } from "./HomeBase";
 import { Unit, UnitProps } from "./Unit";
@@ -15,11 +16,24 @@ export interface AircraftProps extends Omit<UnitProps, "queries"> {
 export type AircraftA2AWeapons = Map<string, { item: DcsJs.A2AWeapon; count: number; total: number }>;
 
 export class Aircraft extends Unit {
-	public aircraftType: DcsJs.DCS.Aircraft;
-	public flightGroup: FlightGroup | undefined = undefined;
-	public homeBase: HomeBase;
-	public isClient = false;
-	public loadout: DcsJs.Loadout | undefined = undefined;
+	public readonly aircraftType: DcsJs.DCS.Aircraft;
+	#flightGroupId: EntityId | undefined = undefined;
+	public readonly homeBase: HomeBase;
+	#isClient = false;
+	#alive = true;
+	#loadout: DcsJs.Loadout | undefined = undefined;
+
+	get flightGroup(): FlightGroup | undefined {
+		if (this.#flightGroupId == null) {
+			return undefined;
+		}
+
+		return world.getEntity<FlightGroup>(this.#flightGroupId);
+	}
+
+	get loadout() {
+		return this.#loadout;
+	}
 
 	public constructor(args: AircraftProps) {
 		super({
@@ -29,12 +43,12 @@ export class Aircraft extends Unit {
 		this.aircraftType = args.aircraftType;
 		this.homeBase = args.homeBase;
 
-		this.homeBase.aircrafts.add(this);
+		this.homeBase.addAircraft(this);
 	}
 
 	override deconstructor() {
 		super.deconstructor();
-		this.homeBase.aircrafts.delete(this);
+		this.homeBase.removeAircraft(this);
 		this.flightGroup?.aircrafts.delete(this);
 	}
 
@@ -50,7 +64,7 @@ export class Aircraft extends Unit {
 			}
 		}
 
-		this.loadout = {
+		this.#loadout = {
 			...loadout,
 			task: task,
 			pylons: loadout.pylons.map((pylon): DcsJs.Pylon => {
@@ -83,11 +97,11 @@ export class Aircraft extends Unit {
 	get a2aWeapons() {
 		const weapons: AircraftA2AWeapons = new Map();
 
-		if (this.loadout == null) {
+		if (this.#loadout == null) {
 			return weapons;
 		}
 
-		for (const pylon of this.loadout.pylons) {
+		for (const pylon of this.#loadout.pylons) {
 			if (pylon.weapon == null) {
 				continue;
 			}
@@ -137,10 +151,11 @@ export class Aircraft extends Unit {
 	}
 
 	addToFlightGroup(flightGroup: FlightGroup) {
-		this.flightGroup = flightGroup;
+		this.#flightGroupId = flightGroup.id;
 		this.#addLoadout(flightGroup.task);
 		this.moveSubQuery("aircrafts", "idle", "in use");
 	}
+
 	static generateAircraftsForAirdrome(args: { coalition: DcsJs.Coalition; airdrome: Airdrome }) {
 		for (const task in world.dataStore?.tasks ?? {}) {
 			this.generateAircraftsForTask({
@@ -183,7 +198,7 @@ export class Aircraft extends Unit {
 			homeBase: this.homeBase.id,
 			flightGroup: this.flightGroup?.id,
 			displayName: this.aircraftType.display_name,
-			isClient: this.isClient,
+			isClient: this.#isClient,
 		};
 	}
 }

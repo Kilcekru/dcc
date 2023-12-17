@@ -2,7 +2,6 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Task } from "../components";
 import { generateCallSign } from "../utils";
 import { type QueryKey, world } from "../world";
 import type { Aircraft } from "./Aircraft";
@@ -20,6 +19,7 @@ export interface FlightGroupProps extends GroupProps {
 	package: Package;
 	aircrafts: Set<Aircraft>;
 	homeBase: HomeBase;
+	taskWaypoints: Array<WaypointTemplate>;
 }
 
 export type A2ACombat = {
@@ -28,15 +28,19 @@ export type A2ACombat = {
 	cooldownTime: number;
 };
 
-export class FlightGroup extends Group implements Task {
-	public aircrafts: Set<Aircraft> = new Set();
-	public task: DcsJs.Task;
-	public flightplan: Flightplan = new Flightplan(this);
-	public startTime: number;
-	public name: string;
-	public homeBase: HomeBase;
+export class FlightGroup extends Group {
+	#aircrafts: Set<Aircraft> = new Set();
+	public readonly task: DcsJs.Task;
+	public readonly flightplan: Flightplan = new Flightplan(this);
+	public readonly startTime: number;
+	public readonly name: string;
+	public readonly homeBase: HomeBase;
 	public combat: A2ACombat | undefined;
 	#packageId: EntityId;
+
+	get aircrafts() {
+		return this.#aircrafts;
+	}
 
 	get package() {
 		return world.getEntity<Package>(this.#packageId);
@@ -49,7 +53,7 @@ export class FlightGroup extends Group implements Task {
 	get a2aRange(): number {
 		let maxRange = 0;
 
-		for (const aircraft of this.aircrafts) {
+		for (const aircraft of this.#aircrafts) {
 			const range = aircraft.a2aRange;
 
 			if (range > maxRange) {
@@ -60,7 +64,7 @@ export class FlightGroup extends Group implements Task {
 		return maxRange;
 	}
 
-	public constructor(args: FlightGroupProps) {
+	protected constructor(args: FlightGroupProps) {
 		super({ ...args, queries: new Set([`flightGroups-${args.task}` as QueryKey]) });
 
 		const cs = generateCallSign(args.coalition, "aircraft");
@@ -68,14 +72,12 @@ export class FlightGroup extends Group implements Task {
 		this.#packageId = args.package.id;
 		this.startTime = Utils.DateTime.toFullMinutes(world.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
 		this.name = cs.flightGroupName;
-		this.aircrafts = args.aircrafts;
+		this.#aircrafts = args.aircrafts;
 		this.homeBase = args.homeBase;
 
-		for (const aircraft of this.aircrafts) {
+		for (const aircraft of this.#aircrafts) {
 			aircraft.addToFlightGroup(this);
 		}
-
-		this.package.addFlightGroup(this);
 
 		if (this.coalition === "blue") {
 			world.flightGroupsUpdate();
@@ -162,7 +164,7 @@ export class FlightGroup extends Group implements Task {
 			throw new Error("combat is null");
 		}
 
-		aircraftLoop: for (const aircraft of this.aircrafts) {
+		aircraftLoop: for (const aircraft of this.#aircrafts) {
 			const a2aWeapons = aircraft.a2aWeapons;
 
 			for (const weapon of a2aWeapons.values()) {
@@ -202,16 +204,16 @@ export class FlightGroup extends Group implements Task {
 	 * @returns true if the all aircraft within the flight group was destroyed
 	 */
 	destroyAircraft() {
-		const [aircraft] = this.aircrafts;
+		const [aircraft] = this.#aircrafts;
 
 		if (aircraft == null) {
 			throw new Error("aircraft is null");
 		}
 
-		this.aircrafts.delete(aircraft);
+		this.#aircrafts.delete(aircraft);
 		aircraft.deconstructor();
 
-		if (this.aircrafts.size === 0) {
+		if (this.#aircrafts.size === 0) {
 			this.deconstructor();
 
 			return true;
@@ -244,7 +246,7 @@ export class FlightGroup extends Group implements Task {
 			task: this.task,
 			coalition: this.coalition,
 			id: this.id,
-			aircrafts: Array.from(this.aircrafts).map((aircraft) => aircraft.toJSON()),
+			aircrafts: Array.from(this.#aircrafts).map((aircraft) => aircraft.toJSON()),
 			flightplan: this.flightplan.toJSON(),
 		};
 	}
@@ -252,11 +254,10 @@ export class FlightGroup extends Group implements Task {
 
 interface CapFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	target: HomeBase;
-	taskWaypoints: Array<WaypointTemplate>;
 }
 
 export class CapFlightGroup extends FlightGroup {
-	target: HomeBase;
+	public readonly target: HomeBase;
 
 	private constructor(args: CapFlightGroupProps) {
 		super({ ...args, task: "CAP" });
@@ -276,10 +277,26 @@ export class CapFlightGroup extends FlightGroup {
 		);
 	}
 
-	static create(args: Omit<CapFlightGroupProps, "taskWaypoints">) {
+	static #getOppAirdrome(args: Omit<CapFlightGroupProps, "taskWaypoints" | "package">) {
 		const oppAirdromes = world.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
 
 		const oppAirdrome = Utils.Location.findNearest(oppAirdromes, args.target.position, (ad) => ad.position);
+
+		return oppAirdrome;
+	}
+
+	static isAvailable(args: Omit<CapFlightGroupProps, "taskWaypoints" | "package">) {
+		const oppAirdrome = CapFlightGroup.#getOppAirdrome(args);
+
+		if (oppAirdrome == null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	static create(args: Omit<CapFlightGroupProps, "taskWaypoints">) {
+		const oppAirdrome = CapFlightGroup.#getOppAirdrome(args);
 
 		if (oppAirdrome == null) {
 			// eslint-disable-next-line no-console
@@ -312,23 +329,85 @@ export class CapFlightGroup extends FlightGroup {
 			}),
 		];
 
-		new CapFlightGroup({
+		return new CapFlightGroup({
 			...args,
 			taskWaypoints: waypoints,
 		});
 	}
 }
 
-interface CasFlightGroupProps extends FlightGroupProps {
+interface CasFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	target: GroundGroup;
 }
 
 export class CasFlightGroup extends FlightGroup {
-	target: GroundGroup;
+	public readonly target: GroundGroup;
 
-	public constructor(args: CasFlightGroupProps) {
-		super(args);
+	private constructor(args: CasFlightGroupProps) {
+		super({ ...args, task: "CAS" });
 		this.target = args.target;
+	}
+
+	static #getTargetGroundGroup(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
+		const oppCoalition = Utils.Coalition.opposite(args.coalition);
+		const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
+		let distanceToHomeBase = 99999999;
+		let targetGroundGroup: GroundGroup | undefined;
+
+		for (const oppGroundGroup of oppGroundGroups) {
+			const distance = Utils.Location.distanceToPosition(args.homeBase.position, oppGroundGroup.position);
+
+			if (distance < distanceToHomeBase && distance <= Utils.Config.packages.CAS.maxDistance) {
+				targetGroundGroup = oppGroundGroup;
+				distanceToHomeBase = distance;
+			}
+		}
+
+		if (targetGroundGroup == null) {
+			// eslint-disable-next-line no-console
+			console.warn("no ground group target found for cas package", this);
+
+			return;
+		}
+
+		return targetGroundGroup;
+	}
+
+	static isAvailable(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
+		const targetGroundGroup = CasFlightGroup.#getTargetGroundGroup(args);
+
+		if (targetGroundGroup == null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	static create(args: Omit<FlightGroupProps, "task" | "taskWaypoints">) {
+		const targetGroundGroup = CasFlightGroup.#getTargetGroundGroup(args);
+
+		if (targetGroundGroup == null) {
+			// eslint-disable-next-line no-console
+			throw new Error("no ground group target found for cas package");
+		}
+
+		const duration = Utils.DateTime.Minutes(30);
+
+		const waypoints: Array<WaypointTemplate> = [
+			WaypointTemplate.waypoint({
+				position: targetGroundGroup.position,
+				duration,
+				type: WaypointType.Task,
+				name: "CAS",
+				onGround: true,
+			}),
+		];
+
+		return new CasFlightGroup({
+			...args,
+			target: targetGroundGroup,
+			taskWaypoints: waypoints,
+		});
 	}
 }
 
