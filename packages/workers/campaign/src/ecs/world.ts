@@ -22,7 +22,7 @@ export function splitQueryKey(key: QueryKey) {
 	return key.split("-", 2) as [QueryName] | [QueryName, string];
 }
 
-const taskSubQueries = ["CAP"];
+const taskSubQueries = ["CAP", "CAS", "Escort"];
 const aircraftSubQueries = ["idle", "in use"];
 const groundGroupSubQueries = ["en route", "on target"];
 

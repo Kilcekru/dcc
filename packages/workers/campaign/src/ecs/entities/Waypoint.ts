@@ -11,11 +11,12 @@ export enum WaypointType {
 	Landing,
 	Task,
 	Nav,
+	Hold,
 }
 
 export interface WaypointTemplateProps {
 	name: string;
-	onGround: boolean;
+	onGround?: boolean;
 	position: DcsJs.Position;
 	duration?: number;
 	type: WaypointType;
@@ -41,7 +42,7 @@ export class WaypointTemplate {
 	constructor(args: WaypointTemplateProps) {
 		this.name = args.name;
 		this.position = args.position;
-		this.onGround = args.onGround;
+		this.onGround = args.onGround ?? false;
 		this.duration = args.duration;
 		this.type = args.type;
 		this.racetrack = args.raceTrack;
@@ -50,7 +51,7 @@ export class WaypointTemplate {
 	static waypoint(args: {
 		name: string;
 		position: DcsJs.Position;
-		onGround: boolean;
+		onGround?: boolean;
 		duration?: number;
 		type: WaypointType;
 	}) {
@@ -76,6 +77,12 @@ export class WaypointTemplate {
 			position: args.positions.from,
 			raceTrackPosition: args.positions.to,
 			type: args.type,
+		});
+	}
+
+	static holdWaypoint(args: { position: DcsJs.Position }) {
+		return new HoldWaypoint({
+			position: args.position,
 		});
 	}
 
@@ -159,6 +166,31 @@ export class RaceTrackWaypoint extends WaypointTemplate {
 				name: "Racetrack End",
 				position: args.raceTrackPosition,
 			},
+		});
+	}
+}
+
+export interface HoldWaypointProps {
+	position: DcsJs.Position;
+}
+
+export class HoldWaypoint extends WaypointTemplate {
+	constructor(args: HoldWaypointProps) {
+		super({
+			name: "Hold",
+			onGround: false,
+			duration: Utils.Config.defaults.holdWaypointDuration,
+			position: args.position,
+			type: WaypointType.Hold,
+		});
+	}
+
+	toEscortWaypoint() {
+		return new WaypointTemplate({
+			name: "Escort",
+			onGround: false,
+			position: this.position,
+			type: WaypointType.Task,
 		});
 	}
 }

@@ -2,17 +2,15 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { generateCallSign } from "../utils";
-import { type QueryKey, world } from "../world";
-import type { Aircraft } from "./Aircraft";
-import { EntityId } from "./Entity";
-import { Flightplan } from "./Flightplan";
-import type { GroundGroup } from "./GroundGroup";
-import { Group, GroupProps } from "./Group";
-import type { HomeBase } from "./HomeBase";
-import { type Package } from "./Package";
-import type { Structure } from "./Structure";
-import { WaypointTemplate, WaypointType } from "./Waypoint";
+import { generateCallSign } from "../../utils";
+import { type QueryKey, world } from "../../world";
+import type { Aircraft } from "../Aircraft";
+import { EntityId } from "../Entity";
+import { Flightplan } from "../Flightplan";
+import { Group, GroupProps } from "../Group";
+import type { HomeBase } from "../HomeBase";
+import { type Package } from "../Package";
+import { WaypointTemplate } from "../Waypoint";
 
 export interface FlightGroupProps extends GroupProps {
 	task: DcsJs.Task;
@@ -249,177 +247,5 @@ export class FlightGroup extends Group {
 			aircrafts: Array.from(this.#aircrafts).map((aircraft) => aircraft.toJSON()),
 			flightplan: this.flightplan.toJSON(),
 		};
-	}
-}
-
-interface CapFlightGroupProps extends Omit<FlightGroupProps, "task"> {
-	target: HomeBase;
-}
-
-export class CapFlightGroup extends FlightGroup {
-	public readonly target: HomeBase;
-
-	private constructor(args: CapFlightGroupProps) {
-		super({ ...args, task: "CAP" });
-		this.target = args.target;
-		const prevWaypoint = Utils.Array.lastItem(args.taskWaypoints);
-
-		if (prevWaypoint == null) {
-			throw new Error("prevWaypoint is null");
-		}
-		this.flightplan.add(WaypointTemplate.takeOffWaypoint(args.homeBase));
-		this.flightplan.add(...args.taskWaypoints);
-		this.flightplan.add(
-			...WaypointTemplate.landingWaypoints({
-				prevWaypoint,
-				homeBase: args.homeBase,
-			}),
-		);
-	}
-
-	static #getOppAirdrome(args: Omit<CapFlightGroupProps, "taskWaypoints" | "package">) {
-		const oppAirdromes = world.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
-
-		const oppAirdrome = Utils.Location.findNearest(oppAirdromes, args.target.position, (ad) => ad.position);
-
-		return oppAirdrome;
-	}
-
-	static isAvailable(args: Omit<CapFlightGroupProps, "taskWaypoints" | "package">) {
-		const oppAirdrome = CapFlightGroup.#getOppAirdrome(args);
-
-		if (oppAirdrome == null) {
-			return false;
-		}
-
-		return true;
-	}
-
-	static create(args: Omit<CapFlightGroupProps, "taskWaypoints">) {
-		const oppAirdrome = CapFlightGroup.#getOppAirdrome(args);
-
-		if (oppAirdrome == null) {
-			// eslint-disable-next-line no-console
-			console.warn("no opposite airdrome found for cap flight group", args);
-
-			return;
-		}
-
-		const egressHeading = Utils.Location.headingToPosition(args.target.position, oppAirdrome.position);
-
-		const centerPosition = Utils.Location.positionFromHeading(args.target.position, egressHeading, 30_000);
-
-		const racetrackStart = Utils.Location.positionFromHeading(
-			centerPosition,
-			Utils.Location.addHeading(egressHeading, -90),
-			20_000,
-		);
-		const racetrackEnd = Utils.Location.positionFromHeading(
-			centerPosition,
-			Utils.Location.addHeading(egressHeading, 90),
-			20_000,
-		);
-		const duration = Utils.DateTime.Minutes(30);
-
-		const waypoints: Array<WaypointTemplate> = [
-			WaypointTemplate.raceTrackWaypoint({
-				positions: { from: racetrackStart, to: racetrackEnd },
-				duration,
-				type: WaypointType.Task,
-			}),
-		];
-
-		return new CapFlightGroup({
-			...args,
-			taskWaypoints: waypoints,
-		});
-	}
-}
-
-interface CasFlightGroupProps extends Omit<FlightGroupProps, "task"> {
-	target: GroundGroup;
-}
-
-export class CasFlightGroup extends FlightGroup {
-	public readonly target: GroundGroup;
-
-	private constructor(args: CasFlightGroupProps) {
-		super({ ...args, task: "CAS" });
-		this.target = args.target;
-	}
-
-	static #getTargetGroundGroup(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
-		const oppCoalition = Utils.Coalition.opposite(args.coalition);
-		const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
-		let distanceToHomeBase = 99999999;
-		let targetGroundGroup: GroundGroup | undefined;
-
-		for (const oppGroundGroup of oppGroundGroups) {
-			const distance = Utils.Location.distanceToPosition(args.homeBase.position, oppGroundGroup.position);
-
-			if (distance < distanceToHomeBase && distance <= Utils.Config.packages.CAS.maxDistance) {
-				targetGroundGroup = oppGroundGroup;
-				distanceToHomeBase = distance;
-			}
-		}
-
-		if (targetGroundGroup == null) {
-			// eslint-disable-next-line no-console
-			console.warn("no ground group target found for cas package", this);
-
-			return;
-		}
-
-		return targetGroundGroup;
-	}
-
-	static isAvailable(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
-		const targetGroundGroup = CasFlightGroup.#getTargetGroundGroup(args);
-
-		if (targetGroundGroup == null) {
-			return false;
-		}
-
-		return true;
-	}
-
-	static create(args: Omit<FlightGroupProps, "task" | "taskWaypoints">) {
-		const targetGroundGroup = CasFlightGroup.#getTargetGroundGroup(args);
-
-		if (targetGroundGroup == null) {
-			// eslint-disable-next-line no-console
-			throw new Error("no ground group target found for cas package");
-		}
-
-		const duration = Utils.DateTime.Minutes(30);
-
-		const waypoints: Array<WaypointTemplate> = [
-			WaypointTemplate.waypoint({
-				position: targetGroundGroup.position,
-				duration,
-				type: WaypointType.Task,
-				name: "CAS",
-				onGround: true,
-			}),
-		];
-
-		return new CasFlightGroup({
-			...args,
-			target: targetGroundGroup,
-			taskWaypoints: waypoints,
-		});
-	}
-}
-
-interface StrikeFlightGroupProps extends FlightGroupProps {
-	target: Structure;
-}
-
-export class StrikeFlightGroup extends FlightGroup {
-	target: Structure;
-
-	public constructor(args: StrikeFlightGroupProps) {
-		super(args);
-		this.target = args.target;
 	}
 }

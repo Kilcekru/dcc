@@ -1,5 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
+import { Minutes } from "./dateTime";
+
 type PerTask<Value> = Record<DcsJs.Task, Value>;
 type PerCoalition = Record<DcsJs.Coalition, number>;
 
@@ -49,6 +51,9 @@ type Config = {
 	defaults: {
 		cruiseSpeed: number;
 		groundGroupSpeed: number;
+		holdWaypointDistance: number;
+		holdWaypointDuration: number;
+		casEscortRange: number;
 	};
 	combat: {
 		a2a: {
@@ -147,7 +152,9 @@ export const Config: Config = {
 	},
 	defaults: {
 		cruiseSpeed: 200,
-
+		casEscortRange: 100_000,
+		holdWaypointDistance: 15_000,
+		holdWaypointDuration: Minutes(5),
 		groundGroupSpeed: 6,
 	},
 	combat: {

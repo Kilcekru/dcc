@@ -3,7 +3,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { world } from "../world";
 import { EntityId } from "./Entity";
-import type { FlightGroup } from "./FlightGroup";
+import type { FlightGroup } from "./flight-group/FlightGroup";
 import { Waypoint, WaypointTemplate } from "./Waypoint";
 
 export class Flightplan {

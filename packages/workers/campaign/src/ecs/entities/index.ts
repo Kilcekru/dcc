@@ -1,7 +1,7 @@
 export * from "./Aircraft";
 export * from "./Airdrome";
 export * from "./Entity";
-export * from "./FlightGroup";
+export * from "./flight-group";
 export * from "./GroundGroup";
 export * from "./GroundUnit";
 export * from "./HomeBase";
@@ -9,3 +9,4 @@ export * from "./MapEntity";
 export * from "./Objective";
 export * from "./Package";
 export * from "./Structure";
+export * from "./Waypoint";

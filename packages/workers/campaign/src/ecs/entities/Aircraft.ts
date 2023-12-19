@@ -5,7 +5,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { world } from "../world";
 import type { Airdrome } from "./Airdrome";
 import { EntityId } from "./Entity";
-import type { FlightGroup } from "./FlightGroup";
+import type { FlightGroup } from "./flight-group/FlightGroup";
 import type { HomeBase } from "./HomeBase";
 import { Unit, UnitProps } from "./Unit";
 export interface AircraftProps extends Omit<UnitProps, "queries"> {
@@ -33,6 +33,10 @@ export class Aircraft extends Unit {
 
 	get loadout() {
 		return this.#loadout;
+	}
+
+	get isHelicopter() {
+		return this.aircraftType.isHelicopter;
 	}
 
 	public constructor(args: AircraftProps) {

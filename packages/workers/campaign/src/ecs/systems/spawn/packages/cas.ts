@@ -17,10 +17,14 @@ export function cas(coalition: DcsJs.Coalition) {
 	// Create a new CAS flight group if the CAS capacity is not reached
 	if (flightGroups.size < Utils.Config.packages.CAS.maxActive[coalition]) {
 		try {
-			Entities.Package.create({
+			const created = Entities.Package.create({
 				coalition: coalition,
 				task: "CAS",
 			});
+
+			if (created === false) {
+				inError = 10;
+			}
 		} catch (error) {
 			inError = 10;
 			// eslint-disable-next-line no-console

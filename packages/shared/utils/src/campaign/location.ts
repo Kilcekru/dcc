@@ -163,3 +163,24 @@ export const addHeading = (heading: number, value: number) => {
 export function inRange(sourcePosition: DcsJs.Position, targetPosition: DcsJs.Position, range: number) {
 	return distanceToPosition(sourcePosition, targetPosition) <= range;
 }
+
+export function midpoint(positions: DcsJs.Position[]): DcsJs.Position {
+	let totalX = 0;
+	let totalY = 0;
+
+	for (const pos of positions) {
+		totalX += pos.x;
+		totalY += pos.y;
+	}
+
+	return {
+		x: totalX / positions.length,
+		y: totalY / positions.length,
+	};
+}
+
+export function midpointAtDistance(from: DcsJs.Position, to: DcsJs.Position, distance: number): DcsJs.Position {
+	const heading = headingToPosition(from, to);
+
+	return positionFromHeading(from, heading, distance);
+}

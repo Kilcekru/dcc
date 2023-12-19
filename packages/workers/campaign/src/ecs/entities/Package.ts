@@ -1,11 +1,12 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { AircraftBundle, getAircraftBundle } from "../utils";
+import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
 import { world } from "../world";
 import { Entity, EntityId } from "./Entity";
-import { CapFlightGroup, CasFlightGroup, FlightGroup } from "./FlightGroup";
-import type { HomeBase } from "./HomeBase";
+import { CapFlightGroup, CasFlightGroup, FlightGroup } from "./flight-group";
+import { EscortFlightGroup } from "./flight-group/Escort";
+import { HomeBase } from "./HomeBase";
 
 type BasicProps = {
 	coalition: DcsJs.Coalition;
@@ -40,69 +41,13 @@ export class Package extends Entity {
 		this.task = args.task;
 	}
 
-	static #createAircraftBundle(args: PackageCreateProps) {
-		let aircraftBundle: AircraftBundle | undefined = undefined;
-
-		switch (args.task) {
-			case "CAP":
-				aircraftBundle = getAircraftBundle({
-					coalition: args.coalition,
-					task: args.task,
-					target: args.target,
-				});
-				break;
-			case "CAS":
-				aircraftBundle = getAircraftBundle({
-					coalition: args.coalition,
-					task: args.task,
-				});
-				break;
-		}
-
-		return aircraftBundle;
-	}
-
-	static isAvailable(args: PackageCreateProps) {
-		const aircraftBundle = Package.#createAircraftBundle(args);
-
-		if (aircraftBundle == null) {
-			return false;
-		}
-
-		switch (args.task) {
-			case "CAP": {
-				const isAvailable = CapFlightGroup.isAvailable({
-					coalition: args.coalition,
-					position: aircraftBundle.homeBase.position,
-					target: args.target,
-					aircrafts: aircraftBundle.aircrafts,
-					homeBase: aircraftBundle.homeBase,
-				});
-
-				return isAvailable;
-			}
-			case "CAS": {
-				const isAvailable = CasFlightGroup.isAvailable({
-					coalition: args.coalition,
-					homeBase: aircraftBundle.homeBase,
-				});
-
-				return isAvailable;
-			}
-		}
-
-		return true;
-	}
-
 	static create(args: PackageCreateProps) {
-		if (!Package.isAvailable(args)) {
-			throw new Error("Package is not available");
-		}
+		const aircraftBundles = getValidAircraftBundles(args);
 
-		const aircraftBundle = Package.#createAircraftBundle(args);
-
-		if (aircraftBundle == null) {
-			throw new Error("Package is not available");
+		if (aircraftBundles == null) {
+			// eslint-disable-next-line no-console
+			console.log("No valid aircraft bundles found", args);
+			return false;
 		}
 
 		const pkg = new Package({
@@ -110,25 +55,26 @@ export class Package extends Entity {
 			task: args.task,
 		});
 
-		const [aircraft] = aircraftBundle.aircrafts;
-
-		if (aircraft?.aircraftType.cruiseSpeed != null && aircraft.aircraftType.cruiseSpeed < pkg.cruiseSpeed) {
-			pkg.cruiseSpeed = aircraft.aircraftType.cruiseSpeed;
-		}
-
 		switch (args.task) {
 			case "CAP": {
+				const capBundle = aircraftBundles.get("CAP");
+
+				if (capBundle == null || capBundle.task !== "CAP") {
+					throw new Error("CAP bundle is null");
+				}
+
 				const fg = CapFlightGroup.create({
 					coalition: args.coalition,
-					position: aircraftBundle.homeBase.position,
+					position: capBundle.homeBase.position,
 					package: pkg,
+					aircrafts: capBundle.aircrafts,
+					homeBase: capBundle.homeBase,
+					oppAirdromeId: capBundle.oppAirdromeId,
 					target: args.target,
-					aircrafts: aircraftBundle.aircrafts,
-					homeBase: aircraftBundle.homeBase,
 				});
 
 				if (fg == null) {
-					return;
+					throw new Error("Flight group could not be created");
 				}
 
 				pkg.#flightGroups.add(fg.id);
@@ -136,23 +82,65 @@ export class Package extends Entity {
 				break;
 			}
 			case "CAS": {
-				const fg = CasFlightGroup.create({
-					coalition: args.coalition,
-					position: aircraftBundle.homeBase.position,
-					package: pkg,
-					aircrafts: aircraftBundle.aircrafts,
-					homeBase: aircraftBundle.homeBase,
-				});
+				const holdWaypoint = calcHoldWaypoint(aircraftBundles, "CAS");
 
-				if (fg == null) {
-					return;
+				const casBundle = aircraftBundles.get("CAS");
+
+				if (casBundle == null || casBundle.task !== "CAS") {
+					throw new Error("CAS bundle is null");
 				}
 
-				pkg.#flightGroups.add(fg.id);
+				const casFg = CasFlightGroup.create({
+					coalition: args.coalition,
+					position: casBundle.homeBase.position,
+					package: pkg,
+					aircrafts: casBundle.aircrafts,
+					homeBase: casBundle.homeBase,
+					targetGroundGroupId: casBundle.targetGroundGroupId,
+					holdWaypoint,
+				});
+
+				if (casFg == null) {
+					throw new Error("Flight group could not be created");
+				}
+
+				pkg.#flightGroups.add(casFg.id);
+
+				const escortBundle = aircraftBundles.get("Escort");
+
+				if (escortBundle != null && holdWaypoint != null) {
+					const escortFg = EscortFlightGroup.create({
+						coalition: args.coalition,
+						position: escortBundle.homeBase.position,
+						package: pkg,
+						aircrafts: escortBundle.aircrafts,
+						homeBase: escortBundle.homeBase,
+						targetFlightGroupId: casFg.id,
+						holdWaypoint: holdWaypoint,
+					});
+
+					if (escortFg == null) {
+						throw new Error("Flight group could not be created");
+					}
+
+					pkg.#flightGroups.add(escortFg.id);
+
+					casFg.addEscortFlightGroupId(escortFg.id);
+				}
 
 				break;
 			}
 		}
+
+		for (const aircraftBundle of aircraftBundles.values()) {
+			const [aircraft] = aircraftBundle.aircrafts;
+
+			if (aircraft?.aircraftType.cruiseSpeed != null && aircraft.aircraftType.cruiseSpeed < pkg.cruiseSpeed) {
+				pkg.cruiseSpeed = aircraft.aircraftType.cruiseSpeed;
+			}
+		}
+
+		return true;
 	}
 
 	removeFlightGroup(flightGroup: FlightGroup) {
