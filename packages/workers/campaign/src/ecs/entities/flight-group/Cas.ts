@@ -5,9 +5,10 @@ import { groundGroupAlreadyTargeted } from "../../utils";
 import { world } from "../../world";
 import type { GroundGroup } from "../GroundGroup";
 import { WaypointTemplate, WaypointType } from "../Waypoint";
-import { EscortedFlightGroup, EscortedFlightGroupProps } from "./EscortedFlightGroup";
+import { FlightGroupProps } from ".";
+import { EscortedFlightGroup } from "./EscortedFlightGroup";
 
-interface CasFlightGroupProps extends Omit<EscortedFlightGroupProps, "task"> {
+interface CasFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetGroundGroupId: Types.Campaign.Id;
 }
 
@@ -29,7 +30,7 @@ export class CasFlightGroup extends EscortedFlightGroup {
 	 * @param homeBase - the home base of the CAS flight group
 	 * @returns the target ground group
 	 */
-	static #getTargetGroundGroup(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
+	static #getTargetGroundGroup(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
 		const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
 		let distanceToHomeBase = 99999999;
@@ -63,7 +64,7 @@ export class CasFlightGroup extends EscortedFlightGroup {
 	 * @param args
 	 * @returns
 	 */
-	static getValidTarget(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
+	static getValidTarget(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const targetGroundGroup = this.#getTargetGroundGroup(args);
 
 		if (targetGroundGroup == null) {
@@ -74,7 +75,7 @@ export class CasFlightGroup extends EscortedFlightGroup {
 	}
 
 	static create(
-		args: Omit<EscortedFlightGroupProps, "task" | "taskWaypoints"> & {
+		args: Omit<FlightGroupProps, "task" | "taskWaypoints"> & {
 			targetGroundGroupId: Types.Campaign.Id;
 			holdWaypoint: WaypointTemplate | undefined;
 		},

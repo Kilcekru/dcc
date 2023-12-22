@@ -72,6 +72,7 @@ export class World {
 		groundUnits: Record<DcsJs.Coalition, Set<Entities.GroundUnit>>;
 		structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
 		unitCamps: Record<DcsJs.Coalition, Set<Entities.UnitCamp>>;
+		SAMs: Record<DcsJs.Coalition, Set<Entities.SAM>>;
 		mapEntities: Set<Entities.MapEntity>;
 		objectives: Record<DcsJs.Coalition, Set<Entities.Objective>>;
 	} = {
@@ -111,6 +112,11 @@ export class World {
 			neutrals: new Set(),
 		},
 		unitCamps: {
+			blue: new Set(),
+			red: new Set(),
+			neutrals: new Set(),
+		},
+		SAMs: {
 			blue: new Set(),
 			red: new Set(),
 			neutrals: new Set(),

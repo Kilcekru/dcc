@@ -16,11 +16,11 @@ export interface StructureProps extends MapEntityProps {
 }
 
 export class Structure extends MapEntity {
-	public name: string;
-	public objective: Objective;
-	public type: DcsJs.StructureType;
-	public state: DcsJs.StructureState = "active";
-	public buildings: Array<Building>;
+	public readonly name: string;
+	public readonly objective: Objective;
+	public readonly type: DcsJs.StructureType;
+	#state: DcsJs.StructureState = "active";
+	public readonly buildings: Array<Building>;
 
 	get alive() {
 		for (const building of this.buildings) {
@@ -150,7 +150,7 @@ export class Structure extends MapEntity {
 			objective: this.objective.name,
 			type: this.type,
 			buildings: this.buildings.map((building) => building.toJSON()),
-			state: this.state,
+			state: this.#state,
 		};
 	}
 }

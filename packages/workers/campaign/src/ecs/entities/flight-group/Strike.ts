@@ -5,10 +5,10 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { world } from "../../world";
 import type { Structure } from "../Structure";
 import { WaypointTemplate, WaypointType } from "../Waypoint";
-import { EscortedFlightGroup, EscortedFlightGroupProps } from "./EscortedFlightGroup";
+import { EscortedFlightGroup } from "./EscortedFlightGroup";
 import { FlightGroupProps } from "./FlightGroup";
 
-interface StrikeFlightGroupProps extends Omit<EscortedFlightGroupProps, "task"> {
+interface StrikeFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetStructureId: Types.Campaign.Id;
 }
 
@@ -83,7 +83,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup {
 	 * @param args
 	 * @returns
 	 */
-	static getValidTarget(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
+	static getValidTarget(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const targetStructure = this.#getTargetStructure(args);
 
 		if (targetStructure == null) {

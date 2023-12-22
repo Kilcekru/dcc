@@ -131,7 +131,7 @@ export class Package extends Entity {
 
 					pkg.#flightGroups.add(escortFg.id);
 
-					casFg.addEscortFlightGroupId(escortFg.id);
+					casFg.addEscortFlightGroupId("Escort", escortFg.id);
 				}
 
 				break;
@@ -180,7 +180,7 @@ export class Package extends Entity {
 
 					pkg.#flightGroups.add(escortFg.id);
 
-					strikeFg.addEscortFlightGroupId(escortFg.id);
+					strikeFg.addEscortFlightGroupId("Escort", escortFg.id);
 				}
 
 				break;

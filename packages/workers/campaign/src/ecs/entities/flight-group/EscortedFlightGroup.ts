@@ -1,29 +1,19 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { world } from "../../world";
 import { FlightGroup, FlightGroupProps } from ".";
-
-export interface EscortedFlightGroupProps extends FlightGroupProps {
-	escortFlightGroupId?: Types.Campaign.Id;
-}
-
 export class EscortedFlightGroup extends FlightGroup {
-	#escortFlightGroupId: Types.Campaign.Id | undefined = undefined;
+	#escortFlightGroupId: Map<DcsJs.Task, Types.Campaign.Id> | undefined = undefined;
 
-	get escortFlightGroup() {
+	constructor(args: FlightGroupProps) {
+		super(args);
+	}
+
+	addEscortFlightGroupId(task: DcsJs.Task, escortFlightGroupId: Types.Campaign.Id) {
 		if (this.#escortFlightGroupId == null) {
-			return undefined;
+			this.#escortFlightGroupId = new Map();
 		}
 
-		return world.getEntity<FlightGroup>(this.#escortFlightGroupId);
-	}
-
-	constructor(args: EscortedFlightGroupProps) {
-		super(args);
-		this.#escortFlightGroupId = args.escortFlightGroupId;
-	}
-
-	addEscortFlightGroupId(escortFlightGroupId: Types.Campaign.Id) {
-		this.#escortFlightGroupId = escortFlightGroupId;
+		this.#escortFlightGroupId.set(task, escortFlightGroupId);
 	}
 }

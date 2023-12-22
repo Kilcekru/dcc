@@ -8,5 +8,6 @@ export * from "./HomeBase";
 export * from "./MapEntity";
 export * from "./Objective";
 export * from "./Package";
+export * from "./SAM";
 export * from "./Structure";
 export * from "./Waypoint";
