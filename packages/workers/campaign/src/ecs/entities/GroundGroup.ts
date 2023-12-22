@@ -3,6 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { QueryKey, world } from "../world";
+import type { FlightGroup } from "./flight-group";
 import { GroundUnit } from "./GroundUnit";
 import { Group, GroupProps } from "./Group";
 import type { Objective } from "./Objective";
@@ -10,6 +11,7 @@ export interface GroundGroupProps extends Omit<GroupProps, "position"> {
 	start: Objective;
 	target: Objective;
 	groupType?: DcsJs.CampaignGroundGroupType;
+	embarked?: FlightGroup;
 }
 
 export class GroundGroup extends Group {
@@ -19,6 +21,7 @@ export class GroundGroup extends Group {
 	public readonly type: DcsJs.CampaignGroundGroupType;
 	public readonly units: Array<GroundUnit>;
 	public readonly shoradUnits: Array<GroundUnit>;
+	#embarkedOntoFlightGroup: FlightGroup | undefined;
 
 	get aliveUnits(): Array<GroundUnit> {
 		return this.units.filter((u) => u.alive);
@@ -38,6 +41,7 @@ export class GroundGroup extends Group {
 		this.name = args.target.name + "-" + this.id;
 		this.start = args.start;
 		this.target = args.target;
+		this.#embarkedOntoFlightGroup = args.embarked;
 		const randomNumber = Utils.Random.number(1, 100);
 		const groupType = randomNumber > 50 ? "armor" : "infantry";
 
@@ -91,6 +95,33 @@ export class GroundGroup extends Group {
 	moveOntoTarget() {
 		this.position = this.target.position;
 		this.removeFromQuery("groundGroups-en route");
+	}
+
+	/**
+	 * Embark the group onto the flight group
+	 */
+	embark(flightGroup: FlightGroup) {
+		if (this.#embarkedOntoFlightGroup != null) {
+			throw new Error("Group is already embarked");
+		}
+
+		this.moveSubQuery("groundGroups", "en route", "embarked");
+		this.removeFromQuery("mapEntities");
+		this.#embarkedOntoFlightGroup = flightGroup;
+	}
+
+	/**
+	 * Disebark the group from the flight group
+	 */
+	disembark() {
+		if (this.#embarkedOntoFlightGroup == null) {
+			throw new Error("Group is not embarked");
+		}
+
+		this.moveSubQuery("groundGroups", "embarked", "en route");
+		this.addToQuery("mapEntities");
+		this.position = this.#embarkedOntoFlightGroup.position;
+		this.#embarkedOntoFlightGroup = undefined;
 	}
 
 	override deconstructor() {

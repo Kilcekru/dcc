@@ -25,6 +25,14 @@ export type AircraftBundleTarget =
 	| {
 			task: "Escort";
 			targetAircraftBundle: AircraftBundle;
+	  }
+	| {
+			task: "Pinpoint Strike";
+			targetStructureId: Types.Campaign.Id;
+	  }
+	| {
+			task: "Air Assault";
+			targetGroundGroupId: Types.Campaign.Id;
 	  };
 
 export type AircraftBundleWithTarget = Omit<AircraftBundle, "task"> & AircraftBundleTarget;
@@ -35,11 +43,14 @@ type TaskProps =
 			target: Entities.HomeBase;
 	  }
 	| {
-			task: "CAS";
+			task: "CAS" | "Pinpoint Strike";
 	  }
 	| {
 			task: "Escort";
 			targetAircraftBundle: AircraftBundle;
+	  }
+	| {
+			task: "Air Assault";
 	  };
 
 /**
@@ -94,16 +105,37 @@ export function getAircraftBundle(
 			}
 			break;
 		}
+		case "Pinpoint Strike":
+		case "Air Assault":
 		case "CAS": {
 			const oppCoalition = Utils.Coalition.opposite(args.coalition);
-			const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
+			let targetSet: Set<Entities.MapEntity> = new Set();
+			let maxDistance = 0;
 			let distanceToHomeBase = 99999999;
 
-			for (const homeBase of homeBasesWithMinAmount) {
-				for (const oppGroundGroup of oppGroundGroups) {
-					const distance = Utils.Location.distanceToPosition(homeBase.position, oppGroundGroup.position);
+			switch (args.task) {
+				case "CAS": {
+					targetSet = world.queries.groundGroups[oppCoalition].get("on target");
+					maxDistance = Utils.Config.packages.CAS.maxDistance;
+					break;
+				}
+				case "Pinpoint Strike": {
+					targetSet = world.queries.structures[oppCoalition];
+					maxDistance = Utils.Config.packages["Pinpoint Strike"].maxDistance;
+					break;
+				}
+				case "Air Assault": {
+					targetSet = world.queries.groundGroups[oppCoalition].get("on target");
+					maxDistance = Utils.Config.packages["Air Assault"].maxDistance;
+					break;
+				}
+			}
 
-					if (distance < distanceToHomeBase && distance <= Utils.Config.packages.CAS.maxDistance) {
+			for (const homeBase of homeBasesWithMinAmount) {
+				for (const targetEntity of targetSet) {
+					const distance = Utils.Location.distanceToPosition(homeBase.position, targetEntity.position);
+
+					if (distance < distanceToHomeBase && distance <= maxDistance) {
 						selectedHomeBase = homeBase;
 						distanceToHomeBase = distance;
 					}
@@ -230,6 +262,61 @@ function getAircraftBundleWithTarget(
 				targetAircraftBundle: args.targetAircraftBundle,
 			};
 		}
+		case "Pinpoint Strike": {
+			const bundle = getAircraftBundle(args);
+
+			if (bundle == null) {
+				// eslint-disable-next-line no-console
+				console.log("aircraft bundle not found for Strike", args.coalition);
+				return undefined;
+			}
+
+			const targetStructure = Entities.StrikeFlightGroup.getValidTarget({
+				coalition: args.coalition,
+				homeBase: bundle.homeBase,
+			});
+
+			if (targetStructure == null) {
+				// eslint-disable-next-line no-console
+				console.log("No target found for CAS", args.coalition);
+				return undefined;
+			}
+
+			return {
+				...bundle,
+				task: "Pinpoint Strike",
+				targetStructureId: targetStructure.id,
+			};
+		}
+		case "Air Assault": {
+			const bundle = getAircraftBundle(args);
+
+			if (bundle == null) {
+				// eslint-disable-next-line no-console
+				console.log("aircraft bundle not found for Air Assault", args.coalition);
+				return undefined;
+			}
+
+			const targetGroundGroup = Entities.CasFlightGroup.getValidTarget({
+				coalition: args.coalition,
+				homeBase: bundle.homeBase,
+			});
+
+			if (targetGroundGroup == null) {
+				// eslint-disable-next-line no-console
+				console.log("No target found for Air Assault", args.coalition);
+				return undefined;
+			}
+
+			return {
+				...bundle,
+				task: "CAS",
+				targetGroundGroupId: targetGroundGroup.id,
+			};
+		}
+		default: {
+			return;
+		}
 	}
 }
 /**
@@ -293,6 +380,48 @@ export function getValidAircraftBundles(
 
 			break;
 		}
+		case "Pinpoint Strike": {
+			const strikeBundle = getAircraftBundleWithTarget(args);
+
+			if (strikeBundle == null || strikeBundle.task !== "Pinpoint Strike") {
+				return undefined;
+			}
+
+			const targetStructure = world.getEntity<Entities.Structure>(strikeBundle.targetStructureId);
+
+			const oppAirdrome = nearestOppAirdrome(args.coalition, targetStructure.position);
+
+			if (oppAirdrome != null) {
+				const escortBundle = getAircraftBundleWithTarget({
+					...args,
+					task: "Escort",
+					targetAircraftBundle: strikeBundle,
+				});
+
+				if (escortBundle == null) {
+					// eslint-disable-next-line no-console
+					console.log("No escort bundle found for Strike package", args);
+					return undefined;
+				}
+
+				aircraftBundles.set("Escort", escortBundle);
+			}
+
+			aircraftBundles.set("Pinpoint Strike", strikeBundle);
+
+			break;
+		}
+		case "Air Assault": {
+			const assaultBundle = getAircraftBundleWithTarget(args);
+
+			if (assaultBundle == null || assaultBundle.task !== "Air Assault") {
+				return undefined;
+			}
+
+			aircraftBundles.set("Air Assault", assaultBundle);
+
+			break;
+		}
 	}
 
 	return aircraftBundles;
@@ -334,6 +463,19 @@ export function calcHoldWaypoint(aircraftBundles: Map<DcsJs.Task, AircraftBundle
 					target.position,
 					Utils.Config.defaults.holdWaypointDistance,
 				);
+
+				break;
+			}
+			case "Pinpoint Strike": {
+				const target = world.getEntity<Entities.Structure>(bundle.targetStructureId);
+
+				holdPosition = Utils.Location.midpointAtDistance(
+					bundle.homeBase.position,
+					target.position,
+					Utils.Config.defaults.holdWaypointDistance,
+				);
+
+				break;
 			}
 		}
 	}

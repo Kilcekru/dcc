@@ -178,6 +178,10 @@ export class UnitCamp extends Structure {
 		return baseline * Utils.Config.deploymentScore.coalitionMultiplier[this.coalition];
 	}
 
+	get deploymentCostAirAssault() {
+		return this.deploymentCost * Utils.Config.deploymentScore.airAssaultMultiplier;
+	}
+
 	get hasPower() {
 		for (const structure of world.queries.structures[this.coalition]) {
 			if (structure.type === "Power Plant" && structure.alive) {

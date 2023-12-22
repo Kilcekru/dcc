@@ -4,9 +4,11 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
 import { world } from "../world";
 import { Entity, EntityId } from "./Entity";
-import { CapFlightGroup, CasFlightGroup, FlightGroup } from "./flight-group";
+import { AirAssaultFlightGroup, CapFlightGroup, CasFlightGroup, FlightGroup, StrikeFlightGroup } from "./flight-group";
 import { EscortFlightGroup } from "./flight-group/Escort";
+import { GroundGroup } from "./GroundGroup";
 import { HomeBase } from "./HomeBase";
+import { UnitCamp } from "./Structure";
 
 type BasicProps = {
 	coalition: DcsJs.Coalition;
@@ -18,7 +20,11 @@ type TaskProps =
 			target: HomeBase;
 	  }
 	| {
-			task: "CAS";
+			task: "CAS" | "Pinpoint Strike";
+	  }
+	| {
+			task: "Air Assault";
+			unitCamp: UnitCamp;
 	  };
 
 export type PackageCreateProps = BasicProps & TaskProps;
@@ -127,6 +133,95 @@ export class Package extends Entity {
 
 					casFg.addEscortFlightGroupId(escortFg.id);
 				}
+
+				break;
+			}
+			case "Pinpoint Strike": {
+				const holdWaypoint = calcHoldWaypoint(aircraftBundles, "Pinpoint Strike");
+
+				const strikeBundle = aircraftBundles.get("Pinpoint Strike");
+
+				if (strikeBundle == null || strikeBundle.task !== "Pinpoint Strike") {
+					throw new Error("Strike bundle is null");
+				}
+
+				const strikeFg = StrikeFlightGroup.create({
+					coalition: args.coalition,
+					position: strikeBundle.homeBase.position,
+					package: pkg,
+					aircrafts: strikeBundle.aircrafts,
+					homeBase: strikeBundle.homeBase,
+					targetStructureId: strikeBundle.targetStructureId,
+					holdWaypoint,
+				});
+
+				if (strikeFg == null) {
+					throw new Error("Flight group could not be created");
+				}
+
+				pkg.#flightGroups.add(strikeFg.id);
+
+				const escortBundle = aircraftBundles.get("Escort");
+
+				if (escortBundle != null && holdWaypoint != null) {
+					const escortFg = EscortFlightGroup.create({
+						coalition: args.coalition,
+						position: escortBundle.homeBase.position,
+						package: pkg,
+						aircrafts: escortBundle.aircrafts,
+						homeBase: escortBundle.homeBase,
+						targetFlightGroupId: strikeFg.id,
+						holdWaypoint: holdWaypoint,
+					});
+
+					if (escortFg == null) {
+						throw new Error("Flight group could not be created");
+					}
+
+					pkg.#flightGroups.add(escortFg.id);
+
+					strikeFg.addEscortFlightGroupId(escortFg.id);
+				}
+
+				break;
+			}
+			case "Air Assault": {
+				const airAssaultBundle = aircraftBundles.get("Air Assault");
+
+				if (airAssaultBundle == null || airAssaultBundle.task !== "Air Assault") {
+					throw new Error("Air Assault bundle is null");
+				}
+
+				const targetGroundGroup = world.getEntity<GroundGroup>(airAssaultBundle.targetGroundGroupId);
+
+				const gg = new GroundGroup({
+					coalition: args.coalition,
+					start: args.unitCamp.objective,
+					target: targetGroundGroup.target,
+					groupType: "infantry",
+				});
+
+				const airAssaultFg = AirAssaultFlightGroup.create({
+					coalition: args.coalition,
+					position: airAssaultBundle.homeBase.position,
+					package: pkg,
+					aircrafts: airAssaultBundle.aircrafts,
+					homeBase: airAssaultBundle.homeBase,
+					targetGroundGroupId: airAssaultBundle.targetGroundGroupId,
+					groundGroupId: gg.id,
+				});
+
+				if (airAssaultFg == null) {
+					throw new Error("Flight group could not be created");
+				}
+
+				gg.embark(airAssaultFg);
+
+				pkg.#flightGroups.add(airAssaultFg.id);
+
+				targetGroundGroup.target.incomingGroundGroup = gg;
+
+				args.unitCamp.deploymentScore -= args.unitCamp.deploymentCostAirAssault;
 
 				break;
 			}

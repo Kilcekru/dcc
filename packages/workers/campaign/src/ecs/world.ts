@@ -22,9 +22,9 @@ export function splitQueryKey(key: QueryKey) {
 	return key.split("-", 2) as [QueryName] | [QueryName, string];
 }
 
-const taskSubQueries = ["CAP", "CAS", "Escort"];
+const taskSubQueries = ["CAP", "CAS", "Escort", "Air Assault", "Pinpoint Strike"];
 const aircraftSubQueries = ["idle", "in use"];
-const groundGroupSubQueries = ["en route", "on target"];
+const groundGroupSubQueries = ["en route", "on target", "embarked"];
 
 export class World {
 	#coalitions: Record<DcsJs.Coalition, Faction> = {

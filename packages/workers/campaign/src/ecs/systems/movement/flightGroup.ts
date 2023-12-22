@@ -1,6 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { WaypointType } from "../../entities/Waypoint";
+import * as Entities from "../../entities";
 import { world } from "../../world";
 
 export function takeOff(coalition: DcsJs.Coalition) {
@@ -12,7 +13,7 @@ export function takeOff(coalition: DcsJs.Coalition) {
 	for (const flightGroup of waitingFlightGroups) {
 		if (
 			flightGroup.flightplan.currentWaypoint != null &&
-			flightGroup.flightplan.currentWaypoint.type !== WaypointType.TakeOff
+			flightGroup.flightplan.currentWaypoint.type !== Entities.WaypointType.TakeOff
 		) {
 			flightGroup.takeOff();
 		}
@@ -43,5 +44,25 @@ export function move(worldDelta: number, coalition: DcsJs.Coalition) {
 			continue;
 		}
 		flightGroup.move(worldDelta);
+	}
+}
+
+/**
+ * Disembark ground groups if they reached the target
+ * @param coalition
+ */
+export function disembark(coalition: DcsJs.Coalition) {
+	const airAssaultFlightGroups = world.queries.flightGroups[coalition].get("Air Assault");
+
+	for (const flightGroup of airAssaultFlightGroups) {
+		if (flightGroup instanceof Entities.AirAssaultFlightGroup) {
+			if (flightGroup.hasEmbarkedGroundGroup) {
+				const distance = Utils.Location.distanceToPosition(flightGroup.position, flightGroup.target.position);
+
+				if (distance < 500) {
+					flightGroup.unloadGroundGroup();
+				}
+			}
+		}
 	}
 }

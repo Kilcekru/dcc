@@ -3,24 +3,63 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { groundGroupAlreadyTargeted } from "../../utils";
 import { world } from "../../world";
-import type { GroundGroup } from "../GroundGroup";
+import { GroundGroup } from "../GroundGroup";
 import { WaypointTemplate, WaypointType } from "../Waypoint";
-import { EscortedFlightGroup, EscortedFlightGroupProps } from "./EscortedFlightGroup";
+import { FlightGroup, FlightGroupProps } from "./FlightGroup";
 
-interface CasFlightGroupProps extends Omit<EscortedFlightGroupProps, "task"> {
+interface AirAssaultFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetGroundGroupId: Types.Campaign.Id;
+	groundGroupId: Types.Campaign.Id;
 }
 
-export class CasFlightGroup extends EscortedFlightGroup {
+export class AirAssaultFlightGroup extends FlightGroup {
 	readonly #targetGroundGroupId: Types.Campaign.Id;
+	#embarkedGroundGroupId: Types.Campaign.Id | undefined;
+
+	private constructor(args: AirAssaultFlightGroupProps) {
+		super({ ...args, task: "Air Assault" });
+		this.#targetGroundGroupId = args.targetGroundGroupId;
+		this.#embarkedGroundGroupId = args.groundGroupId;
+	}
+
+	/**
+	 * Returns the embarked ground group
+	 */
+	get embarkedGroundGroup() {
+		if (this.#embarkedGroundGroupId == null) {
+			return undefined;
+		}
+
+		return world.getEntity<GroundGroup>(this.#embarkedGroundGroupId);
+	}
+
+	/**
+	 * Check if a ground group is embarked on the flight group
+	 */
+	get hasEmbarkedGroundGroup() {
+		return this.#embarkedGroundGroupId != null;
+	}
 
 	get target() {
 		return world.getEntity<GroundGroup>(this.#targetGroundGroupId);
 	}
 
-	private constructor(args: CasFlightGroupProps) {
-		super({ ...args, task: "CAS" });
-		this.#targetGroundGroupId = args.targetGroundGroupId;
+	/**
+	 * Unload the embarked ground group
+	 *
+	 */
+	unloadGroundGroup() {
+		if (this.#embarkedGroundGroupId == null) {
+			// eslint-disable-next-line no-console
+			console.warn("no embarked ground group found for air assault flight group", this);
+			return;
+		}
+
+		const embarkedGroundGroup = world.getEntity<GroundGroup>(this.#embarkedGroundGroupId);
+
+		embarkedGroundGroup.disembark();
+
+		this.#embarkedGroundGroupId = undefined;
 	}
 
 	/**
@@ -29,7 +68,7 @@ export class CasFlightGroup extends EscortedFlightGroup {
 	 * @param homeBase - the home base of the CAS flight group
 	 * @returns the target ground group
 	 */
-	static #getTargetGroundGroup(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
+	static #getTargetGroundGroup(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
 		const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
 		let distanceToHomeBase = 99999999;
@@ -63,7 +102,7 @@ export class CasFlightGroup extends EscortedFlightGroup {
 	 * @param args
 	 * @returns
 	 */
-	static getValidTarget(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
+	static getValidTarget(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const targetGroundGroup = this.#getTargetGroundGroup(args);
 
 		if (targetGroundGroup == null) {
@@ -74,9 +113,9 @@ export class CasFlightGroup extends EscortedFlightGroup {
 	}
 
 	static create(
-		args: Omit<EscortedFlightGroupProps, "task" | "taskWaypoints"> & {
+		args: Omit<FlightGroupProps, "task" | "taskWaypoints"> & {
 			targetGroundGroupId: Types.Campaign.Id;
-			holdWaypoint: WaypointTemplate | undefined;
+			groundGroupId: Types.Campaign.Id;
 		},
 	) {
 		const targetGroundGroup = world.getEntity<GroundGroup>(args.targetGroundGroupId);
@@ -90,23 +129,20 @@ export class CasFlightGroup extends EscortedFlightGroup {
 
 		const waypoints: Array<WaypointTemplate> = [];
 
-		if (args.holdWaypoint != null) {
-			waypoints.push(args.holdWaypoint);
-		}
-
 		waypoints.push(
 			WaypointTemplate.waypoint({
 				position: targetGroundGroup.position,
 				duration,
 				type: WaypointType.Task,
-				name: "CAS",
+				name: "Drop Off",
 				onGround: true,
 			}),
 		);
 
-		return new CasFlightGroup({
+		return new AirAssaultFlightGroup({
 			...args,
 			targetGroundGroupId: targetGroundGroup.id,
+			groundGroupId: args.groundGroupId,
 			taskWaypoints: waypoints,
 		});
 	}

@@ -5,13 +5,14 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { world } from "../../world";
 import type { Structure } from "../Structure";
 import { WaypointTemplate, WaypointType } from "../Waypoint";
-import { FlightGroup, FlightGroupProps } from "./FlightGroup";
+import { EscortedFlightGroup, EscortedFlightGroupProps } from "./EscortedFlightGroup";
+import { FlightGroupProps } from "./FlightGroup";
 
-interface StrikeFlightGroupProps extends Omit<FlightGroupProps, "task"> {
+interface StrikeFlightGroupProps extends Omit<EscortedFlightGroupProps, "task"> {
 	targetStructureId: Types.Campaign.Id;
 }
 
-export class StrikeFlightGroup extends FlightGroup {
+export class StrikeFlightGroup extends EscortedFlightGroup {
 	readonly #targetStructureId: Types.Campaign.Id;
 
 	get target() {
@@ -77,17 +78,26 @@ export class StrikeFlightGroup extends FlightGroup {
 		return targetStructure;
 	}
 
-	static isAvailable(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
-		const targetGroundGroup = this.#getTargetStructure(args);
+	/**
+	 *
+	 * @param args
+	 * @returns
+	 */
+	static getValidTarget(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
+		const targetStructure = this.#getTargetStructure(args);
 
-		if (targetGroundGroup == null) {
-			return false;
+		if (targetStructure == null) {
+			return undefined;
 		}
 
-		return true;
+		return targetStructure;
 	}
 
-	static create(args: Omit<FlightGroupProps, "task" | "taskWaypoints">) {
+	static create(
+		args: Omit<StrikeFlightGroupProps, "task" | "taskWaypoints"> & {
+			holdWaypoint: WaypointTemplate | undefined;
+		},
+	) {
 		const targetStructure = this.#getTargetStructure(args);
 
 		if (targetStructure == null) {
