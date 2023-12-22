@@ -20,9 +20,13 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	public readonly start: Objective;
 	public readonly target: Objective;
 	public readonly type: DcsJs.CampaignGroundGroupType;
-	public readonly units: Array<GroundUnit>;
+	readonly #unitIds: Array<Types.Campaign.Id>;
 	public readonly shoradUnits: Array<GroundUnit>;
 	#embarkedOntoFlightGroup: FlightGroup | undefined;
+
+	get units(): Array<GroundUnit> {
+		return this.#unitIds.map((id) => world.getEntity<GroundUnit>(id));
+	}
 
 	get aliveUnits(): Array<GroundUnit> {
 		return this.units.filter((u) => u.alive);
@@ -48,7 +52,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 
 		const { groundUnits, shoradGroundUnits } = GroundUnit.generate(args.coalition, this, groupType);
 		this.type = groupType;
-		this.units = groundUnits;
+		this.#unitIds = groundUnits.map((u) => u.id);
 		this.shoradUnits = shoradGroundUnits;
 	}
 

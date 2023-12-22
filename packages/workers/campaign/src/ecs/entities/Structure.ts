@@ -3,9 +3,9 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
+import { Building } from "../objects";
 import { calcInitDeploymentScore } from "../utils";
 import { QueryName, world } from "../world";
-import { Building } from "./Building";
 import { MapEntity, MapEntityProps } from "./MapEntity";
 import type { Objective } from "./Objective";
 

@@ -1,10 +1,11 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
 import { world } from "../world";
-import { Entity, EntityId } from "./Entity";
+import { Entity } from "./Entity";
 import { AirAssaultFlightGroup, CapFlightGroup, CasFlightGroup, FlightGroup, StrikeFlightGroup } from "./flight-group";
 import { EscortFlightGroup } from "./flight-group/Escort";
 import { GroundGroup } from "./GroundGroup";
@@ -36,7 +37,7 @@ export interface PackageProps {
 }
 
 export class Package extends Entity<keyof Events.EventMap.Package> {
-	#flightGroups = new Set<EntityId>();
+	#flightGroupIds = new Set<Types.Campaign.Id>();
 	public task: DcsJs.Task;
 	public cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
 
@@ -74,7 +75,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					coalition: args.coalition,
 					position: capBundle.homeBase.position,
 					package: pkg,
-					aircrafts: capBundle.aircrafts,
+					aircraftIds: Array.from(capBundle.aircrafts).map((a) => a.id),
 					homeBase: capBundle.homeBase,
 					oppAirdromeId: capBundle.oppAirdromeId,
 					target: args.target,
@@ -84,7 +85,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					throw new Error("Flight group could not be created");
 				}
 
-				pkg.#flightGroups.add(fg.id);
+				pkg.#flightGroupIds.add(fg.id);
 
 				break;
 			}
@@ -101,7 +102,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					coalition: args.coalition,
 					position: casBundle.homeBase.position,
 					package: pkg,
-					aircrafts: casBundle.aircrafts,
+					aircraftIds: Array.from(casBundle.aircrafts).map((a) => a.id),
 					homeBase: casBundle.homeBase,
 					targetGroundGroupId: casBundle.targetGroundGroupId,
 					holdWaypoint,
@@ -111,7 +112,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					throw new Error("Flight group could not be created");
 				}
 
-				pkg.#flightGroups.add(casFg.id);
+				pkg.#flightGroupIds.add(casFg.id);
 
 				const escortBundle = aircraftBundles.get("Escort");
 
@@ -120,7 +121,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						coalition: args.coalition,
 						position: escortBundle.homeBase.position,
 						package: pkg,
-						aircrafts: escortBundle.aircrafts,
+						aircraftIds: Array.from(escortBundle.aircrafts).map((a) => a.id),
 						homeBase: escortBundle.homeBase,
 						targetFlightGroupId: casFg.id,
 						holdWaypoint: holdWaypoint,
@@ -130,7 +131,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						throw new Error("Flight group could not be created");
 					}
 
-					pkg.#flightGroups.add(escortFg.id);
+					pkg.#flightGroupIds.add(escortFg.id);
 
 					casFg.addEscortFlightGroupId("Escort", escortFg.id);
 				}
@@ -150,7 +151,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					coalition: args.coalition,
 					position: strikeBundle.homeBase.position,
 					package: pkg,
-					aircrafts: strikeBundle.aircrafts,
+					aircraftIds: Array.from(strikeBundle.aircrafts).map((a) => a.id),
 					homeBase: strikeBundle.homeBase,
 					targetStructureId: strikeBundle.targetStructureId,
 					holdWaypoint,
@@ -160,7 +161,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					throw new Error("Flight group could not be created");
 				}
 
-				pkg.#flightGroups.add(strikeFg.id);
+				pkg.#flightGroupIds.add(strikeFg.id);
 
 				const escortBundle = aircraftBundles.get("Escort");
 
@@ -169,7 +170,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						coalition: args.coalition,
 						position: escortBundle.homeBase.position,
 						package: pkg,
-						aircrafts: escortBundle.aircrafts,
+						aircraftIds: Array.from(escortBundle.aircrafts).map((a) => a.id),
 						homeBase: escortBundle.homeBase,
 						targetFlightGroupId: strikeFg.id,
 						holdWaypoint: holdWaypoint,
@@ -179,7 +180,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						throw new Error("Flight group could not be created");
 					}
 
-					pkg.#flightGroups.add(escortFg.id);
+					pkg.#flightGroupIds.add(escortFg.id);
 
 					strikeFg.addEscortFlightGroupId("Escort", escortFg.id);
 				}
@@ -206,7 +207,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					coalition: args.coalition,
 					position: airAssaultBundle.homeBase.position,
 					package: pkg,
-					aircrafts: airAssaultBundle.aircrafts,
+					aircraftIds: Array.from(airAssaultBundle.aircrafts).map((a) => a.id),
 					homeBase: airAssaultBundle.homeBase,
 					targetGroundGroupId: airAssaultBundle.targetGroundGroupId,
 					groundGroupId: gg.id,
@@ -218,7 +219,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 
 				gg.embark(airAssaultFg);
 
-				pkg.#flightGroups.add(airAssaultFg.id);
+				pkg.#flightGroupIds.add(airAssaultFg.id);
 
 				targetGroundGroup.target.incomingGroundGroup = gg;
 
@@ -240,16 +241,16 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 	}
 
 	removeFlightGroup(flightGroup: FlightGroup) {
-		this.#flightGroups.delete(flightGroup.id);
+		this.#flightGroupIds.delete(flightGroup.id);
 
 		// If there are no more flight groups in this package, remove it from the world
-		if (this.#flightGroups.size === 0) {
+		if (this.#flightGroupIds.size === 0) {
 			this.destructor();
 		}
 	}
 
 	override destructor(): void {
-		for (const id of this.#flightGroups) {
+		for (const id of this.#flightGroupIds) {
 			world.getEntity(id).destructor();
 		}
 
@@ -260,7 +261,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		return {
 			...super.toJSON(),
 			task: this.task,
-			flightGroups: Array.from(this.#flightGroups).map((id) => world.getEntity(id).toJSON()),
+			flightGroups: Array.from(this.#flightGroupIds).map((id) => world.getEntity(id).toJSON()),
 		};
 	}
 }

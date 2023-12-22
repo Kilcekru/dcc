@@ -1,13 +1,11 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { FlightGroup, Waypoint, WaypointTemplate } from "../entities";
 import { world } from "../world";
-import { EntityId } from "./Entity";
-import type { FlightGroup } from "./flight-group/FlightGroup";
-import { Waypoint, WaypointTemplate } from "./Waypoint";
 
 export class Flightplan {
-	readonly #flightGroupId: EntityId;
+	readonly #flightGroupId: Types.Campaign.Id;
 	#list: Array<Waypoint> = [];
 
 	constructor(flightGroup: FlightGroup) {

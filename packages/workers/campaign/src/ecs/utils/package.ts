@@ -209,7 +209,7 @@ function getAircraftBundleWithTarget(
 				coalition: args.coalition,
 				position: bundle.homeBase.position,
 				target: args.target,
-				aircrafts: bundle.aircrafts,
+				aircraftIds: Array.from(bundle.aircrafts).map((a) => a.id),
 				homeBase: bundle.homeBase,
 			});
 

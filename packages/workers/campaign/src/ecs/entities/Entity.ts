@@ -5,8 +5,6 @@ import { Events } from "../../utils";
 import { SuperSet } from "../SuperSet";
 import { QueryKey, QueryName, splitQueryKey, world } from "../world";
 
-export type EntityId = string;
-
 export interface EntityProps {
 	coalition: DcsJs.Coalition;
 	queries: Set<QueryKey>;
@@ -17,7 +15,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 > {
 	#queries: Set<QueryKey> = new Set();
 	public readonly coalition: DcsJs.Coalition;
-	public readonly id: EntityId;
+	public readonly id: Types.Campaign.Id;
 
 	get queries(): Set<QueryKey> {
 		return this.#queries;

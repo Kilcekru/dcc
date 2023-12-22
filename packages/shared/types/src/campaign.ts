@@ -159,8 +159,8 @@ export type EntityItem = {
 
 export type AircraftItem = EntityItem & {
 	aircraftType: DcsJs.AircraftType;
-	homeBase: Id;
-	flightGroup: Id | undefined;
+	homeBaseId: Id;
+	flightGroupId: Id | undefined;
 	displayName: string;
 	isClient: boolean;
 };

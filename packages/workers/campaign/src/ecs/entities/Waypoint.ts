@@ -2,8 +2,8 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import type { Flightplan } from "../objects";
 import { world } from "../world";
-import { Flightplan } from "./Flightplan";
 import { HomeBase } from "./HomeBase";
 
 export enum WaypointType {

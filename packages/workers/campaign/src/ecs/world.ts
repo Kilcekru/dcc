@@ -54,8 +54,8 @@ export class World {
 	public multiplier = 1;
 	public objectives: Map<string, Entities.Objective> = new Map();
 
-	public entities = new Map<Entities.EntityId, Entities.Entity>();
-	public getEntity<Type extends Entities.Entity>(id: Entities.EntityId): Type {
+	public entities = new Map<Types.Campaign.Id, Entities.Entity>();
+	public getEntity<Type extends Entities.Entity>(id: Types.Campaign.Id): Type {
 		const entity = this.entities.get(id);
 		if (entity == undefined) {
 			throw new Error(`World.getEntity: invalid id ${id}`);

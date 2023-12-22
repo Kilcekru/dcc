@@ -1,11 +1,8 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
-import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { world } from "../world";
-import type { Airdrome } from "./Airdrome";
-import { EntityId } from "./Entity";
 import type { FlightGroup } from "./flight-group/FlightGroup";
 import type { HomeBase } from "./HomeBase";
 import { Unit, UnitProps } from "./Unit";
@@ -18,10 +15,9 @@ export type AircraftA2AWeapons = Map<string, { item: DcsJs.A2AWeapon; count: num
 
 export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	public readonly aircraftType: DcsJs.DCS.Aircraft;
-	#flightGroupId: EntityId | undefined = undefined;
-	public readonly homeBase: HomeBase;
+	#flightGroupId: Types.Campaign.Id | undefined = undefined;
+	public readonly homeBaseId: Types.Campaign.Id;
 	#isClient = false;
-	#alive = true;
 	#loadout: DcsJs.Loadout | undefined = undefined;
 
 	get flightGroup(): FlightGroup | undefined {
@@ -40,21 +36,25 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return this.aircraftType.isHelicopter;
 	}
 
-	public constructor(args: AircraftProps) {
+	get homeBase() {
+		return world.getEntity<HomeBase>(this.homeBaseId);
+	}
+
+	private constructor(args: AircraftProps) {
 		super({
 			coalition: args.coalition,
 			queries: new Set(["aircrafts-idle"]),
 		});
 		this.aircraftType = args.aircraftType;
-		this.homeBase = args.homeBase;
+		this.homeBaseId = args.homeBase.id;
+	}
 
-		this.homeBase.addAircraft(this);
+	public static create(args: AircraftProps) {
+		return new Aircraft(args);
 	}
 
 	override destructor() {
 		super.destructor();
-		this.homeBase.removeAircraft(this);
-		this.flightGroup?.aircrafts.delete(this);
 	}
 
 	#addLoadout(task: DcsJs.Task) {
@@ -161,47 +161,12 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		this.moveSubQuery("aircrafts", "idle", "in use");
 	}
 
-	static generateAircraftsForAirdrome(args: { coalition: DcsJs.Coalition; airdrome: Airdrome }) {
-		for (const task in world.dataStore?.tasks ?? {}) {
-			this.generateAircraftsForTask({
-				...args,
-				homeBase: args.airdrome,
-				task: task as DcsJs.Task,
-			});
-		}
-	}
-
-	static generateAircraftsForTask(args: { coalition: DcsJs.Coalition; homeBase: HomeBase; task: DcsJs.Task }) {
-		const taskAircraftTypes = world.factionDefinitions[args.coalition]?.aircraftTypes[args.task];
-
-		if (taskAircraftTypes == null) {
-			return;
-		}
-
-		for (const aircraftType of taskAircraftTypes) {
-			const count = Math.max(2, Utils.Config.inventory.aircraft[args.task] / taskAircraftTypes.length);
-			const aircraft = world.dataStore?.aircrafts?.[aircraftType];
-
-			if (aircraft == null) {
-				throw new Error(`aircraft: ${aircraftType} not found`);
-			}
-
-			Array.from({ length: count }).forEach(() => {
-				new Aircraft({
-					aircraftType: aircraft,
-					coalition: args.coalition,
-					homeBase: args.homeBase,
-				});
-			});
-		}
-	}
-
 	override toJSON(): Types.Campaign.AircraftItem {
 		return {
 			...super.toJSON(),
 			aircraftType: this.aircraftType.name,
-			homeBase: this.homeBase.id,
-			flightGroup: this.flightGroup?.id,
+			homeBaseId: this.homeBaseId,
+			flightGroupId: this.#flightGroupId,
 			displayName: this.aircraftType.display_name,
 			isClient: this.#isClient,
 		};

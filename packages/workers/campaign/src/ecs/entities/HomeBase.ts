@@ -1,9 +1,10 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { type QueryName, world } from "../world";
-import type { Aircraft } from "./Aircraft";
-import { EntityId } from "./Entity";
+import { Aircraft } from "./Aircraft";
 import { MapEntity } from "./MapEntity";
 
 export type HomeBaseType = "airdrome" | "carrier" | "farp";
@@ -20,7 +21,7 @@ export class HomeBase<EventNames extends keyof Events.EventMap.All = never> exte
 > {
 	public readonly name: string;
 	public readonly type: HomeBaseType;
-	#aircraftIds: Set<EntityId> = new Set();
+	#aircraftIds: Set<Types.Campaign.Id> = new Set();
 
 	get aircrafts(): readonly Aircraft[] {
 		const retVal: Aircraft[] = [];
@@ -44,12 +45,40 @@ export class HomeBase<EventNames extends keyof Events.EventMap.All = never> exte
 		this.type = args.type;
 	}
 
-	public addAircraft(aircraft: Aircraft) {
-		this.#aircraftIds.add(aircraft.id);
+	public generateAircraftsForHomeBase(args: { coalition: DcsJs.Coalition }) {
+		for (const task in world.dataStore?.tasks ?? {}) {
+			this.generateAircraftsForTask({
+				...args,
+				task: task as DcsJs.Task,
+			});
+		}
 	}
 
-	public removeAircraft(aircraft: Aircraft) {
-		this.#aircraftIds.delete(aircraft.id);
+	public generateAircraftsForTask(args: { coalition: DcsJs.Coalition; task: DcsJs.Task }) {
+		const taskAircraftTypes = world.factionDefinitions[args.coalition]?.aircraftTypes[args.task];
+
+		if (taskAircraftTypes == null) {
+			return;
+		}
+
+		for (const aircraftType of taskAircraftTypes) {
+			const count = Math.max(2, Utils.Config.inventory.aircraft[args.task] / taskAircraftTypes.length);
+			const aircraft = world.dataStore?.aircrafts?.[aircraftType];
+
+			if (aircraft == null) {
+				throw new Error(`aircraft: ${aircraftType} not found`);
+			}
+
+			Array.from({ length: count }).forEach(() => {
+				const ac = Aircraft.create({
+					aircraftType: aircraft,
+					coalition: args.coalition,
+					homeBase: this,
+				});
+
+				this.#aircraftIds.add(ac.id);
+			});
+		}
 	}
 
 	override toJSON() {

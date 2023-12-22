@@ -4,7 +4,6 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { world } from "../world";
-import { EntityId } from "./Entity";
 import type { GroundGroup } from "./GroundGroup";
 import { Unit, UnitProps } from "./Unit";
 
@@ -15,16 +14,11 @@ export interface GroundUnitProps extends Omit<UnitProps, "queries"> {
 }
 export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly name: string;
-	#alive = true;
 	public readonly category: Types.Campaign.GroundUnitCategory;
-	#groundGroupId: EntityId;
+	#groundGroupId: Types.Campaign.Id;
 
 	get groundGroup() {
 		return world.getEntity<GroundGroup>(this.#groundGroupId);
-	}
-
-	get alive() {
-		return this.#alive;
 	}
 
 	constructor(args: GroundUnitProps) {
@@ -115,16 +109,12 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 		return { groundUnits, shoradGroundUnits };
 	}
 
-	destroy() {
-		this.#alive = false;
-	}
-
 	override toJSON(): Types.Campaign.GroundUnitItem {
 		return {
 			...super.toJSON(),
 			name: this.name,
 			category: this.category,
-			alive: this.#alive,
+			alive: this.alive,
 		};
 	}
 }

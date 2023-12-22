@@ -3,11 +3,10 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
+import { Flightplan } from "../../objects";
 import { generateCallSign } from "../../utils";
 import { type QueryKey, world } from "../../world";
 import type { Aircraft } from "../Aircraft";
-import { EntityId } from "../Entity";
-import { Flightplan } from "../Flightplan";
 import { Group, GroupProps } from "../Group";
 import type { HomeBase } from "../HomeBase";
 import { type Package } from "../Package";
@@ -16,7 +15,7 @@ import { WaypointTemplate } from "../Waypoint";
 export interface FlightGroupProps extends GroupProps {
 	task: DcsJs.Task;
 	package: Package;
-	aircrafts: Set<Aircraft>;
+	aircraftIds: Types.Campaign.Id[];
 	homeBase: HomeBase;
 	taskWaypoints: Array<WaypointTemplate>;
 }
@@ -27,20 +26,32 @@ export type A2ACombat = {
 	cooldownTime: number;
 };
 
-export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> extends Group<
+export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All = never> extends Group<
 	EventNames | keyof Events.EventMap.FlightGroup
 > {
-	#aircrafts: Set<Aircraft> = new Set();
+	readonly #aircraftIds: Types.Campaign.Id[];
 	public readonly task: DcsJs.Task;
 	public readonly flightplan: Flightplan = new Flightplan(this);
 	public readonly startTime: number;
 	public readonly name: string;
 	public readonly homeBase: HomeBase;
 	public combat: A2ACombat | undefined;
-	#packageId: EntityId;
+	#packageId: Types.Campaign.Id;
 
-	get aircrafts() {
-		return this.#aircrafts;
+	get aircrafts(): readonly Aircraft[] {
+		const aircrafts: Aircraft[] = [];
+
+		for (const id of this.#aircraftIds) {
+			const aircraft = world.getEntity<Aircraft>(id);
+
+			aircrafts.push(aircraft);
+		}
+
+		return aircrafts;
+	}
+
+	get aliveAircrafts(): readonly Aircraft[] {
+		return this.aircrafts.filter((aircraft) => aircraft.alive);
 	}
 
 	get package() {
@@ -54,7 +65,7 @@ export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> e
 	get a2aRange(): number {
 		let maxRange = 0;
 
-		for (const aircraft of this.#aircrafts) {
+		for (const aircraft of this.aircrafts) {
 			const range = aircraft.a2aRange;
 
 			if (range > maxRange) {
@@ -73,10 +84,10 @@ export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> e
 		this.#packageId = args.package.id;
 		this.startTime = Utils.DateTime.toFullMinutes(world.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
 		this.name = cs.flightGroupName;
-		this.#aircrafts = args.aircrafts;
+		this.#aircraftIds = args.aircraftIds;
 		this.homeBase = args.homeBase;
 
-		for (const aircraft of this.#aircrafts) {
+		for (const aircraft of this.aircrafts) {
 			aircraft.addToFlightGroup(this);
 		}
 
@@ -165,7 +176,7 @@ export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> e
 			throw new Error("combat is null");
 		}
 
-		aircraftLoop: for (const aircraft of this.#aircrafts) {
+		aircraftLoop: for (const aircraft of this.aircrafts) {
 			const a2aWeapons = aircraft.a2aWeapons;
 
 			for (const weapon of a2aWeapons.values()) {
@@ -182,11 +193,12 @@ export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> e
 
 							this.combat.cooldownTime = world.time + Utils.Config.combat.a2a.cooldownDuration;
 
-							const flightGroupDestroyed = this.combat.target.destroyAircraft();
+							// TODO
+							/* const flightGroupDestroyed = this.combat.target.destroyAircraft();
 
 							if (flightGroupDestroyed) {
 								this.combat = undefined;
-							}
+							} */
 
 							break aircraftLoop;
 						} else {
@@ -205,22 +217,13 @@ export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> e
 	 * @returns true if the all aircraft within the flight group was destroyed
 	 */
 	destroyAircraft() {
-		const [aircraft] = this.#aircrafts;
+		const [aircraft] = this.aliveAircrafts;
 
 		if (aircraft == null) {
 			throw new Error("aircraft is null");
 		}
 
-		this.#aircrafts.delete(aircraft);
-		aircraft.destructor();
-
-		if (this.#aircrafts.size === 0) {
-			this.destructor();
-
-			return true;
-		} else {
-			return false;
-		}
+		aircraft.destroy();
 	}
 
 	override destructor(): void {
@@ -247,7 +250,7 @@ export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> e
 			task: this.task,
 			coalition: this.coalition,
 			id: this.id,
-			aircrafts: Array.from(this.#aircrafts).map((aircraft) => aircraft.toJSON()),
+			aircrafts: this.aircrafts.map((aircraft) => aircraft.toJSON()),
 			flightplan: this.flightplan.toJSON(),
 		};
 	}

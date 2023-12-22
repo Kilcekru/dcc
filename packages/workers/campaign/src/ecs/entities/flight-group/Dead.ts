@@ -7,7 +7,7 @@ interface DEADFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetSAMId: Types.Campaign.Id;
 }
 
-export class DEAD extends EscortedFlightGroup {
+export class DEADFlightGroup extends EscortedFlightGroup {
 	private constructor(args: DEADFlightGroupProps) {
 		super({ ...args, task: "DEAD" });
 	}

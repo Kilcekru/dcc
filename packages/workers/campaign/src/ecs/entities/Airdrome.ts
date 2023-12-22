@@ -4,7 +4,6 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { world } from "../world";
-import { Aircraft } from "./Aircraft";
 import { HomeBase, HomeBaseProps } from "./HomeBase";
 
 export interface AirdromeProps extends Omit<HomeBaseProps, "type"> {
@@ -14,14 +13,17 @@ export interface AirdromeProps extends Omit<HomeBaseProps, "type"> {
 export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 	public readonly frequencyList: number[];
 
-	public constructor(args: AirdromeProps) {
+	private constructor(args: AirdromeProps) {
 		super({ ...args, type: "airdrome", queries: new Set(["airdromes"]) });
 		this.frequencyList = args.frequencyList;
+	}
 
-		Aircraft.generateAircraftsForAirdrome({
-			coalition: args.coalition,
-			airdrome: this,
-		});
+	static create(args: AirdromeProps) {
+		const ad = new Airdrome(args);
+
+		ad.generateAircraftsForHomeBase({ coalition: args.coalition });
+
+		return ad;
 	}
 
 	static generate(args: { coalition: DcsJs.Coalition; airdromeNames: Array<string> }) {
@@ -32,7 +34,7 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 				throw new Error(`airdrome: ${name} not found`);
 			}
 
-			new Airdrome({
+			Airdrome.create({
 				coalition: args.coalition,
 				frequencyList: airdrome.frequencyList ?? [],
 				name: airdrome.name,
