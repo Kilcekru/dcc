@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
+import { Events } from "../../utils";
 import { SuperSet } from "../SuperSet";
 import { QueryKey, QueryName, splitQueryKey, world } from "../world";
 
@@ -11,7 +12,9 @@ export interface EntityProps {
 	queries: Set<QueryKey>;
 }
 
-export abstract class Entity {
+export abstract class Entity<EventNames extends keyof Events.EventMap.All = never> extends Events.TypedEventEmitter<
+	EventNames | keyof Events.EventMap.Entity
+> {
 	#queries: Set<QueryKey> = new Set();
 	public readonly coalition: DcsJs.Coalition;
 	public readonly id: EntityId;
@@ -21,6 +24,7 @@ export abstract class Entity {
 	}
 
 	constructor(args: EntityProps) {
+		super();
 		this.id = crypto.randomUUID();
 		this.coalition = args.coalition;
 		this.#queries = args.queries ?? [];
@@ -31,11 +35,13 @@ export abstract class Entity {
 		}
 	}
 
-	deconstructor() {
+	destructor() {
+		this.emit("destructed");
 		world.entities.delete(this.id);
 		for (const queryName of this.#queries) {
 			this.removeFromQuery(queryName);
 		}
+		this.removeAllListeners();
 	}
 
 	addToQuery(key: QueryKey) {

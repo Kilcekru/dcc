@@ -2,6 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../utils";
 import { world } from "../world";
 import type { Airdrome } from "./Airdrome";
 import { EntityId } from "./Entity";
@@ -15,7 +16,7 @@ export interface AircraftProps extends Omit<UnitProps, "queries"> {
 
 export type AircraftA2AWeapons = Map<string, { item: DcsJs.A2AWeapon; count: number; total: number }>;
 
-export class Aircraft extends Unit {
+export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	public readonly aircraftType: DcsJs.DCS.Aircraft;
 	#flightGroupId: EntityId | undefined = undefined;
 	public readonly homeBase: HomeBase;
@@ -50,8 +51,8 @@ export class Aircraft extends Unit {
 		this.homeBase.addAircraft(this);
 	}
 
-	override deconstructor() {
-		super.deconstructor();
+	override destructor() {
+		super.destructor();
 		this.homeBase.removeAircraft(this);
 		this.flightGroup?.aircrafts.delete(this);
 	}

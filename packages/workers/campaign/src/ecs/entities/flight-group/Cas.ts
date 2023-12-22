@@ -1,6 +1,7 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../../utils";
 import { groundGroupAlreadyTargeted } from "../../utils";
 import { world } from "../../world";
 import type { GroundGroup } from "../GroundGroup";
@@ -11,7 +12,7 @@ interface CasFlightGroupProps extends Omit<EscortedFlightGroupProps, "task"> {
 	targetGroundGroupId: Types.Campaign.Id;
 }
 
-export class CasFlightGroup extends EscortedFlightGroup {
+export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.CasFlightGroup> {
 	readonly #targetGroundGroupId: Types.Campaign.Id;
 
 	get target() {

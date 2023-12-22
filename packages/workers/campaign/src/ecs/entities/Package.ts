@@ -1,6 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../utils";
 import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
 import { world } from "../world";
 import { Entity, EntityId } from "./Entity";
@@ -34,7 +35,7 @@ export interface PackageProps {
 	task: DcsJs.Task;
 }
 
-export class Package extends Entity {
+export class Package extends Entity<keyof Events.EventMap.Package> {
 	#flightGroups = new Set<EntityId>();
 	public task: DcsJs.Task;
 	public cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
@@ -243,16 +244,16 @@ export class Package extends Entity {
 
 		// If there are no more flight groups in this package, remove it from the world
 		if (this.#flightGroups.size === 0) {
-			this.deconstructor();
+			this.destructor();
 		}
 	}
 
-	override deconstructor(): void {
+	override destructor(): void {
 		for (const id of this.#flightGroups) {
-			world.getEntity(id).deconstructor();
+			world.getEntity(id).destructor();
 		}
 
-		super.deconstructor();
+		super.destructor();
 	}
 
 	override toJSON() {

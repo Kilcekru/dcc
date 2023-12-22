@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../../utils";
 import { generateCallSign } from "../../utils";
 import { type QueryKey, world } from "../../world";
 import type { Aircraft } from "../Aircraft";
@@ -26,7 +27,9 @@ export type A2ACombat = {
 	cooldownTime: number;
 };
 
-export class FlightGroup extends Group {
+export class FlightGroup<EventNames extends keyof Events.EventMap.All = never> extends Group<
+	EventNames | keyof Events.EventMap.FlightGroup
+> {
 	#aircrafts: Set<Aircraft> = new Set();
 	public readonly task: DcsJs.Task;
 	public readonly flightplan: Flightplan = new Flightplan(this);
@@ -87,7 +90,7 @@ export class FlightGroup extends Group {
 	}
 
 	land() {
-		this.deconstructor();
+		this.destructor();
 	}
 
 	move(worldDelta: number) {
@@ -209,10 +212,10 @@ export class FlightGroup extends Group {
 		}
 
 		this.#aircrafts.delete(aircraft);
-		aircraft.deconstructor();
+		aircraft.destructor();
 
 		if (this.#aircrafts.size === 0) {
-			this.deconstructor();
+			this.destructor();
 
 			return true;
 		} else {
@@ -220,10 +223,10 @@ export class FlightGroup extends Group {
 		}
 	}
 
-	override deconstructor(): void {
+	override destructor(): void {
 		// eslint-disable-next-line no-console
-		console.log("deconstructor flight group", this.name);
-		super.deconstructor();
+		console.log("destructor flight group", this.name);
+		super.destructor();
 		this.package.removeFlightGroup(this);
 	}
 

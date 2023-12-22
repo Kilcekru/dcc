@@ -1,6 +1,7 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../../utils";
 import { world } from "../../world";
 import { HoldWaypoint, WaypointTemplate } from "../Waypoint";
 import { FlightGroup, FlightGroupProps } from "./FlightGroup";
@@ -10,7 +11,7 @@ interface EscortFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	holdWaypoint: HoldWaypoint;
 }
 
-export class EscortFlightGroup extends FlightGroup {
+export class EscortFlightGroup extends FlightGroup<keyof Events.EventMap.EscortFlightGroup> {
 	readonly #targetFlightGroupId: Types.Campaign.Id;
 
 	get target() {

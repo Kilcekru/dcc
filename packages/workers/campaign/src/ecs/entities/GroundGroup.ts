@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../utils";
 import { QueryKey, world } from "../world";
 import type { FlightGroup } from "./flight-group";
 import { GroundUnit } from "./GroundUnit";
@@ -14,7 +15,7 @@ export interface GroundGroupProps extends Omit<GroupProps, "position"> {
 	embarked?: FlightGroup;
 }
 
-export class GroundGroup extends Group {
+export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	public readonly name: string;
 	public readonly start: Objective;
 	public readonly target: Objective;
@@ -81,7 +82,7 @@ export class GroundGroup extends Group {
 		unit.destroy();
 
 		if (this.aliveUnits.length === 0) {
-			this.deconstructor();
+			this.destructor();
 
 			return true;
 		}
@@ -124,10 +125,10 @@ export class GroundGroup extends Group {
 		this.#embarkedOntoFlightGroup = undefined;
 	}
 
-	override deconstructor() {
-		this.units.forEach((u) => u.deconstructor());
-		this.shoradUnits.forEach((u) => u.deconstructor());
-		super.deconstructor();
+	override destructor() {
+		this.units.forEach((u) => u.destructor());
+		this.shoradUnits.forEach((u) => u.destructor());
+		super.destructor();
 	}
 
 	toMapJSON(): Types.Campaign.MapItem {

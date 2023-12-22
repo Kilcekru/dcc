@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../utils";
 import { world } from "../world";
 import { EntityId } from "./Entity";
 import type { GroundGroup } from "./GroundGroup";
@@ -12,7 +13,7 @@ export interface GroundUnitProps extends Omit<UnitProps, "queries"> {
 	category: Types.Campaign.GroundUnitCategory;
 	groundGroup: GroundGroup;
 }
-export class GroundUnit extends Unit {
+export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly name: string;
 	#alive = true;
 	public readonly category: Types.Campaign.GroundUnitCategory;

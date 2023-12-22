@@ -1,5 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
+import { Events } from "../../utils";
 import { type QueryName, world } from "../world";
 import type { Aircraft } from "./Aircraft";
 import { EntityId } from "./Entity";
@@ -14,7 +15,9 @@ export interface HomeBaseProps {
 	position: DcsJs.Position;
 }
 
-export class HomeBase extends MapEntity {
+export class HomeBase<EventNames extends keyof Events.EventMap.All = never> extends MapEntity<
+	EventNames | keyof Events.EventMap.HomeBase
+> {
 	public readonly name: string;
 	public readonly type: HomeBaseType;
 	#aircraftIds: Set<EntityId> = new Set();

@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../utils";
 import { world } from "../world";
 import { Aircraft } from "./Aircraft";
 import { HomeBase, HomeBaseProps } from "./HomeBase";
@@ -10,7 +11,7 @@ export interface AirdromeProps extends Omit<HomeBaseProps, "type"> {
 	frequencyList: number[];
 }
 
-export class Airdrome extends HomeBase {
+export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 	public readonly frequencyList: number[];
 
 	public constructor(args: AirdromeProps) {
