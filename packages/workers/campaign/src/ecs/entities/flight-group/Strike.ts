@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../../utils";
 import { world } from "../../world";
 import type { Structure } from "../Structure";
 import { WaypointTemplate, WaypointType } from "../Waypoint";
@@ -12,7 +13,7 @@ interface StrikeFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetStructureId: Types.Campaign.Id;
 }
 
-export class StrikeFlightGroup extends EscortedFlightGroup {
+export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.StrikeFlightGroup> {
 	readonly #targetStructureId: Types.Campaign.Id;
 
 	get target() {

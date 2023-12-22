@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../utils";
 import { calcInitDeploymentScore } from "../utils";
 import { QueryName, world } from "../world";
 import { Building } from "./Building";
@@ -15,7 +16,7 @@ export interface StructureProps extends MapEntityProps {
 	type: DcsJs.StructureType;
 }
 
-export class Structure extends MapEntity {
+export class Structure extends MapEntity<keyof Events.EventMap.Structure> {
 	public readonly name: string;
 	public readonly objective: Objective;
 	public readonly type: DcsJs.StructureType;

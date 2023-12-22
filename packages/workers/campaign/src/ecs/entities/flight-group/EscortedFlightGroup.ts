@@ -1,8 +1,11 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
+import { Events } from "../../../utils";
 import { FlightGroup, FlightGroupProps } from ".";
-export class EscortedFlightGroup extends FlightGroup {
+export class EscortedFlightGroup<EventNames extends keyof Events.EventMap.All = never> extends FlightGroup<
+	EventNames | keyof Events.EventMap.EscortedFlightGroup
+> {
 	#escortFlightGroupId: Map<DcsJs.Task, Types.Campaign.Id> | undefined = undefined;
 
 	constructor(args: FlightGroupProps) {

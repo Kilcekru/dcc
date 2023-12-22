@@ -1,12 +1,13 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
+import { Events } from "../../utils";
 import { world } from "../world";
 import { Entity, EntityId } from "./Entity";
 import { GroundGroup } from "./GroundGroup";
 import { Structure } from "./Structure";
 
-export class Objective extends Entity {
+export class Objective extends Entity<keyof Events.EventMap.Objective> {
 	public readonly name: string;
 	public readonly position: DcsJs.Position;
 	public override coalition: DcsJs.Coalition;
@@ -71,7 +72,7 @@ export class Objective extends Entity {
 		for (const structure of world.queries.structures[this.coalition]) {
 			if (structure.objective === this) {
 				structures.push(structure);
-				structure.deconstructor();
+				structure.destructor();
 			}
 		}
 

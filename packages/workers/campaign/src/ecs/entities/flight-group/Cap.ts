@@ -1,6 +1,7 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Events } from "../../../utils";
 import { world } from "../../world";
 import type { HomeBase } from "../HomeBase";
 import { WaypointTemplate, WaypointType } from "../Waypoint";
@@ -10,7 +11,7 @@ interface CapFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetHomeBaseId: Types.Campaign.Id;
 }
 
-export class CapFlightGroup extends FlightGroup {
+export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightGroup> {
 	readonly #targetHomeBaseId: Types.Campaign.Id;
 
 	get target() {
