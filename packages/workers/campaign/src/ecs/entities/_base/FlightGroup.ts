@@ -4,15 +4,15 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
 import { Flightplan } from "../../objects";
+import { WaypointTemplate } from "../../objects/Waypoint";
 import { generateCallSign } from "../../utils";
 import { type QueryKey, world } from "../../world";
 import type { Aircraft } from "../Aircraft";
-import { Group, GroupProps } from "../Group";
-import type { HomeBase } from "../HomeBase";
 import { type Package } from "../Package";
-import { WaypointTemplate } from "../Waypoint";
+import { Group, GroupProps } from "./Group";
+import type { HomeBase } from "./HomeBase";
 
-export interface FlightGroupProps extends GroupProps {
+export interface FlightGroupProps extends Omit<GroupProps, "queries"> {
 	task: DcsJs.Task;
 	package: Package;
 	aircraftIds: Types.Campaign.Id[];
@@ -77,7 +77,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	protected constructor(args: FlightGroupProps) {
-		super({ ...args, queries: new Set([`flightGroups-${args.task}` as QueryKey]) });
+		super({ ...args, queries: [`flightGroups-${args.task}` as QueryKey] });
 
 		const cs = generateCallSign(args.coalition, "aircraft");
 		this.task = args.task;

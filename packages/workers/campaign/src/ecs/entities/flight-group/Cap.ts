@@ -2,12 +2,12 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
 import { world } from "../../world";
-import type { HomeBase } from "../HomeBase";
-import { WaypointTemplate, WaypointType } from "../Waypoint";
-import { FlightGroup, FlightGroupProps } from "./FlightGroup";
+import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
+import type { HomeBase } from "../_base/HomeBase";
 
-interface CapFlightGroupProps extends Omit<FlightGroupProps, "task"> {
+interface CapFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
 	targetHomeBaseId: Types.Campaign.Id;
 }
 
@@ -19,7 +19,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 	}
 
 	private constructor(args: CapFlightGroupProps) {
-		super({ ...args, task: "CAP" });
+		super({ ...args, entityType: "CapFlightGroup", task: "CAP" });
 		this.#targetHomeBaseId = args.targetHomeBaseId;
 		const prevWaypoint = Utils.Array.lastItem(args.taskWaypoints);
 

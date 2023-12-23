@@ -1,16 +1,16 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { HoldWaypoint, WaypointTemplate } from "../../objects/Waypoint";
 import { world } from "../../world";
-import { HoldWaypoint, WaypointTemplate } from "../Waypoint";
-import { FlightGroup, FlightGroupProps } from "./FlightGroup";
+import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
 
-interface EscortingFlightGroupProps extends Omit<FlightGroupProps, "task"> {
+export interface EscortingFlightGroupProps extends Omit<FlightGroupProps, "task"> {
 	targetFlightGroupId: Types.Campaign.Id;
 	holdWaypoint: HoldWaypoint;
 }
 
-export class EscortingFlightGroup extends FlightGroup {
+export abstract class EscortingFlightGroup extends FlightGroup {
 	readonly #targetFlightGroupId: Types.Campaign.Id;
 
 	get target() {
@@ -33,21 +33,5 @@ export class EscortingFlightGroup extends FlightGroup {
 				homeBase: args.homeBase,
 			}),
 		);
-	}
-
-	static create(
-		args: Omit<EscortingFlightGroupProps, "taskWaypoints"> & {
-			targetFlightGroupId: Types.Campaign.Id;
-		},
-	) {
-		const taskWaypoint: WaypointTemplate = args.holdWaypoint.toEscortWaypoint();
-
-		const waypoints: Array<WaypointTemplate> = [taskWaypoint];
-
-		return new EscortingFlightGroup({
-			...args,
-			taskWaypoints: waypoints,
-			targetFlightGroupId: args.targetFlightGroupId,
-		});
 	}
 }

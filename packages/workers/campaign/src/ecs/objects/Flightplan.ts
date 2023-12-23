@@ -1,8 +1,9 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { FlightGroup, Waypoint, WaypointTemplate } from "../entities";
+import { FlightGroup } from "../entities";
 import { world } from "../world";
+import { Waypoint, WaypointTemplate } from "./Waypoint";
 
 export class Flightplan {
 	readonly #flightGroupId: Types.Campaign.Id;

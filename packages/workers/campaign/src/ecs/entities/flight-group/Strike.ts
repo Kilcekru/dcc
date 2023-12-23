@@ -3,13 +3,13 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
 import { world } from "../../world";
-import type { Structure } from "../Structure";
-import { WaypointTemplate, WaypointType } from "../Waypoint";
+import { FlightGroupProps } from "../_base/FlightGroup";
+import type { Structure } from "../_base/Structure";
 import { EscortedFlightGroup } from "./EscortedFlightGroup";
-import { FlightGroupProps } from "./FlightGroup";
 
-interface StrikeFlightGroupProps extends Omit<FlightGroupProps, "task"> {
+interface StrikeFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
 	targetStructureId: Types.Campaign.Id;
 }
 
@@ -21,7 +21,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	}
 
 	private constructor(args: StrikeFlightGroupProps) {
-		super({ ...args, task: "Pinpoint Strike" });
+		super({ ...args, entityType: "StrikeFlightGroup", task: "Pinpoint Strike" });
 		this.#targetStructureId = args.targetStructureId;
 	}
 

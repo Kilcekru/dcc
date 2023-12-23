@@ -4,9 +4,9 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { world } from "../world";
-import { HomeBase, HomeBaseProps } from "./HomeBase";
+import { HomeBase, HomeBaseProps } from "./_base/HomeBase";
 
-export interface AirdromeProps extends Omit<HomeBaseProps, "type"> {
+export interface AirdromeProps extends Omit<HomeBaseProps, "entityType" | "type"> {
 	frequencyList: number[];
 }
 
@@ -14,7 +14,7 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 	public readonly frequencyList: number[];
 
 	private constructor(args: AirdromeProps) {
-		super({ ...args, type: "airdrome", queries: new Set(["airdromes"]) });
+		super({ ...args, entityType: "Airdrome", type: "airdrome", queries: ["airdromes"] });
 		this.frequencyList = args.frequencyList;
 	}
 

@@ -1,13 +1,13 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
 import { groundGroupAlreadyTargeted } from "../../utils";
 import { world } from "../../world";
+import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
 import { GroundGroup } from "../GroundGroup";
-import { WaypointTemplate, WaypointType } from "../Waypoint";
-import { FlightGroup, FlightGroupProps } from "./FlightGroup";
 
-interface AirAssaultFlightGroupProps extends Omit<FlightGroupProps, "task"> {
+interface AirAssaultFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
 	targetGroundGroupId: Types.Campaign.Id;
 	groundGroupId: Types.Campaign.Id;
 }
@@ -17,7 +17,7 @@ export class AirAssaultFlightGroup extends FlightGroup {
 	#embarkedGroundGroupId: Types.Campaign.Id | undefined;
 
 	private constructor(args: AirAssaultFlightGroupProps) {
-		super({ ...args, task: "Air Assault" });
+		super({ ...args, entityType: "AirAssaultFlightGroup", task: "Air Assault" });
 		this.#targetGroundGroupId = args.targetGroundGroupId;
 		this.#embarkedGroundGroupId = args.groundGroupId;
 	}
@@ -113,7 +113,7 @@ export class AirAssaultFlightGroup extends FlightGroup {
 	}
 
 	static create(
-		args: Omit<FlightGroupProps, "task" | "taskWaypoints"> & {
+		args: Omit<AirAssaultFlightGroupProps, "taskWaypoints"> & {
 			targetGroundGroupId: Types.Campaign.Id;
 			groundGroupId: Types.Campaign.Id;
 		},

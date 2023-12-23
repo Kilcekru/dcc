@@ -2,15 +2,15 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../utils";
+import { Events, Serialization } from "../../utils";
 import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
 import { world } from "../world";
-import { Entity } from "./Entity";
+import { Entity } from "./_base/Entity";
+import { HomeBase } from "./_base/HomeBase";
 import { AirAssaultFlightGroup, CapFlightGroup, CasFlightGroup, FlightGroup, StrikeFlightGroup } from "./flight-group";
 import { EscortFlightGroup } from "./flight-group/Escort";
 import { GroundGroup } from "./GroundGroup";
-import { HomeBase } from "./HomeBase";
-import { UnitCamp } from "./Structure";
+import { UnitCamp } from "./UnitCamp";
 
 type BasicProps = {
 	coalition: DcsJs.Coalition;
@@ -43,8 +43,9 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 
 	private constructor(args: PackageProps) {
 		super({
+			entityType: "Package",
+			queries: [`packages-${args.task}` as const],
 			coalition: args.coalition,
-			queries: new Set([`packages-${args.task}` as const]),
 		});
 		this.task = args.task;
 	}
@@ -262,6 +263,16 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			...super.toJSON(),
 			task: this.task,
 			flightGroups: Array.from(this.#flightGroupIds).map((id) => world.getEntity(id).toJSON()),
+		};
+	}
+
+	public override serialize(): Serialization.PackageSerialized {
+		return {
+			...super.serialize(),
+			entityType: "Package",
+			task: this.task,
+			cruiseSpeed: this.cruiseSpeed,
+			flightGroupIds: [...this.#flightGroupIds],
 		};
 	}
 }

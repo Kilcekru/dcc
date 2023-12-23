@@ -1,4 +1,4 @@
-import { Events } from "../../utils";
+import { Events } from "../../../utils";
 import { Entity, EntityProps } from "./Entity";
 
 export type UnitProps = EntityProps;

@@ -2,14 +2,14 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
 import { groundGroupAlreadyTargeted } from "../../utils";
 import { world } from "../../world";
 import type { GroundGroup } from "../GroundGroup";
-import { WaypointTemplate, WaypointType } from "../Waypoint";
 import { FlightGroupProps } from ".";
 import { EscortedFlightGroup } from "./EscortedFlightGroup";
 
-interface CasFlightGroupProps extends Omit<FlightGroupProps, "task"> {
+interface CasFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
 	targetGroundGroupId: Types.Campaign.Id;
 }
 
@@ -21,7 +21,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 	}
 
 	private constructor(args: CasFlightGroupProps) {
-		super({ ...args, task: "CAS" });
+		super({ ...args, entityType: "CasFlightGroup", task: "CAS" });
 		this.#targetGroundGroupId = args.targetGroundGroupId;
 	}
 
@@ -76,7 +76,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 	}
 
 	static create(
-		args: Omit<FlightGroupProps, "task" | "taskWaypoints"> & {
+		args: Omit<CasFlightGroupProps, "taskWaypoints"> & {
 			targetGroundGroupId: Types.Campaign.Id;
 			holdWaypoint: WaypointTemplate | undefined;
 		},

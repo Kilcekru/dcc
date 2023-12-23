@@ -6,6 +6,7 @@ import * as Entities from "./entities";
 import { SuperSet } from "./SuperSet";
 import { frameTickSystems, logicTickSystems } from "./systems";
 import { generateObjectivePlans } from "./utils";
+import { generateStructures } from "./world/generate";
 
 export type Faction = {
 	countryName: string;
@@ -171,13 +172,17 @@ export class World {
 		Entities.Objective.generate({ blueOps, redOps });
 
 		// Create structures
-		Entities.Structure.generate({
+		generateStructures({
 			coalition: "blue",
 			objectivePlans: blueOps,
+			dataStore: this.#dataStore,
+			objectives: this.objectives,
 		});
-		Entities.Structure.generate({
+		generateStructures({
 			coalition: "red",
 			objectivePlans: redOps,
+			dataStore: this.#dataStore,
+			objectives: this.objectives,
 		});
 
 		// Create ground groups

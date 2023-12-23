@@ -1,31 +1,41 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Events } from "../../utils";
-import { SuperSet } from "../SuperSet";
-import { QueryKey, QueryName, splitQueryKey, world } from "../world";
+import { Events, Serialization } from "../../../utils";
+import { EntityType } from "../../../utils/types";
+import { SuperSet } from "../../SuperSet";
+import { QueryKey, QueryName, splitQueryKey, world } from "../../world";
 
 export interface EntityProps {
+	entityType: EntityType;
 	coalition: DcsJs.Coalition;
-	queries: Set<QueryKey>;
+	queries?: QueryKey[];
 }
 
 export abstract class Entity<EventNames extends keyof Events.EventMap.All = never> extends Events.TypedEventEmitter<
 	EventNames | keyof Events.EventMap.Entity
 > {
 	#queries: Set<QueryKey> = new Set();
-	public readonly coalition: DcsJs.Coalition;
+	public readonly entityType: EntityType;
 	public readonly id: Types.Campaign.Id;
+	public readonly coalition: DcsJs.Coalition;
 
 	get queries(): Set<QueryKey> {
 		return this.#queries;
 	}
 
-	constructor(args: EntityProps) {
+	constructor(args: EntityProps | Serialization.EntitySerialized) {
 		super();
-		this.id = crypto.randomUUID();
+		this.entityType = args.entityType;
 		this.coalition = args.coalition;
-		this.#queries = args.queries ?? [];
+
+		if (Serialization.isSerialized(args)) {
+			this.id = args.id;
+			this.#queries = new Set(args.queries as QueryKey[]);
+		} else {
+			this.id = crypto.randomUUID();
+			this.#queries = new Set(args.queries ?? []);
+		}
 
 		world.entities.set(this.id, this);
 		for (const queryKey of this.#queries) {
@@ -74,6 +84,16 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 		return {
 			coalition: this.coalition,
 			id: this.id,
+		};
+	}
+
+	public serialize(): Serialization.EntitySerialized {
+		return {
+			serialized: true,
+			entityType: this.entityType,
+			id: this.id,
+			coalition: this.coalition,
+			queries: [...this.#queries],
 		};
 	}
 

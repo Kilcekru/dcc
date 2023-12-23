@@ -1,3 +1,5 @@
+import "./utils/serialization";
+
 import { Campaign } from "@kilcekru/dcc-shared-types";
 
 import { world } from "./ecs";

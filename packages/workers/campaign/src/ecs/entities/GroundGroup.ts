@@ -3,12 +3,12 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
-import { QueryKey, world } from "../world";
+import { world } from "../world";
+import { Group, GroupProps } from "./_base/Group";
 import type { FlightGroup } from "./flight-group";
 import { GroundUnit, GroundUnitProps } from "./GroundUnit";
-import { Group, GroupProps } from "./Group";
 import type { Objective } from "./Objective";
-export interface GroundGroupProps extends Omit<GroupProps, "position"> {
+export interface GroundGroupProps extends Omit<GroupProps, "entityType" | "queries" | "position"> {
 	start: Objective;
 	target: Objective;
 	groupType: DcsJs.CampaignGroundGroupType;
@@ -47,16 +47,17 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	}
 
 	private constructor(args: GroundGroupProps) {
-		const queries: Set<QueryKey> = new Set(["groundGroups", "mapEntities"]);
-
-		// If the group is not already at the target, add it to the en route query
-		if (args.start === args.target) {
-			queries.add("groundGroups-on target");
-		} else {
-			queries.add("groundGroups-en route");
-		}
-
-		super({ ...args, queries, position: args.start.position });
+		super({
+			...args,
+			entityType: "GroundGroup",
+			queries: [
+				"groundGroups",
+				"mapEntities",
+				// If the group is not already at the target, add it to the en route query
+				args.start === args.target ? "groundGroups-on target" : "groundGroups-en route",
+			],
+			position: args.start.position,
+		});
 		this.name = args.target.name + "-" + this.id;
 		this.start = args.start;
 		this.target = args.target;

@@ -2,21 +2,19 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../utils";
-import { type QueryName, world } from "../world";
-import { Aircraft } from "./Aircraft";
-import { MapEntity } from "./MapEntity";
+import { Events } from "../../../utils";
+import { world } from "../../world";
+import { Aircraft } from "../Aircraft";
+import { MapEntity, MapEntityProps } from "./MapEntity";
 
 export type HomeBaseType = "airdrome" | "carrier" | "farp";
 
-export interface HomeBaseProps {
+export interface HomeBaseProps extends MapEntityProps {
 	name: string;
 	type: HomeBaseType;
-	coalition: DcsJs.Coalition;
-	position: DcsJs.Position;
 }
 
-export class HomeBase<EventNames extends keyof Events.EventMap.All = never> extends MapEntity<
+export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = never> extends MapEntity<
 	EventNames | keyof Events.EventMap.HomeBase
 > {
 	public readonly name: string;
@@ -35,12 +33,8 @@ export class HomeBase<EventNames extends keyof Events.EventMap.All = never> exte
 		return retVal;
 	}
 
-	public constructor(args: HomeBaseProps & { queries: Set<QueryName> }) {
-		super({
-			coalition: args.coalition,
-			queries: args.queries,
-			position: args.position,
-		});
+	public constructor(args: HomeBaseProps) {
+		super(args);
 		this.name = args.name;
 		this.type = args.type;
 	}

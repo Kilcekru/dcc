@@ -27,7 +27,7 @@ export function deploymentScoreUpdate(coalition: DcsJs.Coalition) {
 				scoreFactor -= Utils.Config.deploymentScore.penalty.ammo;
 			}
 
-			if (unitCamp.type === "Depot" && !unitCamp.hasFuel) {
+			if (unitCamp.structureType === "Depot" && !unitCamp.hasFuel) {
 				scoreFactor -= Utils.Config.deploymentScore.penalty.fuel;
 			}
 

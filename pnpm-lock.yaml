@@ -261,6 +261,10 @@ importers:
         version: 0.4.0-next.3
 
   packages/workers/campaign:
+    dependencies:
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
         specifier: 0.4.0-next.3

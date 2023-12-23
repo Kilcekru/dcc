@@ -1,9 +1,9 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 
-import { MapEntity, MapEntityProps } from "./MapEntity";
+import { MapEntity, MapEntityProps } from "./_base/MapEntity";
 import { Objective } from "./Objective";
 
-export interface SAMProps extends MapEntityProps {
+export interface SAMProps extends Omit<MapEntityProps, "entityType"> {
 	name: string;
 	objective: Objective;
 	range: number;
@@ -17,7 +17,7 @@ export class SAM extends MapEntity {
 	public readonly type: DcsJs.SamType;
 
 	private constructor(args: SAMProps) {
-		super({ ...args, queries: new Set(["SAMs"]) });
+		super({ ...args, entityType: "SAM", queries: ["SAMs"] });
 		this.name = args.name;
 		this.range = args.range;
 		this.objective = args.objective;

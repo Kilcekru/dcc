@@ -1,9 +1,9 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events } from "../../utils";
-import { Unit, UnitProps } from "./Unit";
+import { Unit, UnitProps } from "./_base/Unit";
 
-export interface GroundUnitProps extends Omit<UnitProps, "queries"> {
+export interface GroundUnitProps extends Omit<UnitProps, "entityType" | "queries"> {
 	name: string;
 	category: Types.Campaign.GroundUnitCategory;
 }
@@ -12,7 +12,7 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly category: Types.Campaign.GroundUnitCategory;
 
 	private constructor(args: GroundUnitProps) {
-		super({ ...args, queries: new Set(["groundUnits"]) });
+		super({ ...args, entityType: "GroundUnit", queries: ["groundUnits"] });
 		this.name = args.name;
 		this.category = args.category;
 	}

@@ -206,7 +206,7 @@ export type BuildingItem = {
 export type StructureItem = EntityItem & {
 	name: string;
 	objective: string;
-	type: DcsJs.StructureType;
+	structureType: DcsJs.StructureType;
 	state: DcsJs.StructureState;
 	buildings: Array<BuildingItem>;
 };

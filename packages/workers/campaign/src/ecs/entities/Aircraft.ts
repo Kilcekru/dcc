@@ -3,10 +3,10 @@ import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events } from "../../utils";
 import { world } from "../world";
-import type { FlightGroup } from "./flight-group/FlightGroup";
-import type { HomeBase } from "./HomeBase";
-import { Unit, UnitProps } from "./Unit";
-export interface AircraftProps extends Omit<UnitProps, "queries"> {
+import type { FlightGroup } from "./_base/FlightGroup";
+import type { HomeBase } from "./_base/HomeBase";
+import { Unit, UnitProps } from "./_base/Unit";
+export interface AircraftProps extends Omit<UnitProps, "entityType" | "queries"> {
 	aircraftType: DcsJs.DCS.Aircraft;
 	homeBase: HomeBase;
 }
@@ -42,8 +42,9 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 
 	private constructor(args: AircraftProps) {
 		super({
+			entityType: "Aircraft",
 			coalition: args.coalition,
-			queries: new Set(["aircrafts-idle"]),
+			queries: ["aircrafts-idle"],
 		});
 		this.aircraftType = args.aircraftType;
 		this.homeBaseId = args.homeBase.id;

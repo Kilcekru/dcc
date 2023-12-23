@@ -3,9 +3,10 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events } from "../../utils";
 import { world } from "../world";
-import { Entity } from "./Entity";
+import { Entity } from "./_base/Entity";
+import { Structure } from "./_base/Structure";
+import { GenericStructure } from "./GenericStructure";
 import { GroundGroup } from "./GroundGroup";
-import { Structure } from "./Structure";
 
 export class Objective extends Entity<keyof Events.EventMap.Objective> {
 	public readonly name: string;
@@ -33,7 +34,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 	}
 
 	public constructor(args: { name: string; coalition: DcsJs.Coalition; position: DcsJs.Position }) {
-		super({ ...args, queries: new Set(["objectives"]) });
+		super({ ...args, entityType: "Objective", queries: ["objectives"] });
 		this.name = args.name;
 		this.coalition = args.coalition;
 		this.position = args.position;
@@ -84,12 +85,12 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 
 		// Create new structures
 		for (const structure of structures) {
-			new Structure({
+			GenericStructure.create({
 				coalition: groundGroup.coalition,
 				name: structure.name,
 				objective: this,
 				position: structure.position,
-				type: structure.type,
+				structureType: structure.structureType,
 			});
 		}
 
