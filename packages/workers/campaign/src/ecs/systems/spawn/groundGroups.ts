@@ -39,7 +39,7 @@ export function groundGroup(coalition: DcsJs.Coalition) {
 			}
 
 			// Create the ground group
-			const gg = new Entities.GroundGroup({
+			const gg = Entities.GroundGroup.create({
 				coalition,
 				start: unitCamp.objective,
 				target,

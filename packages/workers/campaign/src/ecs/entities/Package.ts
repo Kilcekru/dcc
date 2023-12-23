@@ -196,7 +196,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 
 				const targetGroundGroup = world.getEntity<GroundGroup>(airAssaultBundle.targetGroundGroupId);
 
-				const gg = new GroundGroup({
+				const gg = GroundGroup.create({
 					coalition: args.coalition,
 					start: args.unitCamp.objective,
 					target: targetGroundGroup.target,
