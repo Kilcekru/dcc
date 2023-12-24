@@ -40,7 +40,7 @@ export function generateStructures(args: {
 			}
 
 			if (structureType === "Barrack" || structureType === "Depot") {
-				new UnitCamp({
+				UnitCamp.create({
 					name: structurePlan.structureName,
 					objective,
 					position: strikeTarget.position,

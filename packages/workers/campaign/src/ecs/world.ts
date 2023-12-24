@@ -76,6 +76,7 @@ export class World {
 		SAMs: Record<DcsJs.Coalition, Set<Entities.SAM>>;
 		mapEntities: Set<Entities.MapEntity>;
 		objectives: Record<DcsJs.Coalition, Set<Entities.Objective>>;
+		buildings: Record<DcsJs.Coalition, Set<Entities.Building>>;
 	} = {
 		airdromes: {
 			blue: new Set(),
@@ -124,6 +125,11 @@ export class World {
 		},
 		mapEntities: new Set(),
 		objectives: {
+			blue: new Set(),
+			red: new Set(),
+			neutrals: new Set(),
+		},
+		buildings: {
 			blue: new Set(),
 			red: new Set(),
 			neutrals: new Set(),

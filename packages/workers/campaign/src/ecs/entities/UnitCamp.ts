@@ -1,8 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
+import { Serialization } from "../../utils";
 import { calcInitDeploymentScore } from "../utils";
-import { world } from "../world";
+import { QueryKey, world } from "../world";
 import { Structure, StructureProps } from "./_base/Structure";
 
 export interface UnitCampProps extends Omit<StructureProps, "entityType"> {
@@ -10,8 +11,15 @@ export interface UnitCampProps extends Omit<StructureProps, "entityType"> {
 }
 
 export class UnitCamp extends Structure {
-	public deploymentScore: number;
-	public override structureType: DcsJs.StructureTypeUnitCamp;
+	#deploymentScore: number;
+
+	get deploymentScore() {
+		return this.#deploymentScore;
+	}
+
+	set deploymentScore(value) {
+		this.#deploymentScore = value;
+	}
 
 	get range() {
 		return this.structureType === "Barrack"
@@ -68,9 +76,38 @@ export class UnitCamp extends Structure {
 		return false;
 	}
 
-	constructor(args: UnitCampProps) {
-		super({ ...args, entityType: "UnitCamp", queries: ["unitCamps"] });
-		this.structureType = args.structureType;
-		this.deploymentScore = calcInitDeploymentScore(args.coalition, args.structureType);
+	constructor(args: UnitCampProps | Serialization.UnitCampSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, queries: ["unitCamps"] as QueryKey[], entityType: "UnitCamp" as const };
+		super(superArgs);
+
+		if (Serialization.isSerialized(args)) {
+			this.#deploymentScore = args.deploymentScore;
+		} else {
+			this.#deploymentScore = calcInitDeploymentScore(args.coalition, args.structureType);
+		}
+	}
+
+	static create(args: Omit<UnitCampProps, "buildingIds">) {
+		const buildings = Structure.createBuildings(args);
+
+		return new UnitCamp({
+			...args,
+
+			buildingIds: buildings.map((building) => building.id),
+		});
+	}
+
+	static deserialize(args: Serialization.UnitCampSerialized) {
+		return new UnitCamp(args);
+	}
+
+	public override serialize(): Serialization.UnitCampSerialized {
+		return {
+			...super.serialize(),
+			entityType: "UnitCamp",
+			deploymentScore: this.deploymentScore,
+		};
 	}
 }

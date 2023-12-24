@@ -3,8 +3,8 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
-import { Building } from "../../objects";
 import { world } from "../../world";
+import { Building } from "../Building";
 import type { Objective } from "../Objective";
 import { MapEntity, MapEntityProps } from "./MapEntity";
 
@@ -13,17 +13,22 @@ export interface StructureProps extends MapEntityProps {
 	objective: Objective;
 	position: DcsJs.Position;
 	structureType: DcsJs.StructureType;
+	buildingIds: Types.Campaign.Id[];
 }
 
 export abstract class Structure extends MapEntity<keyof Events.EventMap.Structure> {
 	public readonly name: string;
 	public readonly structureType: DcsJs.StructureType;
-	public readonly buildings: Array<Building>;
+	readonly #buildingIds: Types.Campaign.Id[];
 	#objectiveId: Types.Campaign.Id;
 	#state: DcsJs.StructureState = "active";
 
 	get objective() {
 		return world.getEntity<Objective>(this.#objectiveId);
+	}
+
+	get buildings() {
+		return this.#buildingIds.map((id) => world.getEntity<Building>(id));
 	}
 
 	get alive() {
@@ -39,31 +44,34 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	protected constructor(args: StructureProps | Serialization.StructureSerialized) {
 		const superArgs: MapEntityProps | Serialization.MapEntitySerialized = Serialization.isSerialized(args)
 			? args
-			: { ...args, queries: ["mapEntities", ...(args.queries ?? [])] };
+			: { ...args, queries: ["mapEntities", "structures", ...(args.queries ?? [])] };
 		super(superArgs);
 		this.name = args.name;
 		this.position = args.position;
 		this.structureType = args.structureType;
+		this.#buildingIds = args.buildingIds;
 		if (Serialization.isSerialized(args)) {
 			this.#objectiveId = args.objectiveId;
-			this.buildings = []; // TODO: correctly serialize and deserialize buildings
+			this.#buildingIds = []; // TODO: correctly serialize and deserialize buildings
 		} else {
 			this.#objectiveId = args.objective.id;
-
-			const structureTemplate = Utils.Random.item(world.dataStore?.structures?.[args.structureType] ?? []);
-
-			if (structureTemplate == null) {
-				throw new Error("structureTemplate not found");
-			}
-
-			this.buildings = structureTemplate.buildings.map((buildingTemplate, i) => {
-				return new Building({
-					name: `${args.name}|${i + 1}`,
-					alive: true,
-					offset: buildingTemplate.offset,
-				});
-			});
 		}
+	}
+
+	static createBuildings(args: Pick<StructureProps, "structureType" | "name" | "coalition">) {
+		const structureTemplate = Utils.Random.item(world.dataStore?.structures?.[args.structureType] ?? []);
+
+		if (structureTemplate == null) {
+			throw new Error("structureTemplate not found");
+		}
+
+		return structureTemplate.buildings.map((buildingTemplate, i) => {
+			return Building.create({
+				name: `${args.name}|${i + 1}`,
+				offset: buildingTemplate.offset,
+				coalition: args.coalition,
+			});
+		});
 	}
 
 	static toMapItems() {
@@ -93,24 +101,13 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 		};
 	}
 
-	override toJSON(): Types.Campaign.StructureItem {
-		return {
-			...super.toJSON(),
-			name: this.name,
-			objective: this.objective.name,
-			structureType: this.structureType,
-			buildings: this.buildings.map((building) => building.toJSON()),
-			state: this.#state,
-		};
-	}
-
 	public override serialize(): Serialization.StructureSerialized {
 		return {
 			...super.serialize(),
 			name: this.name,
 			structureType: this.structureType,
 			objectiveId: this.#objectiveId,
-			// TODO: correctly serialize and deserialize buildings
+			buildingIds: this.#buildingIds,
 		};
 	}
 }

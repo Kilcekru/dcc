@@ -39,10 +39,23 @@ const mapEntitySchema = entitySchema.extend({
 });
 export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
 
+const unitSchema = entitySchema.extend({
+	alive: z.boolean(),
+});
+export type UnitSerialized = z.TypeOf<typeof unitSchema>;
+
+const buildingSchema = unitSchema.extend({
+	entityType: z.literal("Building"),
+	name: z.string(),
+	offset: Schema.position,
+});
+export type BuildingSerialized = z.TypeOf<typeof buildingSchema>;
+
 const structureSchema = mapEntitySchema.extend({
 	name: z.string(),
 	structureType: Schema.structureType,
 	objectiveId: z.string(),
+	buildingIds: z.array(z.string()),
 });
 export type StructureSerialized = z.TypeOf<typeof structureSchema>;
 
@@ -50,6 +63,12 @@ const genericStructureSchema = structureSchema.extend({
 	entityType: z.literal("GenericStructure"),
 });
 export type GenericStructureSerialized = z.TypeOf<typeof genericStructureSchema>;
+
+const unitCampSchema = structureSchema.extend({
+	entityType: z.literal("UnitCamp"),
+	deploymentScore: z.number(),
+});
+export type UnitCampSerialized = z.TypeOf<typeof unitCampSchema>;
 
 const packageSchema = entitySchema.extend({
 	entityType: z.literal("Package"),
@@ -60,6 +79,8 @@ const packageSchema = entitySchema.extend({
 export type PackageSerialized = z.TypeOf<typeof packageSchema>;
 
 export const stateSchema = z.object({
-	entities: z.array(z.discriminatedUnion("entityType", [genericStructureSchema, packageSchema])),
+	entities: z.array(
+		z.discriminatedUnion("entityType", [genericStructureSchema, unitCampSchema, buildingSchema, packageSchema]),
+	),
 });
 export type StateSerialized = z.TypeOf<typeof stateSchema>;

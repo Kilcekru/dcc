@@ -18,6 +18,7 @@ export const entityTypeSchema = z.enum([
 	"StrikeFlightGroup",
 	"Structure",
 	"UnitCamp",
+	"Building",
 ]);
 export type EntityType = z.TypeOf<typeof entityTypeSchema>;
 
@@ -34,6 +35,7 @@ export const queryNameSchema = z.enum([
 	"SAMs",
 	"mapEntities",
 	"objectives",
+	"buildings",
 ]);
 export type QueryName = z.TypeOf<typeof queryNameSchema>;
 

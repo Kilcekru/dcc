@@ -4,6 +4,7 @@ export * from "./_base/MapEntity";
 export * from "./_base/Structure";
 export * from "./Aircraft";
 export * from "./Airdrome";
+export * from "./Building";
 export * from "./flight-group";
 export * from "./GenericStructure";
 export * from "./GroundGroup";

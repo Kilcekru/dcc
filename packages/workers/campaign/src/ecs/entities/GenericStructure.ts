@@ -9,8 +9,13 @@ export class GenericStructure extends Structure {
 		super(superArgs);
 	}
 
-	static create(args: GenericStructureProps) {
-		return new GenericStructure(args);
+	static create(args: Omit<GenericStructureProps, "buildingIds">) {
+		const buildings = Structure.createBuildings(args);
+
+		return new GenericStructure({
+			...args,
+			buildingIds: buildings.map((building) => building.id),
+		});
 	}
 
 	static deserialize(args: Serialization.GenericStructureSerialized) {
