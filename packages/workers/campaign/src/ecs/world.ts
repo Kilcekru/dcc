@@ -3,7 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 
 import { postEvent } from "../events";
 import * as Entities from "./entities";
-import { SuperSet } from "./SuperSet";
+import { store } from "./store";
 import { frameTickSystems, logicTickSystems } from "./systems";
 import { generateObjectivePlans } from "./utils";
 import { generateStructures } from "./world/generate";
@@ -16,139 +16,11 @@ export type Faction = {
 	structures: Set<Entities.Structure>;
 };
 
-export type QueryName = keyof World["queries"];
-export type QueryKey = QueryName | `${QueryName}-${string}`;
-
-export function splitQueryKey(key: QueryKey) {
-	return key.split("-", 2) as [QueryName] | [QueryName, string];
-}
-
-const taskSubQueries = ["CAP", "CAS", "Escort", "Air Assault", "Pinpoint Strike"];
-const aircraftSubQueries = ["idle", "in use"];
-const groundGroupSubQueries = ["en route", "on target", "embarked"];
-
 export class World {
-	#coalitions: Record<DcsJs.Coalition, Faction> = {
-		blue: {
-			countryName: "unknown",
-			packages: new Set(),
-			airdromes: new Set(),
-			groundGroups: new Set(),
-			structures: new Set(),
-		},
-		neutrals: {
-			countryName: "unknown",
-			packages: new Set(),
-			airdromes: new Set(),
-			groundGroups: new Set(),
-			structures: new Set(),
-		},
-		red: {
-			countryName: "unknown",
-			packages: new Set(),
-			airdromes: new Set(),
-			groundGroups: new Set(),
-			structures: new Set(),
-		},
-	};
-	public time = 32400000; // 09:00 in milliseconds
-	public multiplier = 1;
 	public objectives: Map<string, Entities.Objective> = new Map();
 
-	public entities = new Map<Types.Campaign.Id, Entities.Entity>();
-	public getEntity<Type extends Entities.Entity>(id: Types.Campaign.Id): Type {
-		const entity = this.entities.get(id);
-		if (entity == undefined) {
-			throw new Error(`World.getEntity: invalid id ${id}`);
-		}
-		return entity as Type;
-	}
-
-	public queries: {
-		airdromes: Record<DcsJs.Coalition, Set<Entities.Airdrome>>;
-		packages: Record<DcsJs.Coalition, SuperSet<Entities.Package, (typeof taskSubQueries)[number]>>;
-		flightGroups: Record<DcsJs.Coalition, SuperSet<Entities.FlightGroup, (typeof taskSubQueries)[number]>>;
-		groundGroups: Record<DcsJs.Coalition, SuperSet<Entities.GroundGroup, (typeof groundGroupSubQueries)[number]>>;
-		aircrafts: Record<DcsJs.Coalition, SuperSet<Entities.Aircraft, (typeof aircraftSubQueries)[number]>>;
-		groundUnits: Record<DcsJs.Coalition, Set<Entities.GroundUnit>>;
-		structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
-		unitCamps: Record<DcsJs.Coalition, Set<Entities.UnitCamp>>;
-		SAMs: Record<DcsJs.Coalition, Set<Entities.SAM>>;
-		mapEntities: Set<Entities.MapEntity>;
-		objectives: Record<DcsJs.Coalition, Set<Entities.Objective>>;
-		buildings: Record<DcsJs.Coalition, Set<Entities.Building>>;
-	} = {
-		airdromes: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-		packages: {
-			blue: new SuperSet(taskSubQueries),
-			red: new SuperSet(taskSubQueries),
-			neutrals: new SuperSet(taskSubQueries),
-		},
-		flightGroups: {
-			blue: new SuperSet(taskSubQueries),
-			red: new SuperSet(taskSubQueries),
-			neutrals: new SuperSet(taskSubQueries),
-		},
-		groundGroups: {
-			blue: new SuperSet(groundGroupSubQueries),
-			red: new SuperSet(groundGroupSubQueries),
-			neutrals: new SuperSet(groundGroupSubQueries),
-		},
-		aircrafts: {
-			blue: new SuperSet(aircraftSubQueries),
-			red: new SuperSet(aircraftSubQueries),
-			neutrals: new SuperSet(aircraftSubQueries),
-		},
-		groundUnits: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-		structures: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-		unitCamps: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-		SAMs: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-		mapEntities: new Set(),
-		objectives: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-		buildings: {
-			blue: new Set(),
-			red: new Set(),
-			neutrals: new Set(),
-		},
-	};
-	public factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined> = {
-		blue: undefined,
-		neutrals: undefined,
-		red: undefined,
-	};
-
-	#dataStore: Types.Campaign.DataStore | undefined;
-
-	public get dataStore() {
-		return this.#dataStore;
-	}
-
 	public setDataStore(next: Types.Campaign.DataStore) {
-		this.#dataStore = next;
+		store.dataStore = next;
 	}
 
 	public generate(args: {
@@ -156,22 +28,22 @@ export class World {
 		redFactionDefinition: DcsJs.Faction;
 		scenario: Types.Campaign.Scenario;
 	}) {
-		if (this.#dataStore == null) {
+		if (store.dataStore == null) {
 			throw new Error("createCampaign: dataStore is not fetched");
 		}
 
-		this.factionDefinitions.blue = args.blueFactionDefinition;
-		this.factionDefinitions.red = args.redFactionDefinition;
+		store.factionDefinitions.blue = args.blueFactionDefinition;
+		store.factionDefinitions.red = args.redFactionDefinition;
 
 		// Create airdromes
 		Entities.Airdrome.generate({ coalition: "blue", airdromeNames: args.scenario.blue.airdromeNames });
 		Entities.Airdrome.generate({ coalition: "red", airdromeNames: args.scenario.red.airdromeNames });
 
 		const [blueOps, redOps] = generateObjectivePlans({
-			blueAirdromes: [...this.queries.airdromes["blue"].values()],
-			redAirdromes: [...this.queries.airdromes["red"].values()],
+			blueAirdromes: [...store.queries.airdromes["blue"].values()],
+			redAirdromes: [...store.queries.airdromes["red"].values()],
 			blueRange: args.scenario["blue-start-objective-range"],
-			dataStore: this.#dataStore,
+			dataStore: store.dataStore,
 		});
 
 		// Create objectives
@@ -181,13 +53,13 @@ export class World {
 		generateStructures({
 			coalition: "blue",
 			objectivePlans: blueOps,
-			dataStore: this.#dataStore,
+			dataStore: store.dataStore,
 			objectives: this.objectives,
 		});
 		generateStructures({
 			coalition: "red",
 			objectivePlans: redOps,
-			dataStore: this.#dataStore,
+			dataStore: store.dataStore,
 			objectives: this.objectives,
 		});
 
@@ -211,13 +83,13 @@ export class World {
 	public timeUpdate() {
 		postEvent({
 			name: "timeUpdate",
-			time: this.time,
+			time: store.time,
 		});
 	}
 	public mapUpdate() {
 		const items: Map<string, Types.Campaign.MapItem> = new Map();
 
-		for (const entity of this.queries.mapEntities) {
+		for (const entity of store.queries.mapEntities) {
 			items.set(entity.id, entity.toMapJSON());
 		}
 
@@ -229,7 +101,7 @@ export class World {
 	public flightGroupsUpdate() {
 		const items: Set<Types.Campaign.FlightGroupItem> = new Set();
 
-		for (const fg of this.queries.flightGroups.blue) {
+		for (const fg of store.queries.flightGroups.blue) {
 			items.add(fg.toJSON());
 		}
 
@@ -245,8 +117,8 @@ export class World {
 
 	public frameTick(tickDelta: number, multiplier: number) {
 		const worldDelta = tickDelta * multiplier;
-		world.time += worldDelta;
-		world.multiplier = multiplier;
+		store.time += worldDelta;
+		store.timeMultiplier = multiplier;
 
 		frameTickSystems(worldDelta);
 

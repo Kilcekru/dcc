@@ -2,10 +2,10 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../../entities";
-import { world } from "../../world";
+import { store } from "../../store";
 
 function battleRoundCoalition(coalition: DcsJs.Coalition) {
-	const flightGroups = world.queries.flightGroups[coalition].intersection(world.queries.mapEntities);
+	const flightGroups = store.queries.flightGroups[coalition].intersection(store.queries.mapEntities);
 
 	for (const flightGroup of flightGroups) {
 		if (!flightGroup.isInCombat) {
@@ -16,7 +16,7 @@ function battleRoundCoalition(coalition: DcsJs.Coalition) {
 		if (
 			flightGroup.combat != null &&
 			flightGroup.combat.type === "a2a" &&
-			flightGroup.combat.cooldownTime <= world.time
+			flightGroup.combat.cooldownTime <= store.time
 		) {
 			// Is in range?
 			const range = flightGroup.a2aRange;
@@ -35,10 +35,10 @@ function battleRound() {
 }
 
 function engagePerCoalition(coalition: DcsJs.Coalition) {
-	const mapEntities = world.queries.mapEntities;
+	const mapEntities = store.queries.mapEntities;
 
-	const flightGroups = world.queries.flightGroups[coalition].intersection(mapEntities);
-	const oppFlightGroups = world.queries.flightGroups[Utils.Coalition.opposite(coalition)].intersection(mapEntities);
+	const flightGroups = store.queries.flightGroups[coalition].intersection(mapEntities);
+	const oppFlightGroups = store.queries.flightGroups[Utils.Coalition.opposite(coalition)].intersection(mapEntities);
 
 	for (const flightGroup of flightGroups) {
 		if (flightGroup.isInCombat) {

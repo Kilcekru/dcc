@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import * as Entities from "../entities";
-import { world } from "../world";
+import { store } from "../store";
 
 /**
  * Check if the ground group is already targeted by a another flight group or ground group
@@ -10,7 +10,7 @@ import { world } from "../world";
  * @returns true if the ground group is already targeted by a another flight group or ground group
  */
 export function groundGroupAlreadyTargeted(args: { coalition: DcsJs.Coalition; groundGroup: Entities.GroundGroup }) {
-	const coalitionCASFgs = world.queries.flightGroups[args.coalition].get("CAS");
+	const coalitionCASFgs = store.queries.flightGroups[args.coalition].get("CAS");
 
 	for (const fg of coalitionCASFgs) {
 		if (fg instanceof Entities.CasFlightGroup && fg.target === args.groundGroup) {
@@ -18,7 +18,7 @@ export function groundGroupAlreadyTargeted(args: { coalition: DcsJs.Coalition; g
 		}
 	}
 
-	const coalitionAAFgs = world.queries.flightGroups[args.coalition].get("Air Assault");
+	const coalitionAAFgs = store.queries.flightGroups[args.coalition].get("Air Assault");
 
 	for (const fg of coalitionAAFgs) {
 		if (fg instanceof Entities.AirAssaultFlightGroup && fg.target === args.groundGroup) {

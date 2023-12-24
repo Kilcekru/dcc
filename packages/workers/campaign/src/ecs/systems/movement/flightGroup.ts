@@ -3,11 +3,11 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../../entities";
 import { WaypointType } from "../../objects";
-import { world } from "../../world";
+import { store } from "../../store";
 
 export function takeOff(coalition: DcsJs.Coalition) {
-	const flightGroups = world.queries.flightGroups[coalition];
-	const mapEntities = world.queries.mapEntities;
+	const flightGroups = store.queries.flightGroups[coalition];
+	const mapEntities = store.queries.mapEntities;
 
 	const waitingFlightGroups = flightGroups.difference(mapEntities);
 
@@ -22,8 +22,8 @@ export function takeOff(coalition: DcsJs.Coalition) {
 }
 
 export function land(coalition: DcsJs.Coalition) {
-	const flightGroups = world.queries.flightGroups[coalition];
-	const mapEntities = world.queries.mapEntities;
+	const flightGroups = store.queries.flightGroups[coalition];
+	const mapEntities = store.queries.mapEntities;
 
 	const flyingFlightGroups = flightGroups.intersection(mapEntities);
 
@@ -35,8 +35,8 @@ export function land(coalition: DcsJs.Coalition) {
 }
 
 export function move(worldDelta: number, coalition: DcsJs.Coalition) {
-	const flightGroups = world.queries.flightGroups[coalition];
-	const mapEntities = world.queries.mapEntities;
+	const flightGroups = store.queries.flightGroups[coalition];
+	const mapEntities = store.queries.mapEntities;
 
 	const flyingFlightGroups = flightGroups.intersection(mapEntities);
 
@@ -53,7 +53,7 @@ export function move(worldDelta: number, coalition: DcsJs.Coalition) {
  * @param coalition
  */
 export function disembark(coalition: DcsJs.Coalition) {
-	const airAssaultFlightGroups = world.queries.flightGroups[coalition].get("Air Assault");
+	const airAssaultFlightGroups = store.queries.flightGroups[coalition].get("Air Assault");
 
 	for (const flightGroup of airAssaultFlightGroups) {
 		if (flightGroup instanceof Entities.AirAssaultFlightGroup) {

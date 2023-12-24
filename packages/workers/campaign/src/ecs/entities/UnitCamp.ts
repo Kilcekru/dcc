@@ -2,8 +2,8 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Serialization } from "../../utils";
+import { QueryKey, store } from "../store";
 import { calcInitDeploymentScore } from "../utils";
-import { QueryKey, world } from "../world";
 import { Structure, StructureProps } from "./_base/Structure";
 
 export interface UnitCampProps extends Omit<StructureProps, "entityType"> {
@@ -41,7 +41,7 @@ export class UnitCamp extends Structure {
 	}
 
 	get hasPower() {
-		for (const structure of world.queries.structures[this.coalition]) {
+		for (const structure of store.queries.structures[this.coalition]) {
 			if (structure.structureType === "Power Plant" && structure.alive) {
 				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.power)) {
 					return true;
@@ -53,7 +53,7 @@ export class UnitCamp extends Structure {
 	}
 
 	get hasAmmo() {
-		for (const structure of world.queries.structures[this.coalition]) {
+		for (const structure of store.queries.structures[this.coalition]) {
 			if (structure.structureType === "Ammo Depot" && structure.alive) {
 				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.ammo)) {
 					return true;
@@ -65,7 +65,7 @@ export class UnitCamp extends Structure {
 	}
 
 	get hasFuel() {
-		for (const structure of world.queries.structures[this.coalition]) {
+		for (const structure of store.queries.structures[this.coalition]) {
 			if (structure.structureType === "Fuel Storage" && structure.alive) {
 				if (Utils.Location.inRange(this.position, structure.position, Utils.Config.structureRange.fuel)) {
 					return true;

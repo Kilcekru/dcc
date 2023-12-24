@@ -3,8 +3,8 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events, Serialization } from "../../../utils";
 import { EntityType } from "../../../utils/types";
+import { QueryKey, QueryName, splitQueryKey, store } from "../../store";
 import { SuperSet } from "../../SuperSet";
-import { QueryKey, QueryName, splitQueryKey, world } from "../../world";
 
 export interface EntityProps {
 	entityType: EntityType;
@@ -37,7 +37,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 			this.#queries = new Set(args.queries ?? []);
 		}
 
-		world.entities.set(this.id, this);
+		store.entities.set(this.id, this);
 		for (const queryKey of this.#queries) {
 			this.addToQuery(queryKey);
 		}
@@ -45,7 +45,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 
 	destructor() {
 		this.emit("destructed");
-		world.entities.delete(this.id);
+		store.entities.delete(this.id);
 		for (const queryName of this.#queries) {
 			this.removeFromQuery(queryName);
 		}
@@ -99,7 +99,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 
 	#getQuery(key: QueryKey): Set<Entity> {
 		const [name] = splitQueryKey(key);
-		const query = world.queries[name];
+		const query = store.queries[name];
 		if (query instanceof Set) {
 			return query;
 		} else {

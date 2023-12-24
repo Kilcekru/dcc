@@ -5,8 +5,9 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { Events } from "../../../utils";
 import { Flightplan } from "../../objects";
 import { WaypointTemplate } from "../../objects/Waypoint";
+import { getEntity, QueryKey, store } from "../../store";
 import { generateCallSign } from "../../utils";
-import { type QueryKey, world } from "../../world";
+import { world } from "../../world";
 import type { Aircraft } from "../Aircraft";
 import { type Package } from "../Package";
 import { Group, GroupProps } from "./Group";
@@ -42,7 +43,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		const aircrafts: Aircraft[] = [];
 
 		for (const id of this.#aircraftIds) {
-			const aircraft = world.getEntity<Aircraft>(id);
+			const aircraft = getEntity<Aircraft>(id);
 
 			aircrafts.push(aircraft);
 		}
@@ -55,7 +56,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	get package() {
-		return world.getEntity<Package>(this.#packageId);
+		return getEntity<Package>(this.#packageId);
 	}
 
 	get isInCombat(): boolean {
@@ -82,7 +83,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		const cs = generateCallSign(args.coalition, "aircraft");
 		this.task = args.task;
 		this.#packageId = args.package.id;
-		this.startTime = Utils.DateTime.toFullMinutes(world.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
+		this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
 		this.name = cs.flightGroupName;
 		this.#aircraftIds = args.aircraftIds;
 		this.homeBase = args.homeBase;
@@ -136,7 +137,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 				// Calculate the distance between the racetrack points
 				const racetrackDistance = Utils.Location.distanceToPosition(target.position, target.racetrack.position);
 				const distancesAlreadyFlown =
-					Utils.DateTime.toSeconds(world.time - target.arrivalTime) * this.package.cruiseSpeed;
+					Utils.DateTime.toSeconds(store.time - target.arrivalTime) * this.package.cruiseSpeed;
 
 				const racetrackRounds = Math.floor(distancesAlreadyFlown / racetrackDistance);
 
@@ -152,7 +153,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 				const distance = Utils.Location.distanceToPosition(this.position, target.position);
 
 				// How long in seconds till the flight group arrives at the waypoint
-				const timeTillArrival = this.flightplan.arrivalTime - world.time;
+				const timeTillArrival = this.flightplan.arrivalTime - store.time;
 				// Calculate the speed in meters per second to reach the waypoint in time
 				const speed = distance / Utils.DateTime.toSeconds(timeTillArrival);
 				// Calculate the distance traveled in meters in the tick
@@ -167,7 +168,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		this.combat = {
 			type: "a2a",
 			target: enemy,
-			cooldownTime: world.time,
+			cooldownTime: store.time,
 		};
 	}
 
@@ -191,7 +192,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 							// eslint-disable-next-line no-console
 							console.log("fire", weapon.item.name, "at", this.combat.target.name, "from", this.name);
 
-							this.combat.cooldownTime = world.time + Utils.Config.combat.a2a.cooldownDuration;
+							this.combat.cooldownTime = store.time + Utils.Config.combat.a2a.cooldownDuration;
 
 							// TODO
 							/* const flightGroupDestroyed = this.combat.target.destroyAircraft();

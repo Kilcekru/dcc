@@ -3,15 +3,15 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Entities } from "../../..";
 import { CapFlightGroup } from "../../../entities";
-import { world } from "../../../world";
+import { store } from "../../../store";
 
 export function cap(coalition: DcsJs.Coalition) {
 	// Check the CAP capacity for each airdrome
-	for (const airdrome of world.queries.airdromes[coalition]) {
+	for (const airdrome of store.queries.airdromes[coalition]) {
 		let capFgCount = 0;
 
 		// Count the CAP flight groups
-		for (const flightGroup of world.queries.flightGroups[coalition].get("CAP") ?? new Set()) {
+		for (const flightGroup of store.queries.flightGroups[coalition].get("CAP") ?? new Set()) {
 			if (flightGroup instanceof CapFlightGroup) {
 				if (flightGroup.target === airdrome) {
 					capFgCount++;

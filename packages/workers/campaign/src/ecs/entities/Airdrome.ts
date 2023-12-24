@@ -3,7 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
-import { world } from "../world";
+import { store } from "../store";
 import { HomeBase, HomeBaseProps } from "./_base/HomeBase";
 
 export interface AirdromeProps extends Omit<HomeBaseProps, "entityType" | "type"> {
@@ -28,7 +28,7 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 
 	static generate(args: { coalition: DcsJs.Coalition; airdromeNames: Array<string> }) {
 		for (const name of args.airdromeNames) {
-			const airdrome = world.dataStore?.airdromes?.[name];
+			const airdrome = store.dataStore?.airdromes?.[name];
 
 			if (airdrome == null) {
 				throw new Error(`airdrome: ${name} not found`);

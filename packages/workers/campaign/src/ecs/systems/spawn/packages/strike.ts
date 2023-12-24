@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Entities } from "../../..";
-import { world } from "../../../world";
+import { store } from "../../../store";
 
 let inError = 0;
 
@@ -12,7 +12,7 @@ export function strike(coalition: DcsJs.Coalition) {
 		return;
 	}
 
-	const flightGroups = world.queries.flightGroups[coalition].get("Pinpoint Strike");
+	const flightGroups = store.queries.flightGroups[coalition].get("Pinpoint Strike");
 
 	// Create a new CAS flight group if the CAS capacity is not reached
 	if (flightGroups.size < Utils.Config.packages["Pinpoint Strike"].maxActive[coalition]) {

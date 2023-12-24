@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../entities";
 import { WaypointTemplate } from "../objects";
-import { world } from "../world";
+import { getEntity, store } from "../store";
 import { getUsableAircraftsByTask } from "./aircraft";
 import { nearestOppAirdrome } from "./location";
 
@@ -116,17 +116,17 @@ export function getAircraftBundle(
 
 			switch (args.task) {
 				case "CAS": {
-					targetSet = world.queries.groundGroups[oppCoalition].get("on target");
+					targetSet = store.queries.groundGroups[oppCoalition].get("on target");
 					maxDistance = Utils.Config.packages.CAS.maxDistance;
 					break;
 				}
 				case "Pinpoint Strike": {
-					targetSet = world.queries.structures[oppCoalition];
+					targetSet = store.queries.structures[oppCoalition];
 					maxDistance = Utils.Config.packages["Pinpoint Strike"].maxDistance;
 					break;
 				}
 				case "Air Assault": {
-					targetSet = world.queries.groundGroups[oppCoalition].get("on target");
+					targetSet = store.queries.groundGroups[oppCoalition].get("on target");
 					maxDistance = Utils.Config.packages["Air Assault"].maxDistance;
 					break;
 				}
@@ -352,7 +352,7 @@ export function getValidAircraftBundles(
 				return undefined;
 			}
 
-			const targetGroundGroup = world.getEntity<Entities.GroundGroup>(casBundle.targetGroundGroupId);
+			const targetGroundGroup = getEntity<Entities.GroundGroup>(casBundle.targetGroundGroupId);
 
 			const oppAirdrome = nearestOppAirdrome(args.coalition, targetGroundGroup.position);
 
@@ -388,7 +388,7 @@ export function getValidAircraftBundles(
 				return undefined;
 			}
 
-			const targetStructure = world.getEntity<Entities.Structure>(strikeBundle.targetStructureId);
+			const targetStructure = getEntity<Entities.Structure>(strikeBundle.targetStructureId);
 
 			const oppAirdrome = nearestOppAirdrome(args.coalition, targetStructure.position);
 
@@ -457,7 +457,7 @@ export function calcHoldWaypoint(aircraftBundles: Map<DcsJs.Task, AircraftBundle
 					return undefined;
 				}
 
-				const target = world.getEntity<Entities.GroundGroup>(bundle.targetGroundGroupId);
+				const target = getEntity<Entities.GroundGroup>(bundle.targetGroundGroupId);
 
 				holdPosition = Utils.Location.midpointAtDistance(
 					bundle.homeBase.position,
@@ -468,7 +468,7 @@ export function calcHoldWaypoint(aircraftBundles: Map<DcsJs.Task, AircraftBundle
 				break;
 			}
 			case "Pinpoint Strike": {
-				const target = world.getEntity<Entities.Structure>(bundle.targetStructureId);
+				const target = getEntity<Entities.Structure>(bundle.targetStructureId);
 
 				holdPosition = Utils.Location.midpointAtDistance(
 					bundle.homeBase.position,

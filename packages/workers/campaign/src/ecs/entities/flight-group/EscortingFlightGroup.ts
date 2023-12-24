@@ -2,7 +2,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { HoldWaypoint, WaypointTemplate } from "../../objects/Waypoint";
-import { world } from "../../world";
+import { getEntity } from "../../store";
 import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
 
 export interface EscortingFlightGroupProps extends Omit<FlightGroupProps, "task"> {
@@ -14,7 +14,7 @@ export abstract class EscortingFlightGroup extends FlightGroup {
 	readonly #targetFlightGroupId: Types.Campaign.Id;
 
 	get target() {
-		return world.getEntity<FlightGroup>(this.#targetFlightGroupId);
+		return getEntity<FlightGroup>(this.#targetFlightGroupId);
 	}
 
 	protected constructor(args: EscortingFlightGroupProps) {

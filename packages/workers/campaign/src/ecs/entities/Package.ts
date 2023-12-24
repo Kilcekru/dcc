@@ -3,8 +3,8 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../utils";
+import { getEntity } from "../store";
 import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
-import { world } from "../world";
 import { Entity } from "./_base/Entity";
 import { HomeBase } from "./_base/HomeBase";
 import { AirAssaultFlightGroup, CapFlightGroup, CasFlightGroup, FlightGroup, StrikeFlightGroup } from "./flight-group";
@@ -195,7 +195,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					throw new Error("Air Assault bundle is null");
 				}
 
-				const targetGroundGroup = world.getEntity<GroundGroup>(airAssaultBundle.targetGroundGroupId);
+				const targetGroundGroup = getEntity<GroundGroup>(airAssaultBundle.targetGroundGroupId);
 
 				const gg = GroundGroup.create({
 					coalition: args.coalition,
@@ -252,7 +252,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 
 	override destructor(): void {
 		for (const id of this.#flightGroupIds) {
-			world.getEntity(id).destructor();
+			getEntity(id).destructor();
 		}
 
 		super.destructor();
@@ -262,7 +262,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		return {
 			...super.toJSON(),
 			task: this.task,
-			flightGroups: Array.from(this.#flightGroupIds).map((id) => world.getEntity(id).toJSON()),
+			flightGroups: Array.from(this.#flightGroupIds).map((id) => getEntity(id).toJSON()),
 		};
 	}
 

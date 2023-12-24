@@ -2,7 +2,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { FlightGroup } from "../entities";
-import { world } from "../world";
+import { getEntity, store } from "../store";
 import { Waypoint, WaypointTemplate } from "./Waypoint";
 
 export class Flightplan {
@@ -14,7 +14,7 @@ export class Flightplan {
 	}
 
 	get flightGroup() {
-		return world.getEntity<FlightGroup>(this.#flightGroupId);
+		return getEntity<FlightGroup>(this.#flightGroupId);
 	}
 
 	get prevWaypoint() {
@@ -25,14 +25,14 @@ export class Flightplan {
 		let waypoint: Waypoint | undefined;
 		let flightPlanTime = this.startTime;
 
-		if (world.time < this.startTime) {
+		if (store.time < this.startTime) {
 			return;
 		}
 
 		for (const wp of this.#list) {
 			flightPlanTime += wp.arrivalDuration + (wp.duration ?? 0);
 
-			if (flightPlanTime > world.time) {
+			if (flightPlanTime > store.time) {
 				waypoint = wp;
 				break;
 			}
@@ -70,7 +70,7 @@ export class Flightplan {
 		for (const wp of this.#list) {
 			arrivalTime += wp.arrivalDuration;
 
-			if (arrivalTime > world.time) {
+			if (arrivalTime > store.time) {
 				break;
 			}
 

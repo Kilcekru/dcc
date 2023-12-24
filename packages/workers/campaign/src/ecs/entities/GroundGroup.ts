@@ -3,6 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
+import { getEntity, store } from "../store";
 import { world } from "../world";
 import { Group, GroupProps } from "./_base/Group";
 import type { FlightGroup } from "./flight-group";
@@ -27,7 +28,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	#embarkedOntoFlightGroupId: Types.Campaign.Id | undefined;
 
 	get units(): Array<GroundUnit> {
-		return this.#unitIds.map((id) => world.getEntity<GroundUnit>(id));
+		return this.#unitIds.map((id) => getEntity<GroundUnit>(id));
 	}
 
 	get aliveUnits(): Array<GroundUnit> {
@@ -35,7 +36,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	}
 
 	get shoradUnits(): Array<GroundUnit> {
-		return this.#shoradUnitIds.map((id) => world.getEntity<GroundUnit>(id));
+		return this.#shoradUnitIds.map((id) => getEntity<GroundUnit>(id));
 	}
 
 	get embarkedOntoFlightGroup() {
@@ -43,7 +44,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 			return undefined;
 		}
 
-		return world.getEntity<FlightGroup>(this.#embarkedOntoFlightGroupId);
+		return getEntity<FlightGroup>(this.#embarkedOntoFlightGroupId);
 	}
 
 	private constructor(args: GroundGroupProps) {
@@ -103,13 +104,13 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	}
 
 	static generateUnits(coalition: DcsJs.Coalition, groupType: DcsJs.CampaignGroundGroupType) {
-		const template = world.dataStore?.groundUnitsTemplates?.find(
-			(t) => world.factionDefinitions[coalition]?.templateName === t.name,
+		const template = store.dataStore?.groundUnitsTemplates?.find(
+			(t) => store.factionDefinitions[coalition]?.templateName === t.name,
 		);
 
 		if (template == null) {
 			throw new Error(
-				`ground units template: ${world.factionDefinitions[coalition]?.templateName ?? "unknown"} not found`,
+				`ground units template: ${store.factionDefinitions[coalition]?.templateName ?? "unknown"} not found`,
 			);
 		}
 

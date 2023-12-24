@@ -3,7 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
-import { world } from "../../world";
+import { getEntity, store } from "../../store";
 import { Building } from "../Building";
 import type { Objective } from "../Objective";
 import { MapEntity, MapEntityProps } from "./MapEntity";
@@ -24,11 +24,11 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	#state: DcsJs.StructureState = "active";
 
 	get objective() {
-		return world.getEntity<Objective>(this.#objectiveId);
+		return getEntity<Objective>(this.#objectiveId);
 	}
 
 	get buildings() {
-		return this.#buildingIds.map((id) => world.getEntity<Building>(id));
+		return this.#buildingIds.map((id) => getEntity<Building>(id));
 	}
 
 	get alive() {
@@ -59,7 +59,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	}
 
 	static createBuildings(args: Pick<StructureProps, "structureType" | "name" | "coalition">) {
-		const structureTemplate = Utils.Random.item(world.dataStore?.structures?.[args.structureType] ?? []);
+		const structureTemplate = Utils.Random.item(store.dataStore?.structures?.[args.structureType] ?? []);
 
 		if (structureTemplate == null) {
 			throw new Error("structureTemplate not found");
@@ -75,8 +75,8 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	}
 
 	static toMapItems() {
-		const blueStructures = world.queries.structures["blue"];
-		const redStructures = world.queries.structures["red"];
+		const blueStructures = store.queries.structures["blue"];
+		const redStructures = store.queries.structures["red"];
 
 		const items: Set<Types.Campaign.MapItem> = new Set();
 

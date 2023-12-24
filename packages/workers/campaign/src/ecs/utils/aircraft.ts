@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../entities";
-import { world } from "../world";
+import { store } from "../store";
 
 export function getUsableAircraftsByTask(args: {
 	coalition: DcsJs.Coalition;
@@ -10,12 +10,12 @@ export function getUsableAircraftsByTask(args: {
 	excludedAircrafts?: Set<Entities.Aircraft>;
 }): Set<Entities.Aircraft> {
 	const task = args.task === "Escort" ? "CAP" : args.task;
-	const desiredAircraftTypes = new Set(world.factionDefinitions[args.coalition]?.aircraftTypes[task]);
+	const desiredAircraftTypes = new Set(store.factionDefinitions[args.coalition]?.aircraftTypes[task]);
 
 	const aircraftsPerAircraftType = new Map<DcsJs.AircraftType, Set<Entities.Aircraft>>();
 
 	// Loop through all idle aircrafts
-	for (const aircraft of world.queries.aircrafts[args.coalition].get("idle") ?? new Set()) {
+	for (const aircraft of store.queries.aircrafts[args.coalition].get("idle") ?? new Set()) {
 		// Is the aircraft one of the desired types?
 		if (desiredAircraftTypes.has(aircraft.aircraftType.name)) {
 			// Is the aircraft not excluded?

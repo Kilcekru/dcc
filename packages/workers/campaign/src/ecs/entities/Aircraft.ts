@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events } from "../../utils";
-import { world } from "../world";
+import { getEntity, store } from "../store";
 import type { FlightGroup } from "./_base/FlightGroup";
 import type { HomeBase } from "./_base/HomeBase";
 import { Unit, UnitProps } from "./_base/Unit";
@@ -25,7 +25,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 			return undefined;
 		}
 
-		return world.getEntity<FlightGroup>(this.#flightGroupId);
+		return getEntity<FlightGroup>(this.#flightGroupId);
 	}
 
 	get loadout() {
@@ -37,7 +37,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	}
 
 	get homeBase() {
-		return world.getEntity<HomeBase>(this.homeBaseId);
+		return getEntity<HomeBase>(this.homeBaseId);
 	}
 
 	private constructor(args: AircraftProps) {
@@ -74,14 +74,14 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 			...loadout,
 			task: task,
 			pylons: loadout.pylons.map((pylon): DcsJs.Pylon => {
-				const launcher = Object.values(world.dataStore?.launchers ?? {}).find((l) => pylon.CLSID === l.CLSID);
+				const launcher = Object.values(store.dataStore?.launchers ?? {}).find((l) => pylon.CLSID === l.CLSID);
 
 				if (launcher == null) {
 					// eslint-disable-next-line no-console
 					throw new Error(`launcher not found for pylon: ${pylon.CLSID}`);
 				}
 
-				const weapon = launcher?.type === "Weapon" ? world.dataStore?.weapons?.[launcher.weapon] : undefined;
+				const weapon = launcher?.type === "Weapon" ? store.dataStore?.weapons?.[launcher.weapon] : undefined;
 
 				return {
 					CLSID: pylon.CLSID,

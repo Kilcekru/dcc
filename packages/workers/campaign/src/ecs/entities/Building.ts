@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
 import { Serialization } from "../../utils";
-import { QueryKey } from "..";
+import { QueryKey } from "../store";
 import { Unit, UnitProps } from "./_base";
 
 export interface BuildingProps extends Omit<UnitProps, "entityType"> {

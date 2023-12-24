@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
 import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
-import { world } from "../../world";
+import { getEntity, store } from "../../store";
 import { FlightGroupProps } from "../_base/FlightGroup";
 import type { Structure } from "../_base/Structure";
 import { EscortedFlightGroup } from "./EscortedFlightGroup";
@@ -17,7 +17,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	readonly #targetStructureId: Types.Campaign.Id;
 
 	get target() {
-		return world.getEntity<Structure>(this.#targetStructureId);
+		return getEntity<Structure>(this.#targetStructureId);
 	}
 
 	private constructor(args: StrikeFlightGroupProps) {
@@ -32,7 +32,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	 * @returns true if the ground group is already targeted by a Strike flight group
 	 */
 	static #structureAlreadyTargeted(args: { coalition: DcsJs.Coalition; structure: Structure }) {
-		const coalitionStrikeFgs = world.queries.flightGroups[args.coalition].get("Pinpoint Strike");
+		const coalitionStrikeFgs = store.queries.flightGroups[args.coalition].get("Pinpoint Strike");
 
 		for (const fg of coalitionStrikeFgs) {
 			if (fg instanceof StrikeFlightGroup && fg.#targetStructureId === args.structure.id) {
@@ -51,7 +51,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	 **/
 	static #getTargetStructure(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
-		const oppStructures = world.queries.structures[oppCoalition];
+		const oppStructures = store.queries.structures[oppCoalition];
 		let distanceToHomeBase = 99999999;
 		let targetStructure: Structure | undefined;
 

@@ -2,7 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import type * as Entities from "../../entities";
-import { world } from "../../world";
+import { store } from "../../store";
 
 function calcHits(groundGroup: Entities.GroundGroup) {
 	let hits = 0;
@@ -68,7 +68,7 @@ function combat(attacker: Entities.GroundGroup, defender: Entities.GroundGroup) 
 
 function engage(coalition: DcsJs.Coalition) {
 	const oppCoalition = Utils.Coalition.opposite(coalition);
-	const groundGroups = world.queries.groundGroups[coalition].get("en route");
+	const groundGroups = store.queries.groundGroups[coalition].get("en route");
 
 	for (const groundGroup of groundGroups) {
 		const distance = Utils.Location.distanceToPosition(groundGroup.position, groundGroup.target.position);
@@ -77,7 +77,7 @@ function engage(coalition: DcsJs.Coalition) {
 			// Is the objective defended?
 			let defender: Entities.GroundGroup | undefined = undefined;
 
-			for (const oppGroundGroup of world.queries.groundGroups[oppCoalition]) {
+			for (const oppGroundGroup of store.queries.groundGroups[oppCoalition]) {
 				if (oppGroundGroup.target === groundGroup.target && oppGroundGroup.queries.has("groundGroups-on target")) {
 					defender = oppGroundGroup;
 					break;

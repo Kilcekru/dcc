@@ -3,7 +3,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
 import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
-import { world } from "../../world";
+import { getEntity, store } from "../../store";
 import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
 import type { HomeBase } from "../_base/HomeBase";
 
@@ -15,7 +15,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 	readonly #targetHomeBaseId: Types.Campaign.Id;
 
 	get target() {
-		return world.getEntity<HomeBase>(this.#targetHomeBaseId);
+		return getEntity<HomeBase>(this.#targetHomeBaseId);
 	}
 
 	private constructor(args: CapFlightGroupProps) {
@@ -39,7 +39,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 	static #getOppAirdrome(
 		args: Omit<CapFlightGroupProps, "taskWaypoints" | "package" | "targetHomeBaseId"> & { target: HomeBase },
 	) {
-		const oppAirdromes = world.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
+		const oppAirdromes = store.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
 
 		const oppAirdrome = Utils.Location.findNearest(oppAirdromes, args.target.position, (ad) => ad.position);
 
@@ -64,7 +64,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 			oppAirdromeId: Types.Campaign.Id;
 		},
 	) {
-		const oppAirdrome = world.getEntity<HomeBase>(args.oppAirdromeId);
+		const oppAirdrome = getEntity<HomeBase>(args.oppAirdromeId);
 
 		const egressHeading = Utils.Location.headingToPosition(args.target.position, oppAirdrome.position);
 

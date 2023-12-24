@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { world } from "..";
+import { store } from "../store";
 import { MapEntity, MapEntityProps } from "./_base";
 import { Objective } from "./Objective";
 
@@ -32,7 +32,7 @@ export class SAM extends MapEntity {
 	}
 
 	static generate(args: { coalition: DcsJs.Coalition; objectivePlans: Array<Types.Campaign.ObjectivePlan> }) {
-		const strikeTargets = world.dataStore?.strikeTargets;
+		const strikeTargets = store.dataStore?.strikeTargets;
 
 		if (strikeTargets == null) {
 			throw new Error("strikeTargets not found");

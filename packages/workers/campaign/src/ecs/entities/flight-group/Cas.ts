@@ -3,8 +3,8 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
 import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
+import { getEntity, store } from "../../store";
 import { groundGroupAlreadyTargeted } from "../../utils";
-import { world } from "../../world";
 import type { GroundGroup } from "../GroundGroup";
 import { FlightGroupProps } from ".";
 import { EscortedFlightGroup } from "./EscortedFlightGroup";
@@ -17,7 +17,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 	readonly #targetGroundGroupId: Types.Campaign.Id;
 
 	get target() {
-		return world.getEntity<GroundGroup>(this.#targetGroundGroupId);
+		return getEntity<GroundGroup>(this.#targetGroundGroupId);
 	}
 
 	private constructor(args: CasFlightGroupProps) {
@@ -33,7 +33,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 	 */
 	static #getTargetGroundGroup(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
-		const oppGroundGroups = world.queries.groundGroups[oppCoalition].get("on target");
+		const oppGroundGroups = store.queries.groundGroups[oppCoalition].get("on target");
 		let distanceToHomeBase = 99999999;
 		let targetGroundGroup: GroundGroup | undefined;
 
@@ -81,7 +81,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 			holdWaypoint: WaypointTemplate | undefined;
 		},
 	) {
-		const targetGroundGroup = world.getEntity<GroundGroup>(args.targetGroundGroupId);
+		const targetGroundGroup = getEntity<GroundGroup>(args.targetGroundGroupId);
 
 		if (targetGroundGroup == null) {
 			// eslint-disable-next-line no-console

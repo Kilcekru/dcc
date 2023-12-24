@@ -53,5 +53,7 @@ declare global {
 	interface WorkerGlobalScope {
 		serialize: () => unknown;
 		deserialize: (serialized: unknown) => unknown;
+		store: unknown;
+		resetStore: () => void;
 	}
 }

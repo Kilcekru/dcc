@@ -1,4 +1,4 @@
-import { Entity } from "./entities";
+import type { Entity } from "./entities";
 
 export type Listener<T> = (item: T) => void;
 export type Subscription = {

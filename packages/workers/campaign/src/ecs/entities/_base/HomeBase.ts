@@ -3,7 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../../utils";
-import { world } from "../../world";
+import { getEntity, store } from "../../store";
 import { Aircraft } from "../Aircraft";
 import { MapEntity, MapEntityProps } from "./MapEntity";
 
@@ -25,7 +25,7 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 		const retVal: Aircraft[] = [];
 
 		for (const id of this.#aircraftIds) {
-			const aircraft = world.getEntity<Aircraft>(id);
+			const aircraft = getEntity<Aircraft>(id);
 
 			retVal.push(aircraft);
 		}
@@ -40,7 +40,7 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 	}
 
 	public generateAircraftsForHomeBase(args: { coalition: DcsJs.Coalition }) {
-		for (const task in world.dataStore?.tasks ?? {}) {
+		for (const task in store.dataStore?.tasks ?? {}) {
 			this.generateAircraftsForTask({
 				...args,
 				task: task as DcsJs.Task,
@@ -49,7 +49,7 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 	}
 
 	public generateAircraftsForTask(args: { coalition: DcsJs.Coalition; task: DcsJs.Task }) {
-		const taskAircraftTypes = world.factionDefinitions[args.coalition]?.aircraftTypes[args.task];
+		const taskAircraftTypes = store.factionDefinitions[args.coalition]?.aircraftTypes[args.task];
 
 		if (taskAircraftTypes == null) {
 			return;
@@ -57,7 +57,7 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 
 		for (const aircraftType of taskAircraftTypes) {
 			const count = Math.max(2, Utils.Config.inventory.aircraft[args.task] / taskAircraftTypes.length);
-			const aircraft = world.dataStore?.aircrafts?.[aircraftType];
+			const aircraft = store.dataStore?.aircrafts?.[aircraftType];
 
 			if (aircraft == null) {
 				throw new Error(`aircraft: ${aircraftType} not found`);

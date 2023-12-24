@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events } from "../../utils";
+import { getEntity, store } from "../store";
 import { world } from "../world";
 import { Entity } from "./_base/Entity";
 import { Structure } from "./_base/Structure";
@@ -19,7 +20,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 			return undefined;
 		}
 
-		return world.getEntity<GroundGroup>(this.#incomingGroundGroupId);
+		return getEntity<GroundGroup>(this.#incomingGroundGroupId);
 	}
 
 	/**
@@ -46,7 +47,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		blueOps: Array<Types.Campaign.DynamicObjectivePlan>;
 		redOps: Array<Types.Campaign.DynamicObjectivePlan>;
 	}) {
-		const objectives = world.dataStore?.objectives;
+		const objectives = store.dataStore?.objectives;
 		if (objectives == null) {
 			throw new Error("createObjectives: dataStore is not fetched");
 		}
@@ -70,7 +71,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 	conquer(groundGroup: GroundGroup) {
 		const structures: Array<Structure> = [];
 		// Remove all structures from the objective (should be only one)
-		for (const structure of world.queries.structures[this.coalition]) {
+		for (const structure of store.queries.structures[this.coalition]) {
 			if (structure.objective === this) {
 				structures.push(structure);
 				structure.destructor();

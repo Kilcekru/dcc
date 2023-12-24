@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../entities";
-import { world } from "../world";
+import { store } from "../store";
 
 const calcCallSignNumber = (
 	coalition: DcsJs.Coalition,
@@ -14,7 +14,7 @@ const calcCallSignNumber = (
 
 	let callSignFg: Entities.FlightGroup | undefined;
 
-	for (const fg of world.queries.flightGroups[coalition]) {
+	for (const fg of store.queries.flightGroups[coalition]) {
 		if (fg.name === tmp) {
 			callSignFg = fg;
 			break;
@@ -36,7 +36,7 @@ const calcCallSignNumber = (
 };
 
 export const generateCallSign = (coalition: DcsJs.Coalition, type: "aircraft" | "helicopter" | "awacs") => {
-	const ds = world.dataStore;
+	const ds = store.dataStore;
 
 	if (ds == null) {
 		throw new Error("dataStore not initialized");

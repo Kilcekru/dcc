@@ -3,7 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { HomeBase } from "../entities/_base/HomeBase";
-import { world } from "../world";
+import { store } from "../store";
 import type { Flightplan } from "./Flightplan";
 
 export enum WaypointType {
@@ -235,6 +235,6 @@ export class Waypoint extends WaypointTemplate {
 	}
 
 	get isActive() {
-		return world.time >= this.arrivalTime && world.time <= this.departureTime;
+		return store.time >= this.arrivalTime && store.time <= this.departureTime;
 	}
 }
