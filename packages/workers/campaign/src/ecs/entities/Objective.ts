@@ -4,10 +4,16 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import { Events } from "../../utils";
 import { getEntity, store } from "../store";
 import { world } from "../world";
-import { Entity } from "./_base/Entity";
+import { Entity, EntityProps } from "./_base";
 import { Structure } from "./_base/Structure";
 import { GenericStructure } from "./GenericStructure";
 import { GroundGroup } from "./GroundGroup";
+
+interface ObjectiveProps extends Omit<EntityProps, "entityType" | "queries"> {
+	name: string;
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+}
 
 export class Objective extends Entity<keyof Events.EventMap.Objective> {
 	public readonly name: string;
@@ -34,7 +40,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		this.#incomingGroundGroupId = groundGroup.id;
 	}
 
-	public constructor(args: { name: string; coalition: DcsJs.Coalition; position: DcsJs.Position }) {
+	private constructor(args: ObjectiveProps) {
 		super({ ...args, entityType: "Objective", queries: ["objectives"] });
 		this.name = args.name;
 		this.coalition = args.coalition;
@@ -43,29 +49,8 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		world.objectives.set(this.name, this);
 	}
 
-	public static generate(args: {
-		blueOps: Array<Types.Campaign.DynamicObjectivePlan>;
-		redOps: Array<Types.Campaign.DynamicObjectivePlan>;
-	}) {
-		const objectives = store.dataStore?.objectives;
-		if (objectives == null) {
-			throw new Error("createObjectives: dataStore is not fetched");
-		}
-
-		for (const objective of objectives) {
-			const isBlue = args.blueOps.some((obj) => obj.objectiveName === objective.name);
-			const isRed = args.redOps.some((obj) => obj.objectiveName === objective.name);
-
-			if (!isBlue && !isRed) {
-				continue;
-			}
-
-			new Objective({
-				coalition: isBlue ? "blue" : "red",
-				name: objective.name,
-				position: objective.position,
-			});
-		}
+	static create(args: ObjectiveProps) {
+		return new Objective(args);
 	}
 
 	conquer(groundGroup: GroundGroup) {

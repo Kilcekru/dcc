@@ -1,9 +1,6 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
-import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
-import { store } from "../store";
 import { HomeBase, HomeBaseProps } from "./_base/HomeBase";
 
 export interface AirdromeProps extends Omit<HomeBaseProps, "entityType" | "type"> {
@@ -24,23 +21,6 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 		ad.generateAircraftsForHomeBase({ coalition: args.coalition });
 
 		return ad;
-	}
-
-	static generate(args: { coalition: DcsJs.Coalition; airdromeNames: Array<string> }) {
-		for (const name of args.airdromeNames) {
-			const airdrome = store.dataStore?.airdromes?.[name];
-
-			if (airdrome == null) {
-				throw new Error(`airdrome: ${name} not found`);
-			}
-
-			Airdrome.create({
-				coalition: args.coalition,
-				frequencyList: airdrome.frequencyList ?? [],
-				name: airdrome.name,
-				position: Utils.Location.objectToPosition(airdrome),
-			});
-		}
 	}
 
 	override toMapJSON(): Types.Campaign.MapItem {

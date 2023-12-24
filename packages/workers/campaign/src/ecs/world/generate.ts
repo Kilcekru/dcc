@@ -1,14 +1,35 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import type { Objective } from "../entities";
-import { GenericStructure, UnitCamp } from "../entities";
+import * as Entities from "../entities";
+
+export function generateAirdromes(args: {
+	coalition: DcsJs.Coalition;
+	airdromeNames: Array<string>;
+	dataStore: Types.Campaign.DataStore;
+}) {
+	for (const name of args.airdromeNames) {
+		const airdrome = args.dataStore.airdromes?.[name];
+
+		if (airdrome == null) {
+			throw new Error(`airdrome: ${name} not found`);
+		}
+
+		Entities.Airdrome.create({
+			coalition: args.coalition,
+			frequencyList: airdrome.frequencyList ?? [],
+			name: airdrome.name,
+			position: Utils.Location.objectToPosition(airdrome),
+		});
+	}
+}
 
 export function generateStructures(args: {
 	coalition: DcsJs.Coalition;
 	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
 	dataStore: Types.Campaign.DataStore;
-	objectives: Map<string, Objective>;
+	objectives: Map<string, Entities.Objective>;
 }) {
 	const strikeTargets = args.dataStore.strikeTargets;
 
@@ -40,7 +61,7 @@ export function generateStructures(args: {
 			}
 
 			if (structureType === "Barrack" || structureType === "Depot") {
-				UnitCamp.create({
+				Entities.UnitCamp.create({
 					name: structurePlan.structureName,
 					objective,
 					position: strikeTarget.position,
@@ -48,7 +69,7 @@ export function generateStructures(args: {
 					coalition: args.coalition,
 				});
 			} else {
-				GenericStructure.create({
+				Entities.GenericStructure.create({
 					name: structurePlan.structureName,
 					objective,
 					position: strikeTarget.position,
@@ -57,5 +78,53 @@ export function generateStructures(args: {
 				});
 			}
 		}
+	}
+}
+
+export function generateGroundGroups(args: {
+	coalition: DcsJs.Coalition;
+	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
+	objectives: Map<string, Entities.Objective>;
+}) {
+	for (const plan of args.objectivePlans) {
+		if (plan.groundUnitTypes.some((gut) => gut === "vehicles")) {
+			const obj = args.objectives.get(plan.objectiveName);
+
+			if (obj == null) {
+				throw new Error(`Objective ${plan.objectiveName} not found`);
+			}
+
+			Entities.GroundGroup.create({
+				coalition: args.coalition,
+				start: obj,
+				target: obj,
+			});
+		}
+	}
+}
+
+export function generateObjectives(args: {
+	blueOps: Array<Types.Campaign.DynamicObjectivePlan>;
+	redOps: Array<Types.Campaign.DynamicObjectivePlan>;
+	dataStore: Types.Campaign.DataStore;
+}) {
+	const objectives = args.dataStore.objectives;
+	if (objectives == null) {
+		throw new Error("createObjectives: dataStore is not fetched");
+	}
+
+	for (const objective of objectives) {
+		const isBlue = args.blueOps.some((obj) => obj.objectiveName === objective.name);
+		const isRed = args.redOps.some((obj) => obj.objectiveName === objective.name);
+
+		if (!isBlue && !isRed) {
+			continue;
+		}
+
+		Entities.Objective.create({
+			coalition: isBlue ? "blue" : "red",
+			name: objective.name,
+			position: objective.position,
+		});
 	}
 }

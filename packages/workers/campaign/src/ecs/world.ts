@@ -5,8 +5,8 @@ import { postEvent } from "../events";
 import * as Entities from "./entities";
 import { store } from "./store";
 import { frameTickSystems, logicTickSystems } from "./systems";
-import { generateObjectivePlans } from "./utils";
-import { generateStructures } from "./world/generate";
+import { generateAirdromes, generateGroundGroups, generateObjectives, generateStructures } from "./world/generate";
+import { generateObjectivePlans } from "./world/objectivePlan";
 
 export type Faction = {
 	countryName: string;
@@ -36,8 +36,12 @@ export class World {
 		store.factionDefinitions.red = args.redFactionDefinition;
 
 		// Create airdromes
-		Entities.Airdrome.generate({ coalition: "blue", airdromeNames: args.scenario.blue.airdromeNames });
-		Entities.Airdrome.generate({ coalition: "red", airdromeNames: args.scenario.red.airdromeNames });
+		generateAirdromes({
+			coalition: "blue",
+			airdromeNames: args.scenario.blue.airdromeNames,
+			dataStore: store.dataStore,
+		});
+		generateAirdromes({ coalition: "red", airdromeNames: args.scenario.red.airdromeNames, dataStore: store.dataStore });
 
 		const [blueOps, redOps] = generateObjectivePlans({
 			blueAirdromes: [...store.queries.airdromes["blue"].values()],
@@ -47,7 +51,7 @@ export class World {
 		});
 
 		// Create objectives
-		Entities.Objective.generate({ blueOps, redOps });
+		generateObjectives({ blueOps, redOps, dataStore: store.dataStore });
 
 		// Create structures
 		generateStructures({
@@ -63,18 +67,16 @@ export class World {
 			objectives: this.objectives,
 		});
 
-		// Create ground groups
-		Entities.GroundGroup.generate({
+		generateGroundGroups({
 			coalition: "blue",
 			objectivePlans: blueOps,
+			objectives: this.objectives,
 		});
-		Entities.GroundGroup.generate({
+		generateGroundGroups({
 			coalition: "red",
 			objectivePlans: redOps,
+			objectives: this.objectives,
 		});
-
-		// eslint-disable-next-line no-console
-		console.log("world", this);
 
 		this.timeUpdate();
 		this.mapUpdate();
@@ -128,3 +130,5 @@ export class World {
 }
 
 export const world = new World();
+
+self.world = world;

@@ -55,5 +55,6 @@ declare global {
 		deserialize: (serialized: unknown) => unknown;
 		store: unknown;
 		resetStore: () => void;
+		world: unknown;
 	}
 }
