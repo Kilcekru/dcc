@@ -4,12 +4,10 @@ import { createContext, createEffect, JSX } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { v4 as uuid } from "uuid";
 
-import { scenarioList } from "../data";
 import * as Domain from "../domain";
 import {
 	campaignRound,
 	clearPackages,
-	createCampaign,
 	deploymentScoreUpdate,
 	longCampaignRound,
 	missionRound,
@@ -18,6 +16,7 @@ import {
 	updateFactionState,
 } from "../logic";
 import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
+import { sendWorkerMessage } from "../worker";
 
 type CampaignStore = [
 	DcsJs.CampaignState,
@@ -112,18 +111,8 @@ export function CampaignProvider(props: {
 	const store: CampaignStore = [
 		state,
 		{
-			activate(
-				dataStore,
-				blueFaction,
-				redFaction,
-				aiSkill,
-				hardcore,
-				training,
-				nightMissions,
-				badWeather,
-				scenarioName,
-			) {
-				const scenario = scenarioList.find((sc) => sc.name === scenarioName);
+			activate() {
+				/* const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(
 					structuredClone(initState),
 					dataStore,
@@ -137,7 +126,8 @@ export function CampaignProvider(props: {
 					scenarioName,
 				);
 				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
-				setState(newState);
+				setState(newState); */
+				setState("active", true);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
@@ -162,16 +152,36 @@ export function CampaignProvider(props: {
 			togglePause() {
 				setState("paused", (v) => {
 					if (state.winner == null) {
+						if (!v) {
+							sendWorkerMessage({
+								name: "pause",
+							});
+						} else {
+							sendWorkerMessage({
+								name: "resume",
+								payload: { multiplier: state.multiplier },
+							});
+						}
 						return !v;
 					}
 
+					sendWorkerMessage({
+						name: "pause",
+					});
 					return false;
 				});
 			},
 			pause() {
+				sendWorkerMessage({
+					name: "pause",
+				});
 				setState("paused", () => true);
 			},
 			resume() {
+				sendWorkerMessage({
+					name: "resume",
+					payload: { multiplier: state.multiplier },
+				});
 				setState("paused", () => false);
 			},
 			reset() {

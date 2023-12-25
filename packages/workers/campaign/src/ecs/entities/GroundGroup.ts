@@ -4,7 +4,6 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events } from "../../utils";
 import { getEntity, store } from "../store";
-import { world } from "../world";
 import { Group, GroupProps } from "./_base/Group";
 import type { FlightGroup } from "./flight-group";
 import { GroundUnit, GroundUnitProps } from "./GroundUnit";
@@ -83,24 +82,6 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 			unitIds: groundUnits.map((u) => u.id),
 			shoradUnitIds: shoradGroundUnits.map((u) => u.id),
 		});
-	}
-
-	static generate(args: { coalition: DcsJs.Coalition; objectivePlans: Array<Types.Campaign.ObjectivePlan> }) {
-		for (const plan of args.objectivePlans) {
-			if (plan.groundUnitTypes.some((gut) => gut === "vehicles")) {
-				const obj = world.objectives.get(plan.objectiveName);
-
-				if (obj == null) {
-					throw new Error(`Objective ${plan.objectiveName} not found`);
-				}
-
-				GroundGroup.create({
-					coalition: args.coalition,
-					start: obj,
-					target: obj,
-				});
-			}
-		}
 	}
 
 	static generateUnits(coalition: DcsJs.Coalition, groupType: DcsJs.CampaignGroundGroupType) {

@@ -42,13 +42,13 @@ export type MissionState = {
 export namespace Schema {
 	export const campaignSynopsis = z.object({
 		id: z.string(),
-		factionName: z.string().optional(),
+		// factionName: z.string().optional(),
 		active: z.boolean(),
-		name: z.string(),
-		countryName: z.string().optional(),
-		created: z.coerce.date(),
+		// name: z.string(),
+		// countryName: z.string().optional(),
+		// created: z.coerce.date(),
 		edited: z.coerce.date(),
-		timer: z.number(),
+		// timer: z.number(),
 		version: z.number().optional(),
 	});
 }
@@ -225,15 +225,44 @@ export type WorkerMessage =
 	| {
 			name: "setDataStore";
 			payload: DataStore;
+	  }
+	| {
+			name: "serialize";
+	  }
+	| {
+			name: "load";
+			state: WorkerState;
 	  };
 
+export type WorkerState = {
+	id: string;
+	name: string;
+	time: number;
+	entities: object[];
+	active: boolean;
+	version: number;
+	factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined>;
+	map: DcsJs.MapName;
+};
+
+export type UIState = {
+	id: string;
+	name: string;
+	time: number;
+	timeMultiplier: number;
+};
+
 export type WorkerEventTick = { name: "tick"; dt: number };
-export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Map<string, MapItem> };
+export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Map<string, MapItem>; map: DcsJs.MapName };
 export type WorkerEventTimeUpdate = { name: "timeUpdate"; time: number };
+export type WorkerEventStateUpdate = { name: "stateUpdate"; state: UIState };
 export type WorkerEventBlueFlightGroupsUpdate = { name: "blueFlightGroupsUpdate"; items: Set<FlightGroupItem> };
+export type WorkerEventSerialized = { name: "serialized"; state: WorkerState };
 
 export type WorkerEvent =
 	| WorkerEventTick
 	| WorkerEventMapUpdate
 	| WorkerEventTimeUpdate
-	| WorkerEventBlueFlightGroupsUpdate;
+	| WorkerEventStateUpdate
+	| WorkerEventBlueFlightGroupsUpdate
+	| WorkerEventSerialized;

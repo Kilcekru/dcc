@@ -1,5 +1,5 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import { z } from "zod";
 
 import { MultiJson } from "./multiJson";
 
@@ -7,18 +7,13 @@ export const CampaignPersistance = new MultiJson({
 	name: "campaign/campaign",
 	version: 0,
 	schema: {
-		item: DcsJs.Schema.campaign,
+		item: z.object({ id: z.string(), edited: z.coerce.date(), active: z.boolean(), version: z.number() }),
 		synopsis: Types.Campaign.Schema.campaignSynopsis,
 	},
 	getSynopsis: (item) => ({
 		id: item.id,
-		factionName: item.blueFaction?.name ?? "",
 		active: item.active,
-		name: item.name,
-		countryName: item.blueFaction?.countryName,
-		created: item.created,
+		version: item.version ?? 0,
 		edited: item.edited,
-		timer: item.timer,
-		version: item.version,
 	}),
 });

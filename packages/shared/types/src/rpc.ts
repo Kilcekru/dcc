@@ -1,6 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
-import { CampaignSynopsis, DataStore, MissionState } from "./campaign";
+import { CampaignSynopsis, DataStore, MissionState, WorkerState } from "./campaign";
 import { AppName, DcsPaths, SystemConfig, UserConfig, Versions } from "./core";
 import * as Patch from "./patch";
 import { DeepReadonly } from "./util";
@@ -32,13 +32,13 @@ export interface Campaign {
 	getVehicles: () => Promise<DcsJs.GetVehicles>;
 	getDataStore: (map: DcsJs.MapName) => Promise<DataStore>;
 	generateCampaignMission: (campaign: DcsJs.CampaignState) => Promise<{ success: boolean }>;
-	resumeCampaign: (version: number) => Promise<Partial<DcsJs.CampaignState> | undefined | null>;
-	openCampaign: (id: string) => Promise<Partial<DcsJs.CampaignState> | undefined | null>;
+	resumeCampaign: (version: number) => Promise<WorkerState | undefined | null>;
+	openCampaign: (id: string) => Promise<WorkerState | undefined | null>;
 	loadCampaignList: () => Promise<Record<string, CampaignSynopsis>>;
 	loadMissionState: () => Promise<MissionState | undefined>;
 	loadFactions: () => Promise<Array<DcsJs.Faction>>;
 	saveCustomFactions: (value: Array<DcsJs.Faction>) => Promise<void>;
-	saveCampaign: (campaign: DcsJs.CampaignState) => Promise<void>;
+	saveCampaign: (campaign: WorkerState) => Promise<void>;
 	removeCampaign: (id: string) => Promise<void>;
 }
 

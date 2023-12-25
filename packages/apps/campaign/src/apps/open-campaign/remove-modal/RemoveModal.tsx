@@ -13,7 +13,8 @@ export const RemoveModal = (props: {
 		<Components.Modal isOpen={props.isOpen} onClose={() => props.onCancel()} class={Styles["reset-modal"]}>
 			<div class={Styles.content}>
 				<p class={Styles.description}>
-					Are you sure you want to remove the campaign {props.synopsis?.name} - {props.synopsis?.factionName}?
+					Are you sure you want to remove the campaign
+					{/* Are you sure you want to remove the campaign {props.synopsis?.name} - {props.synopsis?.factionName}? TODO */}
 				</p>
 				<div class={Styles.buttons}>
 					<Components.Button onPress={() => props.onCancel()} class={Styles["button--cancel"]}>

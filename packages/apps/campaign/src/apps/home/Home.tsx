@@ -1,14 +1,11 @@
 import { useCreateErrorToast, useCreateToast } from "@kilcekru/dcc-lib-components";
-import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
+import { onEvent } from "@kilcekru/dcc-lib-rpc";
 import { createEffect, createMemo, ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
-import { unwrap } from "solid-js/store";
 
 import { CampaignContext, MapContainer } from "../../components";
 import { useDataStore } from "../../components/DataProvider";
-import * as Domain from "../../domain";
 import { useSave } from "../../hooks";
 import { calcTakeoffTime } from "../../utils";
-import { sendWorkerMessage } from "../../worker";
 import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
@@ -93,21 +90,6 @@ export const Home = () => {
 	};
 
 	createEffect(() => {
-		if (state.paused) {
-			sendWorkerMessage({
-				name: "pause",
-			});
-			// stopInterval();
-		} else if (state.active) {
-			sendWorkerMessage({
-				name: "resume",
-				payload: { multiplier: state.multiplier },
-			});
-			// startInterval();
-		}
-	});
-
-	createEffect(() => {
 		const ids: Array<string> = [];
 		state.toastMessages.forEach((msg) => {
 			switch (msg.type) {
@@ -147,7 +129,8 @@ export const Home = () => {
 	onCleanup(() => document.removeEventListener("keyup", onKeyUp));
 
 	onEvent("menu.campaign.new", () => {
-		rpc.campaign.saveCampaign(unwrap(state)).catch(Domain.Utils.catchAwait);
+		// TODO
+		// rpc.campaign.saveCampaign(unwrap(state)).catch(Domain.Utils.catchAwait);
 	});
 
 	return (

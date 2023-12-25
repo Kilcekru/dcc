@@ -14,3 +14,13 @@ export function getEntity<Type extends Entities.Entity>(id: Types.Campaign.Id): 
 	}
 	return entity as Type;
 }
+
+export function getObjective(name: string) {
+	for (const objective of store.queries.objectives) {
+		if (objective.name === name) {
+			return objective;
+		}
+	}
+
+	throw new Error(`getObjective: invalid name ${name}`);
+}

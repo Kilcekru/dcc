@@ -7,7 +7,8 @@ import L from "leaflet";
 import MilSymbol from "milsymbol";
 import { createSignal, onCleanup, onMount } from "solid-js";
 
-import { usePositionToMapPosition } from "../../utils";
+import { MapPosition } from "../../types";
+import { positionToMapPosition } from "../../utils";
 import { onWorkerEvent } from "../../worker";
 
 const sidcUnitCode = {
@@ -105,12 +106,13 @@ type MarkerItem = {
 export const MapContainer = () => {
 	let mapDiv: HTMLDivElement;
 	let workerSubscription: { dispose: () => void } | undefined;
+	let getMapPosition: (position: DcsJs.Position) => MapPosition = positionToMapPosition("caucasus");
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const markers: Map<string, MarkerItem> = new Map();
-	const positionToMapPosition = usePositionToMapPosition();
 
 	onMount(() => {
 		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
+			initializeMap(event.items, event.map);
 			onMapUpdate(event.items);
 		});
 	});
@@ -119,14 +121,20 @@ export const MapContainer = () => {
 		workerSubscription?.dispose();
 	});
 
-	function initializeMap(items: Map<string, Types.Campaign.MapItem>) {
+	function initializeMap(items: Map<string, Types.Campaign.MapItem>, map: DcsJs.MapName) {
+		if (leaftletMap() != null) {
+			return;
+		}
+
 		const [item] = items;
 
 		if (item == null) {
 			return;
 		}
 
-		const firstPosition = positionToMapPosition(item[1].position);
+		getMapPosition = positionToMapPosition(map);
+
+		const firstPosition = getMapPosition(item[1].position);
 
 		const m = L.map(mapDiv).setView(firstPosition, 8);
 
@@ -139,10 +147,6 @@ export const MapContainer = () => {
 	}
 
 	function onMapUpdate(items: Map<string, Types.Campaign.MapItem>) {
-		if (leaftletMap() == null) {
-			initializeMap(items);
-		}
-
 		// Check if any markers need to be deleted
 		for (const [id, item] of markers.entries()) {
 			if (items.has(id)) {
@@ -189,7 +193,7 @@ export const MapContainer = () => {
 		const color = hostile ? "rgb(255, 31, 31)" : "rgb(0, 193, 255)";
 		const unitCode = getUnitCode(item);
 		const riseOnHover = false;
-		const mapPosition = positionToMapPosition(item.position);
+		const mapPosition = getMapPosition(item.position);
 
 		const symbolCode = isWaypoint
 			? `G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`
@@ -239,7 +243,7 @@ export const MapContainer = () => {
 	}
 
 	function updatePosition(id: Types.Campaign.Id, item: MarkerItem, position: DcsJs.Position) {
-		const mapPosition = positionToMapPosition(position);
+		const mapPosition = getMapPosition(position);
 
 		item.marker.setLatLng?.(mapPosition);
 		item.position = position;

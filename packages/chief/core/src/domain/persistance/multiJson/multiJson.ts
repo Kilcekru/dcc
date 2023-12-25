@@ -1,3 +1,4 @@
+import type * as Types from "@kilcekru/dcc-shared-types";
 import { z } from "zod";
 
 import { read, remove, stringify, write } from "../utils";
@@ -34,16 +35,17 @@ export class MultiJson<ItemSchema extends BaseItemSchema, SynopsisSchema extends
 				fileName: `${this.#options.name}/${parsedId}.json`,
 			}),
 		);
-		return this.#options.schema.item.parse(data) as z.infer<ItemSchema>;
+		return data as Types.Campaign.WorkerState; // TODO this.#options.schema.item.parse(data) as z.infer<ItemSchema>;
 	}
 
 	public async put(item: z.infer<ItemSchema>) {
 		const parsedId = idSchema.parse(item.id);
 		const parsedItem = this.#options.schema.item.parse(item);
+
 		await write({
 			namespace: "multi",
 			fileName: `${this.#options.name}/${parsedId}.json`,
-			data: stringify(parsedItem),
+			data: stringify(item), // TODO use parsedItem
 		});
 		const synopsis = this.#options.schema.synopsis.parse(this.#options.getSynopsis(parsedItem));
 		await this.#updateList(parsedId, synopsis);

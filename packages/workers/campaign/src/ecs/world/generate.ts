@@ -4,6 +4,16 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../entities";
 
+function getObjective(objectives: Set<Entities.Objective>, name: string) {
+	for (const objective of objectives) {
+		if (objective.name === name) {
+			return objective;
+		}
+	}
+
+	throw new Error(`getObjective: invalid name ${name}`);
+}
+
 export function generateAirdromes(args: {
 	coalition: DcsJs.Coalition;
 	airdromeNames: Array<string>;
@@ -29,7 +39,7 @@ export function generateStructures(args: {
 	coalition: DcsJs.Coalition;
 	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
 	dataStore: Types.Campaign.DataStore;
-	objectives: Map<string, Entities.Objective>;
+	objectives: Set<Entities.Objective>;
 }) {
 	const strikeTargets = args.dataStore.strikeTargets;
 
@@ -52,7 +62,7 @@ export function generateStructures(args: {
 
 			const structureType = structurePlan.structureType as DcsJs.StructureType;
 
-			const objective = args.objectives.get(plan.objectiveName);
+			const objective = getObjective(args.objectives, plan.objectiveName);
 
 			if (objective == null) {
 				// eslint-disable-next-line no-console
@@ -84,11 +94,11 @@ export function generateStructures(args: {
 export function generateGroundGroups(args: {
 	coalition: DcsJs.Coalition;
 	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
-	objectives: Map<string, Entities.Objective>;
+	objectives: Set<Entities.Objective>;
 }) {
 	for (const plan of args.objectivePlans) {
 		if (plan.groundUnitTypes.some((gut) => gut === "vehicles")) {
-			const obj = args.objectives.get(plan.objectiveName);
+			const obj = getObjective(args.objectives, plan.objectiveName);
 
 			if (obj == null) {
 				throw new Error(`Objective ${plan.objectiveName} not found`);

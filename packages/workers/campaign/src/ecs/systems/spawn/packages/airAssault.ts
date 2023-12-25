@@ -3,7 +3,6 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../../../entities";
 import { store } from "../../../store";
-import { world } from "../../../world";
 
 let inError = 0;
 
@@ -25,7 +24,7 @@ export function airAssault(coalition: DcsJs.Coalition) {
 				// Search for a valid target
 				let target: Entities.Objective | undefined;
 
-				for (const objective of world.objectives.values()) {
+				for (const objective of store.queries.objectives) {
 					if (objective.coalition === oppCoalition && objective.incomingGroundGroup == null) {
 						// Has the objective a armored ground group skip it
 						const oppGroundGroups = store.queries.groundGroups[oppCoalition].get("on target");

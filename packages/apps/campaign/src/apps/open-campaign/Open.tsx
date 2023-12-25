@@ -47,12 +47,13 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 			class={cnb(Styles.faction, incompatible() ? Styles["faction--incompatible"] : null)}
 			onPress={() => onOpen()}
 		>
-			<Components.Flag class={cnb(Styles.flag)} countryName={props.synopsis.countryName ?? "USA"} />
-			<h2 class={Styles.name}>{props.synopsis.name}</h2>
+			<Components.Flag class={cnb(Styles.flag)} countryName={"USA"} />
+			<h2 class={Styles.name}>{props.synopsis.id}</h2>
+			{/* <h2 class={Styles.name}>{props.synopsis.name}</h2>
 			<h3 class={Styles.year}>{props.synopsis.factionName}</h3>
 			<h3 class={Styles.timer}>
 				<Components.Clock value={props.synopsis.timer} withDay />
-			</h3>
+	</h3> */}
 			<h3 class={Styles.edited}>{Domain.Format.Date.formatDateTime(props.synopsis.edited)}</h3>
 			<div class={Styles["customize-button-wrapper"]}>
 				<Components.Tooltip text="Remove Campaign">

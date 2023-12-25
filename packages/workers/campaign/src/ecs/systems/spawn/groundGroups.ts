@@ -3,7 +3,6 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../../entities";
 import { store } from "../../store";
-import { world } from "../../world";
 
 export function groundGroup(coalition: DcsJs.Coalition) {
 	const oppCoalition = Utils.Coalition.opposite(coalition);
@@ -25,7 +24,7 @@ export function groundGroup(coalition: DcsJs.Coalition) {
 			// Search for a valid target
 			let target: Entities.Objective | undefined;
 
-			for (const objective of world.objectives.values()) {
+			for (const objective of store.queries.objectives) {
 				if (objective.coalition === oppCoalition && objective.incomingGroundGroup == null) {
 					const distance = Utils.Location.distanceToPosition(unitCamp.position, objective.position);
 					if (distance <= unitCamp.range) {

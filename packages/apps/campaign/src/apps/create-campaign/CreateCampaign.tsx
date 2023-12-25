@@ -56,6 +56,11 @@ export const CreateCampaign = () => {
 				name: "generate",
 				payload: { blueFactionDefinition: blue, redFactionDefinition: red, scenario: scenarioDefinition },
 			});
+
+			sendWorkerMessage({
+				name: "resume",
+				payload: { multiplier: 1 },
+			});
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error(e);

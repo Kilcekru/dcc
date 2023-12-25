@@ -17,8 +17,6 @@ export type Faction = {
 };
 
 export class World {
-	public objectives: Map<string, Entities.Objective> = new Map();
-
 	public setDataStore(next: Types.Campaign.DataStore) {
 		store.dataStore = next;
 	}
@@ -32,8 +30,16 @@ export class World {
 			throw new Error("createCampaign: dataStore is not fetched");
 		}
 
-		store.factionDefinitions.blue = args.blueFactionDefinition;
-		store.factionDefinitions.red = args.redFactionDefinition;
+		store.id = crypto.randomUUID();
+		store.version = 1;
+		store.time = 32400000; // 09:00 in milliseconds
+		store.map = args.scenario.map as DcsJs.MapName; // TODO: fix scenario map type
+		store.name = args.scenario.name;
+		store.factionDefinitions = {
+			blue: args.blueFactionDefinition,
+			neutrals: undefined,
+			red: args.redFactionDefinition,
+		};
 
 		// Create airdromes
 		generateAirdromes({
@@ -58,27 +64,27 @@ export class World {
 			coalition: "blue",
 			objectivePlans: blueOps,
 			dataStore: store.dataStore,
-			objectives: this.objectives,
+			objectives: store.queries.objectives,
 		});
 		generateStructures({
 			coalition: "red",
 			objectivePlans: redOps,
 			dataStore: store.dataStore,
-			objectives: this.objectives,
+			objectives: store.queries.objectives,
 		});
 
 		generateGroundGroups({
 			coalition: "blue",
 			objectivePlans: blueOps,
-			objectives: this.objectives,
+			objectives: store.queries.objectives,
 		});
 		generateGroundGroups({
 			coalition: "red",
 			objectivePlans: redOps,
-			objectives: this.objectives,
+			objectives: store.queries.objectives,
 		});
 
-		this.timeUpdate();
+		this.stateUpdate();
 		this.mapUpdate();
 	}
 
@@ -86,6 +92,17 @@ export class World {
 		postEvent({
 			name: "timeUpdate",
 			time: store.time,
+		});
+	}
+	public stateUpdate() {
+		postEvent({
+			name: "stateUpdate",
+			state: {
+				time: store.time,
+				timeMultiplier: store.timeMultiplier,
+				id: store.id,
+				name: store.name,
+			},
 		});
 	}
 	public mapUpdate() {
@@ -98,6 +115,7 @@ export class World {
 		postEvent({
 			name: "mapUpdate",
 			items,
+			map: store.map,
 		});
 	}
 	public flightGroupsUpdate() {
@@ -115,6 +133,8 @@ export class World {
 
 	public logicTick() {
 		logicTickSystems();
+
+		this.stateUpdate();
 	}
 
 	public frameTick(tickDelta: number, multiplier: number) {

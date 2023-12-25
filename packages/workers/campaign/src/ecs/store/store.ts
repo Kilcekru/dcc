@@ -10,6 +10,8 @@ const groundGroupSubQueries = ["en route", "on target", "embarked"];
 
 function initializeStore(): Store {
 	return {
+		id: crypto.randomUUID(),
+		name: "New Campaign",
 		entities: new Map(),
 		queries: {
 			airdromes: {
@@ -58,11 +60,7 @@ function initializeStore(): Store {
 				neutrals: new Set(),
 			},
 			mapEntities: new Set(),
-			objectives: {
-				blue: new Set(),
-				red: new Set(),
-				neutrals: new Set(),
-			},
+			objectives: new Set(),
 			buildings: {
 				blue: new Set(),
 				red: new Set(),
@@ -77,6 +75,8 @@ function initializeStore(): Store {
 		dataStore: undefined,
 		time: 32400000, // 09:00 in milliseconds
 		timeMultiplier: 1,
+		map: "caucasus",
+		version: 1,
 	};
 }
 
@@ -91,26 +91,34 @@ interface Queries {
 	unitCamps: Record<DcsJs.Coalition, Set<Entities.UnitCamp>>;
 	SAMs: Record<DcsJs.Coalition, Set<Entities.SAM>>;
 	mapEntities: Set<Entities.MapEntity>;
-	objectives: Record<DcsJs.Coalition, Set<Entities.Objective>>;
 	buildings: Record<DcsJs.Coalition, Set<Entities.Building>>;
+	objectives: Set<Entities.Objective>;
 }
 
 export type QueryName = keyof Queries;
 export type QueryKey = QueryName | `${QueryName}-${string}`;
 
 interface Store {
+	id: string;
+	name: string;
 	entities: Map<Types.Campaign.Id, Entities.Entity>;
 	queries: Queries;
 	factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined>;
 	dataStore: Types.Campaign.DataStore | undefined;
 	time: number;
 	timeMultiplier: number;
+	map: DcsJs.MapName;
+	version: number;
 }
 
 export let store: Store = initializeStore();
 
 export function reset() {
-	store = initializeStore();
+	setStore(initializeStore());
+}
+
+export function setStore(newStore: Store) {
+	store = newStore;
 }
 
 self.store = store;

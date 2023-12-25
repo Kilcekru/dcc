@@ -1,9 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Events } from "../../utils";
-import { getEntity, store } from "../store";
-import { world } from "../world";
+import { Events, Serialization } from "../../utils";
+import { getEntity, QueryKey, store } from "../store";
 import { Entity, EntityProps } from "./_base";
 import { Structure } from "./_base/Structure";
 import { GenericStructure } from "./GenericStructure";
@@ -40,13 +39,18 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		this.#incomingGroundGroupId = groundGroup.id;
 	}
 
-	private constructor(args: ObjectiveProps) {
-		super({ ...args, entityType: "Objective", queries: ["objectives"] });
+	private constructor(args: ObjectiveProps | Serialization.ObjectiveSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, queries: ["objectives"] as QueryKey[], entityType: "Objective" as const };
+		super(superArgs);
 		this.name = args.name;
 		this.coalition = args.coalition;
 		this.position = args.position;
 
-		world.objectives.set(this.name, this);
+		if (Serialization.isSerialized(args)) {
+			this.#incomingGroundGroupId = args.incomingGroundGroupId;
+		}
 	}
 
 	static create(args: ObjectiveProps) {
@@ -83,13 +87,17 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		groundGroup.moveOntoTarget();
 	}
 
-	override toJSON(): Types.Campaign.ObjectiveItem {
+	static deserialize(args: Serialization.ObjectiveSerialized) {
+		return new Objective(args);
+	}
+
+	public override serialize(): Serialization.ObjectiveSerialized {
 		return {
-			...super.toJSON(),
-			name: this.name,
-			coalition: this.coalition,
+			...super.serialize(),
+			entityType: "Objective",
 			position: this.position,
-			incomingGroundGroup: this.#incomingGroundGroupId,
+			name: this.name,
+			incomingGroundGroupId: this.#incomingGroundGroupId,
 		};
 	}
 }
