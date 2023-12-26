@@ -1,6 +1,7 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Events } from "../../utils";
+import { Events, Serialization } from "../../utils";
+import { QueryKey } from "../store";
 import { HomeBase, HomeBaseProps } from "./_base/HomeBase";
 
 export interface AirdromeProps extends Omit<HomeBaseProps, "entityType" | "type"> {
@@ -10,8 +11,11 @@ export interface AirdromeProps extends Omit<HomeBaseProps, "entityType" | "type"
 export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 	public readonly frequencyList: number[];
 
-	private constructor(args: AirdromeProps) {
-		super({ ...args, entityType: "Airdrome", type: "airdrome", queries: ["airdromes"] });
+	private constructor(args: AirdromeProps | Serialization.AirdromeSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, type: "airdrome" as const, entityType: "Airdrome" as const, queries: ["airdromes"] as QueryKey[] };
+		super(superArgs);
 		this.frequencyList = args.frequencyList;
 	}
 
@@ -37,6 +41,18 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 			...super.toJSON(),
 			frequencyList: this.frequencyList,
 			name: this.name,
+		};
+	}
+
+	static deserialize(args: Serialization.AirdromeSerialized) {
+		return new Airdrome(args);
+	}
+
+	public override serialize(): Serialization.AirdromeSerialized {
+		return {
+			...super.serialize(),
+			entityType: "Airdrome",
+			frequencyList: this.frequencyList,
 		};
 	}
 }

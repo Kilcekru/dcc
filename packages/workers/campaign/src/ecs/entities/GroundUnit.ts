@@ -1,6 +1,7 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Events } from "../../utils";
+import { Events, Serialization } from "../../utils";
+import { QueryKey } from "../store";
 import { Unit, UnitProps } from "./_base/Unit";
 
 export interface GroundUnitProps extends Omit<UnitProps, "entityType" | "queries"> {
@@ -11,8 +12,11 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly name: string;
 	public readonly category: Types.Campaign.GroundUnitCategory;
 
-	private constructor(args: GroundUnitProps) {
-		super({ ...args, entityType: "GroundUnit", queries: ["groundUnits"] });
+	private constructor(args: GroundUnitProps | Serialization.GroundUnitSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, entityType: "GroundUnit" as const, queries: ["groundUnits"] as QueryKey[] };
+		super(superArgs);
 		this.name = args.name;
 		this.category = args.category;
 	}
@@ -27,6 +31,19 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 			name: this.name,
 			category: this.category,
 			alive: this.alive,
+		};
+	}
+
+	static deserialize(args: Serialization.GroundUnitSerialized) {
+		return new GroundUnit(args);
+	}
+
+	public override serialize(): Serialization.GroundUnitSerialized {
+		return {
+			...super.serialize(),
+			entityType: "GroundUnit",
+			name: this.name,
+			category: this.category,
 		};
 	}
 }

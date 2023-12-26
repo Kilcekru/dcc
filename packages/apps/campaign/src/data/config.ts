@@ -59,6 +59,7 @@ export const Config: Config = {
 			CSAR: 2,
 			Escort: 2,
 			"Air Assault": 4,
+			SEAD: 2,
 		},
 	},
 	packages: {
@@ -67,6 +68,7 @@ export const Config: Config = {
 		Escort: { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000 },
 		CAS: { maxActive: { blue: 3, red: 2, neutrals: 0 }, maxDistance: 100_000 },
 		DEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000 },
+		SEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000 },
 		CSAR: { maxActive: { blue: 2, red: 2, neutrals: 1 }, maxDistance: 30_000 },
 		CAP: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 100_000 },
 		"Air Assault": { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 40_000 },

@@ -9,6 +9,9 @@ const saveCampaign: Types.Rpc.Campaign["saveCampaign"] = async (campaign) => {
 	return Domain.Persistance.CampaignPersistance.put({
 		...campaign,
 		edited: new Date(),
+		time: campaign.time ?? 0,
+		countryName: campaign.factionDefinitions.blue?.countryName ?? "",
+		factionName: campaign.factionDefinitions.blue?.name ?? "",
 	});
 };
 

@@ -3,7 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../utils";
-import { getEntity } from "../store";
+import { getEntity, QueryKey } from "../store";
 import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
 import { Entity } from "./_base/Entity";
 import { HomeBase } from "./_base/HomeBase";
@@ -38,16 +38,24 @@ export interface PackageProps {
 
 export class Package extends Entity<keyof Events.EventMap.Package> {
 	#flightGroupIds = new Set<Types.Campaign.Id>();
-	public task: DcsJs.Task;
-	public cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
+	public readonly task: DcsJs.Task;
+	#cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
 
-	private constructor(args: PackageProps) {
-		super({
-			entityType: "Package",
-			queries: [`packages-${args.task}` as const],
-			coalition: args.coalition,
-		});
+	get cruiseSpeed() {
+		return this.#cruiseSpeed;
+	}
+
+	private constructor(args: PackageProps | Serialization.PackageSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, entityType: "Package" as const, queries: [`packages-${args.task}` as const] as QueryKey[] };
+		super(superArgs);
 		this.task = args.task;
+
+		if (Serialization.isSerialized(args)) {
+			this.#flightGroupIds = new Set(args.flightGroupIds);
+			this.#cruiseSpeed = args.cruiseSpeed;
+		}
 	}
 
 	static create(args: PackageCreateProps) {
@@ -201,7 +209,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 					coalition: args.coalition,
 					start: args.unitCamp.objective,
 					target: targetGroundGroup.target,
-					groupType: "infantry",
+					type: "infantry",
 				});
 
 				const airAssaultFg = AirAssaultFlightGroup.create({
@@ -233,8 +241,8 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		for (const aircraftBundle of aircraftBundles.values()) {
 			const [aircraft] = aircraftBundle.aircrafts;
 
-			if (aircraft?.aircraftType.cruiseSpeed != null && aircraft.aircraftType.cruiseSpeed < pkg.cruiseSpeed) {
-				pkg.cruiseSpeed = aircraft.aircraftType.cruiseSpeed;
+			if (aircraft?.aircraftData.cruiseSpeed != null && aircraft.aircraftData.cruiseSpeed < pkg.cruiseSpeed) {
+				pkg.#cruiseSpeed = aircraft.aircraftData.cruiseSpeed;
 			}
 		}
 
@@ -264,6 +272,10 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			task: this.task,
 			flightGroups: Array.from(this.#flightGroupIds).map((id) => getEntity(id).toJSON()),
 		};
+	}
+
+	static deserialize(args: Serialization.PackageSerialized) {
+		return new Package(args);
 	}
 
 	public override serialize(): Serialization.PackageSerialized {

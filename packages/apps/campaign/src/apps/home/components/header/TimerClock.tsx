@@ -1,27 +1,12 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import * as Types from "@kilcekru/dcc-shared-types";
-import { createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { createEffect, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { useSave } from "../../../../hooks";
 import { calcTakeoffTime } from "../../../../utils";
-import { onWorkerEvent } from "../../../../worker";
 import Styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
-	let workerSubscription: { dispose: () => void } | undefined;
-	const [time, setTime] = createSignal(32400000);
-
-	onMount(() => {
-		workerSubscription = onWorkerEvent("timeUpdate", (event: Types.Campaign.WorkerEventTimeUpdate) => {
-			setTime(event.time);
-		});
-	});
-
-	onCleanup(() => {
-		workerSubscription?.dispose();
-	});
-
 	const [state, { setMultiplier, resume, pause }] = useContext(CampaignContext);
 	const save = useSave();
 
@@ -58,7 +43,7 @@ export const TimerClock = () => {
 	return (
 		<div class={Styles.wrapper}>
 			<div class={Styles.clock}>
-				<Components.Clock value={time()} withDay />
+				<Components.Clock value={state.time} withDay />
 			</div>
 
 			<Components.Tooltip text="Takeoff Time reached" disabled={!takeoffTimeReached()}>

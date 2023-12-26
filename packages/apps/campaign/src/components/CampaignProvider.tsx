@@ -18,9 +18,13 @@ import {
 import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 import { sendWorkerMessage } from "../worker";
 
+type CampaignState = DcsJs.CampaignState & Types.Campaign.UIState;
 type CampaignStore = [
-	DcsJs.CampaignState,
+	CampaignState,
 	{
+		stateUpdate?: (next: Types.Campaign.UIState) => void;
+		timeUpdate?: (next: number) => void;
+		/* --- */
 		activate?: (
 			dataStore: Types.Campaign.DataStore,
 			blueFaction: DcsJs.Faction,
@@ -62,7 +66,7 @@ type CampaignStore = [
 	},
 ];
 
-export const initState: DcsJs.CampaignState = {
+export const initState: CampaignState = {
 	id: "",
 	active: false,
 	loaded: false,
@@ -98,6 +102,13 @@ export const initState: DcsJs.CampaignState = {
 		offset: 0,
 	},
 	version: 0,
+	time: 32400,
+	timeMultiplier: 1,
+	flightGroups: {
+		blue: [],
+		red: [],
+		neutrals: [],
+	},
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -106,11 +117,17 @@ export function CampaignProvider(props: {
 	children?: JSX.Element;
 	campaignState: Partial<DcsJs.CampaignState> | null | undefined;
 }) {
-	const [state, setState] = createStore<DcsJs.CampaignState>(structuredClone(initState));
+	const [state, setState] = createStore<CampaignState>(initState);
 
 	const store: CampaignStore = [
 		state,
 		{
+			stateUpdate(next) {
+				setState(next);
+			},
+			timeUpdate(next) {
+				setState("time", next);
+			},
 			activate() {
 				/* const scenario = scenarioList.find((sc) => sc.name === scenarioName);
 				const newState = createCampaign(

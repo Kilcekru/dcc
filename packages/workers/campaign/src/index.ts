@@ -50,6 +50,7 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 			Serialization.deserialize(e.data.state);
 
 			world.mapUpdate();
+			world.stateUpdate();
 
 			break;
 		}

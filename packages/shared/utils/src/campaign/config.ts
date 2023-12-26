@@ -76,10 +76,11 @@ export const Config: Config = {
 			CAS: 4,
 			AWACS: 3,
 			"Pinpoint Strike": 8,
-			DEAD: 4,
+			DEAD: 2,
 			CSAR: 2,
 			Escort: 2,
 			"Air Assault": 4,
+			SEAD: 2,
 		},
 	},
 	packages: {
@@ -91,6 +92,7 @@ export const Config: Config = {
 		CSAR: { maxActive: { blue: 2, red: 2, neutrals: 1 }, maxDistance: 30_000, aircrafts: 1 },
 		CAP: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 100_000, aircrafts: 2 },
 		"Air Assault": { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 40_000, aircrafts: 2 },
+		SEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000, aircrafts: 2 },
 	},
 	structureRange: {
 		power: 50_000,

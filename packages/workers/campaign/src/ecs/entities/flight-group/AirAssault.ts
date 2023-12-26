@@ -1,10 +1,12 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
+import { Serialization } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects";
 import { getEntity, store } from "../../store";
 import { groundGroupAlreadyTargeted } from "../../utils";
-import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
+import { FlightGroup, FlightGroupProps } from "../_base";
 import { GroundGroup } from "../GroundGroup";
 
 interface AirAssaultFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
@@ -16,10 +18,18 @@ export class AirAssaultFlightGroup extends FlightGroup {
 	readonly #targetGroundGroupId: Types.Campaign.Id;
 	#embarkedGroundGroupId: Types.Campaign.Id | undefined;
 
-	private constructor(args: AirAssaultFlightGroupProps) {
-		super({ ...args, entityType: "AirAssaultFlightGroup", task: "Air Assault" });
+	private constructor(args: AirAssaultFlightGroupProps | Serialization.AirAssaultFlightGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, task: "Air Assault" as DcsJs.Task, entityType: "AirAssaultFlightGroup" as const };
+		super(superArgs);
 		this.#targetGroundGroupId = args.targetGroundGroupId;
-		this.#embarkedGroundGroupId = args.groundGroupId;
+
+		if (Serialization.isSerialized(args)) {
+			this.#embarkedGroundGroupId = args.embarkedGroundGroupId;
+		} else {
+			this.#embarkedGroundGroupId = args.groundGroupId;
+		}
 	}
 
 	/**
@@ -145,5 +155,18 @@ export class AirAssaultFlightGroup extends FlightGroup {
 			groundGroupId: args.groundGroupId,
 			taskWaypoints: waypoints,
 		});
+	}
+
+	static deserialize(args: Serialization.AirAssaultFlightGroupSerialized) {
+		return new AirAssaultFlightGroup(args);
+	}
+
+	public override serialize(): Serialization.AirAssaultFlightGroupSerialized {
+		return {
+			...super.serialize(),
+			entityType: "AirAssaultFlightGroup",
+			targetGroundGroupId: this.#targetGroundGroupId,
+			embarkedGroundGroupId: this.#embarkedGroundGroupId,
+		};
 	}
 }

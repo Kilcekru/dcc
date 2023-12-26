@@ -1,13 +1,17 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { WaypointTemplate } from "../../objects/Waypoint";
-import { EscortingFlightGroup, EscortingFlightGroupProps } from "./EscortingFlightGroup";
+import { Serialization } from "../../../utils";
+import { WaypointTemplate } from "../../objects";
+import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
 
-type EscortFlightGroupProps = Omit<EscortingFlightGroupProps, "entityType">;
+type EscortFlightGroupProps = Omit<EscortingFlightGroupProps, "entityType" | "task">;
 
 export class EscortFlightGroup extends EscortingFlightGroup {
-	private constructor(args: EscortFlightGroupProps) {
-		super({ ...args, entityType: "EscortFlightGroup" });
+	private constructor(args: EscortFlightGroupProps | Serialization.EscortFlightGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, task: "Escort" as const, entityType: "EscortFlightGroup" as const };
+		super(superArgs);
 	}
 
 	static create(
@@ -24,5 +28,16 @@ export class EscortFlightGroup extends EscortingFlightGroup {
 			taskWaypoints: waypoints,
 			targetFlightGroupId: args.targetFlightGroupId,
 		});
+	}
+
+	static deserialize(args: Serialization.EscortFlightGroupSerialized) {
+		return new EscortFlightGroup(args);
+	}
+
+	public override serialize(): Serialization.EscortFlightGroupSerialized {
+		return {
+			...super.serialize(),
+			entityType: "EscortFlightGroup",
+		};
 	}
 }

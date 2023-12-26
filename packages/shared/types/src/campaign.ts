@@ -42,13 +42,13 @@ export type MissionState = {
 export namespace Schema {
 	export const campaignSynopsis = z.object({
 		id: z.string(),
-		// factionName: z.string().optional(),
+		factionName: z.string().optional(),
 		active: z.boolean(),
-		// name: z.string(),
-		// countryName: z.string().optional(),
+		name: z.string(),
+		countryName: z.string().optional(),
 		// created: z.coerce.date(),
 		edited: z.coerce.date(),
-		// timer: z.number(),
+		time: z.number(),
 		version: z.number().optional(),
 	});
 }
@@ -101,7 +101,7 @@ export type Scenario = {
 	red: ScenarioCoalition;
 };
 
-export type GroundUnitCategory = DcsJs.CampaignGroundGroupType | "air defense";
+export type GroundUnitCategory = DcsJs.CampaignGroundGroupType | "shorad";
 
 export type Id = string;
 
@@ -250,6 +250,7 @@ export type UIState = {
 	name: string;
 	time: number;
 	timeMultiplier: number;
+	flightGroups: Record<DcsJs.Coalition, Array<FlightGroupItem>>;
 };
 
 export type WorkerEventTick = { name: "tick"; dt: number };

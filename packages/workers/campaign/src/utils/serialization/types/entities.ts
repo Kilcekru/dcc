@@ -6,7 +6,17 @@ import { entityTypeSchema, queryKeySchema } from "../../types";
 namespace Schema {
 	export const coalition = z.enum(["blue", "red", "neutrals"]);
 	export const position = z.object({ x: z.number(), y: z.number() });
-	export const task = z.enum(["DEAD", "AWACS", "CAP", "Escort", "Pinpoint Strike", "CAS", "CSAR", "Air Assault"]);
+	export const task = z.enum([
+		"DEAD",
+		"SEAD",
+		"AWACS",
+		"CAP",
+		"Escort",
+		"Pinpoint Strike",
+		"CAS",
+		"CSAR",
+		"Air Assault",
+	]);
 	export const structureType = z.enum([
 		"Ammo Depot",
 		"Farp",
@@ -160,6 +170,78 @@ namespace Schema {
 		carrierName: z.string().optional(),
 		created: z.coerce.date().optional(),
 	});
+	export const weaponBase = z.object({
+		name: z.string(),
+		displayName: z.string(),
+		year: z.number().optional(),
+	});
+	export const A2AWeaponType = z.enum(["infrared", "active radar", "semi-active radar"]);
+	export const A2GWeaponType = z.enum([
+		"Bomb",
+		"Cluster",
+		"Rocket",
+		"Laser Guided Bomb",
+		"GPS Guided Bomb",
+		"TV Guided Bomb",
+		"Laser Guided Rocket",
+	]);
+	export const A2GRangeWeaponType = z.enum(["Missile", "Glide Bomb", "Laser Guided Missile", "Cruise Missile"]);
+	export const RangeType = z.enum(["short", "medium", "long"]);
+	export const A2GWeaponTarget = z.enum([
+		"Anti-Armor",
+		"Hard Target",
+		"Medium Target",
+		"Soft Target",
+		"Ship",
+		"Radar",
+		"Light Structure",
+		"Medium Structure",
+		"Hard Structure",
+	]);
+	export const a2AWeapon = z
+		.object({
+			type: A2AWeaponType,
+			range: z.number(),
+			rangeType: RangeType,
+		})
+		.merge(weaponBase);
+
+	export const a2GWeapon = z
+		.object({
+			type: A2GWeaponType,
+			target: A2GWeaponTarget,
+			weight: z.number().optional(),
+			highDrag: z.boolean().optional(),
+		})
+		.merge(weaponBase);
+
+	export const a2GRangeWeapon = z
+		.object({
+			type: A2GRangeWeaponType,
+			targets: z.array(A2GWeaponTarget),
+			range: z.number(),
+		})
+		.merge(weaponBase);
+
+	export const weapon = z.union([a2AWeapon, a2GWeapon, a2GRangeWeapon]);
+	export const pylonType = z.enum(["Fuel Tank", "Targeting Pod", "Gun Pod", "ECM Pod", "Other", "Weapon"]);
+	export const pylon = z.object({
+		CLSID: z.string(),
+		num: z.number(),
+		total: z.number(),
+		count: z.number(),
+		type: pylonType,
+		weapon: weapon.optional(),
+	});
+
+	export const loadout = z.object({
+		task: z.union([task, z.literal("default")]),
+		name: z.string(),
+		displayName: z.string(),
+		pylons: z.array(pylon),
+	});
+	export const campaignGroundGroupType = z.enum(["armor", "mbt", "infantry", "ew", "sam"]);
+	export const campaignGroundUnitType = z.union([campaignGroundGroupType, z.literal("shorad")]);
 }
 
 const entitySchema = z.object({
@@ -175,6 +257,86 @@ const groupSchema = entitySchema.extend({
 	position: Schema.position,
 });
 export type GroupSerialized = z.TypeOf<typeof groupSchema>;
+
+const groundGroupSchema = groupSchema.extend({
+	entityType: z.literal("GroundGroup"),
+	name: z.string(),
+	startId: z.string(),
+	targetId: z.string(),
+	type: Schema.campaignGroundGroupType,
+	unitIds: z.array(z.string()),
+	shoradUnitIds: z.array(z.string()),
+	embarkedOntoFlightGroupId: z.string().optional(),
+});
+export type GroundGroupSerialized = z.TypeOf<typeof groundGroupSchema>;
+
+const flightGroupSchema = groupSchema.extend({
+	aircraftIds: z.array(z.string()),
+	task: Schema.task,
+	startTime: z.number(),
+	name: z.string(),
+	homeBaseId: z.string(),
+	combat: z
+		.object({
+			type: z.enum(["a2a"]),
+			targetId: z.string(),
+			cooldownTime: z.number(),
+		})
+		.optional(),
+	packageId: z.string(),
+});
+export type FlightGroupSerialized = z.TypeOf<typeof flightGroupSchema>;
+
+const escortedFlightGroupSchema = flightGroupSchema.extend({
+	escortFlightGroupId: z.record(Schema.task, z.string()).optional(),
+});
+export type EscortedFlightGroupSerialized = z.TypeOf<typeof escortedFlightGroupSchema>;
+
+const escortingFlightGroupSchema = flightGroupSchema.extend({
+	targetFlightGroupId: z.string(),
+});
+export type EscortingFlightGroupSerialized = z.TypeOf<typeof escortingFlightGroupSchema>;
+
+const airAssaultFlightGroupSchema = flightGroupSchema.extend({
+	entityType: z.literal("AirAssaultFlightGroup"),
+	targetGroundGroupId: z.string(),
+	embarkedGroundGroupId: z.string().optional(),
+});
+export type AirAssaultFlightGroupSerialized = z.TypeOf<typeof airAssaultFlightGroupSchema>;
+
+const capFlightGroupSchema = flightGroupSchema.extend({
+	entityType: z.literal("CapFlightGroup"),
+	targetHomeBaseId: z.string(),
+});
+export type CapFlightGroupSerialized = z.TypeOf<typeof capFlightGroupSchema>;
+
+const casFlightGroupSchema = escortedFlightGroupSchema.extend({
+	entityType: z.literal("CasFlightGroup"),
+	targetGroundGroupId: z.string(),
+});
+export type CasFlightGroupSerialized = z.TypeOf<typeof casFlightGroupSchema>;
+
+const deadFlightGroupSchema = escortedFlightGroupSchema.extend({
+	entityType: z.literal("DeadFlightGroup"),
+	targetSAMId: z.string(),
+});
+export type DeadFlightGroupSerialized = z.TypeOf<typeof deadFlightGroupSchema>;
+
+const seadFlightGroupSchema = escortingFlightGroupSchema.extend({
+	entityType: z.literal("SeadFlightGroup"),
+});
+export type SeadFlightGroupSerialized = z.TypeOf<typeof seadFlightGroupSchema>;
+
+const escortFlightGroupSchema = escortingFlightGroupSchema.extend({
+	entityType: z.literal("EscortFlightGroup"),
+});
+export type EscortFlightGroupSerialized = z.TypeOf<typeof escortFlightGroupSchema>;
+
+const strikeFlightGroupSchema = escortedFlightGroupSchema.extend({
+	entityType: z.literal("StrikeFlightGroup"),
+	targetStructureId: z.string(),
+});
+export type StrikeFlightGroupSerialized = z.TypeOf<typeof strikeFlightGroupSchema>;
 
 const mapEntitySchema = entitySchema.extend({
 	position: Schema.position,
@@ -192,6 +354,23 @@ const buildingSchema = unitSchema.extend({
 	offset: Schema.position,
 });
 export type BuildingSerialized = z.TypeOf<typeof buildingSchema>;
+
+const aircraftSchema = unitSchema.extend({
+	entityType: z.literal("Aircraft"),
+	aircraftType: Schema.aircraftType,
+	flightGroupId: z.string().optional(),
+	homeBaseId: z.string(),
+	isClient: z.boolean(),
+	loadout: Schema.loadout.optional(),
+});
+export type AircraftSerialized = z.TypeOf<typeof aircraftSchema>;
+
+const groundUnitSchema = unitSchema.extend({
+	name: z.string(),
+	entityType: z.literal("GroundUnit"),
+	category: Schema.campaignGroundUnitType,
+});
+export type GroundUnitSerialized = z.TypeOf<typeof groundUnitSchema>;
 
 const structureSchema = mapEntitySchema.extend({
 	name: z.string(),
@@ -228,6 +407,39 @@ const objectiveSchema = entitySchema.extend({
 });
 export type ObjectiveSerialized = z.TypeOf<typeof objectiveSchema>;
 
+const homeBaseSchema = mapEntitySchema.extend({
+	name: z.string(),
+	type: z.enum(["airdrome", "carrier", "farp"]),
+	aircraftIds: z.array(z.string()),
+});
+export type HomeBaseSerialized = z.TypeOf<typeof homeBaseSchema>;
+
+const airdromeSchema = homeBaseSchema.extend({
+	entityType: z.literal("Airdrome"),
+	frequencyList: z.array(z.number()),
+});
+export type AirdromeSerialized = z.TypeOf<typeof airdromeSchema>;
+
+export const stateEntitySchema = z.discriminatedUnion("entityType", [
+	genericStructureSchema,
+	unitCampSchema,
+	buildingSchema,
+	packageSchema,
+	objectiveSchema,
+	aircraftSchema,
+	airAssaultFlightGroupSchema,
+	deadFlightGroupSchema,
+	escortFlightGroupSchema,
+	strikeFlightGroupSchema,
+	casFlightGroupSchema,
+	capFlightGroupSchema,
+	seadFlightGroupSchema,
+	airdromeSchema,
+	groundGroupSchema,
+	groundUnitSchema,
+]);
+export type StateEntitySerialized = z.TypeOf<typeof stateEntitySchema>;
+
 export const stateSchema = z.object({
 	id: z.string(),
 	version: z.number(),
@@ -236,14 +448,6 @@ export const stateSchema = z.object({
 	map: z.string(),
 	name: z.string(),
 	factionDefinitions: z.record(Schema.coalition, Schema.faction.optional()),
-	entities: z.array(
-		z.discriminatedUnion("entityType", [
-			genericStructureSchema,
-			unitCampSchema,
-			buildingSchema,
-			packageSchema,
-			objectiveSchema,
-		]),
-	),
+	entities: z.array(stateEntitySchema),
 });
 export type StateSerialized = z.TypeOf<typeof stateSchema>;

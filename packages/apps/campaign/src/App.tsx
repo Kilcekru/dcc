@@ -16,10 +16,12 @@ import { onWorkerEvent, sendWorkerMessage } from "./worker";
 
 const App = (props: { open: boolean }) => {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
-	const [state, { closeCampaign }] = useContext(CampaignContext);
+	const [state, { closeCampaign, stateUpdate, timeUpdate }] = useContext(CampaignContext);
 	const save = useSave();
 	const [open, setOpen] = createSignal(false);
-	let workerSubscription: { dispose: () => void } | undefined;
+	let serializedSubscription: { dispose: () => void } | undefined;
+	let stateUpdateSubscription: { dispose: () => void } | undefined;
+	let timeUpdateSubscription: { dispose: () => void } | undefined;
 
 	createEffect(() => setOpen(props.open));
 
@@ -51,13 +53,21 @@ const App = (props: { open: boolean }) => {
 	}
 
 	onMount(function onMount() {
-		workerSubscription = onWorkerEvent("serialized", async (event: Types.Campaign.WorkerEventSerialized) => {
+		serializedSubscription = onWorkerEvent("serialized", async (event: Types.Campaign.WorkerEventSerialized) => {
 			void saveCampaign(event.state);
+		});
+		stateUpdateSubscription = onWorkerEvent("stateUpdate", async (event: Types.Campaign.WorkerEventStateUpdate) => {
+			stateUpdate?.(event.state);
+		});
+		timeUpdateSubscription = onWorkerEvent("timeUpdate", (event: Types.Campaign.WorkerEventTimeUpdate) => {
+			timeUpdate?.(event.time);
 		});
 	});
 
 	onCleanup(() => {
-		workerSubscription?.dispose();
+		serializedSubscription?.dispose();
+		stateUpdateSubscription?.dispose();
+		timeUpdateSubscription?.dispose();
 	});
 
 	function onOpenCreateCampaign() {
@@ -96,9 +106,10 @@ const AppWithContext = () => {
 		setCampaignState({
 			loaded: true,
 		});
+
 		rpc.campaign
 			.resumeCampaign(Config.campaignVersion)
-			.then((loadedState) => {
+			.then(async (loadedState) => {
 				console.log("load", loadedState); // eslint-disable-line no-console
 
 				if (loadedState == null) {
@@ -112,6 +123,13 @@ const AppWithContext = () => {
 
 					return;
 				}
+
+				const dataStore = await rpc.campaign.getDataStore(loadedState.map);
+
+				sendWorkerMessage({
+					name: "setDataStore",
+					payload: dataStore,
+				});
 
 				sendWorkerMessage({
 					name: "load",

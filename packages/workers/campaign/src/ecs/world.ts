@@ -95,6 +95,20 @@ export class World {
 		});
 	}
 	public stateUpdate() {
+		const flightGroups: Record<DcsJs.Coalition, Array<Types.Campaign.FlightGroupItem>> = {
+			blue: [],
+			red: [],
+			neutrals: [],
+		};
+
+		for (const fg of store.queries.flightGroups.blue) {
+			flightGroups.blue.push(fg.toJSON());
+		}
+
+		for (const fg of store.queries.flightGroups.red) {
+			flightGroups.blue.push(fg.toJSON());
+		}
+
 		postEvent({
 			name: "stateUpdate",
 			state: {
@@ -102,6 +116,7 @@ export class World {
 				timeMultiplier: store.timeMultiplier,
 				id: store.id,
 				name: store.name,
+				flightGroups,
 			},
 		});
 	}

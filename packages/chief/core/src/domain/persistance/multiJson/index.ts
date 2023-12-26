@@ -7,7 +7,16 @@ export const CampaignPersistance = new MultiJson({
 	name: "campaign/campaign",
 	version: 0,
 	schema: {
-		item: z.object({ id: z.string(), edited: z.coerce.date(), active: z.boolean(), version: z.number() }),
+		item: z.object({
+			id: z.string(),
+			name: z.string(),
+			factionName: z.string(),
+			countryName: z.string(),
+			edited: z.coerce.date(),
+			active: z.boolean(),
+			version: z.number(),
+			time: z.number(),
+		}),
 		synopsis: Types.Campaign.Schema.campaignSynopsis,
 	},
 	getSynopsis: (item) => ({
@@ -15,5 +24,9 @@ export const CampaignPersistance = new MultiJson({
 		active: item.active,
 		version: item.version ?? 0,
 		edited: item.edited,
+		name: item.name,
+		factionName: item.factionName,
+		countryName: item.countryName,
+		time: item.time,
 	}),
 });

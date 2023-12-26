@@ -1,11 +1,10 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
+import { Events, Serialization } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects";
 import { getEntity, store } from "../../store";
-import { FlightGroup, FlightGroupProps } from "../_base/FlightGroup";
-import type { HomeBase } from "../_base/HomeBase";
+import { FlightGroup, FlightGroupProps, HomeBase } from "../_base";
 
 interface CapFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
 	targetHomeBaseId: Types.Campaign.Id;
@@ -18,10 +17,14 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 		return getEntity<HomeBase>(this.#targetHomeBaseId);
 	}
 
-	private constructor(args: CapFlightGroupProps) {
-		super({ ...args, entityType: "CapFlightGroup", task: "CAP" });
+	private constructor(args: CapFlightGroupProps | Serialization.CapFlightGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, task: "CAP" as const, entityType: "CapFlightGroup" as const };
+
+		super(superArgs);
 		this.#targetHomeBaseId = args.targetHomeBaseId;
-		const prevWaypoint = Utils.Array.lastItem(args.taskWaypoints);
+		/* const prevWaypoint = Utils.Array.lastItem(args.taskWaypoints);
 
 		if (prevWaypoint == null) {
 			throw new Error("prevWaypoint is null");
@@ -33,7 +36,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 				prevWaypoint,
 				homeBase: args.homeBase,
 			}),
-		);
+		); */
 	}
 
 	static #getOppAirdrome(
@@ -95,5 +98,17 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 			taskWaypoints: waypoints,
 			targetHomeBaseId: args.target.id,
 		});
+	}
+
+	static deserialize(args: Serialization.CapFlightGroupSerialized) {
+		return new CapFlightGroup(args);
+	}
+
+	public override serialize(): Serialization.CapFlightGroupSerialized {
+		return {
+			...super.serialize(),
+			entityType: "CapFlightGroup",
+			targetHomeBaseId: this.#targetHomeBaseId,
+		};
 	}
 }

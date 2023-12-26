@@ -1,4 +1,6 @@
 export * from "./Entity";
+export * from "./EscortedFlightGroup";
+export * from "./EscortingFlightGroup";
 export * from "./FlightGroup";
 export * from "./Group";
 export * from "./HomeBase";

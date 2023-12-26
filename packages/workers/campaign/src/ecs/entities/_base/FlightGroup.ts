@@ -2,12 +2,11 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../../utils";
+import { Events, Serialization } from "../../../utils";
 import { Flightplan } from "../../objects";
 import { WaypointTemplate } from "../../objects/Waypoint";
 import { getEntity, QueryKey, store } from "../../store";
 import { generateCallSign } from "../../utils";
-import { world } from "../../world";
 import type { Aircraft } from "../Aircraft";
 import { type Package } from "../Package";
 import { Group, GroupProps } from "./Group";
@@ -23,7 +22,7 @@ export interface FlightGroupProps extends Omit<GroupProps, "queries"> {
 
 export type A2ACombat = {
 	type: "a2a";
-	target: FlightGroup;
+	targetId: Types.Campaign.Id;
 	cooldownTime: number;
 };
 
@@ -35,7 +34,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	public readonly flightplan: Flightplan = new Flightplan(this);
 	public readonly startTime: number;
 	public readonly name: string;
-	public readonly homeBase: HomeBase;
+	public readonly homeBaseId: Types.Campaign.Id;
 	public combat: A2ACombat | undefined;
 	#packageId: Types.Campaign.Id;
 
@@ -77,23 +76,43 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		return maxRange;
 	}
 
-	protected constructor(args: FlightGroupProps) {
-		super({ ...args, queries: [`flightGroups-${args.task}` as QueryKey] });
-
-		const cs = generateCallSign(args.coalition, "aircraft");
-		this.task = args.task;
-		this.#packageId = args.package.id;
-		this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
-		this.name = cs.flightGroupName;
-		this.#aircraftIds = args.aircraftIds;
-		this.homeBase = args.homeBase;
-
-		for (const aircraft of this.aircrafts) {
-			aircraft.addToFlightGroup(this);
+	get a2aTarget(): FlightGroup | undefined {
+		if (this.combat == null) {
+			return undefined;
 		}
 
-		if (this.coalition === "blue") {
-			world.flightGroupsUpdate();
+		return getEntity<FlightGroup>(this.combat.targetId);
+	}
+
+	get homeBase(): HomeBase {
+		return getEntity<HomeBase>(this.homeBaseId);
+	}
+
+	protected constructor(args: FlightGroupProps | Serialization.FlightGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, queries: [`flightGroups-${args.task}` as QueryKey] };
+		super(superArgs);
+
+		this.task = args.task;
+		this.#aircraftIds = args.aircraftIds;
+
+		if (Serialization.isSerialized(args)) {
+			this.#packageId = args.packageId;
+			this.name = args.name;
+			this.homeBaseId = args.homeBaseId;
+			this.startTime = args.startTime;
+		} else {
+			const cs = generateCallSign(args.coalition, "aircraft");
+			this.#packageId = args.package.id;
+			this.name = cs.flightGroupName;
+			this.homeBaseId = args.homeBase.id;
+			this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
+
+			for (const aircraftId of args.aircraftIds) {
+				const aircraft = getEntity<Aircraft>(aircraftId);
+				aircraft.addToFlightGroup(this.id, args.task);
+			}
 		}
 	}
 
@@ -106,11 +125,11 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	move(worldDelta: number) {
-		if (this.isInCombat && this.combat != null) {
-			const distance = Utils.Location.distanceToPosition(this.position, this.combat.target.position);
+		if (this.isInCombat && this.combat != null && this.a2aTarget != null) {
+			const distance = Utils.Location.distanceToPosition(this.position, this.a2aTarget.position);
 
 			let speed = 300;
-			let heading = Utils.Location.headingToPosition(this.position, this.combat.target.position);
+			let heading = Utils.Location.headingToPosition(this.position, this.a2aTarget.position);
 
 			if (distance < 2_000) {
 				speed = 150;
@@ -167,13 +186,13 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	engageA2A(enemy: FlightGroup) {
 		this.combat = {
 			type: "a2a",
-			target: enemy,
+			targetId: enemy.id,
 			cooldownTime: store.time,
 		};
 	}
 
 	fireA2A(distance: number) {
-		if (this.combat == null) {
+		if (this.combat == null || this.a2aTarget == null) {
 			throw new Error("combat is null");
 		}
 
@@ -190,7 +209,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 
 						if (Utils.Random.number(1, 100) <= 100 * distanceFactor) {
 							// eslint-disable-next-line no-console
-							console.log("fire", weapon.item.name, "at", this.combat.target.name, "from", this.name);
+							console.log("fire", weapon.item.name, "at", this.a2aTarget.name, "from", this.name);
 
 							this.combat.cooldownTime = store.time + Utils.Config.combat.a2a.cooldownDuration;
 
@@ -204,7 +223,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 							break aircraftLoop;
 						} else {
 							// eslint-disable-next-line no-console
-							console.log("miss", weapon.item.name, "at", this.combat.target.name, "from", this.name);
+							console.log("miss", weapon.item.name, "at", this.a2aTarget.name, "from", this.name);
 						}
 					}
 				}
@@ -253,6 +272,19 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			id: this.id,
 			aircrafts: this.aircrafts.map((aircraft) => aircraft.toJSON()),
 			flightplan: this.flightplan.toJSON(),
+		};
+	}
+
+	public override serialize(): Serialization.FlightGroupSerialized {
+		return {
+			...super.serialize(),
+			name: this.name,
+			aircraftIds: this.#aircraftIds,
+			homeBaseId: this.homeBaseId,
+			task: this.task,
+			startTime: this.startTime,
+			packageId: this.#packageId,
+			combat: this.combat,
 		};
 	}
 }

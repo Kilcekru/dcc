@@ -1,15 +1,14 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
+import { Events, Serialization } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects";
 import { getEntity, store } from "../../store";
 import { groundGroupAlreadyTargeted } from "../../utils";
+import { EscortedFlightGroup, EscortedFlightGroupProps } from "../_base";
 import type { GroundGroup } from "../GroundGroup";
-import { FlightGroupProps } from ".";
-import { EscortedFlightGroup } from "./EscortedFlightGroup";
 
-interface CasFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
+interface CasFlightGroupProps extends Omit<EscortedFlightGroupProps, "entityType" | "task"> {
 	targetGroundGroupId: Types.Campaign.Id;
 }
 
@@ -20,8 +19,11 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 		return getEntity<GroundGroup>(this.#targetGroundGroupId);
 	}
 
-	private constructor(args: CasFlightGroupProps) {
-		super({ ...args, entityType: "CasFlightGroup", task: "CAS" });
+	private constructor(args: CasFlightGroupProps | Serialization.CasFlightGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, task: "CAS" as const, entityType: "CasFlightGroup" as const };
+		super(superArgs);
 		this.#targetGroundGroupId = args.targetGroundGroupId;
 	}
 
@@ -31,7 +33,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 	 * @param homeBase - the home base of the CAS flight group
 	 * @returns the target ground group
 	 */
-	static #getTargetGroundGroup(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
+	static #getTargetGroundGroup(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
 		const oppGroundGroups = store.queries.groundGroups[oppCoalition].get("on target");
 		let distanceToHomeBase = 99999999;
@@ -65,7 +67,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 	 * @param args
 	 * @returns
 	 */
-	static getValidTarget(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
+	static getValidTarget(args: Pick<EscortedFlightGroupProps, "coalition" | "homeBase">) {
 		const targetGroundGroup = this.#getTargetGroundGroup(args);
 
 		if (targetGroundGroup == null) {
@@ -111,5 +113,17 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 			targetGroundGroupId: targetGroundGroup.id,
 			taskWaypoints: waypoints,
 		});
+	}
+
+	static deserialize(args: Serialization.CasFlightGroupSerialized) {
+		return new CasFlightGroup(args);
+	}
+
+	public override serialize(): Serialization.CasFlightGroupSerialized {
+		return {
+			...super.serialize(),
+			entityType: "CasFlightGroup",
+			targetGroundGroupId: this.#targetGroundGroupId,
+		};
 	}
 }

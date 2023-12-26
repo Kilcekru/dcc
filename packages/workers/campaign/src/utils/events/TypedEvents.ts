@@ -16,6 +16,8 @@ export interface EscortFlightGroup {}
 
 export interface EscortedFlightGroup {}
 
+export interface EscortingFlightGroup {}
+
 export interface FlightGroup {}
 
 export interface GroundGroup {}
@@ -32,6 +34,8 @@ export interface Objective {}
 
 export interface Package {}
 
+export interface SeadFlightGroup {}
+
 export interface StrikeFlightGroup {}
 
 export interface Structure {}
@@ -45,6 +49,7 @@ export type All = Aircraft &
 	Entity &
 	EscortFlightGroup &
 	EscortedFlightGroup &
+	EscortingFlightGroup &
 	FlightGroup &
 	GroundGroup &
 	GroundUnit &
@@ -53,6 +58,7 @@ export type All = Aircraft &
 	MapEntity &
 	Objective &
 	Package &
+	SeadFlightGroup &
 	StrikeFlightGroup &
 	Structure &
 	Unit;

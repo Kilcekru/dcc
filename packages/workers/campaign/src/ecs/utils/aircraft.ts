@@ -17,17 +17,17 @@ export function getUsableAircraftsByTask(args: {
 	// Loop through all idle aircrafts
 	for (const aircraft of store.queries.aircrafts[args.coalition].get("idle") ?? new Set()) {
 		// Is the aircraft one of the desired types?
-		if (desiredAircraftTypes.has(aircraft.aircraftType.name)) {
+		if (desiredAircraftTypes.has(aircraft.aircraftData.name)) {
 			// Is the aircraft not excluded?
 			if (args.excludedAircrafts?.has(aircraft)) {
 				continue;
 			}
 
 			// Map the aircraft to the aircraft type
-			const prev = aircraftsPerAircraftType.get(aircraft.aircraftType.name);
+			const prev = aircraftsPerAircraftType.get(aircraft.aircraftData.name);
 
 			if (prev == null) {
-				aircraftsPerAircraftType.set(aircraft.aircraftType.name, new Set([aircraft]));
+				aircraftsPerAircraftType.set(aircraft.aircraftData.name, new Set([aircraft]));
 			} else {
 				prev.add(aircraft);
 			}

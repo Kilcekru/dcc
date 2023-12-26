@@ -1,22 +1,22 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
-import { Events } from "../../utils";
-import { getEntity, store } from "../store";
+import { Events, Serialization } from "../../utils";
+import { getEntity, QueryKey, store } from "../store";
 import type { FlightGroup } from "./_base/FlightGroup";
 import type { HomeBase } from "./_base/HomeBase";
 import { Unit, UnitProps } from "./_base/Unit";
 export interface AircraftProps extends Omit<UnitProps, "entityType" | "queries"> {
-	aircraftType: DcsJs.DCS.Aircraft;
-	homeBase: HomeBase;
+	aircraftType: DcsJs.AircraftType;
+	homeBaseId: Types.Campaign.Id;
 }
 
 export type AircraftA2AWeapons = Map<string, { item: DcsJs.A2AWeapon; count: number; total: number }>;
 
 export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
-	public readonly aircraftType: DcsJs.DCS.Aircraft;
+	readonly #aircraftType: DcsJs.AircraftType;
 	#flightGroupId: Types.Campaign.Id | undefined = undefined;
-	public readonly homeBaseId: Types.Campaign.Id;
+	readonly #homeBaseId: Types.Campaign.Id;
 	#isClient = false;
 	#loadout: DcsJs.Loadout | undefined = undefined;
 
@@ -32,22 +32,31 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return this.#loadout;
 	}
 
+	get aircraftData() {
+		const data = store.dataStore?.aircrafts?.[this.#aircraftType];
+
+		if (data == null) {
+			throw new Error(`aircraft: ${this.#aircraftType} not found`);
+		}
+
+		return data;
+	}
+
 	get isHelicopter() {
-		return this.aircraftType.isHelicopter;
+		return this.aircraftData.isHelicopter;
 	}
 
 	get homeBase() {
-		return getEntity<HomeBase>(this.homeBaseId);
+		return getEntity<HomeBase>(this.#homeBaseId);
 	}
 
-	private constructor(args: AircraftProps) {
-		super({
-			entityType: "Aircraft",
-			coalition: args.coalition,
-			queries: ["aircrafts-idle"],
-		});
-		this.aircraftType = args.aircraftType;
-		this.homeBaseId = args.homeBase.id;
+	private constructor(args: AircraftProps | Serialization.AircraftSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, entityType: "Aircraft" as const, queries: ["aircrafts-idle"] as QueryKey[] };
+		super(superArgs);
+		this.#aircraftType = args.aircraftType;
+		this.#homeBaseId = args.homeBaseId;
 	}
 
 	public static create(args: AircraftProps) {
@@ -59,14 +68,14 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	}
 
 	#addLoadout(task: DcsJs.Task) {
-		let loadout = this.aircraftType.loadouts.find((l) => l.task === task);
+		let loadout = this.aircraftData.loadouts.find((l) => l.task === task);
 
 		if (loadout == null) {
-			loadout = this.aircraftType.loadouts.find((l) => l.task === "default");
+			loadout = this.aircraftData.loadouts.find((l) => l.task === "default");
 
 			if (loadout == null) {
 				// eslint-disable-next-line no-console
-				throw new Error(`loadout not found for task: ${task} and aircraft: ${this.aircraftType.name}`);
+				throw new Error(`loadout not found for task: ${task} and aircraft: ${this.aircraftData.name}`);
 			}
 		}
 
@@ -156,20 +165,35 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return range;
 	}
 
-	addToFlightGroup(flightGroup: FlightGroup) {
-		this.#flightGroupId = flightGroup.id;
-		this.#addLoadout(flightGroup.task);
+	addToFlightGroup(id: Types.Campaign.Id, task: DcsJs.Task) {
+		this.#flightGroupId = id;
+		this.#addLoadout(task);
 		this.moveSubQuery("aircrafts", "idle", "in use");
 	}
 
 	override toJSON(): Types.Campaign.AircraftItem {
 		return {
 			...super.toJSON(),
-			aircraftType: this.aircraftType.name,
-			homeBaseId: this.homeBaseId,
+			aircraftType: this.aircraftData.name,
+			homeBaseId: this.#homeBaseId,
 			flightGroupId: this.#flightGroupId,
-			displayName: this.aircraftType.display_name,
+			displayName: this.aircraftData.display_name,
 			isClient: this.#isClient,
+		};
+	}
+
+	static deserialize(args: Serialization.AircraftSerialized) {
+		return new Aircraft(args);
+	}
+
+	public override serialize(): Serialization.AircraftSerialized {
+		return {
+			...super.serialize(),
+			entityType: "Aircraft",
+			aircraftType: this.#aircraftType,
+			homeBaseId: this.#homeBaseId,
+			isClient: this.#isClient,
+			loadout: this.#loadout,
 		};
 	}
 }

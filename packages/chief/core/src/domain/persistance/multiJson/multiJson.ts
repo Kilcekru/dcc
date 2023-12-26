@@ -40,14 +40,14 @@ export class MultiJson<ItemSchema extends BaseItemSchema, SynopsisSchema extends
 
 	public async put(item: z.infer<ItemSchema>) {
 		const parsedId = idSchema.parse(item.id);
-		const parsedItem = this.#options.schema.item.parse(item);
+		// const parsedItem = this.#options.schema.item.parse(item);
 
 		await write({
 			namespace: "multi",
 			fileName: `${this.#options.name}/${parsedId}.json`,
 			data: stringify(item), // TODO use parsedItem
 		});
-		const synopsis = this.#options.schema.synopsis.parse(this.#options.getSynopsis(parsedItem));
+		const synopsis = this.#options.schema.synopsis.parse(this.#options.getSynopsis(item));
 		await this.#updateList(parsedId, synopsis);
 	}
 

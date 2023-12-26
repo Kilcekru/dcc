@@ -2,16 +2,16 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../utils";
-import { getEntity, store } from "../store";
+import { Events, Serialization } from "../../utils";
+import { getEntity, QueryKey, store } from "../store";
 import { Group, GroupProps } from "./_base/Group";
 import type { FlightGroup } from "./flight-group";
 import { GroundUnit, GroundUnitProps } from "./GroundUnit";
-import type { Objective } from "./Objective";
+import { Objective } from "./Objective";
 export interface GroundGroupProps extends Omit<GroupProps, "entityType" | "queries" | "position"> {
 	start: Objective;
 	target: Objective;
-	groupType: DcsJs.CampaignGroundGroupType;
+	type: DcsJs.CampaignGroundGroupType;
 	embarked?: FlightGroup;
 	unitIds: Array<Types.Campaign.Id>;
 	shoradUnitIds: Array<Types.Campaign.Id>;
@@ -19,12 +19,16 @@ export interface GroundGroupProps extends Omit<GroupProps, "entityType" | "queri
 
 export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	public readonly name: string;
-	public readonly start: Objective;
-	public readonly target: Objective;
+	readonly #startId: Types.Campaign.Id;
+	readonly #targetId: Types.Campaign.Id;
 	public readonly type: DcsJs.CampaignGroundGroupType;
 	readonly #unitIds: Array<Types.Campaign.Id>;
 	readonly #shoradUnitIds: Array<Types.Campaign.Id>;
 	#embarkedOntoFlightGroupId: Types.Campaign.Id | undefined;
+
+	get target(): Objective {
+		return getEntity<Objective>(this.#targetId);
+	}
 
 	get units(): Array<GroundUnit> {
 		return this.#unitIds.map((id) => getEntity<GroundUnit>(id));
@@ -46,39 +50,51 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		return getEntity<FlightGroup>(this.#embarkedOntoFlightGroupId);
 	}
 
-	private constructor(args: GroundGroupProps) {
-		super({
-			...args,
-			entityType: "GroundGroup",
-			queries: [
-				"groundGroups",
-				"mapEntities",
-				// If the group is not already at the target, add it to the en route query
-				args.start === args.target ? "groundGroups-on target" : "groundGroups-en route",
-			],
-			position: args.start.position,
-		});
-		this.name = args.target.name + "-" + this.id;
-		this.start = args.start;
-		this.target = args.target;
+	private constructor(args: GroundGroupProps | Serialization.GroundGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: {
+					...args,
+					...args,
+					entityType: "GroundGroup" as const,
+					queries: [
+						"groundGroups",
+						"mapEntities",
+						// If the group is not already at the target, add it to the en route query
+						args.start === args.target ? "groundGroups-on target" : "groundGroups-en route",
+					] as QueryKey[],
+					position: args.start.position,
+			  };
+		super(superArgs);
 
-		this.type = args.groupType;
+		if (Serialization.isSerialized(args)) {
+			this.#embarkedOntoFlightGroupId = args.embarkedOntoFlightGroupId;
+			this.name = args.name;
+			this.#startId = args.startId;
+			this.#targetId = args.targetId;
+		} else {
+			this.name = args.target.name + "-" + this.id;
+			this.#startId = args.start.id;
+			this.#targetId = args.target.id;
+		}
+
+		this.type = args.type;
 		this.#unitIds = args.unitIds;
 		this.#shoradUnitIds = args.shoradUnitIds;
 	}
 
 	static create(
 		args: Pick<GroundGroupProps, "coalition" | "embarked" | "start" | "target"> &
-			Partial<Pick<GroundGroupProps, "groupType">>,
+			Partial<Pick<GroundGroupProps, "type">>,
 	) {
 		const randomNumber = Utils.Random.number(1, 100);
-		const groupType = args.groupType ?? randomNumber > 50 ? "armor" : "infantry";
+		const groupType = args.type ?? randomNumber > 50 ? "armor" : "infantry";
 
 		const { groundUnits, shoradGroundUnits } = this.generateUnits(args.coalition, groupType);
 
 		return new GroundGroup({
 			...args,
-			groupType,
+			type: groupType,
 			unitIds: groundUnits.map((u) => u.id),
 			shoradUnitIds: shoradGroundUnits.map((u) => u.id),
 		});
@@ -113,7 +129,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 
 		const armorShoradTemplates: Array<GroundUnitProps> = template.shoradVehicles.map((name) => {
 			return {
-				category: "air defense",
+				category: "shorad",
 				coalition,
 				name,
 			};
@@ -121,7 +137,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 
 		const infantryShoradTemplates: Array<GroundUnitProps> = template.shoradInfantries.map((name) => {
 			return {
-				category: "air defense",
+				category: "shorad",
 				coalition,
 				name,
 			};
@@ -236,11 +252,29 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		return {
 			...super.toJSON(),
 			name: this.name,
-			start: this.start.name,
-			target: this.target.name,
+			start: this.#startId,
+			target: this.#targetId,
 			type: this.type,
 			units: this.units.map((u) => u.toJSON()),
 			shoradUnits: this.shoradUnits.map((u) => u.toJSON()),
+		};
+	}
+
+	static deserialize(args: Serialization.GroundGroupSerialized) {
+		return new GroundGroup(args);
+	}
+
+	override serialize(): Serialization.GroundGroupSerialized {
+		return {
+			...super.serialize(),
+			entityType: "GroundGroup",
+			name: this.name,
+			startId: this.#startId,
+			targetId: this.#targetId,
+			type: this.type,
+			unitIds: this.#unitIds,
+			shoradUnitIds: this.#shoradUnitIds,
+			embarkedOntoFlightGroupId: this.#embarkedOntoFlightGroupId,
 		};
 	}
 }

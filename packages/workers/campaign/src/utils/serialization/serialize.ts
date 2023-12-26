@@ -1,6 +1,5 @@
-import { Building, GenericStructure, Objective, UnitCamp } from "../../ecs/entities";
 import { store } from "../../ecs/store";
-import { StateSerialized } from "./types/entities";
+import type { StateEntitySerialized, StateSerialized } from "./types/entities";
 
 export function serialize() {
 	const serialized: StateSerialized = {
@@ -14,14 +13,7 @@ export function serialize() {
 		entities: [],
 	};
 	for (const entity of store.entities.values()) {
-		if (
-			entity instanceof GenericStructure ||
-			entity instanceof Building ||
-			entity instanceof UnitCamp ||
-			entity instanceof Objective
-		) {
-			serialized.entities.push(entity.serialize());
-		}
+		serialized.entities.push((entity as unknown as { serialize: () => StateEntitySerialized }).serialize()); // TODO
 	}
 
 	return serialized;

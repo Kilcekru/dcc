@@ -2,14 +2,12 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import { Events } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects/Waypoint";
+import { Events, Serialization } from "../../../utils";
+import { WaypointTemplate, WaypointType } from "../../objects";
 import { getEntity, store } from "../../store";
-import { FlightGroupProps } from "../_base/FlightGroup";
-import type { Structure } from "../_base/Structure";
-import { EscortedFlightGroup } from "./EscortedFlightGroup";
+import { EscortedFlightGroup, EscortedFlightGroupProps, Structure } from "../_base";
 
-interface StrikeFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
+interface StrikeFlightGroupProps extends Omit<EscortedFlightGroupProps, "entityType" | "task"> {
 	targetStructureId: Types.Campaign.Id;
 }
 
@@ -20,8 +18,11 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 		return getEntity<Structure>(this.#targetStructureId);
 	}
 
-	private constructor(args: StrikeFlightGroupProps) {
-		super({ ...args, entityType: "StrikeFlightGroup", task: "Pinpoint Strike" });
+	private constructor(args: StrikeFlightGroupProps | Serialization.StrikeFlightGroupSerialized) {
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: { ...args, task: "Pinpoint Strike" as const, entityType: "StrikeFlightGroup" as const };
+		super(superArgs);
 		this.#targetStructureId = args.targetStructureId;
 	}
 
@@ -49,7 +50,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	 * @param homeBase - the home base of the Strike flight group
 	 * @returns the possible target structure
 	 **/
-	static #getTargetStructure(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
+	static #getTargetStructure(args: Pick<StrikeFlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
 		const oppStructures = store.queries.structures[oppCoalition];
 		let distanceToHomeBase = 99999999;
@@ -84,7 +85,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	 * @param args
 	 * @returns
 	 */
-	static getValidTarget(args: Pick<FlightGroupProps, "coalition" | "homeBase">) {
+	static getValidTarget(args: Pick<StrikeFlightGroupProps, "coalition" | "homeBase">) {
 		const targetStructure = this.#getTargetStructure(args);
 
 		if (targetStructure == null) {
@@ -122,5 +123,17 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 			targetStructureId: targetStructure.id,
 			taskWaypoints: waypoints,
 		});
+	}
+
+	static deserialize(args: Serialization.StrikeFlightGroupSerialized) {
+		return new StrikeFlightGroup(args);
+	}
+
+	public override serialize(): Serialization.StrikeFlightGroupSerialized {
+		return {
+			...super.serialize(),
+			entityType: "StrikeFlightGroup",
+			targetStructureId: this.#targetStructureId,
+		};
 	}
 }
