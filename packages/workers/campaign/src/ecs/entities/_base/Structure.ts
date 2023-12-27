@@ -17,7 +17,6 @@ export interface StructureProps extends MapEntityProps {
 }
 
 export abstract class Structure extends MapEntity<keyof Events.EventMap.Structure> {
-	public readonly name: string;
 	public readonly structureType: DcsJs.StructureType;
 	readonly #buildingIds: Types.Campaign.Id[];
 	#objectiveId: Types.Campaign.Id;
@@ -46,7 +45,6 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 			? args
 			: { ...args, queries: ["mapEntities", "structures", ...(args.queries ?? [])] };
 		super(superArgs);
-		this.name = args.name;
 		this.position = args.position;
 		this.structureType = args.structureType;
 		this.#buildingIds = args.buildingIds;
@@ -91,9 +89,9 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 		return items;
 	}
 
-	override toMapJSON(): Types.Campaign.MapItem {
+	override toMapJSON(): Types.Campaign.StructureMapItem {
 		return {
-			name: this.name,
+			...super.toMapJSON(),
 			position: this.position,
 			type: "structure",
 			coalition: this.coalition,
@@ -104,7 +102,6 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	public override serialize(): Serialization.StructureSerialized {
 		return {
 			...super.serialize(),
-			name: this.name,
 			structureType: this.structureType,
 			objectiveId: this.#objectiveId,
 			buildingIds: this.#buildingIds,

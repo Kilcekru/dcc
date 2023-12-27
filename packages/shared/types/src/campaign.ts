@@ -107,44 +107,36 @@ export type GroundUnitCategory = DcsJs.CampaignGroundGroupType | "shorad";
 
 export type Id = string;
 
-export type StructureMapItem = {
+export interface MapItemBase {
+	id: Id;
 	name: string;
+	coalition: DcsJs.Coalition;
+	position: DcsJs.Position;
+}
+export interface StructureMapItem extends MapItemBase {
 	type: "structure";
-	coalition: DcsJs.Coalition;
-	position: DcsJs.Position;
 	structureType: DcsJs.StructureType;
-};
+}
 
-export type AirdromeMapItem = {
-	name: string;
+export interface AirdromeMapItem extends MapItemBase {
 	type: "airdrome";
-	coalition: DcsJs.Coalition;
-	position: DcsJs.Position;
-};
+}
 
-export type FlightGroupMapItem = {
-	name: string;
+export interface FlightGroupMapItem extends MapItemBase {
 	type: "flightGroup";
-	coalition: DcsJs.Coalition;
-	position: DcsJs.Position;
 	task: DcsJs.Task;
-};
+}
 
-export type GroundGroupMapItem = {
-	name: string;
+export interface GroundGroupMapItem extends MapItemBase {
 	type: "groundGroup";
-	coalition: DcsJs.Coalition;
-	position: DcsJs.Position;
 	groundGroupType: DcsJs.CampaignGroundGroupType;
-};
+}
 
-export type MapEntityMapItem = {
+export interface MapEntityMapItem extends MapItemBase {
 	type: "unknown";
-	coalition: DcsJs.Coalition;
-	position: DcsJs.Position;
-};
+}
 
-export type MapItem = StructureMapItem | AirdromeMapItem | GroundGroupMapItem | MapEntityMapItem | FlightGroupMapItem;
+export type MapItem = MapItemBase;
 
 export type ObjectiveItem = {
 	id: string;

@@ -253,14 +253,19 @@ const entitySchema = z.object({
 });
 export type EntitySerialized = z.TypeOf<typeof entitySchema>;
 
-const groupSchema = entitySchema.extend({
+const mapEntitySchema = entitySchema.extend({
+	name: z.string(),
+	position: Schema.position,
+});
+export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
+
+const groupSchema = mapEntitySchema.extend({
 	position: Schema.position,
 });
 export type GroupSerialized = z.TypeOf<typeof groupSchema>;
 
 const groundGroupSchema = groupSchema.extend({
 	entityType: z.literal("GroundGroup"),
-	name: z.string(),
 	startId: z.string(),
 	targetId: z.string(),
 	type: Schema.campaignGroundGroupType,
@@ -274,7 +279,6 @@ const flightGroupSchema = groupSchema.extend({
 	aircraftIds: z.array(z.string()),
 	task: Schema.task,
 	startTime: z.number(),
-	name: z.string(),
 	homeBaseId: z.string(),
 	combat: z
 		.object({
@@ -337,11 +341,6 @@ const strikeFlightGroupSchema = escortedFlightGroupSchema.extend({
 	targetStructureId: z.string(),
 });
 export type StrikeFlightGroupSerialized = z.TypeOf<typeof strikeFlightGroupSchema>;
-
-const mapEntitySchema = entitySchema.extend({
-	position: Schema.position,
-});
-export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
 
 const unitSchema = entitySchema.extend({
 	alive: z.boolean(),

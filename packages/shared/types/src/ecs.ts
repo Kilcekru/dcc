@@ -300,7 +300,13 @@ const entitySchema = z.object({
 });
 export type EntitySerialized = z.TypeOf<typeof entitySchema>;
 
-const groupSchema = entitySchema.extend({
+const mapEntitySchema = entitySchema.extend({
+	name: z.string(),
+	position: Schema.position,
+});
+export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
+
+const groupSchema = mapEntitySchema.extend({
 	position: Schema.position,
 });
 export type GroupSerialized = z.TypeOf<typeof groupSchema>;
@@ -384,11 +390,6 @@ const strikeFlightGroupSchema = escortedFlightGroupSchema.extend({
 	targetStructureId: z.string(),
 });
 export type StrikeFlightGroupSerialized = z.TypeOf<typeof strikeFlightGroupSchema>;
-
-const mapEntitySchema = entitySchema.extend({
-	position: Schema.position,
-});
-export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
 
 const unitSchema = entitySchema.extend({
 	alive: z.boolean(),

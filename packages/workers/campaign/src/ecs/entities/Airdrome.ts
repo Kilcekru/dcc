@@ -27,12 +27,11 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 		return ad;
 	}
 
-	override toMapJSON(): Types.Campaign.MapItem {
+	override toMapJSON(): Types.Campaign.AirdromeMapItem {
 		return {
 			...super.toMapJSON(),
 			coalition: this.coalition,
 			type: "airdrome",
-			name: this.name,
 		};
 	}
 
@@ -40,7 +39,6 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 		return {
 			...super.toJSON(),
 			frequencyList: this.frequencyList,
-			name: this.name,
 		};
 	}
 

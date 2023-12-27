@@ -18,7 +18,6 @@ export interface GroundGroupProps extends Omit<GroupProps, "entityType" | "queri
 }
 
 export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
-	public readonly name: string;
 	readonly #startId: Types.Campaign.Id;
 	readonly #targetId: Types.Campaign.Id;
 	public readonly type: DcsJs.CampaignGroundGroupType;
@@ -69,11 +68,9 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 
 		if (Serialization.isSerialized(args)) {
 			this.#embarkedOntoFlightGroupId = args.embarkedOntoFlightGroupId;
-			this.name = args.name;
 			this.#startId = args.startId;
 			this.#targetId = args.targetId;
 		} else {
-			this.name = args.target.name + "-" + this.id;
 			this.#startId = args.start.id;
 			this.#targetId = args.target.id;
 		}
@@ -94,6 +91,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 
 		return new GroundGroup({
 			...args,
+			name: args.target.name + "-" + groupType,
 			type: groupType,
 			unitIds: groundUnits.map((u) => u.id),
 			shoradUnitIds: shoradGroundUnits.map((u) => u.id),
@@ -238,11 +236,9 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		super.destructor();
 	}
 
-	toMapJSON(): Types.Campaign.MapItem {
+	override toMapJSON(): Types.Campaign.GroundGroupMapItem {
 		return {
-			coalition: this.coalition,
-			position: this.position,
-			name: this.name,
+			...super.toMapJSON(),
 			type: "groundGroup",
 			groundGroupType: this.type,
 		};

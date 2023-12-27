@@ -12,7 +12,7 @@ import { type Package } from "../Package";
 import { Group, GroupProps } from "./Group";
 import type { HomeBase } from "./HomeBase";
 
-export interface FlightGroupProps extends Omit<GroupProps, "queries"> {
+export interface FlightGroupProps extends Omit<GroupProps, "queries" | "name"> {
 	task: DcsJs.Task;
 	package: Package;
 	aircraftIds: Types.Campaign.Id[];
@@ -33,7 +33,6 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	public readonly task: DcsJs.Task;
 	public readonly flightplan: Flightplan = new Flightplan(this);
 	public readonly startTime: number;
-	public readonly name: string;
 	public readonly homeBaseId: Types.Campaign.Id;
 	public combat: A2ACombat | undefined;
 	#packageId: Types.Campaign.Id;
@@ -89,9 +88,10 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	protected constructor(args: FlightGroupProps | Serialization.FlightGroupSerialized) {
-		const superArgs = Serialization.isSerialized(args)
+		const cs = Serialization.isSerialized(args) ? undefined : generateCallSign(args.coalition, "aircraft");
+		const superArgs: GroupProps | Serialization.GroupSerialized = Serialization.isSerialized(args)
 			? args
-			: { ...args, queries: [`flightGroups-${args.task}` as QueryKey] };
+			: { ...args, queries: [`flightGroups-${args.task}` as QueryKey], name: cs?.flightGroupName ?? "" };
 		super(superArgs);
 
 		this.task = args.task;
@@ -99,13 +99,10 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 
 		if (Serialization.isSerialized(args)) {
 			this.#packageId = args.packageId;
-			this.name = args.name;
 			this.homeBaseId = args.homeBaseId;
 			this.startTime = args.startTime;
 		} else {
-			const cs = generateCallSign(args.coalition, "aircraft");
 			this.#packageId = args.package.id;
-			this.name = cs.flightGroupName;
 			this.homeBaseId = args.homeBase.id;
 			this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
 
@@ -114,8 +111,13 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 				aircraft.addToFlightGroup({
 					id: this.id,
 					task: args.task,
-					callSign: cs.unitCallSign(i),
-					name: cs.unitName(i),
+					callSign: cs?.unitCallSign(i) ?? {
+						"1": 1,
+						"2": 2,
+						"3": 3,
+						name: "",
+					},
+					name: cs?.unitName(i) ?? "",
 				});
 			});
 		}
@@ -264,13 +266,14 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		this.package.removeFlightGroup(this);
 	}
 
-	toMapJSON(): Types.Campaign.MapItem {
+	override toMapJSON(): Types.Campaign.FlightGroupMapItem {
 		return {
-			name: this.name,
+			...super.toMapJSON(),
 			position: this.position,
 			type: "flightGroup",
 			coalition: this.coalition,
 			task: this.task,
+			id: this.id,
 		};
 	}
 
@@ -289,7 +292,6 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	public override serialize(): Serialization.FlightGroupSerialized {
 		return {
 			...super.serialize(),
-			name: this.name,
 			aircraftIds: this.#aircraftIds,
 			homeBaseId: this.homeBaseId,
 			task: this.task,

@@ -17,7 +17,6 @@ export interface HomeBaseProps extends MapEntityProps {
 export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = never> extends MapEntity<
 	EventNames | keyof Events.EventMap.HomeBase
 > {
-	public readonly name: string;
 	public readonly type: HomeBaseType;
 	#aircraftIds: Types.Campaign.Id[] = [];
 
@@ -35,7 +34,6 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 
 	public constructor(args: HomeBaseProps | Serialization.HomeBaseSerialized) {
 		super(args);
-		this.name = args.name;
 		this.type = args.type;
 
 		if (Serialization.isSerialized(args)) {
@@ -77,7 +75,6 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 	override toJSON() {
 		return {
 			...super.toJSON(),
-			name: this.name,
 			type: this.type,
 			aircrafts: Array.from(this.#aircraftIds),
 		};
@@ -86,7 +83,6 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 	public override serialize(): Serialization.HomeBaseSerialized {
 		return {
 			...super.serialize(),
-			name: this.name,
 			type: this.type,
 			aircraftIds: this.#aircraftIds,
 		};

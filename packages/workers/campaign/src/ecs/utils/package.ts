@@ -208,10 +208,7 @@ function getAircraftBundleWithTarget(
 
 			const oppAirdrome = Entities.CapFlightGroup.getValidTarget({
 				coalition: args.coalition,
-				position: bundle.homeBase.position,
 				target: args.target,
-				aircraftIds: Array.from(bundle.aircrafts).map((a) => a.id),
-				homeBase: bundle.homeBase,
 			});
 
 			if (oppAirdrome == null) {

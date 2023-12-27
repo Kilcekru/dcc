@@ -6,7 +6,7 @@ import { WaypointTemplate, WaypointType } from "../../objects";
 import { getEntity, store } from "../../store";
 import { FlightGroup, FlightGroupProps, HomeBase } from "../_base";
 
-interface CapFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task"> {
+interface CapFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "task" | "name"> {
 	targetHomeBaseId: Types.Campaign.Id;
 }
 
@@ -39,9 +39,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 		); */
 	}
 
-	static #getOppAirdrome(
-		args: Omit<CapFlightGroupProps, "taskWaypoints" | "package" | "targetHomeBaseId"> & { target: HomeBase },
-	) {
+	static #getOppAirdrome(args: Pick<CapFlightGroupProps, "coalition"> & { target: HomeBase }) {
 		const oppAirdromes = store.queries.airdromes[Utils.Coalition.opposite(args.coalition)];
 
 		const oppAirdrome = Utils.Location.findNearest(oppAirdromes, args.target.position, (ad) => ad.position);
@@ -49,9 +47,7 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 		return oppAirdrome;
 	}
 
-	static getValidTarget(
-		args: Omit<CapFlightGroupProps, "taskWaypoints" | "package" | "targetHomeBaseId"> & { target: HomeBase },
-	) {
+	static getValidTarget(args: Pick<CapFlightGroupProps, "coalition"> & { target: HomeBase }) {
 		const oppAirdrome = this.#getOppAirdrome(args);
 
 		if (oppAirdrome == null) {
