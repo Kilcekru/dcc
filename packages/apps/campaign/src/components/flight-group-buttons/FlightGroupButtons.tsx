@@ -1,42 +1,36 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
-import { createMemo, Show, useContext } from "solid-js";
+import { createMemo, Show } from "solid-js";
 
-import * as Domain from "../../domain";
-import { CampaignContext } from "../CampaignProvider";
+import { sendWorkerMessage } from "../../worker";
 import { useDataStore } from "../DataProvider";
-import { useFaction } from "../utils";
+import { useGetEntity } from "../utils";
 import Styles from "./FlightGroupButtons.module.less";
 
 export function FlightGroupButtons(props: {
 	coalition: DcsJs.Coalition | undefined;
-	flightGroup: DcsJs.FlightGroup | undefined;
+	flightGroup: Types.Ecs.FlightGroupSerialized;
 	class?: string;
 }) {
-	const [, { setClient }] = useContext(CampaignContext);
-	// eslint-disable-next-line solid/reactivity
-	const faction = useFaction(props.coalition);
 	const dataStore = useDataStore();
+	const getEntity = useGetEntity();
 
 	const aircrafts = createMemo(() => {
 		const list: Array<{ name: string; aircraftType: string; isClient: boolean }> = [];
 
-		if (faction()?.inventory == null) {
-			return [];
-		}
-
-		props.flightGroup?.units.forEach((unit) => {
-			const aircraft = faction()?.inventory.aircrafts[unit.id];
+		props.flightGroup?.aircraftIds.forEach((id) => {
+			const aircraft = getEntity<Types.Ecs.AircraftSerialized>(id);
 
 			if (aircraft == null) {
 				return;
 			}
 
 			list.push({
-				name: unit.name,
+				name: aircraft.name ?? "",
 				aircraftType: aircraft.aircraftType,
-				isClient: unit.client,
+				isClient: aircraft.isClient,
 			});
 		});
 
@@ -44,7 +38,17 @@ export function FlightGroupButtons(props: {
 	});
 
 	const clientCount = createMemo(() => {
-		return Domain.Client.flightGroupClientCount(props.flightGroup);
+		let clientCount = 0;
+
+		for (const id of props.flightGroup?.aircraftIds ?? []) {
+			const aircraft = getEntity<Types.Ecs.AircraftSerialized>(id);
+
+			if (aircraft.isClient) {
+				clientCount++;
+			}
+		}
+
+		return clientCount;
 	});
 
 	const hasPlayableAircrafts = createMemo(() =>
@@ -66,7 +70,13 @@ export function FlightGroupButtons(props: {
 			return;
 		}
 
-		setClient?.(fg.id, clientCount() + value);
+		sendWorkerMessage({
+			name: "setClient",
+			payload: {
+				flightGroupId: fg.id,
+				count: clientCount() + value,
+			},
+		});
 	};
 
 	const disableJoinButton = createMemo(() => aircrafts().length <= clientCount());

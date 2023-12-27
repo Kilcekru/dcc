@@ -24,18 +24,9 @@ type CampaignStore = [
 	{
 		stateUpdate?: (next: Types.Campaign.UIState) => void;
 		timeUpdate?: (next: number) => void;
+		deactivate?: () => void;
+		activate?: () => void;
 		/* --- */
-		activate?: (
-			dataStore: Types.Campaign.DataStore,
-			blueFaction: DcsJs.Faction,
-			redFaction: DcsJs.Faction,
-			aiSkill: DcsJs.AiSkill,
-			hardcore: boolean,
-			training: boolean,
-			nightMissions: boolean,
-			badWeather: boolean,
-			scenario: string,
-		) => void;
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
@@ -61,7 +52,7 @@ type CampaignStore = [
 		resetMissionId?: () => void;
 		clearToastMessages?: (ids: Array<string>) => void;
 		replaceCampaignState?: (next: Partial<DcsJs.CampaignState>) => void;
-		closeCampaign?: () => void;
+
 		toggleHotStart?: () => void;
 	},
 ];
@@ -104,11 +95,8 @@ export const initState: CampaignState = {
 	version: 0,
 	time: 32400,
 	timeMultiplier: 1,
-	flightGroups: {
-		blue: [],
-		red: [],
-		neutrals: [],
-	},
+	flightGroups: [],
+	entities: new Map(),
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -129,21 +117,6 @@ export function CampaignProvider(props: {
 				setState("time", next);
 			},
 			activate() {
-				/* const scenario = scenarioList.find((sc) => sc.name === scenarioName);
-				const newState = createCampaign(
-					structuredClone(initState),
-					dataStore,
-					blueFaction,
-					redFaction,
-					aiSkill,
-					hardcore,
-					training,
-					nightMissions,
-					badWeather,
-					scenarioName,
-				);
-				newState.map = (scenario?.map ?? "caucasus") as DcsJs.MapName;
-				setState(newState); */
 				setState("active", true);
 			},
 			setMultiplier(multiplier: number) {
@@ -384,7 +357,7 @@ export function CampaignProvider(props: {
 					active: true,
 				});
 			},
-			closeCampaign() {
+			deactivate() {
 				setState("active", false);
 			},
 			toggleHotStart() {

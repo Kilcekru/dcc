@@ -10,7 +10,7 @@ const groundGroupSubQueries = ["en route", "on target", "embarked"];
 
 function initializeStore(): Store {
 	return {
-		id: crypto.randomUUID(),
+		id: "",
 		name: "New Campaign",
 		entities: new Map(),
 		queries: {

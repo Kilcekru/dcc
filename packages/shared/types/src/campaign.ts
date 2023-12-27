@@ -1,6 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { z } from "zod";
 
+import { FlightGroupSerialized, StateEntitySerialized } from "./ecs";
+
 export type DataStore = {
 	map: DcsJs.MapName;
 	aircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>> | undefined;
@@ -232,6 +234,16 @@ export type WorkerMessage =
 	| {
 			name: "load";
 			state: WorkerState;
+	  }
+	| {
+			name: "closeCampaign";
+	  }
+	| {
+			name: "setClient";
+			payload: {
+				flightGroupId: Id;
+				count: number;
+			};
 	  };
 
 export type WorkerState = {
@@ -250,7 +262,8 @@ export type UIState = {
 	name: string;
 	time: number;
 	timeMultiplier: number;
-	flightGroups: Record<DcsJs.Coalition, Array<FlightGroupItem>>;
+	flightGroups: Array<FlightGroupSerialized>;
+	entities: Map<Id, StateEntitySerialized>;
 };
 
 export type WorkerEventTick = { name: "tick"; dt: number };

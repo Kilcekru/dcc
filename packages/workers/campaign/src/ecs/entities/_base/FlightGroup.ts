@@ -109,10 +109,15 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			this.homeBaseId = args.homeBase.id;
 			this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
 
-			for (const aircraftId of args.aircraftIds) {
+			args.aircraftIds.forEach((aircraftId, i) => {
 				const aircraft = getEntity<Aircraft>(aircraftId);
-				aircraft.addToFlightGroup(this.id, args.task);
-			}
+				aircraft.addToFlightGroup({
+					id: this.id,
+					task: args.task,
+					callSign: cs.unitCallSign(i),
+					name: cs.unitName(i),
+				});
+			});
 		}
 	}
 
@@ -229,6 +234,12 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 				}
 			}
 		}
+	}
+
+	setClient(count: number) {
+		this.aircrafts.forEach((aircraft, i) => {
+			aircraft.isClient = i < count;
+		});
 	}
 
 	/**

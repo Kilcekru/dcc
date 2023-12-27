@@ -57,5 +57,6 @@ declare global {
 		store: unknown;
 		resetStore: () => void;
 		world: unknown;
+		getEntity: (id: string) => unknown;
 	}
 }

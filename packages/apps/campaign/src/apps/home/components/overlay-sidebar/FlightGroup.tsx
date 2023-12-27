@@ -1,7 +1,7 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { createEffect, createMemo, For, Show, useContext } from "solid-js";
 
-import { CampaignContext, FlightGroupButtons } from "../../../../components";
+import { CampaignContext } from "../../../../components";
 import { useFaction } from "../../../../components/utils";
 import { getActiveWaypoint } from "../../../../utils";
 import { Flag } from "./Flag";
@@ -51,11 +51,11 @@ export function FlightGroup() {
 				<Flag countryName={faction()?.countryName} />
 				<h2 class={Styles.title}>{flightGroup()?.name}</h2>
 				<Components.TaskLabel task={flightGroup()?.task ?? "CAP"} class={Styles.task} />
-				<FlightGroupButtons
+				{/* <FlightGroupButtons
 					coalition={overlayStore.coalition}
 					flightGroup={flightGroup()}
 					class={Styles["flight-group-buttons"]}
-				/>
+	/> TODO */}
 				<Show when={(flightGroup()?.startTime ?? 999999999) < state.timer}>
 					<div class={Styles.stats}>
 						<Components.Stat>

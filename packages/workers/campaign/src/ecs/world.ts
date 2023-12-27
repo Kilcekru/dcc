@@ -2,6 +2,7 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { postEvent } from "../events";
+import { Serialization } from "../utils";
 import * as Entities from "./entities";
 import { store } from "./store";
 import { frameTickSystems, logicTickSystems } from "./systems";
@@ -95,19 +96,13 @@ export class World {
 		});
 	}
 	public stateUpdate() {
-		const flightGroups: Record<DcsJs.Coalition, Array<Types.Campaign.FlightGroupItem>> = {
-			blue: [],
-			red: [],
-			neutrals: [],
-		};
+		const flightGroups: Serialization.FlightGroupSerialized[] = [];
 
 		for (const fg of store.queries.flightGroups.blue) {
-			flightGroups.blue.push(fg.toJSON());
+			flightGroups.push(fg.serialize());
 		}
 
-		for (const fg of store.queries.flightGroups.red) {
-			flightGroups.blue.push(fg.toJSON());
-		}
+		const state = Serialization.serialize();
 
 		postEvent({
 			name: "stateUpdate",
@@ -117,6 +112,7 @@ export class World {
 				id: store.id,
 				name: store.name,
 				flightGroups,
+				entities: new Map(state.entities.map((entity) => [entity.id, entity])),
 			},
 		});
 	}

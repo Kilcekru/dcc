@@ -5,7 +5,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { useDataStore, useSetDataMap } from "../../components/DataProvider";
+import { useSetDataMap } from "../../components/DataProvider";
 import { scenarioList } from "../../data";
 import { sendWorkerMessage } from "../../worker";
 import styles from "./CreateCampaign.module.less";
@@ -21,66 +21,65 @@ export const CreateCampaign = () => {
 	const [redFaction, setRedFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
 	const [, { activate }] = useContext(CampaignContext);
-	const dataStore = useDataStore();
 	const setDataMap = useSetDataMap();
 	const createToast = useCreateErrorToast();
 
-	const onActivate = async (
-		aiSkill: DcsJs.AiSkill,
+	const onActivate = async () =>
+		/* aiSkill: DcsJs.AiSkill,
 		hardcore: boolean,
 		training: boolean,
 		nightMissions: boolean,
-		badWeather: boolean,
-	) => {
-		const blue = blueFaction();
-		const red = redFaction();
-		if (blue == null || red == null) {
-			return;
-		}
-
-		try {
-			const scenarioDefinition = scenarioList.find((s) => s.name === scenario());
-
-			if (scenarioDefinition == null) {
-				throw new Error("Scenario not found");
+		badWeather: boolean, */
+		{
+			const blue = blueFaction();
+			const red = redFaction();
+			if (blue == null || red == null) {
+				return;
 			}
 
-			const data = await rpc.campaign.getDataStore(scenarioDefinition.map as DcsJs.MapName);
+			try {
+				const scenarioDefinition = scenarioList.find((s) => s.name === scenario());
 
-			sendWorkerMessage({
-				name: "setDataStore",
-				payload: data,
-			});
+				if (scenarioDefinition == null) {
+					throw new Error("Scenario not found");
+				}
 
-			sendWorkerMessage({
-				name: "generate",
-				payload: { blueFactionDefinition: blue, redFactionDefinition: red, scenario: scenarioDefinition },
-			});
+				const data = await rpc.campaign.getDataStore(scenarioDefinition.map as DcsJs.MapName);
 
-			sendWorkerMessage({
-				name: "resume",
-				payload: { multiplier: 1 },
-			});
-		} catch (e) {
-			// eslint-disable-next-line no-console
-			console.error(e);
-			createToast({
-				title: "Campaign not created",
-				description: e instanceof Error ? e.message : "Unknown Error",
-			});
-		}
+				sendWorkerMessage({
+					name: "setDataStore",
+					payload: data,
+				});
 
-		try {
-			activate?.(dataStore, blue, red, aiSkill, hardcore, training, nightMissions, badWeather, scenario());
-		} catch (e) {
-			// eslint-disable-next-line no-console
-			console.error(e);
-			createToast({
-				title: "Campaign not created",
-				description: e instanceof Error ? e.message : "Unknown Error",
-			});
-		}
-	};
+				sendWorkerMessage({
+					name: "generate",
+					payload: { blueFactionDefinition: blue, redFactionDefinition: red, scenario: scenarioDefinition },
+				});
+
+				sendWorkerMessage({
+					name: "resume",
+					payload: { multiplier: 1 },
+				});
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error(e);
+				createToast({
+					title: "Campaign not created",
+					description: e instanceof Error ? e.message : "Unknown Error",
+				});
+			}
+
+			try {
+				activate?.();
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error(e);
+				createToast({
+					title: "Campaign not created",
+					description: e instanceof Error ? e.message : "Unknown Error",
+				});
+			}
+		};
 
 	const customFactionPrev = () => {
 		if (blueFaction() == null) {

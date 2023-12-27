@@ -3,15 +3,16 @@ import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
+import { closeCampaign } from "../../../../hooks";
 import Styles from "./GameOverModal.module.less";
 
 export const GameOverModal = () => {
-	const [state, { closeCampaign }] = useContext(CampaignContext);
+	const [state] = useContext(CampaignContext);
 
 	const onConfirm = async () => {
 		const id = state.id;
 		await rpc.campaign.removeCampaign(id);
-		closeCampaign?.();
+		closeCampaign();
 	};
 
 	return (

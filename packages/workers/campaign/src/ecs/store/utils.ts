@@ -24,3 +24,5 @@ export function getObjective(name: string) {
 
 	throw new Error(`getObjective: invalid name ${name}`);
 }
+
+self.getEntity = getEntity;

@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-import { entityTypeSchema, queryKeySchema } from "../../types";
-
-// tmp schemas from dcsjs
 namespace Schema {
 	export const coalition = z.enum(["blue", "red", "neutrals"]);
 	export const position = z.object({ x: z.number(), y: z.number() });
@@ -244,6 +241,56 @@ namespace Schema {
 	export const campaignGroundUnitType = z.union([campaignGroundGroupType, z.literal("shorad")]);
 }
 
+// queryName
+export const queryNameSchema = z.enum([
+	"airdromes",
+	"packages",
+	"flightGroups",
+	"groundGroups",
+	"aircrafts",
+	"groundUnits",
+	"structures",
+	"unitCamps",
+	"SAMs",
+	"mapEntities",
+	"objectives",
+	"buildings",
+]);
+export type QueryName = z.TypeOf<typeof queryNameSchema>;
+
+// queryKey
+export const queryKeySchema = z.custom<QueryName | `${QueryName}-${string}`>((val) => {
+	if (typeof val !== "string") {
+		return false;
+	}
+	const [name] = val.split("-", 2);
+	return queryNameSchema.safeParse(name).success;
+});
+export type QueryKey = z.TypeOf<typeof queryKeySchema>;
+
+// entityType
+export const entityTypeSchema = z.enum([
+	"AirAssaultFlightGroup",
+	"Aircraft",
+	"Airdrome",
+	"CapFlightGroup",
+	"CasFlightGroup",
+	"DeadFlightGroup",
+	"SeadFlightGroup",
+	"EscortFlightGroup",
+	"GenericStructure",
+	"GroundGroup",
+	"GroundUnit",
+	"Objective",
+	"Package",
+	"SAM",
+	"StrikeFlightGroup",
+	"Structure",
+	"UnitCamp",
+	"Building",
+]);
+export type EntityType = z.TypeOf<typeof entityTypeSchema>;
+
 const entitySchema = z.object({
 	serialized: z.literal(true),
 	entityType: entityTypeSchema,
@@ -449,15 +496,3 @@ export const stateEntitySchema = z.discriminatedUnion("entityType", [
 	groundUnitSchema,
 ]);
 export type StateEntitySerialized = z.TypeOf<typeof stateEntitySchema>;
-
-export const stateSchema = z.object({
-	id: z.string(),
-	version: z.number(),
-	active: z.boolean(),
-	time: z.number(),
-	map: z.string(),
-	name: z.string(),
-	factionDefinitions: z.record(Schema.coalition, Schema.faction.optional()),
-	entities: z.array(stateEntitySchema),
-});
-export type StateSerialized = z.TypeOf<typeof stateSchema>;

@@ -5,17 +5,14 @@ import { cnb } from "cnbuilder";
 import { createMemo, createSignal, For, onMount, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { useDataStore, useSetDataMap } from "../../components/DataProvider";
 import { Config } from "../../data";
 import * as Domain from "../../domain";
-import { migrateState } from "../../utils";
+import { loadCampaignIntoStore } from "../../hooks";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
 
 const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: () => void }) => {
-	const [, { replaceCampaignState }] = useContext(CampaignContext);
-	const setDataMap = useSetDataMap();
-	const dataStore = useDataStore();
+	const [, { activate }] = useContext(CampaignContext);
 	const incompatible = createMemo(
 		() => props.synopsis.version == null || props.synopsis.version < Config.campaignVersion,
 	);
@@ -27,15 +24,16 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 
 		rpc.campaign
 			.openCampaign(props.synopsis.id)
-			.then((loadedState) => {
+			.then(async (loadedState) => {
 				console.log("load", loadedState); // eslint-disable-line no-console
 
 				if (loadedState == null) {
 					return;
 				}
 
-				setDataMap(loadedState.map ?? "caucasus");
-				replaceCampaignState?.(migrateState(loadedState, dataStore));
+				await loadCampaignIntoStore(loadedState);
+
+				activate?.();
 			})
 			.catch((e) => {
 				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console

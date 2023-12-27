@@ -11,13 +11,12 @@ import { DataProvider } from "./components/DataProvider";
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
 import { Config } from "./data";
-import { useSave } from "./hooks";
-import { onWorkerEvent, sendWorkerMessage } from "./worker";
+import { closeCampaign, loadCampaignIntoStore } from "./hooks";
+import { onWorkerEvent } from "./worker";
 
 const App = (props: { open: boolean }) => {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
-	const [state, { closeCampaign, stateUpdate, timeUpdate }] = useContext(CampaignContext);
-	const save = useSave();
+	const [state, { deactivate, stateUpdate, timeUpdate }] = useContext(CampaignContext);
 	const [open, setOpen] = createSignal(false);
 	let serializedSubscription: { dispose: () => void } | undefined;
 	let stateUpdateSubscription: { dispose: () => void } | undefined;
@@ -31,14 +30,12 @@ const App = (props: { open: boolean }) => {
 
 	onEvent("menu.campaign.new", () => {
 		setOpen(false);
-		closeCampaign?.();
-		save();
+		closeCampaign();
 	});
 
 	onEvent("menu.campaign.open", () => {
 		setOpen(true);
-		closeCampaign?.();
-		save();
+		closeCampaign();
 	});
 
 	onEvent("menu.campaign.persistance", () => {
@@ -54,6 +51,9 @@ const App = (props: { open: boolean }) => {
 
 	onMount(function onMount() {
 		serializedSubscription = onWorkerEvent("serialized", async (event: Types.Campaign.WorkerEventSerialized) => {
+			if (event.state.active === false) {
+				deactivate?.();
+			}
 			void saveCampaign(event.state);
 		});
 		stateUpdateSubscription = onWorkerEvent("stateUpdate", async (event: Types.Campaign.WorkerEventStateUpdate) => {
@@ -124,35 +124,12 @@ const AppWithContext = () => {
 					return;
 				}
 
-				const dataStore = await rpc.campaign.getDataStore(loadedState.map);
-
-				sendWorkerMessage({
-					name: "setDataStore",
-					payload: dataStore,
-				});
-
-				sendWorkerMessage({
-					name: "load",
-					state: loadedState,
-				});
+				await loadCampaignIntoStore(loadedState);
 
 				setCampaignState({
 					active: true,
 					loaded: true,
 				});
-
-				// setOpen(false);
-
-				/* if (loadedState.map != null) {
-					setDataMap(loadedState.map);
-				}
-
-				setCampaignState({
-					...migrateState(loadedState, dataStore),
-					loaded: true,
-				});
-
-				setOpen(false); */
 			})
 			.catch((e) => {
 				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console

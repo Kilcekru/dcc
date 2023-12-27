@@ -1,33 +1,15 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import * as Types from "@kilcekru/dcc-shared-types";
-import { createMemo, createSignal, For, onCleanup, onMount, Show, useContext } from "solid-js";
+import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
-import { sortDesc, timerToDate } from "../../../../utils";
-import { onWorkerEvent } from "../../../../worker";
+import { timerToDate } from "../../../../utils";
 import { FlightGroupItem } from "./FlightGroupItem";
 import Styles from "./Sidebar.module.less";
 
 export const Sidebar = () => {
 	const [state, { skipToNextDay }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
-
-	let workerSubscription: { dispose: () => void } | undefined;
-	const [flightGroups, setFlightGroups] = createSignal<Array<Types.Campaign.FlightGroupItem>>([]);
-
-	onMount(() => {
-		workerSubscription = onWorkerEvent(
-			"blueFlightGroupsUpdate",
-			(event: Types.Campaign.WorkerEventBlueFlightGroupsUpdate) => {
-				setFlightGroups(Array.from(event.items.values()).sort((a, b) => sortDesc(a, b, (o) => o.startTime)));
-			},
-		);
-	});
-
-	onCleanup(() => {
-		workerSubscription?.dispose();
-	});
 
 	const date = createMemo(() => {
 		const d = timerToDate(state.timer);
@@ -60,7 +42,7 @@ export const Sidebar = () => {
 			<h3 class={Styles.sidebar__title}>Flight Groups</h3>
 			<Components.ScrollContainer>
 				<Components.List class={Styles.sidebar__list}>
-					<For each={flightGroups()}>{(fg) => <FlightGroupItem flightGroup={fg} />}</For>
+					<For each={state.flightGroups}>{(fg) => <FlightGroupItem flightGroup={fg} />}</For>
 				</Components.List>
 			</Components.ScrollContainer>
 		</div>

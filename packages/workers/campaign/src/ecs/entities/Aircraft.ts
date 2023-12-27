@@ -16,6 +16,8 @@ export type AircraftA2AWeapons = Map<string, { item: DcsJs.A2AWeapon; count: num
 export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	readonly #aircraftType: DcsJs.AircraftType;
 	#flightGroupId: Types.Campaign.Id | undefined = undefined;
+	#callSign: Serialization.CallSign | undefined = undefined;
+	#name: string | undefined = undefined;
 	readonly #homeBaseId: Types.Campaign.Id;
 	#isClient = false;
 	#loadout: DcsJs.Loadout | undefined = undefined;
@@ -50,6 +52,10 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return getEntity<HomeBase>(this.#homeBaseId);
 	}
 
+	set isClient(value: boolean) {
+		this.#isClient = value;
+	}
+
 	private constructor(args: AircraftProps | Serialization.AircraftSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
@@ -57,6 +63,13 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		super(superArgs);
 		this.#aircraftType = args.aircraftType;
 		this.#homeBaseId = args.homeBaseId;
+
+		if (Serialization.isSerialized(args)) {
+			this.#callSign = args.callSign;
+			this.#name = args.name;
+			this.#isClient = args.isClient;
+			this.#loadout = args.loadout;
+		}
 	}
 
 	public static create(args: AircraftProps) {
@@ -165,9 +178,11 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return range;
 	}
 
-	addToFlightGroup(id: Types.Campaign.Id, task: DcsJs.Task) {
-		this.#flightGroupId = id;
-		this.#addLoadout(task);
+	addToFlightGroup(args: { id: Types.Campaign.Id; task: DcsJs.Task; callSign: Serialization.CallSign; name: string }) {
+		this.#flightGroupId = args.id;
+		this.#callSign = args.callSign;
+		this.#name = args.name;
+		this.#addLoadout(args.task);
 		this.moveSubQuery("aircrafts", "idle", "in use");
 	}
 
@@ -192,6 +207,8 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 			entityType: "Aircraft",
 			aircraftType: this.#aircraftType,
 			homeBaseId: this.#homeBaseId,
+			callSign: this.#callSign,
+			name: this.#name,
 			isClient: this.#isClient,
 			loadout: this.#loadout,
 		};
