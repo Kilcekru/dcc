@@ -304,6 +304,7 @@ export type EntitySerialized = z.TypeOf<typeof entitySchema>;
 const mapEntitySchema = entitySchema.extend({
 	name: z.string(),
 	position: Schema.position,
+	hidden: z.boolean(),
 });
 export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
 

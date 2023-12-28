@@ -120,7 +120,9 @@ export class World {
 		const items: Map<string, Types.Campaign.MapItem> = new Map();
 
 		for (const entity of store.queries.mapEntities) {
-			items.set(entity.id, entity.toMapJSON());
+			if (!entity.hidden) {
+				items.set(entity.id, entity.toMapJSON());
+			}
 		}
 
 		postEvent({

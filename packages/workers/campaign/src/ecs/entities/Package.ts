@@ -260,7 +260,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 
 	override destructor(): void {
 		for (const id of this.#flightGroupIds) {
-			getEntity(id).destructor();
+			getEntity<FlightGroup>(id).destructor();
 		}
 
 		super.destructor();

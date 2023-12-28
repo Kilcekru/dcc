@@ -14,6 +14,15 @@ export abstract class MapEntity<EventNames extends keyof Events.EventMap.All = n
 > {
 	readonly name: string;
 	public position: DcsJs.Position;
+	#hidden = false;
+
+	protected set hidden(value: boolean) {
+		this.#hidden = value;
+	}
+
+	public get hidden() {
+		return this.#hidden;
+	}
 
 	public constructor(args: MapEntityProps | Types.Serialization.MapEntitySerialized) {
 		const superArgs: EntityProps | Types.Serialization.EntitySerialized = Serialization.isSerialized(args)
@@ -39,6 +48,7 @@ export abstract class MapEntity<EventNames extends keyof Events.EventMap.All = n
 			...super.serialize(),
 			position: this.position,
 			name: this.name,
+			hidden: this.#hidden,
 		};
 	}
 }

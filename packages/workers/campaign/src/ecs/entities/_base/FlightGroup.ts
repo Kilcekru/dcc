@@ -107,6 +107,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			this.startTime = args.startTime;
 			this.#flightplanId = args.flightplanId;
 		} else {
+			this.hidden = true;
 			this.#packageId = args.package.id;
 			this.homeBaseId = args.homeBase.id;
 			this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
@@ -135,7 +136,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	takeOff() {
-		this.addToQuery("mapEntities");
+		this.hidden = false;
 	}
 
 	land() {

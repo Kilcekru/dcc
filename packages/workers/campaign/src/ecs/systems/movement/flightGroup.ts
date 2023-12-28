@@ -19,12 +19,9 @@ export function takeOff(coalition: DcsJs.Coalition) {
 
 export function land(coalition: DcsJs.Coalition) {
 	const flightGroups = store.queries.flightGroups[coalition];
-	const mapEntities = store.queries.mapEntities;
 
-	const flyingFlightGroups = flightGroups.intersection(mapEntities);
-
-	for (const flightGroup of flyingFlightGroups) {
-		if (flightGroup.flightplan.currentWaypoint == null) {
+	for (const flightGroup of flightGroups) {
+		if (flightGroup.flightplan.currentWaypoint == null && flightGroup.hidden === false) {
 			flightGroup.land();
 		}
 	}
