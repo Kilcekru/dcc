@@ -7,7 +7,7 @@ import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
 type EscortFlightGroupProps = Omit<EscortingFlightGroupProps, "entityType" | "task">;
 
 export class EscortFlightGroup extends EscortingFlightGroup {
-	private constructor(args: EscortFlightGroupProps | Serialization.EscortFlightGroupSerialized) {
+	private constructor(args: EscortFlightGroupProps | Types.Serialization.EscortFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, task: "Escort" as const, entityType: "EscortFlightGroup" as const };
@@ -30,11 +30,11 @@ export class EscortFlightGroup extends EscortingFlightGroup {
 		});
 	}
 
-	static deserialize(args: Serialization.EscortFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.EscortFlightGroupSerialized) {
 		return new EscortFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.EscortFlightGroupSerialized {
+	public override serialize(): Types.Serialization.EscortFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "EscortFlightGroup",

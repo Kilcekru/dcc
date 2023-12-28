@@ -15,8 +15,8 @@ export abstract class MapEntity<EventNames extends keyof Events.EventMap.All = n
 	readonly name: string;
 	public position: DcsJs.Position;
 
-	public constructor(args: MapEntityProps | Serialization.MapEntitySerialized) {
-		const superArgs: EntityProps | Serialization.EntitySerialized = Serialization.isSerialized(args)
+	public constructor(args: MapEntityProps | Types.Serialization.MapEntitySerialized) {
+		const superArgs: EntityProps | Types.Serialization.EntitySerialized = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: ["mapEntities", ...(args.queries ?? [])] };
 		super(superArgs);
@@ -34,7 +34,7 @@ export abstract class MapEntity<EventNames extends keyof Events.EventMap.All = n
 		};
 	}
 
-	public override serialize(): Serialization.MapEntitySerialized {
+	public override serialize(): Types.Serialization.MapEntitySerialized {
 		return {
 			...super.serialize(),
 			position: this.position,

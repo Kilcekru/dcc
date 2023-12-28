@@ -1,3 +1,5 @@
+import * as Types from "@kilcekru/dcc-shared-types";
+
 import { Events, Serialization } from "../../../utils";
 import { WaypointTemplate } from "../../objects";
 import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
@@ -6,7 +8,7 @@ import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
 interface SeadFlightGroupProps extends Omit<EscortingFlightGroupProps, "entityType" | "task"> {}
 
 export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.SeadFlightGroup> {
-	private constructor(args: SeadFlightGroupProps | Serialization.SeadFlightGroupSerialized) {
+	private constructor(args: SeadFlightGroupProps | Types.Serialization.SeadFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, task: "SEAD" as const, entityType: "SeadFlightGroup" as const };
@@ -25,11 +27,11 @@ export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.
 		});
 	}
 
-	static deserialize(args: Serialization.SeadFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.SeadFlightGroupSerialized) {
 		return new SeadFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.SeadFlightGroupSerialized {
+	public override serialize(): Types.Serialization.SeadFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "SeadFlightGroup",

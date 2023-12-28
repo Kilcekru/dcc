@@ -6,6 +6,7 @@ export * from "./Aircraft";
 export * from "./Airdrome";
 export * from "./Building";
 export * from "./flight-group";
+export * from "./Flightplan";
 export * from "./GenericStructure";
 export * from "./GroundGroup";
 export * from "./GroundUnit";

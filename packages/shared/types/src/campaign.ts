@@ -1,7 +1,7 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import { z } from "zod";
 
-import { FlightGroupSerialized, StateEntitySerialized } from "./ecs";
+import { FlightGroupSerialized, StateEntitySerialized } from "./serialization";
 
 export type DataStore = {
 	map: DcsJs.MapName;
@@ -262,7 +262,6 @@ export type WorkerEventTick = { name: "tick"; dt: number };
 export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Map<string, MapItem>; map: DcsJs.MapName };
 export type WorkerEventTimeUpdate = { name: "timeUpdate"; time: number };
 export type WorkerEventStateUpdate = { name: "stateUpdate"; state: UIState };
-export type WorkerEventBlueFlightGroupsUpdate = { name: "blueFlightGroupsUpdate"; items: Set<FlightGroupItem> };
 export type WorkerEventSerialized = { name: "serialized"; state: WorkerState };
 
 export type WorkerEvent =
@@ -270,5 +269,4 @@ export type WorkerEvent =
 	| WorkerEventMapUpdate
 	| WorkerEventTimeUpdate
 	| WorkerEventStateUpdate
-	| WorkerEventBlueFlightGroupsUpdate
 	| WorkerEventSerialized;

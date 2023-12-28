@@ -96,7 +96,7 @@ export class World {
 		});
 	}
 	public stateUpdate() {
-		const flightGroups: Serialization.FlightGroupSerialized[] = [];
+		const flightGroups: Types.Serialization.FlightGroupSerialized[] = [];
 
 		for (const fg of store.queries.flightGroups.blue) {
 			flightGroups.push(fg.serialize());
@@ -127,18 +127,6 @@ export class World {
 			name: "mapUpdate",
 			items,
 			map: store.map,
-		});
-	}
-	public flightGroupsUpdate() {
-		const items: Set<Types.Campaign.FlightGroupItem> = new Set();
-
-		for (const fg of store.queries.flightGroups.blue) {
-			items.add(fg.toJSON());
-		}
-
-		postEvent({
-			name: "blueFlightGroupsUpdate",
-			items,
 		});
 	}
 

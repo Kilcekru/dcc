@@ -2,7 +2,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects";
+import { GenericWaypointTemplate, WaypointTemplate } from "../../objects";
 import { getEntity, store } from "../../store";
 import { groundGroupAlreadyTargeted } from "../../utils";
 import { EscortedFlightGroup, EscortedFlightGroupProps } from "../_base";
@@ -19,7 +19,7 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 		return getEntity<GroundGroup>(this.#targetGroundGroupId);
 	}
 
-	private constructor(args: CasFlightGroupProps | Serialization.CasFlightGroupSerialized) {
+	private constructor(args: CasFlightGroupProps | Types.Serialization.CasFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, task: "CAS" as const, entityType: "CasFlightGroup" as const };
@@ -99,10 +99,10 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 		}
 
 		waypoints.push(
-			WaypointTemplate.waypoint({
+			GenericWaypointTemplate.create({
 				position: targetGroundGroup.position,
 				duration,
-				type: WaypointType.Task,
+				type: "Task",
 				name: "CAS",
 				onGround: true,
 			}),
@@ -115,11 +115,11 @@ export class CasFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.Ca
 		});
 	}
 
-	static deserialize(args: Serialization.CasFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.CasFlightGroupSerialized) {
 		return new CasFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.CasFlightGroupSerialized {
+	public override serialize(): Types.Serialization.CasFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "CasFlightGroup",

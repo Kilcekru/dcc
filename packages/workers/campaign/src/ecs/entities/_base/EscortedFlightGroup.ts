@@ -12,7 +12,7 @@ export abstract class EscortedFlightGroup<EventNames extends keyof Events.EventM
 > {
 	#escortFlightGroupId: Map<DcsJs.Task, Types.Campaign.Id> | undefined = undefined;
 
-	constructor(args: EscortedFlightGroupProps | Serialization.EscortedFlightGroupSerialized) {
+	constructor(args: EscortedFlightGroupProps | Types.Serialization.EscortedFlightGroupSerialized) {
 		super(args);
 
 		if (Serialization.isSerialized(args)) {
@@ -31,7 +31,7 @@ export abstract class EscortedFlightGroup<EventNames extends keyof Events.EventM
 		this.#escortFlightGroupId.set(task, escortFlightGroupId);
 	}
 
-	public override serialize(): Serialization.EscortedFlightGroupSerialized {
+	public override serialize(): Types.Serialization.EscortedFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			escortFlightGroupId:

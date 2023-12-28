@@ -1,4 +1,6 @@
-import { Events, Serialization } from "../../../utils";
+import * as Types from "@kilcekru/dcc-shared-types";
+
+import { Events } from "../../../utils";
 import { Entity, EntityProps } from "./Entity";
 
 export type UnitProps = EntityProps;
@@ -19,7 +21,7 @@ export abstract class Unit<EventNames extends keyof Events.EventMap.All = never>
 		this.#alive = false;
 	}
 
-	public override serialize(): Serialization.UnitSerialized {
+	public override serialize(): Types.Serialization.UnitSerialized {
 		return {
 			...super.serialize(),
 			alive: this.#alive,

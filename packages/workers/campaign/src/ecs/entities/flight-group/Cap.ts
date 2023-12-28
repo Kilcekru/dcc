@@ -2,7 +2,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects";
+import { RaceTrackWaypointTemplate, WaypointTemplate } from "../../objects";
 import { getEntity, store } from "../../store";
 import { FlightGroup, FlightGroupProps, HomeBase } from "../_base";
 
@@ -17,26 +17,13 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 		return getEntity<HomeBase>(this.#targetHomeBaseId);
 	}
 
-	private constructor(args: CapFlightGroupProps | Serialization.CapFlightGroupSerialized) {
+	private constructor(args: CapFlightGroupProps | Types.Serialization.CapFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
-			: { ...args, task: "CAP" as const, entityType: "CapFlightGroup" as const };
+			: ({ ...args, task: "CAP" as const, entityType: "CapFlightGroup" as const } as FlightGroupProps);
 
 		super(superArgs);
 		this.#targetHomeBaseId = args.targetHomeBaseId;
-		/* const prevWaypoint = Utils.Array.lastItem(args.taskWaypoints);
-
-		if (prevWaypoint == null) {
-			throw new Error("prevWaypoint is null");
-		}
-		this.flightplan.add(WaypointTemplate.takeOffWaypoint(args.homeBase));
-		this.flightplan.add(...args.taskWaypoints);
-		this.flightplan.add(
-			...WaypointTemplate.landingWaypoints({
-				prevWaypoint,
-				homeBase: args.homeBase,
-			}),
-		); */
 	}
 
 	static #getOppAirdrome(args: Pick<CapFlightGroupProps, "coalition"> & { target: HomeBase }) {
@@ -82,10 +69,9 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 		const duration = Utils.DateTime.Minutes(30);
 
 		const waypoints: Array<WaypointTemplate> = [
-			WaypointTemplate.raceTrackWaypoint({
+			RaceTrackWaypointTemplate.create({
 				positions: { from: racetrackStart, to: racetrackEnd },
 				duration,
-				type: WaypointType.Task,
 			}),
 		];
 
@@ -96,11 +82,11 @@ export class CapFlightGroup extends FlightGroup<keyof Events.EventMap.CapFlightG
 		});
 	}
 
-	static deserialize(args: Serialization.CapFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.CapFlightGroupSerialized) {
 		return new CapFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.CapFlightGroupSerialized {
+	public override serialize(): Types.Serialization.CapFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "CapFlightGroup",

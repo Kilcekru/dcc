@@ -49,7 +49,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		return getEntity<FlightGroup>(this.#embarkedOntoFlightGroupId);
 	}
 
-	private constructor(args: GroundGroupProps | Serialization.GroundGroupSerialized) {
+	private constructor(args: GroundGroupProps | Types.Serialization.GroundGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: {
@@ -256,11 +256,11 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		};
 	}
 
-	static deserialize(args: Serialization.GroundGroupSerialized) {
+	static deserialize(args: Types.Serialization.GroundGroupSerialized) {
 		return new GroundGroup(args);
 	}
 
-	override serialize(): Serialization.GroundGroupSerialized {
+	override serialize(): Types.Serialization.GroundGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "GroundGroup",

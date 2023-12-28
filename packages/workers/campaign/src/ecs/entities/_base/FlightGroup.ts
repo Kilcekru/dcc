@@ -3,11 +3,11 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
-import { Flightplan } from "../../objects";
-import { WaypointTemplate } from "../../objects/Waypoint";
+import { WaypointTemplate } from "../../objects/waypoint";
 import { getEntity, QueryKey, store } from "../../store";
 import { generateCallSign } from "../../utils";
 import type { Aircraft } from "../Aircraft";
+import { Flightplan } from "../Flightplan";
 import { type Package } from "../Package";
 import { Group, GroupProps } from "./Group";
 import type { HomeBase } from "./HomeBase";
@@ -31,7 +31,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 > {
 	readonly #aircraftIds: Types.Campaign.Id[];
 	public readonly task: DcsJs.Task;
-	public readonly flightplan: Flightplan = new Flightplan(this);
+	readonly #flightplanId: Types.Campaign.Id;
 	public readonly startTime: number;
 	public readonly homeBaseId: Types.Campaign.Id;
 	public combat: A2ACombat | undefined;
@@ -55,6 +55,10 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 
 	get package() {
 		return getEntity<Package>(this.#packageId);
+	}
+
+	get flightplan() {
+		return getEntity<Flightplan>(this.#flightplanId);
 	}
 
 	get isInCombat(): boolean {
@@ -87,9 +91,9 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		return getEntity<HomeBase>(this.homeBaseId);
 	}
 
-	protected constructor(args: FlightGroupProps | Serialization.FlightGroupSerialized) {
+	protected constructor(args: FlightGroupProps | Types.Serialization.FlightGroupSerialized) {
 		const cs = Serialization.isSerialized(args) ? undefined : generateCallSign(args.coalition, "aircraft");
-		const superArgs: GroupProps | Serialization.GroupSerialized = Serialization.isSerialized(args)
+		const superArgs: GroupProps | Types.Serialization.GroupSerialized = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: [`flightGroups-${args.task}` as QueryKey], name: cs?.flightGroupName ?? "" };
 		super(superArgs);
@@ -101,6 +105,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			this.#packageId = args.packageId;
 			this.homeBaseId = args.homeBaseId;
 			this.startTime = args.startTime;
+			this.#flightplanId = args.flightplanId;
 		} else {
 			this.#packageId = args.package.id;
 			this.homeBaseId = args.homeBase.id;
@@ -120,6 +125,12 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 					name: cs?.unitName(i) ?? "",
 				});
 			});
+
+			this.#flightplanId = Flightplan.create({
+				...args,
+				flightGroup: this,
+				taskWaypoints: args.taskWaypoints,
+			}).id;
 		}
 	}
 
@@ -277,19 +288,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		};
 	}
 
-	override toJSON(): Types.Campaign.FlightGroupItem {
-		return {
-			startTime: this.startTime,
-			name: this.name,
-			task: this.task,
-			coalition: this.coalition,
-			id: this.id,
-			aircrafts: this.aircrafts.map((aircraft) => aircraft.toJSON()),
-			flightplan: this.flightplan.toJSON(),
-		};
-	}
-
-	public override serialize(): Serialization.FlightGroupSerialized {
+	public override serialize(): Types.Serialization.FlightGroupSerialized {
 		return {
 			...super.serialize(),
 			aircraftIds: this.#aircraftIds,
@@ -298,6 +297,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			startTime: this.startTime,
 			packageId: this.#packageId,
 			combat: this.combat,
+			flightplanId: this.#flightplanId,
 		};
 	}
 }

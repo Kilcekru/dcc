@@ -2,7 +2,6 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../../entities";
-import { WaypointType } from "../../objects";
 import { store } from "../../store";
 
 export function takeOff(coalition: DcsJs.Coalition) {
@@ -12,10 +11,7 @@ export function takeOff(coalition: DcsJs.Coalition) {
 	const waitingFlightGroups = flightGroups.difference(mapEntities);
 
 	for (const flightGroup of waitingFlightGroups) {
-		if (
-			flightGroup.flightplan.currentWaypoint != null &&
-			flightGroup.flightplan.currentWaypoint.type !== WaypointType.TakeOff
-		) {
+		if (flightGroup.flightplan.currentWaypoint != null && flightGroup.flightplan.currentWaypoint.type !== "TakeOff") {
 			flightGroup.takeOff();
 		}
 	}

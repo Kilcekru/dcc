@@ -12,7 +12,7 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly name: string;
 	public readonly category: Types.Campaign.GroundUnitCategory;
 
-	private constructor(args: GroundUnitProps | Serialization.GroundUnitSerialized) {
+	private constructor(args: GroundUnitProps | Types.Serialization.GroundUnitSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, entityType: "GroundUnit" as const, queries: ["groundUnits"] as QueryKey[] };
@@ -34,11 +34,11 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 		};
 	}
 
-	static deserialize(args: Serialization.GroundUnitSerialized) {
+	static deserialize(args: Types.Serialization.GroundUnitSerialized) {
 		return new GroundUnit(args);
 	}
 
-	public override serialize(): Serialization.GroundUnitSerialized {
+	public override serialize(): Types.Serialization.GroundUnitSerialized {
 		return {
 			...super.serialize(),
 			entityType: "GroundUnit",

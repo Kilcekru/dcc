@@ -3,7 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects";
+import { GenericWaypointTemplate, WaypointTemplate } from "../../objects";
 import { getEntity, store } from "../../store";
 import { EscortedFlightGroup, EscortedFlightGroupProps, Structure } from "../_base";
 
@@ -18,7 +18,7 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 		return getEntity<Structure>(this.#targetStructureId);
 	}
 
-	private constructor(args: StrikeFlightGroupProps | Serialization.StrikeFlightGroupSerialized) {
+	private constructor(args: StrikeFlightGroupProps | Types.Serialization.StrikeFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, task: "Pinpoint Strike" as const, entityType: "StrikeFlightGroup" as const };
@@ -110,10 +110,10 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 		const duration = Utils.DateTime.Minutes(30);
 
 		const waypoints: Array<WaypointTemplate> = [
-			WaypointTemplate.waypoint({
+			GenericWaypointTemplate.create({
 				position: targetStructure.position,
 				duration,
-				type: WaypointType.Task,
+				type: "Task",
 				name: "Strike",
 			}),
 		];
@@ -125,11 +125,11 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 		});
 	}
 
-	static deserialize(args: Serialization.StrikeFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.StrikeFlightGroupSerialized) {
 		return new StrikeFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.StrikeFlightGroupSerialized {
+	public override serialize(): Types.Serialization.StrikeFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "StrikeFlightGroup",

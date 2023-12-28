@@ -2,12 +2,11 @@ import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events, Serialization } from "../../../utils";
-import { EntityType } from "../../../utils/types";
 import { QueryKey, QueryName, splitQueryKey, store } from "../../store";
 import { SuperSet } from "../../SuperSet";
 
 export interface EntityProps {
-	entityType: EntityType;
+	entityType: Types.Serialization.EntityType;
 	coalition: DcsJs.Coalition;
 	queries?: QueryKey[];
 }
@@ -16,7 +15,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 	EventNames | keyof Events.EventMap.Entity
 > {
 	#queries: Set<QueryKey> = new Set();
-	public readonly entityType: EntityType;
+	public readonly entityType: Types.Serialization.EntityType;
 	public readonly id: Types.Campaign.Id;
 	public readonly coalition: DcsJs.Coalition;
 
@@ -24,7 +23,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 		return this.#queries;
 	}
 
-	constructor(args: EntityProps | Serialization.EntitySerialized) {
+	constructor(args: EntityProps | Types.Serialization.EntitySerialized) {
 		super();
 		this.entityType = args.entityType;
 		this.coalition = args.coalition;
@@ -87,7 +86,7 @@ export abstract class Entity<EventNames extends keyof Events.EventMap.All = neve
 		};
 	}
 
-	public serialize(): Serialization.EntitySerialized {
+	public serialize(): Types.Serialization.EntitySerialized {
 		return {
 			serialized: true,
 			entityType: this.entityType,

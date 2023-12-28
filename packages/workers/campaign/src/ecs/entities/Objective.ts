@@ -39,7 +39,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		this.#incomingGroundGroupId = groundGroup.id;
 	}
 
-	private constructor(args: ObjectiveProps | Serialization.ObjectiveSerialized) {
+	private constructor(args: ObjectiveProps | Types.Serialization.ObjectiveSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: ["objectives"] as QueryKey[], entityType: "Objective" as const };
@@ -87,11 +87,11 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 		groundGroup.moveOntoTarget();
 	}
 
-	static deserialize(args: Serialization.ObjectiveSerialized) {
+	static deserialize(args: Types.Serialization.ObjectiveSerialized) {
 		return new Objective(args);
 	}
 
-	public override serialize(): Serialization.ObjectiveSerialized {
+	public override serialize(): Types.Serialization.ObjectiveSerialized {
 		return {
 			...super.serialize(),
 			entityType: "Objective",

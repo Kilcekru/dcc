@@ -20,6 +20,8 @@ export interface EscortingFlightGroup {}
 
 export interface FlightGroup {}
 
+export interface Flightplan {}
+
 export interface GroundGroup {}
 
 export interface GroundUnit {}

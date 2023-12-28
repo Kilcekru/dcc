@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-import { entityTypeSchema, queryKeySchema } from "../../types";
-
-// tmp schemas from dcsjs
 namespace Schema {
 	export const coalition = z.enum(["blue", "red", "neutrals"]);
 	export const position = z.object({ x: z.number(), y: z.number() });
@@ -244,6 +241,57 @@ namespace Schema {
 	export const campaignGroundUnitType = z.union([campaignGroundGroupType, z.literal("shorad")]);
 }
 
+// queryName
+export const queryNameSchema = z.enum([
+	"airdromes",
+	"packages",
+	"flightGroups",
+	"groundGroups",
+	"aircrafts",
+	"groundUnits",
+	"structures",
+	"unitCamps",
+	"SAMs",
+	"mapEntities",
+	"objectives",
+	"buildings",
+]);
+export type QueryName = z.TypeOf<typeof queryNameSchema>;
+
+// queryKey
+export const queryKeySchema = z.custom<QueryName | `${QueryName}-${string}`>((val) => {
+	if (typeof val !== "string") {
+		return false;
+	}
+	const [name] = val.split("-", 2);
+	return queryNameSchema.safeParse(name).success;
+});
+export type QueryKey = z.TypeOf<typeof queryKeySchema>;
+
+// entityType
+export const entityTypeSchema = z.enum([
+	"AirAssaultFlightGroup",
+	"Aircraft",
+	"Airdrome",
+	"CapFlightGroup",
+	"CasFlightGroup",
+	"DeadFlightGroup",
+	"SeadFlightGroup",
+	"EscortFlightGroup",
+	"GenericStructure",
+	"GroundGroup",
+	"GroundUnit",
+	"Objective",
+	"Package",
+	"SAM",
+	"StrikeFlightGroup",
+	"Structure",
+	"UnitCamp",
+	"Building",
+	"Flightplan",
+]);
+export type EntityType = z.TypeOf<typeof entityTypeSchema>;
+
 const entitySchema = z.object({
 	serialized: z.literal(true),
 	entityType: entityTypeSchema,
@@ -266,6 +314,7 @@ export type GroupSerialized = z.TypeOf<typeof groupSchema>;
 
 const groundGroupSchema = groupSchema.extend({
 	entityType: z.literal("GroundGroup"),
+	name: z.string(),
 	startId: z.string(),
 	targetId: z.string(),
 	type: Schema.campaignGroundGroupType,
@@ -275,10 +324,42 @@ const groundGroupSchema = groupSchema.extend({
 });
 export type GroundGroupSerialized = z.TypeOf<typeof groundGroupSchema>;
 
+const waypointTypeSchema = z.enum(["TakeOff", "Landing", "Task", "Nav", "Hold"]);
+export type WaypointType = z.TypeOf<typeof waypointTypeSchema>;
+
+const waypointTemplateSchema = z.object({
+	name: z.string(),
+	position: Schema.position,
+	onGround: z.boolean(),
+	duration: z.number().optional(),
+	type: waypointTypeSchema,
+	raceTrack: z
+		.object({
+			name: z.string(),
+			position: Schema.position,
+		})
+		.optional(),
+});
+export type WaypointTemplateSerialized = z.TypeOf<typeof waypointTemplateSchema>;
+
+const waypointSchema = waypointTemplateSchema.extend({
+	flightplanId: z.string(),
+	arrivalDuration: z.number(),
+});
+export type WaypointSerialized = z.TypeOf<typeof waypointSchema>;
+
+const flightplanSchema = entitySchema.extend({
+	entityType: z.literal("Flightplan"),
+	flightGroupId: z.string(),
+	waypoints: z.array(waypointSchema),
+});
+export type FlightplanSerialized = z.TypeOf<typeof flightplanSchema>;
+
 const flightGroupSchema = groupSchema.extend({
 	aircraftIds: z.array(z.string()),
 	task: Schema.task,
 	startTime: z.number(),
+	name: z.string(),
 	homeBaseId: z.string(),
 	combat: z
 		.object({
@@ -288,6 +369,7 @@ const flightGroupSchema = groupSchema.extend({
 		})
 		.optional(),
 	packageId: z.string(),
+	flightplanId: z.string(),
 });
 export type FlightGroupSerialized = z.TypeOf<typeof flightGroupSchema>;
 
@@ -446,6 +528,7 @@ export const stateEntitySchema = z.discriminatedUnion("entityType", [
 	airdromeSchema,
 	groundGroupSchema,
 	groundUnitSchema,
+	flightplanSchema,
 ]);
 export type StateEntitySerialized = z.TypeOf<typeof stateEntitySchema>;
 

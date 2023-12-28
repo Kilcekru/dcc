@@ -3,7 +3,7 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Serialization } from "../../../utils";
-import { WaypointTemplate, WaypointType } from "../../objects";
+import { GenericWaypointTemplate, WaypointTemplate } from "../../objects";
 import { getEntity, store } from "../../store";
 import { groundGroupAlreadyTargeted } from "../../utils";
 import { FlightGroup, FlightGroupProps } from "../_base";
@@ -18,7 +18,7 @@ export class AirAssaultFlightGroup extends FlightGroup {
 	readonly #targetGroundGroupId: Types.Campaign.Id;
 	#embarkedGroundGroupId: Types.Campaign.Id | undefined;
 
-	private constructor(args: AirAssaultFlightGroupProps | Serialization.AirAssaultFlightGroupSerialized) {
+	private constructor(args: AirAssaultFlightGroupProps | Types.Serialization.AirAssaultFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, task: "Air Assault" as DcsJs.Task, entityType: "AirAssaultFlightGroup" as const };
@@ -140,10 +140,10 @@ export class AirAssaultFlightGroup extends FlightGroup {
 		const waypoints: Array<WaypointTemplate> = [];
 
 		waypoints.push(
-			WaypointTemplate.waypoint({
+			GenericWaypointTemplate.create({
 				position: targetGroundGroup.position,
 				duration,
-				type: WaypointType.Task,
+				type: "Task",
 				name: "Drop Off",
 				onGround: true,
 			}),
@@ -157,11 +157,11 @@ export class AirAssaultFlightGroup extends FlightGroup {
 		});
 	}
 
-	static deserialize(args: Serialization.AirAssaultFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.AirAssaultFlightGroupSerialized) {
 		return new AirAssaultFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.AirAssaultFlightGroupSerialized {
+	public override serialize(): Types.Serialization.AirAssaultFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "AirAssaultFlightGroup",

@@ -40,8 +40,8 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 		return false;
 	}
 
-	protected constructor(args: StructureProps | Serialization.StructureSerialized) {
-		const superArgs: MapEntityProps | Serialization.MapEntitySerialized = Serialization.isSerialized(args)
+	protected constructor(args: StructureProps | Types.Serialization.StructureSerialized) {
+		const superArgs: MapEntityProps | Types.Serialization.MapEntitySerialized = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: ["mapEntities", "structures", ...(args.queries ?? [])] };
 		super(superArgs);
@@ -99,7 +99,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 		};
 	}
 
-	public override serialize(): Serialization.StructureSerialized {
+	public override serialize(): Types.Serialization.StructureSerialized {
 		return {
 			...super.serialize(),
 			structureType: this.structureType,

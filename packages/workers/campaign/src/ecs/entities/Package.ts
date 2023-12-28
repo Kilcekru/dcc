@@ -45,7 +45,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		return this.#cruiseSpeed;
 	}
 
-	private constructor(args: PackageProps | Serialization.PackageSerialized) {
+	private constructor(args: PackageProps | Types.Serialization.PackageSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, entityType: "Package" as const, queries: [`packages-${args.task}` as const] as QueryKey[] };
@@ -274,11 +274,11 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		};
 	}
 
-	static deserialize(args: Serialization.PackageSerialized) {
+	static deserialize(args: Types.Serialization.PackageSerialized) {
 		return new Package(args);
 	}
 
-	public override serialize(): Serialization.PackageSerialized {
+	public override serialize(): Types.Serialization.PackageSerialized {
 		return {
 			...super.serialize(),
 			entityType: "Package",

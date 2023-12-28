@@ -1,2 +1,1 @@
-export * from "./Flightplan";
-export * from "./Waypoint";
+export * from "./waypoint";

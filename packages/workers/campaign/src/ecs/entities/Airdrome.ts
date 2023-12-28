@@ -11,7 +11,7 @@ export interface AirdromeProps extends Omit<HomeBaseProps, "entityType" | "type"
 export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 	public readonly frequencyList: number[];
 
-	private constructor(args: AirdromeProps | Serialization.AirdromeSerialized) {
+	private constructor(args: AirdromeProps | Types.Serialization.AirdromeSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, type: "airdrome" as const, entityType: "Airdrome" as const, queries: ["airdromes"] as QueryKey[] };
@@ -42,11 +42,11 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 		};
 	}
 
-	static deserialize(args: Serialization.AirdromeSerialized) {
+	static deserialize(args: Types.Serialization.AirdromeSerialized) {
 		return new Airdrome(args);
 	}
 
-	public override serialize(): Serialization.AirdromeSerialized {
+	public override serialize(): Types.Serialization.AirdromeSerialized {
 		return {
 			...super.serialize(),
 			entityType: "Airdrome",

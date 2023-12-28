@@ -3,7 +3,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../entities";
-import { WaypointTemplate } from "../objects";
+import { HoldWaypointTemplate } from "../objects";
 import { getEntity, store } from "../store";
 import { getUsableAircraftsByTask } from "./aircraft";
 import { nearestOppAirdrome } from "./location";
@@ -482,7 +482,7 @@ export function calcHoldWaypoint(aircraftBundles: Map<DcsJs.Task, AircraftBundle
 		throw new Error("Hold position is null");
 	}
 
-	return WaypointTemplate.holdWaypoint({
+	return HoldWaypointTemplate.create({
 		position: holdPosition,
 	});
 }

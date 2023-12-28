@@ -32,7 +32,7 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 		return retVal;
 	}
 
-	public constructor(args: HomeBaseProps | Serialization.HomeBaseSerialized) {
+	public constructor(args: HomeBaseProps | Types.Serialization.HomeBaseSerialized) {
 		super(args);
 		this.type = args.type;
 
@@ -80,7 +80,7 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 		};
 	}
 
-	public override serialize(): Serialization.HomeBaseSerialized {
+	public override serialize(): Types.Serialization.HomeBaseSerialized {
 		return {
 			...super.serialize(),
 			type: this.type,

@@ -1,10 +1,11 @@
+import * as Types from "@kilcekru/dcc-shared-types";
+
 import { Serialization } from "../../utils";
 import { Structure, StructureProps } from "./_base/Structure";
-
 export type GenericStructureProps = Omit<StructureProps, "entityType">;
 
 export class GenericStructure extends Structure {
-	private constructor(args: GenericStructureProps | Serialization.GenericStructureSerialized) {
+	private constructor(args: GenericStructureProps | Types.Serialization.GenericStructureSerialized) {
 		const superArgs = Serialization.isSerialized(args) ? args : { ...args, entityType: "GenericStructure" as const };
 		super(superArgs);
 	}
@@ -18,11 +19,11 @@ export class GenericStructure extends Structure {
 		});
 	}
 
-	static deserialize(args: Serialization.GenericStructureSerialized) {
+	static deserialize(args: Types.Serialization.GenericStructureSerialized) {
 		return new GenericStructure(args);
 	}
 
-	public override serialize(): Serialization.GenericStructureSerialized {
+	public override serialize(): Types.Serialization.GenericStructureSerialized {
 		return {
 			...super.serialize(),
 			entityType: "GenericStructure",

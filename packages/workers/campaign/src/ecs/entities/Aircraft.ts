@@ -16,7 +16,7 @@ export type AircraftA2AWeapons = Map<string, { item: DcsJs.A2AWeapon; count: num
 export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	readonly #aircraftType: DcsJs.AircraftType;
 	#flightGroupId: Types.Campaign.Id | undefined = undefined;
-	#callSign: Serialization.CallSign | undefined = undefined;
+	#callSign: Types.Serialization.CallSign | undefined = undefined;
 	#name: string | undefined = undefined;
 	readonly #homeBaseId: Types.Campaign.Id;
 	#isClient = false;
@@ -56,7 +56,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		this.#isClient = value;
 	}
 
-	private constructor(args: AircraftProps | Serialization.AircraftSerialized) {
+	private constructor(args: AircraftProps | Types.Serialization.AircraftSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, entityType: "Aircraft" as const, queries: ["aircrafts-idle"] as QueryKey[] };
@@ -178,7 +178,12 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return range;
 	}
 
-	addToFlightGroup(args: { id: Types.Campaign.Id; task: DcsJs.Task; callSign: Serialization.CallSign; name: string }) {
+	addToFlightGroup(args: {
+		id: Types.Campaign.Id;
+		task: DcsJs.Task;
+		callSign: Types.Serialization.CallSign;
+		name: string;
+	}) {
 		this.#flightGroupId = args.id;
 		this.#callSign = args.callSign;
 		this.#name = args.name;
@@ -197,11 +202,11 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		};
 	}
 
-	static deserialize(args: Serialization.AircraftSerialized) {
+	static deserialize(args: Types.Serialization.AircraftSerialized) {
 		return new Aircraft(args);
 	}
 
-	public override serialize(): Serialization.AircraftSerialized {
+	public override serialize(): Types.Serialization.AircraftSerialized {
 		return {
 			...super.serialize(),
 			entityType: "Aircraft",

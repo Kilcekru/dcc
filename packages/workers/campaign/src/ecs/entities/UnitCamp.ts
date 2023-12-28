@@ -1,4 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Serialization } from "../../utils";
@@ -76,7 +77,7 @@ export class UnitCamp extends Structure {
 		return false;
 	}
 
-	constructor(args: UnitCampProps | Serialization.UnitCampSerialized) {
+	constructor(args: UnitCampProps | Types.Serialization.UnitCampSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: ["unitCamps"] as QueryKey[], entityType: "UnitCamp" as const };
@@ -99,11 +100,11 @@ export class UnitCamp extends Structure {
 		});
 	}
 
-	static deserialize(args: Serialization.UnitCampSerialized) {
+	static deserialize(args: Types.Serialization.UnitCampSerialized) {
 		return new UnitCamp(args);
 	}
 
-	public override serialize(): Serialization.UnitCampSerialized {
+	public override serialize(): Types.Serialization.UnitCampSerialized {
 		return {
 			...super.serialize(),
 			entityType: "UnitCamp",

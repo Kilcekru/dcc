@@ -1,4 +1,5 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Serialization } from "../../utils";
 import { QueryKey } from "../store";
@@ -12,7 +13,7 @@ export class Building extends Unit {
 	public readonly name: string;
 	public readonly offset: DcsJs.Position;
 
-	private constructor(args: BuildingProps | Serialization.BuildingSerialized) {
+	private constructor(args: BuildingProps | Types.Serialization.BuildingSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: ["buildings"] as QueryKey[], entityType: "Building" as const };
@@ -25,11 +26,11 @@ export class Building extends Unit {
 		return new Building(args);
 	}
 
-	static deserialize(args: Serialization.BuildingSerialized) {
+	static deserialize(args: Types.Serialization.BuildingSerialized) {
 		return new Building(args);
 	}
 
-	public override serialize(): Serialization.BuildingSerialized {
+	public override serialize(): Types.Serialization.BuildingSerialized {
 		return {
 			...super.serialize(),
 			entityType: "Building",

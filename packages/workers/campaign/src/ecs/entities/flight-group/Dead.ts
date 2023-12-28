@@ -10,7 +10,7 @@ interface DeadFlightGroupProps extends Omit<FlightGroupProps, "entityType" | "ta
 export class DeadFlightGroup extends EscortedFlightGroup {
 	readonly #targetSAMId: Types.Campaign.Id;
 
-	private constructor(args: DeadFlightGroupProps | Serialization.DeadFlightGroupSerialized) {
+	private constructor(args: DeadFlightGroupProps | Types.Serialization.DeadFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
 			: { ...args, task: "DEAD" as const, entityType: "DeadFlightGroup" as const };
@@ -22,11 +22,11 @@ export class DeadFlightGroup extends EscortedFlightGroup {
 		return new DeadFlightGroup(args);
 	}
 
-	static deserialize(args: Serialization.DeadFlightGroupSerialized) {
+	static deserialize(args: Types.Serialization.DeadFlightGroupSerialized) {
 		return new DeadFlightGroup(args);
 	}
 
-	public override serialize(): Serialization.DeadFlightGroupSerialized {
+	public override serialize(): Types.Serialization.DeadFlightGroupSerialized {
 		return {
 			...super.serialize(),
 			entityType: "DeadFlightGroup",
