@@ -1,132 +1,92 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { createEffect, createMemo, For, Show, useContext } from "solid-js";
+import * as Types from "@kilcekru/dcc-shared-types";
+import { createMemo, For, Show, useContext } from "solid-js";
 
 import { formatPercentage } from "../../../../../../../libs/components/src/utils";
-import { CampaignContext } from "../../../../components";
-import { RunningCampaignState } from "../../../../logic/types";
-import { getCoalitionFaction } from "../../../../logic/utils";
-import { getDeploymentCost, hasAmmoDepotInRange, hasFuelStorageInRange, hasPowerInRange } from "../../../../utils";
-import { Aircraft } from "./Aircraft";
+import { CampaignContext, useGetEntity } from "../../../../components";
 import { Flag } from "./Flag";
 import Styles from "./Item.module.less";
-import { OverlaySidebarContext } from "./OverlaySidebarProvider";
 import { StructureBuilding } from "./StructureBuilding";
-import { useOverlayClose } from "./utils";
 
-export function Structure() {
+function UnitCampStats(props: { unitCamp: Types.Serialization.UnitCampSerialized }) {
+	return (
+		<>
+			<Components.Stat>
+				<Components.StatLabel>Power</Components.StatLabel>
+				<Components.StatValue>{props.unitCamp.hasPower ? "Active" : "Inactive"}</Components.StatValue>
+			</Components.Stat>
+			<Components.Stat>
+				<Components.StatLabel>Ammo</Components.StatLabel>
+				<Components.StatValue>{props.unitCamp.hasAmmo ? "Active" : "Inactive"}</Components.StatValue>
+			</Components.Stat>
+			<Show when={props.unitCamp.structureType === "Depot"}>
+				<Components.Stat>
+					<Components.StatLabel>Fuel</Components.StatLabel>
+					<Components.StatValue>{props.unitCamp.hasFuel ? "Active" : "Inactive"}</Components.StatValue>
+				</Components.Stat>
+			</Show>
+			<Components.Stat>
+				<Components.StatLabel>Deployment Score</Components.StatLabel>
+				<Components.StatValue>
+					{formatPercentage(Math.max(0, (props.unitCamp.deploymentScore / props.unitCamp.deploymentCost) * 100))}
+				</Components.StatValue>
+			</Components.Stat>
+		</>
+	);
+}
+
+export function Structure(props: { structure: Types.Serialization.StructureSerialized }) {
 	const [state] = useContext(CampaignContext);
-	const [overlayStore] = useContext(OverlaySidebarContext);
-	const onClose = useOverlayClose();
+	const getEntity = useGetEntity();
 
-	const faction = createMemo(() => {
-		const coalition = overlayStore.coalition;
-
-		if (coalition == null) {
-			return undefined;
-		}
-		return getCoalitionFaction(coalition, state as RunningCampaignState);
-	});
-
-	const structure = createMemo(() => {
-		const name = overlayStore.structureName;
-
-		if (name == null) {
+	const objective = createMemo(() => {
+		const id = props.structure.objectiveId;
+		if (id == null) {
 			return undefined;
 		}
 
-		const str = faction()?.structures[name];
+		return getEntity<Types.Serialization.ObjectiveSerialized>(id);
+	});
 
-		if (str == null) {
-			// eslint-disable-next-line no-console
-			console.error("Structure: structure not found");
+	const countryName = createMemo(() => {
+		const coalition = props.structure.coalition;
+		const faction = state.factionDefinitions[coalition];
+
+		if (faction == null) {
 			return undefined;
 		}
-
-		return str;
-	});
-
-	const aircrafts = createMemo(() => {
-		const fac = faction();
-
-		if (fac == null) {
-			return;
-		}
-
-		return Object.values(fac.inventory.aircrafts).filter(
-			(ac) => ac.homeBase.name === overlayStore.structureName && ac.alive,
-		);
-	});
-
-	// Close if the structure is removed
-	createEffect(() => {
-		if (structure() == null) {
-			onClose();
-		}
+		return faction.countryName;
 	});
 
 	return (
-		<Show when={structure() != null}>
+		<>
 			<div>
-				<Flag countryName={faction()?.countryName} />
-				<h2 class={Styles.title}>{structure()?.objectiveName}</h2>
-				<h3 class={Styles.subtitle}>{structure()?.type}</h3>
-				<div class={Styles.stats}>
-					<Components.Stat>
-						<Components.StatLabel>Status</Components.StatLabel>
-						<Components.StatValue>{structure()?.state === "active" ? "Active" : "Inactive"}</Components.StatValue>
-					</Components.Stat>
-					<Show when={structure()?.type === "Barrack" || structure()?.type === "Depot"}>
-						<Components.Stat>
-							<Components.StatLabel>Power</Components.StatLabel>
-							<Components.StatValue>
-								{hasPowerInRange(structure()?.position, faction()) ? "Active" : "Inactive"}
-							</Components.StatValue>
-						</Components.Stat>
-					</Show>
-					<Show when={structure()?.type === "Barrack" || structure()?.type === "Depot"}>
-						<Components.Stat>
-							<Components.StatLabel>Ammo</Components.StatLabel>
-							<Components.StatValue>
-								{hasAmmoDepotInRange(structure()?.position, faction()) ? "Active" : "Inactive"}
-							</Components.StatValue>
-						</Components.Stat>
-					</Show>
-					<Show when={structure()?.type === "Depot"}>
-						<Components.Stat>
-							<Components.StatLabel>Fuel</Components.StatLabel>
-							<Components.StatValue>
-								{hasFuelStorageInRange(structure()?.position, faction()) ? "Active" : "Inactive"}
-							</Components.StatValue>
-						</Components.Stat>
-					</Show>
-					<Show when={structure()?.type === "Barrack" || structure()?.type === "Depot"}>
-						<Components.Stat>
-							<Components.StatLabel>Deployment Score</Components.StatLabel>
-							<Components.StatValue>
-								{formatPercentage(
-									Math.max(
-										0,
-										((structure() as DcsJs.StructureUnitCamp).deploymentScore /
-											getDeploymentCost(overlayStore.coalition, structure()?.type)) *
-											100,
-									),
-								)}
-							</Components.StatValue>
-						</Components.Stat>
-					</Show>
-				</div>
+				<Flag countryName={countryName()} />
+				<h2 class={Styles.title}>{objective()?.name}</h2>
+				<h3 class={Styles.subtitle}>{props.structure?.structureType}</h3>
 			</div>
-			<Show when={structure()?.type != "Farp"}>
-				<Components.ScrollContainer>
-					<Components.List>
-						<For each={structure()?.buildings}>
-							{(building) => <StructureBuilding building={building} coalition={overlayStore.coalition ?? "blue"} />}
-						</For>
-					</Components.List>
-				</Components.ScrollContainer>
-			</Show>
-			<Show when={structure()?.type === "Farp"}>
+			<div class={Styles.stats}>
+				<Components.Stat>
+					<Components.StatLabel>Status</Components.StatLabel>
+					<Components.StatValue>{props.structure?.active ? "Active" : "Inactive"}</Components.StatValue>
+				</Components.Stat>
+				<Show when={props.structure?.entityType === "UnitCamp"}>
+					<UnitCampStats unitCamp={props.structure as Types.Serialization.UnitCampSerialized} />
+				</Show>
+			</div>
+
+			<Components.ScrollContainer>
+				<Components.List>
+					<For each={props.structure?.buildingIds}>
+						{(buildingId) => {
+							const building = getEntity<Types.Serialization.BuildingSerialized>(buildingId);
+							return <StructureBuilding building={building} />;
+						}}
+					</For>
+				</Components.List>
+			</Components.ScrollContainer>
+		</>
+		/* <Show when={props.structure?.type === "Farp"}>
 				<Components.ScrollContainer>
 					<Components.List>
 						<For each={aircrafts()}>
@@ -138,7 +98,6 @@ export function Structure() {
 						</For>
 					</Components.List>
 				</Components.ScrollContainer>
-			</Show>
-		</Show>
+							</Show> */
 	);
 }

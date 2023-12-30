@@ -18,7 +18,10 @@ import {
 import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 import { sendWorkerMessage } from "../worker";
 
-type CampaignState = DcsJs.CampaignState & Types.Campaign.UIState;
+type CampaignState = DcsJs.CampaignState &
+	Types.Campaign.UIState & {
+		selectedEntityId: undefined | Types.Campaign.Id;
+	};
 type CampaignStore = [
 	CampaignState,
 	{
@@ -26,6 +29,8 @@ type CampaignStore = [
 		timeUpdate?: (next: number) => void;
 		deactivate?: () => void;
 		activate?: () => void;
+		selectEntity?: (id: Types.Campaign.Id) => void;
+		clearSelectedEntity?: () => void;
 		/* --- */
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
@@ -65,7 +70,7 @@ export const initState: CampaignState = {
 	timer: 32400,
 	lastTickTimer: 32400,
 	multiplier: 1,
-	paused: false,
+	paused: true,
 	selectedFlightGroup: undefined,
 	blueFaction: undefined,
 	redFaction: undefined,
@@ -97,6 +102,12 @@ export const initState: CampaignState = {
 	timeMultiplier: 1,
 	flightGroups: [],
 	entities: new Map(),
+	selectedEntityId: undefined,
+	factionDefinitions: {
+		blue: undefined,
+		red: undefined,
+		neutrals: undefined,
+	},
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -118,6 +129,7 @@ export function CampaignProvider(props: {
 			},
 			activate() {
 				setState("active", true);
+				setState("paused", false);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
@@ -362,6 +374,12 @@ export function CampaignProvider(props: {
 			},
 			toggleHotStart() {
 				setState("hotStart", (s) => !s);
+			},
+			selectEntity(id) {
+				setState("selectedEntityId", () => id);
+			},
+			clearSelectedEntity() {
+				setState("selectedEntityId", () => undefined);
 			},
 		},
 	];

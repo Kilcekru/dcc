@@ -1,81 +1,55 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import { createEffect, createMemo, For, Show, useContext } from "solid-js";
+import * as Types from "@kilcekru/dcc-shared-types";
+import { createMemo, For, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
-import { useFaction } from "../../../../components/utils";
-import { getActiveWaypoint } from "../../../../utils";
+import { CampaignContext, FlightGroupButtons, useGetEntity } from "../../../../components";
 import { Flag } from "./Flag";
 import { FlightGroupUnit } from "./FlightGroupUnit";
 import Styles from "./Item.module.less";
-import { OverlaySidebarContext } from "./OverlaySidebarProvider";
-import { useOverlayClose } from "./utils";
 
-export function FlightGroup() {
+export function FlightGroup(props: { flightGroup: Types.Serialization.FlightGroupSerialized }) {
 	const [state] = useContext(CampaignContext);
-	const [overlayStore] = useContext(OverlaySidebarContext);
-	const onClose = useOverlayClose();
+	const getEntity = useGetEntity();
+	const countryName = createMemo(() => {
+		const coalition = props.flightGroup.coalition;
+		const faction = state.factionDefinitions[coalition];
 
-	const faction = useFaction(overlayStore.coalition);
-
-	const flightGroup = createMemo(() => {
-		const flightGroupId = overlayStore.flightGroupId;
-		const pkg = faction()?.packages.find((pkg) => pkg.flightGroups.some((f) => f.id === flightGroupId));
-
-		if (pkg == null) {
-			return;
+		if (faction == null) {
+			return undefined;
 		}
-
-		return pkg.flightGroups.find((f) => f.id === flightGroupId);
-	});
-
-	// Close if the flight group is removed
-	createEffect(() => {
-		if (flightGroup() == null) {
-			onClose();
-		}
-	});
-
-	const activeWaypoint = createMemo(() => {
-		const fg = flightGroup();
-
-		if (fg == null) {
-			return;
-		}
-
-		return getActiveWaypoint(fg, state.timer);
+		return faction.countryName;
 	});
 
 	return (
-		<Show when={flightGroup() != null}>
+		<>
 			<div>
-				<Flag countryName={faction()?.countryName} />
-				<h2 class={Styles.title}>{flightGroup()?.name}</h2>
-				<Components.TaskLabel task={flightGroup()?.task ?? "CAP"} class={Styles.task} />
-				{/* <FlightGroupButtons
-					coalition={overlayStore.coalition}
-					flightGroup={flightGroup()}
-					class={Styles["flight-group-buttons"]}
-	/> TODO */}
-				<Show when={(flightGroup()?.startTime ?? 999999999) < state.timer}>
+				<Flag countryName={countryName()} />
+				<h2 class={Styles.title}>{props.flightGroup.name}</h2>
+				<Components.TaskLabel task={props.flightGroup.task} class={Styles.task} />
+				<FlightGroupButtons flightGroup={props.flightGroup} class={Styles["flight-group-buttons"]} />
+				{/* <Show when={(flightGroup()?.startTime ?? 999999999) < state.timer}>
 					<div class={Styles.stats}>
 						<Components.Stat>
 							<Components.StatLabel>Waypoint</Components.StatLabel>
 							<Components.StatValue>{activeWaypoint()?.name}</Components.StatValue>
 						</Components.Stat>
 					</div>
-				</Show>
+</Show> */}
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>
-					<For each={flightGroup()?.units}>
-						{(unit) => (
-							<Components.ListItem>
-								<FlightGroupUnit unit={unit} coalition={overlayStore.coalition ?? "blue"} />
-							</Components.ListItem>
-						)}
+					<For each={props.flightGroup.aircraftIds}>
+						{(id) => {
+							const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
+							return (
+								<Components.ListItem>
+									<FlightGroupUnit aircraft={aircraft} />
+								</Components.ListItem>
+							);
+						}}
 					</For>
 				</Components.List>
 			</Components.ScrollContainer>
-		</Show>
+		</>
 	);
 }

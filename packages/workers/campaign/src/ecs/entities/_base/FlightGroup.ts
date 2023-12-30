@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
 import { WaypointTemplate } from "../../objects/waypoint";
-import { getEntity, QueryKey, store } from "../../store";
+import { getEntity, store } from "../../store";
 import { generateCallSign } from "../../utils";
 import type { Aircraft } from "../Aircraft";
 import { Flightplan } from "../Flightplan";
@@ -65,6 +65,22 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		return this.combat != null;
 	}
 
+	get state(): Types.Serialization.FlightGroupState {
+		if (this.queries.has("flightGroups-start up") && this.startTime <= store.time) {
+			return "start up";
+		}
+
+		if (this.queries.has("flightGroups-in air")) {
+			return "in air";
+		}
+
+		if (this.queries.has("flightGroups-landed")) {
+			return "landed";
+		}
+
+		return "waiting";
+	}
+
 	get a2aRange(): number {
 		let maxRange = 0;
 
@@ -95,7 +111,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		const cs = Serialization.isSerialized(args) ? undefined : generateCallSign(args.coalition, "aircraft");
 		const superArgs: GroupProps | Types.Serialization.GroupSerialized = Serialization.isSerialized(args)
 			? args
-			: { ...args, queries: [`flightGroups-${args.task}` as QueryKey], name: cs?.flightGroupName ?? "" };
+			: { ...args, queries: [`flightGroups-${args.task}`, `flightGroups-start up`], name: cs?.flightGroupName ?? "" };
 		super(superArgs);
 
 		this.task = args.task;
@@ -137,10 +153,12 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 
 	takeOff() {
 		this.hidden = false;
+		this.moveSubQuery("flightGroups", "start up", "in air");
 	}
 
 	land() {
-		this.destructor();
+		this.moveSubQuery("flightGroups", "in air", "landed");
+		this.hidden = true;
 	}
 
 	move(worldDelta: number) {
@@ -299,6 +317,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			packageId: this.#packageId,
 			combat: this.combat,
 			flightplanId: this.#flightplanId,
+			state: this.state,
 		};
 	}
 }

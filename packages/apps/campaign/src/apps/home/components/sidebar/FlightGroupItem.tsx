@@ -1,26 +1,21 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
-import { createMemo, For } from "solid-js";
+import { createMemo, For, Show, useContext } from "solid-js";
 
-import { FlightGroupButtons } from "../../../../components";
+import { CampaignContext, FlightGroupButtons } from "../../../../components";
 import { useDataStore } from "../../../../components/DataProvider";
 import { useGetEntity } from "../../../../components/utils";
 import Styles from "./FlightGroupItem.module.less";
 
-function AircraftItem(props: { id: string }) {
-	const getEntity = useGetEntity();
+function AircraftItem(props: { aircraft: Types.Serialization.AircraftSerialized }) {
 	const dataStore = useDataStore();
 
-	const aircraft = createMemo(() => {
-		return getEntity<Types.Ecs.AircraftSerialized>(props.id);
-	});
-
 	const displayName = createMemo(() => {
-		const aircraftData = dataStore?.aircrafts?.[aircraft().aircraftType];
+		const aircraftData = dataStore?.aircrafts?.[props.aircraft.aircraftType];
 
 		if (aircraftData == null) {
-			return aircraft().aircraftType;
+			return props.aircraft.aircraftType;
 		}
 
 		return aircraftData.display_name;
@@ -28,14 +23,23 @@ function AircraftItem(props: { id: string }) {
 
 	return (
 		<>
-			<div class={cnb(aircraft().isClient ? Styles["is-client"] : null)}>{aircraft().name}</div>
-			<div class={cnb(aircraft().isClient ? Styles["is-client"] : null)}>{displayName()}</div>
-			<div class={cnb(aircraft().isClient ? Styles["is-client"] : null)}>{aircraft().isClient ? "Player" : ""}</div>
+			<div class={cnb(props.aircraft.isClient ? Styles["is-client"] : null)}>{props.aircraft.name}</div>
+			<div class={cnb(props.aircraft.isClient ? Styles["is-client"] : null)}>{displayName()}</div>
+			<div class={cnb(props.aircraft.isClient ? Styles["is-client"] : null)}>
+				{props.aircraft.isClient ? "Player" : ""}
+			</div>
 		</>
 	);
 }
 
-export const FlightGroupItem = (props: { flightGroup: Types.Ecs.FlightGroupSerialized }) => {
+export const FlightGroupItem = (props: { flightGroup: Types.Serialization.FlightGroupSerialized }) => {
+	const [, { selectEntity }] = useContext(CampaignContext);
+	const getEntity = useGetEntity();
+
+	const onPress = () => {
+		selectEntity?.(props.flightGroup.id);
+	};
+
 	/* const [state, { selectFlightGroup }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 	const [, { openFlightGroup }] = useContext(OverlaySidebarContext);
@@ -120,9 +124,19 @@ export const FlightGroupItem = (props: { flightGroup: Types.Ecs.FlightGroupSeria
 
 	return (
 		<Components.ListItem class={Styles.item}>
-			<Components.Card class={Styles.card}>
+			<Components.Card class={Styles.card} onPress={onPress}>
 				<div class={Styles.name}>{props.flightGroup.name}</div>
-				<FlightGroupButtons coalition="blue" flightGroup={props.flightGroup} />
+				<Show when={props.flightGroup.state === "start up"}>
+					<div class={Styles["in-air-wrapper"]}>
+						<p class={Styles["in-air"]}>Starting</p>
+					</div>
+				</Show>
+				<Show when={props.flightGroup.state === "in air"}>
+					<div class={Styles["in-air-wrapper"]}>
+						<p class={Styles["in-air"]}>In Air</p>
+					</div>
+				</Show>
+				<FlightGroupButtons flightGroup={props.flightGroup} />
 				<Components.TaskLabel task={props.flightGroup.task} class={Styles.task} />
 				<div class={Styles.stats}>
 					<div>
@@ -133,7 +147,12 @@ export const FlightGroupItem = (props: { flightGroup: Types.Ecs.FlightGroupSeria
 				<div class={Styles["aircrafts-wrapper"]}>
 					<p class={Styles.label}>Aircraft</p>
 					<div class={Styles.aircrafts}>
-						<For each={props.flightGroup.aircraftIds}>{(id) => <AircraftItem id={id} />}</For>
+						<For each={props.flightGroup.aircraftIds}>
+							{(id) => {
+								const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
+								return <AircraftItem aircraft={aircraft} />;
+							}}
+						</For>
 					</div>
 				</div>
 			</Components.Card>

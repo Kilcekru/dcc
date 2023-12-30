@@ -1,5 +1,6 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Serialization } from "../../utils";
 import { QueryKey } from "../store";
@@ -8,10 +9,21 @@ import { Unit, UnitProps } from "./_base";
 export interface BuildingProps extends Omit<UnitProps, "entityType"> {
 	name: string;
 	offset: DcsJs.Position;
+	staticType: DcsJs.StaticType;
 }
 export class Building extends Unit {
 	public readonly name: string;
+	public readonly staticType: DcsJs.StaticType;
 	public readonly offset: DcsJs.Position;
+	#repairScore: number | undefined;
+
+	get repairScore() {
+		return this.#repairScore;
+	}
+
+	get repairCost() {
+		return Utils.Config.deploymentScore.repair;
+	}
 
 	private constructor(args: BuildingProps | Types.Serialization.BuildingSerialized) {
 		const superArgs = Serialization.isSerialized(args)
@@ -20,6 +32,7 @@ export class Building extends Unit {
 		super(superArgs);
 		this.name = args.name;
 		this.offset = args.offset;
+		this.staticType = args.staticType;
 	}
 
 	static create(args: BuildingProps) {
@@ -36,6 +49,9 @@ export class Building extends Unit {
 			entityType: "Building",
 			name: this.name,
 			offset: this.offset,
+			staticType: this.staticType,
+			repairCost: this.repairCost,
+			repairScore: this.#repairScore,
 		};
 	}
 }

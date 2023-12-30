@@ -132,11 +132,7 @@ export interface GroundGroupMapItem extends MapItemBase {
 	groundGroupType: DcsJs.CampaignGroundGroupType;
 }
 
-export interface MapEntityMapItem extends MapItemBase {
-	type: "unknown";
-}
-
-export type MapItem = MapItemBase;
+export type MapItem = StructureMapItem | AirdromeMapItem | FlightGroupMapItem | GroundGroupMapItem;
 
 export type ObjectiveItem = {
 	id: string;
@@ -256,10 +252,15 @@ export type UIState = {
 	timeMultiplier: number;
 	flightGroups: Array<FlightGroupSerialized>;
 	entities: Map<Id, StateEntitySerialized>;
+	factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined>;
 };
 
 export type WorkerEventTick = { name: "tick"; dt: number };
-export type WorkerEventMapUpdate = { name: "mapUpdate"; items: Map<string, MapItem>; map: DcsJs.MapName };
+export type WorkerEventMapUpdate = {
+	name: "mapUpdate";
+	items: Map<string, MapItem>;
+	map: DcsJs.MapName;
+};
 export type WorkerEventTimeUpdate = { name: "timeUpdate"; time: number };
 export type WorkerEventStateUpdate = { name: "stateUpdate"; state: UIState };
 export type WorkerEventSerialized = { name: "serialized"; state: WorkerState };

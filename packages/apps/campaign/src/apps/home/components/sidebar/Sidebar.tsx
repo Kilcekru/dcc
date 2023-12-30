@@ -11,6 +11,10 @@ export const Sidebar = () => {
 	const [state, { skipToNextDay }] = useContext(CampaignContext);
 	const dataStore = useDataStore();
 
+	const sortedFlightGroups = createMemo(() => {
+		return Array.from(state.flightGroups).sort((a, b) => a.startTime - b.startTime);
+	});
+
 	const date = createMemo(() => {
 		const d = timerToDate(state.timer);
 
@@ -42,7 +46,7 @@ export const Sidebar = () => {
 			<h3 class={Styles.sidebar__title}>Flight Groups</h3>
 			<Components.ScrollContainer>
 				<Components.List class={Styles.sidebar__list}>
-					<For each={state.flightGroups}>{(fg) => <FlightGroupItem flightGroup={fg} />}</For>
+					<For each={sortedFlightGroups()}>{(fg) => <FlightGroupItem flightGroup={fg} />}</For>
 				</Components.List>
 			</Components.ScrollContainer>
 		</div>

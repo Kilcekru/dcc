@@ -5,12 +5,9 @@ import * as Entities from "../../entities";
 import { store } from "../../store";
 
 export function takeOff(coalition: DcsJs.Coalition) {
-	const flightGroups = store.queries.flightGroups[coalition];
-	const mapEntities = store.queries.mapEntities;
+	const flightGroups = store.queries.flightGroups[coalition].get("start up");
 
-	const waitingFlightGroups = flightGroups.difference(mapEntities);
-
-	for (const flightGroup of waitingFlightGroups) {
+	for (const flightGroup of flightGroups) {
 		if (flightGroup.flightplan.currentWaypoint != null && flightGroup.flightplan.currentWaypoint.type !== "TakeOff") {
 			flightGroup.takeOff();
 		}
@@ -28,12 +25,9 @@ export function land(coalition: DcsJs.Coalition) {
 }
 
 export function move(worldDelta: number, coalition: DcsJs.Coalition) {
-	const flightGroups = store.queries.flightGroups[coalition];
-	const mapEntities = store.queries.mapEntities;
+	const flightGroups = store.queries.flightGroups[coalition].get("in air");
 
-	const flyingFlightGroups = flightGroups.intersection(mapEntities);
-
-	for (const flightGroup of flyingFlightGroups) {
+	for (const flightGroup of flightGroups) {
 		if (flightGroup.flightplan.currentWaypoint == null) {
 			continue;
 		}

@@ -9,11 +9,7 @@ import { useDataStore } from "../DataProvider";
 import { useGetEntity } from "../utils";
 import Styles from "./FlightGroupButtons.module.less";
 
-export function FlightGroupButtons(props: {
-	coalition: DcsJs.Coalition | undefined;
-	flightGroup: Types.Ecs.FlightGroupSerialized;
-	class?: string;
-}) {
+export function FlightGroupButtons(props: { flightGroup: Types.Serialization.FlightGroupSerialized; class?: string }) {
 	const dataStore = useDataStore();
 	const getEntity = useGetEntity();
 
@@ -21,7 +17,7 @@ export function FlightGroupButtons(props: {
 		const list: Array<{ name: string; aircraftType: string; isClient: boolean }> = [];
 
 		props.flightGroup?.aircraftIds.forEach((id) => {
-			const aircraft = getEntity<Types.Ecs.AircraftSerialized>(id);
+			const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
 
 			if (aircraft == null) {
 				return;
@@ -41,7 +37,7 @@ export function FlightGroupButtons(props: {
 		let clientCount = 0;
 
 		for (const id of props.flightGroup?.aircraftIds ?? []) {
-			const aircraft = getEntity<Types.Ecs.AircraftSerialized>(id);
+			const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
 
 			if (aircraft.isClient) {
 				clientCount++;

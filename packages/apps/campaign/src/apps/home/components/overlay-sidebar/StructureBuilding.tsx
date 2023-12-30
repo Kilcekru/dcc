@@ -1,9 +1,8 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { Show } from "solid-js";
 
-import { Config } from "../../../../data";
 import Styles from "./Item.module.less";
 
 const staticTypeName: Record<string, string> = {
@@ -46,14 +45,16 @@ const staticTypeImage: Record<string, keyof typeof Styles> = {
 	"Small werehouse 2": "image-small-werehouse-2",
 };
 
-export function StructureBuilding(props: { building: DcsJs.Building; coalition: DcsJs.Coalition }) {
+export function StructureBuilding(props: { building: Types.Serialization.BuildingSerialized }) {
 	return (
 		<div>
 			<div class={Styles.header}>
-				<h3 class={Styles["item-title"]}>{staticTypeName[props.building.type]}</h3>
+				<h3 class={Styles["item-title"]}>{staticTypeName[props.building.staticType]}</h3>
 			</div>
 			<div class={Styles.building}>
-				<div class={cnb(Styles["item-image"], Styles[staticTypeImage[props.building.type] ?? "image-garage-b"])} />
+				<div
+					class={cnb(Styles["item-image"], Styles[staticTypeImage[props.building.staticType] ?? "image-garage-b"])}
+				/>
 				<div class={Styles["building-stats"]}>
 					<div>
 						<p class={Styles["stat-label"]}>Status</p>
@@ -64,7 +65,7 @@ export function StructureBuilding(props: { building: DcsJs.Building; coalition: 
 							<p class={Styles["stat-label"]}>Repair</p>
 							<p class={Styles["stat-value"]}>
 								{Components.Utils.formatPercentage(
-									((props.building.repairScore ?? 0) / Config.deploymentScore.repair) * 100,
+									((props.building.repairScore ?? 0) / props.building.repairCost) * 100,
 								)}
 							</p>
 						</div>

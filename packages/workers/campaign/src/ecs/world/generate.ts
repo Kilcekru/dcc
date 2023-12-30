@@ -73,7 +73,7 @@ export function generateStructures(args: {
 			if (structureType === "Barrack" || structureType === "Depot") {
 				Entities.UnitCamp.create({
 					name: structurePlan.structureName,
-					objective,
+					objectiveId: objective.id,
 					position: strikeTarget.position,
 					structureType,
 					coalition: args.coalition,
@@ -81,7 +81,7 @@ export function generateStructures(args: {
 			} else {
 				Entities.GenericStructure.create({
 					name: structurePlan.structureName,
-					objective,
+					objectiveId: objective.id,
 					position: strikeTarget.position,
 					structureType,
 					coalition: args.coalition,

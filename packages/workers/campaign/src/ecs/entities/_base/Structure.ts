@@ -10,7 +10,7 @@ import { MapEntity, MapEntityProps } from "./MapEntity";
 
 export interface StructureProps extends MapEntityProps {
 	name: string;
-	objective: Objective;
+	objectiveId: Types.Campaign.Id;
 	position: DcsJs.Position;
 	structureType: DcsJs.StructureType;
 	buildingIds: Types.Campaign.Id[];
@@ -48,12 +48,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 		this.position = args.position;
 		this.structureType = args.structureType;
 		this.#buildingIds = args.buildingIds;
-		if (Serialization.isSerialized(args)) {
-			this.#objectiveId = args.objectiveId;
-			this.#buildingIds = []; // TODO: correctly serialize and deserialize buildings
-		} else {
-			this.#objectiveId = args.objective.id;
-		}
+		this.#objectiveId = args.objectiveId;
 	}
 
 	static createBuildings(args: Pick<StructureProps, "structureType" | "name" | "coalition">) {
@@ -68,6 +63,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 				name: `${args.name}|${i + 1}`,
 				offset: buildingTemplate.offset,
 				coalition: args.coalition,
+				staticType: buildingTemplate.type,
 			});
 		});
 	}
@@ -102,6 +98,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	public override serialize(): Types.Serialization.StructureSerialized {
 		return {
 			...super.serialize(),
+			active: this.alive,
 			structureType: this.structureType,
 			objectiveId: this.#objectiveId,
 			buildingIds: this.#buildingIds,

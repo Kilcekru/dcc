@@ -209,10 +209,10 @@ export function getLoadoutForAircraftType(
 	};
 }
 
-export function getWeaponsForFlightGroupUnit(aircraft: DcsJs.Aircraft) {
+export function getWeaponsForFlightGroupUnit(aircraft: Types.Serialization.AircraftSerialized) {
 	const weapons: Map<string, { item: DcsJs.Weapon; count: number; total: number }> = new Map();
 
-	aircraft.loadout.pylons.forEach((pylon) => {
+	aircraft.loadout?.pylons.forEach((pylon) => {
 		if (pylon.type === "Weapon" && pylon.weapon != null) {
 			const wep = weapons.get(pylon.weapon.name);
 
@@ -227,8 +227,9 @@ export function getWeaponsForFlightGroupUnit(aircraft: DcsJs.Aircraft) {
 	return weapons;
 }
 
-export function getMaxRangeA2AMissileAvailable(aircraft: DcsJs.Aircraft) {
-	const weapons = getWeaponsForFlightGroupUnit(aircraft);
+// TODO: remove
+export function getMaxRangeA2AMissileAvailable(_: DcsJs.Aircraft) {
+	const weapons: Map<string, { item: DcsJs.Weapon; count: number; total: number }> = new Map();
 
 	const availableWeapons = Array.from(weapons.values()).filter((value) => value.count > 0);
 	const availableA2AWeapons = availableWeapons

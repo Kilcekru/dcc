@@ -109,6 +109,10 @@ export class UnitCamp extends Structure {
 			...super.serialize(),
 			entityType: "UnitCamp",
 			deploymentScore: this.deploymentScore,
+			deploymentCost: this.deploymentCost,
+			hasAmmo: this.hasAmmo,
+			hasFuel: this.hasFuel,
+			hasPower: this.hasPower,
 		};
 	}
 }

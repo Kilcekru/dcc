@@ -239,6 +239,29 @@ namespace Schema {
 	});
 	export const campaignGroundGroupType = z.enum(["armor", "mbt", "infantry", "ew", "sam"]);
 	export const campaignGroundUnitType = z.union([campaignGroundGroupType, z.literal("shorad")]);
+	export const staticType = z.enum([
+		"Garage B",
+		"Tech hangar A",
+		"Electric power box",
+		"Repair workshop",
+		"FARP Tent",
+		"FARP CP Blindage",
+		"FARP Fuel Depot",
+		"FARP Ammo Dump Coating",
+		"Invisible FARP",
+		"Chemical tank A",
+		"Hangar B",
+		"Workshop A",
+		"Subsidiary structure 2",
+		"Boiler-house A",
+		"Military staff",
+		"Small werehouse 2",
+		"TV tower",
+		"Railway station",
+		"FARP_SINGLE_01",
+		"outpost",
+		"FARP",
+	]);
 }
 
 // queryName
@@ -356,6 +379,9 @@ const flightplanSchema = entitySchema.extend({
 });
 export type FlightplanSerialized = z.TypeOf<typeof flightplanSchema>;
 
+const flightGroupState = z.enum(["waiting", "start up", "in air", "landed", "dead"]);
+export type FlightGroupState = z.TypeOf<typeof flightGroupState>;
+
 const flightGroupSchema = groupSchema.extend({
 	aircraftIds: z.array(z.string()),
 	task: Schema.task,
@@ -371,6 +397,7 @@ const flightGroupSchema = groupSchema.extend({
 		.optional(),
 	packageId: z.string(),
 	flightplanId: z.string(),
+	state: flightGroupState, // ui
 });
 export type FlightGroupSerialized = z.TypeOf<typeof flightGroupSchema>;
 
@@ -433,7 +460,10 @@ export type UnitSerialized = z.TypeOf<typeof unitSchema>;
 const buildingSchema = unitSchema.extend({
 	entityType: z.literal("Building"),
 	name: z.string(),
+	staticType: Schema.staticType,
 	offset: Schema.position,
+	repairScore: z.number().optional(),
+	repairCost: z.number(), // ui
 });
 export type BuildingSerialized = z.TypeOf<typeof buildingSchema>;
 
@@ -469,6 +499,7 @@ const structureSchema = mapEntitySchema.extend({
 	structureType: Schema.structureType,
 	objectiveId: z.string(),
 	buildingIds: z.array(z.string()),
+	active: z.boolean(),
 });
 export type StructureSerialized = z.TypeOf<typeof structureSchema>;
 
@@ -480,6 +511,10 @@ export type GenericStructureSerialized = z.TypeOf<typeof genericStructureSchema>
 const unitCampSchema = structureSchema.extend({
 	entityType: z.literal("UnitCamp"),
 	deploymentScore: z.number(),
+	deploymentCost: z.number(), // ui
+	hasPower: z.boolean(), // ui
+	hasFuel: z.boolean(), // ui
+	hasAmmo: z.boolean(), // ui
 });
 export type UnitCampSerialized = z.TypeOf<typeof unitCampSchema>;
 

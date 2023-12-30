@@ -32,6 +32,10 @@ export abstract class MapEntity<EventNames extends keyof Events.EventMap.All = n
 
 		this.name = args.name;
 		this.position = args.position;
+
+		if (Serialization.isSerialized(args)) {
+			this.#hidden = args.hidden;
+		}
 	}
 
 	toMapJSON(): Types.Campaign.MapItemBase {

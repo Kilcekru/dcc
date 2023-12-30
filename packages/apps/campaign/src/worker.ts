@@ -5,7 +5,6 @@ const worker = new Worker("./worker.js");
 worker.addEventListener("message", (e: MessageEvent<Campaign.WorkerEvent>) => {
 	switch (e.data.name) {
 		case "mapUpdate":
-		case "blueFlightGroupsUpdate":
 		case "serialized":
 		case "timeUpdate":
 		case "stateUpdate": {

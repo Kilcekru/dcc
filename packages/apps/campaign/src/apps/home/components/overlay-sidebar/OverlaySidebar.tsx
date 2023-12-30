@@ -1,22 +1,24 @@
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
-import { createMemo, onCleanup, onMount, Show, useContext } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, onMount, Show, useContext } from "solid-js";
 
+import { CampaignContext } from "../../../../components";
+import { useGetEntity } from "../../../../components/utils";
 import { Airdrome } from "./Airdrome";
-import { DownedPilot } from "./DownedPilot";
 import { FlightGroup } from "./FlightGroup";
 import { GroundGroup } from "./GroundGroup";
 import style from "./OverlaySidebar.module.less";
-import { OverlaySidebarContext } from "./OverlaySidebarProvider";
-import { Sam } from "./Sam";
 import { Structure } from "./Structure";
-import { useOverlayClose } from "./utils";
 
 export function OverlaySidebar() {
-	const [store] = useContext(OverlaySidebarContext);
-	const isOpen = createMemo(() => store.state != "closed");
-
-	const onClose = useOverlayClose();
+	const [state, { clearSelectedEntity }] = useContext(CampaignContext);
+	const isOpen = createMemo(() => state.selectedEntityId != null);
+	const [entity, setEntity] = createSignal<Types.Serialization.EntitySerialized>();
+	const getEntity = useGetEntity();
+	function onClose() {
+		clearSelectedEntity?.();
+	}
 
 	const onKeydown = (e: KeyboardEvent) => {
 		if (e.key === "Escape" && isOpen()) {
@@ -28,27 +30,31 @@ export function OverlaySidebar() {
 
 	onCleanup(() => document.removeEventListener("keydown", onKeydown));
 
+	createEffect(() => {
+		if (state.selectedEntityId == null) {
+			onClose();
+		} else {
+			setEntity(getEntity(state.selectedEntityId));
+		}
+	});
+
 	return (
 		<div class={cnb(style["overlay-sidebar"], isOpen() ? style["overlay-sidebar--open"] : null)}>
-			<Show when={store.state === "structure"}>
-				<Structure />
+			<Show when={entity()?.entityType === "GenericStructure"}>
+				<Structure structure={entity() as Types.Serialization.GenericStructureSerialized} />
 			</Show>
-			<Show when={store.state === "flight group"}>
-				<FlightGroup />
+			<Show when={entity()?.entityType === "UnitCamp"}>
+				<Structure structure={entity() as Types.Serialization.UnitCampSerialized} />
 			</Show>
-			<Show when={store.state === "ground group" || store.state === "ewr"}>
-				<GroundGroup />
+			<Show when={entity()?.entityType.includes("FlightGroup")}>
+				<FlightGroup flightGroup={entity() as Types.Serialization.FlightGroupSerialized} />
 			</Show>
-			<Show when={store.state === "airdrome" || store.state === "carrier"}>
+			<Show when={entity()?.entityType === "GroundGroup"}>
+				<GroundGroup groundGroup={entity() as Types.Serialization.GroundGroupSerialized} />
+			</Show>
+			<Show when={entity()?.entityType === "Airdrome"}>
 				<Airdrome />
 			</Show>
-			<Show when={store.state === "sam"}>
-				<Sam />
-			</Show>
-			<Show when={store.state === "downed pilot"}>
-				<DownedPilot />
-			</Show>
-
 			<Components.Button onPress={onClose} class={style["close-button"]} large>
 				<Components.Icons.Close />
 			</Components.Button>

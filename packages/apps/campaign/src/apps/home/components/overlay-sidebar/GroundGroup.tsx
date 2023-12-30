@@ -1,64 +1,55 @@
 import * as Components from "@kilcekru/dcc-lib-components";
-import { createEffect, createMemo, For, Show, useContext } from "solid-js";
+import * as Types from "@kilcekru/dcc-shared-types";
+import { createMemo, For, Show, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
-import { RunningCampaignState } from "../../../../logic/types";
-import { getCoalitionFaction } from "../../../../logic/utils";
+import { CampaignContext, useGetEntity } from "../../../../components";
 import { Flag } from "./Flag";
 import { GroundGroupUnit } from "./GroundGroupUnit";
 import Styles from "./Item.module.less";
-import { OverlaySidebarContext } from "./OverlaySidebarProvider";
-import { useOverlayClose } from "./utils";
 
-export function GroundGroup() {
+export function GroundGroup(props: { groundGroup: Types.Serialization.GroundGroupSerialized }) {
 	const [state] = useContext(CampaignContext);
-	const [overlayStore] = useContext(OverlaySidebarContext);
-	const onClose = useOverlayClose();
+	const getEntity = useGetEntity();
 
-	const faction = createMemo(() => {
-		const coalition = overlayStore.coalition;
+	const objective = createMemo(() => {
+		return getEntity<Types.Serialization.ObjectiveSerialized>(props.groundGroup.targetId);
+	});
 
-		if (coalition == null) {
+	const countryName = createMemo(() => {
+		const coalition = props.groundGroup.coalition;
+		const faction = state.factionDefinitions[coalition];
+
+		if (faction == null) {
 			return undefined;
 		}
-		return getCoalitionFaction(coalition, state as RunningCampaignState);
-	});
-
-	const groundGroup = createMemo(() => {
-		const groundGroupId = overlayStore.groundGroupId;
-
-		return faction()?.groundGroups.find((gg) => gg.id === groundGroupId);
-	});
-
-	// Close if the ground group is removed
-	createEffect(() => {
-		if (groundGroup() == null) {
-			onClose();
-		}
+		return faction.countryName;
 	});
 
 	return (
-		<Show when={groundGroup() != null}>
+		<>
 			<div>
-				<Flag countryName={faction()?.countryName} />
-				<h2 class={Styles.title}>{groundGroup()?.objectiveName}</h2>
-				<Show when={overlayStore.state === "ewr"}>
-					<h3 class={Styles.subtitle}>Early Warning Radar</h3>
-				</Show>
+				<Flag countryName={countryName()} />
+				<h2 class={Styles.title}>{objective().name}</h2>
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>
-					<For each={groundGroup()?.unitIds}>
-						{(unitId) => <GroundGroupUnit unitId={unitId} coalition={overlayStore.coalition ?? "blue"} />}
+					<For each={props.groundGroup?.unitIds}>
+						{(unitId) => {
+							const unit = getEntity<Types.Serialization.GroundUnitSerialized>(unitId);
+							return <GroundGroupUnit unit={unit} />;
+						}}
 					</For>
-					<Show when={(groundGroup()?.shoradUnitIds?.length ?? 0) > 0}>
+					<Show when={(props.groundGroup.shoradUnitIds.length ?? 0) > 0}>
 						<h3 class={Styles.category}>Anti Air</h3>
-						<For each={groundGroup()?.shoradUnitIds}>
-							{(unitId) => <GroundGroupUnit unitId={unitId} coalition={overlayStore.coalition ?? "blue"} />}
+						<For each={props.groundGroup?.shoradUnitIds}>
+							{(unitId) => {
+								const unit = getEntity<Types.Serialization.GroundUnitSerialized>(unitId);
+								return <GroundGroupUnit unit={unit} />;
+							}}
 						</For>
 					</Show>
 				</Components.List>
 			</Components.ScrollContainer>
-		</Show>
+		</>
 	);
 }

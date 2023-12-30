@@ -78,7 +78,7 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 			GenericStructure.create({
 				coalition: groundGroup.coalition,
 				name: structure.name,
-				objective: this,
+				objectiveId: this.id,
 				position: structure.position,
 				structureType: structure.structureType,
 			});

@@ -4,7 +4,7 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import type * as Entities from "../entities";
 import { SuperSet } from "../SuperSet";
 
-const taskSubQueries = ["CAP", "CAS", "Escort", "Air Assault", "Pinpoint Strike"];
+const flightGroupQueries = ["CAP", "CAS", "Escort", "Air Assault", "Pinpoint Strike", "start up", "in air", "landed"];
 const aircraftSubQueries = ["idle", "in use"];
 const groundGroupSubQueries = ["en route", "on target", "embarked"];
 
@@ -20,14 +20,14 @@ function initializeStore(): Store {
 				neutrals: new Set(),
 			},
 			packages: {
-				blue: new SuperSet(taskSubQueries),
-				red: new SuperSet(taskSubQueries),
-				neutrals: new SuperSet(taskSubQueries),
+				blue: new SuperSet(flightGroupQueries),
+				red: new SuperSet(flightGroupQueries),
+				neutrals: new SuperSet(flightGroupQueries),
 			},
 			flightGroups: {
-				blue: new SuperSet(taskSubQueries),
-				red: new SuperSet(taskSubQueries),
-				neutrals: new SuperSet(taskSubQueries),
+				blue: new SuperSet(flightGroupQueries),
+				red: new SuperSet(flightGroupQueries),
+				neutrals: new SuperSet(flightGroupQueries),
 			},
 			groundGroups: {
 				blue: new SuperSet(groundGroupSubQueries),
@@ -82,8 +82,8 @@ function initializeStore(): Store {
 
 interface Queries {
 	airdromes: Record<DcsJs.Coalition, Set<Entities.Airdrome>>;
-	packages: Record<DcsJs.Coalition, SuperSet<Entities.Package, (typeof taskSubQueries)[number]>>;
-	flightGroups: Record<DcsJs.Coalition, SuperSet<Entities.FlightGroup, (typeof taskSubQueries)[number]>>;
+	packages: Record<DcsJs.Coalition, SuperSet<Entities.Package, (typeof flightGroupQueries)[number]>>;
+	flightGroups: Record<DcsJs.Coalition, SuperSet<Entities.FlightGroup, (typeof flightGroupQueries)[number]>>;
 	groundGroups: Record<DcsJs.Coalition, SuperSet<Entities.GroundGroup, (typeof groundGroupSubQueries)[number]>>;
 	aircrafts: Record<DcsJs.Coalition, SuperSet<Entities.Aircraft, (typeof aircraftSubQueries)[number]>>;
 	groundUnits: Record<DcsJs.Coalition, Set<Entities.GroundUnit>>;

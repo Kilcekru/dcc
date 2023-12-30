@@ -113,6 +113,7 @@ export class World {
 				name: store.name,
 				flightGroups,
 				entities: new Map(state.entities.map((entity) => [entity.id, entity])),
+				factionDefinitions: store.factionDefinitions,
 			},
 		});
 	}
@@ -121,7 +122,7 @@ export class World {
 
 		for (const entity of store.queries.mapEntities) {
 			if (!entity.hidden) {
-				items.set(entity.id, entity.toMapJSON());
+				items.set(entity.id, entity.toMapJSON() as Types.Campaign.MapItem);
 			}
 		}
 

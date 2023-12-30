@@ -5,7 +5,7 @@ import * as Entities from "../../entities";
 import { store } from "../../store";
 
 function battleRoundCoalition(coalition: DcsJs.Coalition) {
-	const flightGroups = store.queries.flightGroups[coalition].intersection(store.queries.mapEntities);
+	const flightGroups = store.queries.flightGroups[coalition].get("in air");
 
 	for (const flightGroup of flightGroups) {
 		if (!flightGroup.isInCombat) {
@@ -36,10 +36,8 @@ function battleRound() {
 }
 
 function engagePerCoalition(coalition: DcsJs.Coalition) {
-	const mapEntities = store.queries.mapEntities;
-
-	const flightGroups = store.queries.flightGroups[coalition].intersection(mapEntities);
-	const oppFlightGroups = store.queries.flightGroups[Utils.Coalition.opposite(coalition)].intersection(mapEntities);
+	const flightGroups = store.queries.flightGroups[coalition].get("in air");
+	const oppFlightGroups = store.queries.flightGroups[Utils.Coalition.opposite(coalition)].get("in air");
 
 	for (const flightGroup of flightGroups) {
 		if (flightGroup.isInCombat) {

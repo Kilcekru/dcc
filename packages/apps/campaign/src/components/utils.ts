@@ -20,11 +20,24 @@ export const useFaction = (coalition: DcsJs.Coalition | undefined) => {
 
 export function useGetEntity() {
 	const [state] = useContext(CampaignContext);
-	return function getEntity<Type extends Types.Ecs.EntitySerialized>(id: Types.Campaign.Id): Type {
+	return function getEntity<Type extends Types.Serialization.EntitySerialized>(id: Types.Campaign.Id): Type {
 		const entity = state.entities.get(id);
 		if (entity == undefined) {
 			throw new Error(`getEntity: invalid id ${id}`);
 		}
 		return entity as unknown as Type;
 	};
+}
+
+export function useEntity<Type extends Types.Serialization.EntitySerialized>(id: Types.Campaign.Id | undefined) {
+	const getEntity = useGetEntity();
+	const entity = createMemo(() => {
+		if (id == null) {
+			return undefined;
+		}
+
+		return getEntity<Type>(id);
+	});
+
+	return entity;
 }

@@ -5,11 +5,12 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import L from "leaflet";
 import MilSymbol from "milsymbol";
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
 
 import { MapPosition } from "../../types";
 import { positionToMapPosition } from "../../utils";
 import { onWorkerEvent } from "../../worker";
+import { CampaignContext } from "../CampaignProvider";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -78,7 +79,6 @@ function getUnitCode(item: Types.Campaign.MapItem): SidcUnitCodeKey {
 			default:
 				return "armor";
 		}
-		return "armor";
 	} else {
 		return "waypoint";
 	}
@@ -98,7 +98,10 @@ function getDomain(item: Types.Campaign.MapItem): "air" | "ground" | "sea" {
 }
 
 type MarkerItem = {
+	id: Types.Campaign.Id;
 	marker: L.Marker;
+	color: string;
+	symbolCode: string;
 	coalition: DcsJs.Coalition;
 	position: DcsJs.Position;
 };
@@ -107,9 +110,10 @@ export const MapContainer = () => {
 	let mapDiv: HTMLDivElement;
 	let workerSubscription: { dispose: () => void } | undefined;
 	let getMapPosition: (position: DcsJs.Position) => MapPosition = positionToMapPosition("caucasus");
+	let selectedMarker: MarkerItem | undefined;
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const markers: Map<string, MarkerItem> = new Map();
-
+	const [state, { selectEntity }] = useContext(CampaignContext);
 	onMount(() => {
 		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
 			initializeMap(event.items, event.map);
@@ -221,8 +225,15 @@ export const MapContainer = () => {
 
 		const marker = L.marker(mapPosition, { icon, riseOnHover, zIndexOffset: riseOnHover ? 100 : 0 }).addTo(map);
 
+		marker.addEventListener("click", function () {
+			selectEntity?.(id);
+		});
+
 		markers.set(id, {
+			id,
 			marker,
+			color,
+			symbolCode,
 			coalition: item.coalition,
 			position: item.position,
 		});
@@ -253,5 +264,66 @@ export const MapContainer = () => {
 		deleteMarker(id, markers.get(id)?.marker);
 		addMarker(id, item);
 	}
+
+	createEffect(function highlightSelectedEntity() {
+		if (selectedMarker != null) {
+			const symbol = new MilSymbol.Symbol(selectedMarker.symbolCode, {
+				size: 20,
+				...(selectedMarker.color == null
+					? {}
+					: {
+							iconColor: selectedMarker.color,
+							colorMode: {
+								Civilian: selectedMarker.color,
+								Friend: selectedMarker.color,
+								Hostile: selectedMarker.color,
+								Neutral: selectedMarker.color,
+								Unknown: selectedMarker.color,
+							},
+					  }),
+			});
+
+			selectedMarker.marker.setIcon(
+				L.icon({
+					iconUrl: symbol.toDataURL(),
+					iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
+				}),
+			);
+
+			selectedMarker = undefined;
+		}
+
+		if (state.selectedEntityId == null) {
+			return;
+		}
+
+		const marker = markers.get(state.selectedEntityId);
+
+		if (marker == null) {
+			// eslint-disable-next-line no-console
+			console.warn("Marker for selected entity not found");
+			return;
+		}
+
+		const symbol = new MilSymbol.Symbol(marker.symbolCode, {
+			size: 25,
+			iconColor: "rgb(255, 205, 0)",
+			colorMode: {
+				Civilian: "rgb(255, 205, 0)",
+				Friend: "rgb(255, 205, 0)",
+				Hostile: "rgb(255, 205, 0)",
+				Neutral: "rgb(255, 205, 0)",
+				Unknown: "rgb(255, 205, 0)",
+			},
+		});
+
+		marker.marker.setIcon(
+			L.icon({
+				iconUrl: symbol.toDataURL(),
+				iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
+			}),
+		);
+		selectedMarker = marker;
+	});
 	return <div class="map" ref={(el) => (mapDiv = el)} />;
 };
