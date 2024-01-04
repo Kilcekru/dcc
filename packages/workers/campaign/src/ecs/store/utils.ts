@@ -26,3 +26,19 @@ export function getObjective(name: string) {
 }
 
 self.getEntity = getEntity;
+
+self.getFlightGroup = function (name: string) {
+	for (const flightGroup of store.queries.flightGroups["blue"]) {
+		if (flightGroup.name === name) {
+			return flightGroup;
+		}
+	}
+
+	for (const flightGroup of store.queries.flightGroups["red"]) {
+		if (flightGroup.name === name) {
+			return flightGroup;
+		}
+	}
+
+	throw new Error(`getFlightGroup: invalid name ${name}`);
+};

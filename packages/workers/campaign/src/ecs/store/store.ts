@@ -4,7 +4,17 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import type * as Entities from "../entities";
 import { SuperSet } from "../SuperSet";
 
-const flightGroupQueries = ["CAP", "CAS", "Escort", "Air Assault", "Pinpoint Strike", "start up", "in air", "landed"];
+const flightGroupQueries = [
+	"CAP",
+	"CAS",
+	"Escort",
+	"Air Assault",
+	"Pinpoint Strike",
+	"start up",
+	"in air",
+	"landed",
+	"destroyed",
+];
 const aircraftSubQueries = ["idle", "in use"];
 const groundGroupSubQueries = ["en route", "on target", "embarked"];
 

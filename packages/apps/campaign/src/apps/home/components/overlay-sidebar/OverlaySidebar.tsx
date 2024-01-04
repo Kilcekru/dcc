@@ -9,6 +9,7 @@ import { Airdrome } from "./Airdrome";
 import { FlightGroup } from "./FlightGroup";
 import { GroundGroup } from "./GroundGroup";
 import style from "./OverlaySidebar.module.less";
+import { Sam } from "./Sam";
 import { Structure } from "./Structure";
 
 export function OverlaySidebar() {
@@ -54,6 +55,9 @@ export function OverlaySidebar() {
 			</Show>
 			<Show when={entity()?.entityType === "Airdrome"}>
 				<Airdrome />
+			</Show>
+			<Show when={entity()?.entityType === "SAM"}>
+				<Sam sam={entity() as Types.Serialization.SAMSerialized} />
 			</Show>
 			<Components.Button onPress={onClose} class={style["close-button"]} large>
 				<Components.Icons.Close />

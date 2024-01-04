@@ -32,6 +32,22 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 		return retVal;
 	}
 
+	get latestStartTime() {
+		const flightGroups = store.queries.flightGroups[this.coalition];
+
+		let latestStartTime = store.time;
+
+		for (const fg of flightGroups) {
+			if (fg.homeBaseId === this.id) {
+				if (fg.startTime > latestStartTime) {
+					latestStartTime = fg.startTime;
+				}
+			}
+		}
+
+		return latestStartTime;
+	}
+
 	public constructor(args: HomeBaseProps | Types.Serialization.HomeBaseSerialized) {
 		super(args);
 		this.type = args.type;
@@ -70,6 +86,10 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 				this.#aircraftIds.push(ac.id);
 			});
 		}
+	}
+
+	public removeAircraft(aircraft: Aircraft) {
+		this.#aircraftIds = this.#aircraftIds.filter((id) => id !== aircraft.id);
 	}
 
 	override toJSON() {

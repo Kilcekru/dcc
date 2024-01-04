@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../utils";
 import { getEntity, QueryKey } from "../store";
-import { calcHoldWaypoint, getValidAircraftBundles } from "../utils";
+import { calcCruiseSpeed, calcHoldWaypoint, calcStartTime, getValidAircraftBundles } from "../utils";
 import { Entity } from "./_base/Entity";
 import { HomeBase } from "./_base/HomeBase";
 import { AirAssaultFlightGroup, CapFlightGroup, CasFlightGroup, FlightGroup, StrikeFlightGroup } from "./flight-group";
@@ -34,15 +34,27 @@ export type PackageCreateProps = BasicProps & TaskProps;
 export interface PackageProps {
 	coalition: DcsJs.Coalition;
 	task: DcsJs.Task;
+	startTime: number;
+	cruiseSpeed: number;
 }
 
 export class Package extends Entity<keyof Events.EventMap.Package> {
 	#flightGroupIds = new Set<Types.Campaign.Id>();
 	public readonly task: DcsJs.Task;
 	#cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
+	#startTime: number;
+	#listenersTrys = 0;
 
 	get cruiseSpeed() {
 		return this.#cruiseSpeed;
+	}
+
+	get startTime() {
+		return this.#startTime;
+	}
+
+	get flightGroups() {
+		return Array.from(this.#flightGroupIds).map((id) => getEntity<FlightGroup>(id));
 	}
 
 	private constructor(args: PackageProps | Types.Serialization.PackageSerialized) {
@@ -51,10 +63,32 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			: { ...args, entityType: "Package" as const, queries: [`packages-${args.task}` as const] as QueryKey[] };
 		super(superArgs);
 		this.task = args.task;
+		this.#startTime = args.startTime;
+		this.#cruiseSpeed = args.cruiseSpeed;
 
 		if (Serialization.isSerialized(args)) {
 			this.#flightGroupIds = new Set(args.flightGroupIds);
-			this.#cruiseSpeed = args.cruiseSpeed;
+		}
+
+		this.#addListener();
+	}
+
+	// TODO
+	#addListener() {
+		try {
+			for (const flightGroup of this.flightGroups) {
+				flightGroup.on("landed", () => this.checkFinished());
+				flightGroup.on("destroyed", () => this.checkFinished());
+			}
+		} catch (e) {
+			if (this.#listenersTrys <= 3) {
+				this.#listenersTrys++;
+				// eslint-disable-next-line no-console
+				console.log("Package listener error, trying again", e);
+				setTimeout(() => this.#addListener(), 10);
+			} else {
+				throw e;
+			}
 		}
 	}
 
@@ -70,6 +104,8 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		const pkg = new Package({
 			coalition: args.coalition,
 			task: args.task,
+			startTime: calcStartTime(aircraftBundles),
+			cruiseSpeed: calcCruiseSpeed(aircraftBundles),
 		});
 
 		switch (args.task) {
@@ -238,15 +274,15 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			}
 		}
 
-		for (const aircraftBundle of aircraftBundles.values()) {
-			const [aircraft] = aircraftBundle.aircrafts;
-
-			if (aircraft?.aircraftData.cruiseSpeed != null && aircraft.aircraftData.cruiseSpeed < pkg.cruiseSpeed) {
-				pkg.#cruiseSpeed = aircraft.aircraftData.cruiseSpeed;
-			}
-		}
+		pkg.#addListener();
 
 		return true;
+	}
+
+	addFlightGroup(flightGroup: FlightGroup) {
+		this.#flightGroupIds.add(flightGroup.id);
+		flightGroup.on("destroyed", () => this.checkFinished());
+		flightGroup.on("landed", () => this.checkFinished());
 	}
 
 	removeFlightGroup(flightGroup: FlightGroup) {
@@ -254,6 +290,20 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 
 		// If there are no more flight groups in this package, remove it from the world
 		if (this.#flightGroupIds.size === 0) {
+			this.destructor();
+		}
+	}
+
+	checkFinished() {
+		let activeFlightGroups = 0;
+
+		for (const flightGroup of this.flightGroups) {
+			if (flightGroup.active) {
+				activeFlightGroups++;
+			}
+		}
+
+		if (activeFlightGroups === 0) {
 			this.destructor();
 		}
 	}
@@ -283,8 +333,9 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			...super.serialize(),
 			entityType: "Package",
 			task: this.task,
-			cruiseSpeed: this.cruiseSpeed,
+			cruiseSpeed: this.#cruiseSpeed,
 			flightGroupIds: [...this.#flightGroupIds],
+			startTime: this.#startTime,
 		};
 	}
 }

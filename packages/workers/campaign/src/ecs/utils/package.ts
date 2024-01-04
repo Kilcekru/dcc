@@ -486,3 +486,29 @@ export function calcHoldWaypoint(aircraftBundles: Map<DcsJs.Task, AircraftBundle
 		position: holdPosition,
 	});
 }
+
+export function calcStartTime(aircraftBundles: Map<DcsJs.Task, AircraftBundleWithTarget>) {
+	let startTime = 0;
+
+	for (const bundle of aircraftBundles) {
+		if (bundle[1].homeBase.latestStartTime > startTime) {
+			startTime = bundle[1].homeBase.latestStartTime;
+		}
+	}
+
+	return Utils.DateTime.toFullMinutes(startTime + Utils.DateTime.Minutes(Utils.Random.number(5, 10)));
+}
+
+export function calcCruiseSpeed(aircraftBundles: Map<DcsJs.Task, AircraftBundleWithTarget>) {
+	let speed = Utils.Config.defaults.cruiseSpeed;
+
+	for (const aircraftBundle of aircraftBundles.values()) {
+		const [aircraft] = aircraftBundle.aircrafts;
+
+		if (aircraft?.aircraftData.cruiseSpeed != null && aircraft.aircraftData.cruiseSpeed < speed) {
+			speed = aircraft.aircraftData.cruiseSpeed;
+		}
+	}
+
+	return speed;
+}

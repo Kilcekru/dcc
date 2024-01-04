@@ -19,6 +19,7 @@ export abstract class Unit<EventNames extends keyof Events.EventMap.All = never>
 
 	destroy() {
 		this.#alive = false;
+		this.emit("destroyed");
 	}
 
 	public override serialize(): Types.Serialization.UnitSerialized {

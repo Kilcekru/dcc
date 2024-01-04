@@ -58,5 +58,6 @@ declare global {
 		resetStore: () => void;
 		world: unknown;
 		getEntity: (id: string) => unknown;
+		getFlightGroup: (name: string) => unknown;
 	}
 }

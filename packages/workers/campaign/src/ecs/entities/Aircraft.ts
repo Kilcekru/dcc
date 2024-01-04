@@ -77,6 +77,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	}
 
 	override destructor() {
+		this.homeBase.removeAircraft(this);
 		super.destructor();
 	}
 

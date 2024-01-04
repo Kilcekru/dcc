@@ -15,6 +15,7 @@ import {
 	GroundUnit,
 	Objective,
 	Package,
+	SAM,
 	SeadFlightGroup,
 	StrikeFlightGroup,
 	UnitCamp,
@@ -37,6 +38,7 @@ const entityClasses = {
 	UnitCamp,
 	Building,
 	Flightplan,
+	SAM,
 };
 
 export function deserialize(serialized: unknown) {

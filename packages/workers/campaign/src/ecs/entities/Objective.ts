@@ -31,12 +31,12 @@ export class Objective extends Entity<keyof Events.EventMap.Objective> {
 	/**
 	 * Set the incoming ground group
 	 */
-	set incomingGroundGroup(groundGroup: GroundGroup) {
-		if (this.#incomingGroundGroupId != undefined) {
+	set incomingGroundGroup(groundGroup: GroundGroup | undefined) {
+		if (this.#incomingGroundGroupId != null && groundGroup != null) {
 			throw new Error("incoming ground group is already set");
 		}
 
-		this.#incomingGroundGroupId = groundGroup.id;
+		this.#incomingGroundGroupId = groundGroup?.id;
 	}
 
 	private constructor(args: ObjectiveProps | Types.Serialization.ObjectiveSerialized) {

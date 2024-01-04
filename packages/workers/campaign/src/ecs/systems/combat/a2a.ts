@@ -8,7 +8,7 @@ function battleRoundCoalition(coalition: DcsJs.Coalition) {
 	const flightGroups = store.queries.flightGroups[coalition].get("in air");
 
 	for (const flightGroup of flightGroups) {
-		if (!flightGroup.isInCombat) {
+		if (!flightGroup.isInCombat || !flightGroup.active) {
 			continue;
 		}
 
@@ -17,7 +17,7 @@ function battleRoundCoalition(coalition: DcsJs.Coalition) {
 			flightGroup.combat != null &&
 			flightGroup.a2aTarget != null &&
 			flightGroup.combat.type === "a2a" &&
-			flightGroup.combat.cooldownTime <= store.time
+			flightGroup.readyToFire
 		) {
 			// Is in range?
 			const range = flightGroup.a2aRange;
@@ -40,7 +40,11 @@ function engagePerCoalition(coalition: DcsJs.Coalition) {
 	const oppFlightGroups = store.queries.flightGroups[Utils.Coalition.opposite(coalition)].get("in air");
 
 	for (const flightGroup of flightGroups) {
-		if (flightGroup.isInCombat) {
+		if (
+			flightGroup.isInCombat ||
+			!flightGroup.active ||
+			(flightGroup.task !== "CAP" && flightGroup.task !== "Escort")
+		) {
 			continue;
 		}
 
@@ -57,7 +61,11 @@ function engagePerCoalition(coalition: DcsJs.Coalition) {
 			const enemyFlightGroupsInRange = new Set<Entities.FlightGroup>();
 			// Find all enemy aircraft within range
 			for (const enemyFlightGroup of oppFlightGroups) {
-				if (enemyFlightGroup.isInCombat) {
+				if (
+					enemyFlightGroup.isInCombat ||
+					!enemyFlightGroup.active ||
+					(flightGroup.task === "Escort" && enemyFlightGroup.task !== "CAP")
+				) {
 					continue;
 				}
 

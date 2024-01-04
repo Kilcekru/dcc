@@ -138,3 +138,47 @@ export function generateObjectives(args: {
 		});
 	}
 }
+
+export function generateSAMs(args: {
+	coalition: DcsJs.Coalition;
+	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
+	dataStore: Types.Campaign.DataStore;
+	objectives: Set<Entities.Objective>;
+}) {
+	const strikeTargets = args.dataStore.strikeTargets;
+
+	if (strikeTargets == null) {
+		throw new Error("strikeTargets not found");
+	}
+
+	for (const plan of args.objectivePlans) {
+		// Get only the plans with SAMs
+		const withSam = plan.groundUnitTypes.some((gut) => gut === "sam");
+
+		if (!withSam) {
+			continue;
+		}
+
+		// Get the targets for the plan
+		const targets = strikeTargets[plan.objectiveName];
+
+		if (targets == null) {
+			continue;
+		}
+
+		// Select a SAM target
+		const samTargets = targets.filter((target) => target.type === "SAM");
+
+		const selectedSamTarget = Utils.Random.item(samTargets);
+
+		if (selectedSamTarget == null) {
+			continue;
+		}
+
+		Entities.SAM.create({
+			coalition: args.coalition,
+			objective: getObjective(args.objectives, selectedSamTarget.objectiveName),
+			position: selectedSamTarget.position,
+		});
+	}
+}

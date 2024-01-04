@@ -24,6 +24,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	readonly #unitIds: Array<Types.Campaign.Id>;
 	readonly #shoradUnitIds: Array<Types.Campaign.Id>;
 	#embarkedOntoFlightGroupId: Types.Campaign.Id | undefined;
+	#listenersTrys = 0;
 
 	get target(): Objective {
 		return getEntity<Objective>(this.#targetId);
@@ -35,6 +36,10 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 
 	get aliveUnits(): Array<GroundUnit> {
 		return this.units.filter((u) => u.alive);
+	}
+
+	get alive() {
+		return this.aliveUnits.length > 0;
 	}
 
 	get shoradUnits(): Array<GroundUnit> {
@@ -78,6 +83,8 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		this.type = args.type;
 		this.#unitIds = args.unitIds;
 		this.#shoradUnitIds = args.shoradUnitIds;
+
+		this.#addListener();
 	}
 
 	static create(
@@ -183,16 +190,23 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		this.position = Utils.Location.positionFromHeading(this.position, heading, distanceTraveled);
 	}
 
-	destroyUnit(unit: GroundUnit) {
-		unit.destroy();
+	fire(target: GroundGroup) {
+		target.destroyUnit();
+	}
 
-		if (this.aliveUnits.length === 0) {
-			this.destructor();
+	destroyUnit() {
+		const unit = Utils.Random.item(this.aliveUnits);
 
-			return true;
+		if (unit == null) {
+			return;
 		}
 
-		return false;
+		const randomNumber = Utils.Random.number(1, 100);
+		const hitChance = Utils.Config.combat.g2g.hitChange;
+
+		if (randomNumber <= hitChance) {
+			unit.destroy();
+		}
 	}
 
 	/**
@@ -230,9 +244,36 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		this.#embarkedOntoFlightGroupId = undefined;
 	}
 
+	// TODO
+	#addListener() {
+		try {
+			for (const unit of this.units) {
+				unit.on("destroyed", () => {
+					if (!this.alive) {
+						this.destructor();
+					}
+				});
+			}
+		} catch (e) {
+			if (this.#listenersTrys <= 3) {
+				this.#listenersTrys++;
+				// eslint-disable-next-line no-console
+				console.log("Ground Group listener error, trying again", e);
+				setTimeout(() => this.#addListener(), 1);
+			} else {
+				throw e;
+			}
+		}
+	}
 	override destructor() {
 		this.units.forEach((u) => u.destructor());
 		this.shoradUnits.forEach((u) => u.destructor());
+
+		const targetObjective = this.target;
+		if (targetObjective.incomingGroundGroup?.id === this.id) {
+			targetObjective.incomingGroundGroup = undefined;
+		}
+
 		super.destructor();
 	}
 

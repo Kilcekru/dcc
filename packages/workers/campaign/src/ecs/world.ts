@@ -6,7 +6,13 @@ import { Serialization } from "../utils";
 import * as Entities from "./entities";
 import { store } from "./store";
 import { frameTickSystems, logicTickSystems } from "./systems";
-import { generateAirdromes, generateGroundGroups, generateObjectives, generateStructures } from "./world/generate";
+import {
+	generateAirdromes,
+	generateGroundGroups,
+	generateObjectives,
+	generateSAMs,
+	generateStructures,
+} from "./world/generate";
 import { generateObjectivePlans } from "./world/objectivePlan";
 
 export type Faction = {
@@ -71,6 +77,21 @@ export class World {
 			coalition: "red",
 			objectivePlans: redOps,
 			dataStore: store.dataStore,
+			objectives: store.queries.objectives,
+		});
+
+		// Create SAMs
+		generateSAMs({
+			coalition: "blue",
+			dataStore: store.dataStore,
+			objectivePlans: blueOps,
+			objectives: store.queries.objectives,
+		});
+
+		generateSAMs({
+			coalition: "red",
+			dataStore: store.dataStore,
+			objectivePlans: redOps,
 			objectives: store.queries.objectives,
 		});
 

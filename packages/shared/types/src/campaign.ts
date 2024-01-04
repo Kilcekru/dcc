@@ -132,7 +132,13 @@ export interface GroundGroupMapItem extends MapItemBase {
 	groundGroupType: DcsJs.CampaignGroundGroupType;
 }
 
-export type MapItem = StructureMapItem | AirdromeMapItem | FlightGroupMapItem | GroundGroupMapItem;
+export interface SAMMapItem extends MapItemBase {
+	type: "sam";
+	range: number;
+	active: boolean;
+}
+
+export type MapItem = StructureMapItem | AirdromeMapItem | FlightGroupMapItem | GroundGroupMapItem | SAMMapItem;
 
 export type ObjectiveItem = {
 	id: string;

@@ -41,46 +41,52 @@ const sidcUnitCode = {
 type SidcUnitCodeKey = keyof typeof sidcUnitCode;
 
 function getUnitCode(item: Types.Campaign.MapItem): SidcUnitCodeKey {
-	if (item.type === "structure") {
-		switch (item.structureType) {
-			case "Fuel Storage":
-				return "fuelStorage";
-			case "Power Plant":
-				return "powerPlant";
-			case "Depot":
-				return "depot";
-			case "Ammo Depot":
-				return "ammoDepot";
-			case "Hospital":
-				return "hospital";
-			case "Farp":
-				return "militaryBase";
-			case "Barrack":
-				return "transport";
-			default:
-				return "installation";
+	switch (item.type) {
+		case "structure": {
+			switch (item.structureType) {
+				case "Fuel Storage":
+					return "fuelStorage";
+				case "Power Plant":
+					return "powerPlant";
+				case "Depot":
+					return "depot";
+				case "Ammo Depot":
+					return "ammoDepot";
+				case "Hospital":
+					return "hospital";
+				case "Farp":
+					return "militaryBase";
+				case "Barrack":
+					return "transport";
+				default:
+					return "installation";
+			}
 		}
-	} else if (item.type === "airdrome") {
-		return "airport";
-	} else if (item.type === "flightGroup") {
-		switch (item.task) {
-			case "CAS":
-			case "Pinpoint Strike":
-				return "attack";
-			case "CSAR":
-				return "csar";
-			default:
-				return "fighter";
+		case "airdrome":
+			return "airport";
+		case "flightGroup": {
+			switch (item.task) {
+				case "CAS":
+				case "Pinpoint Strike":
+					return "attack";
+				case "CSAR":
+					return "csar";
+				default:
+					return "fighter";
+			}
 		}
-	} else if (item.type === "groundGroup") {
-		switch (item.groundGroupType) {
-			case "infantry":
-				return "infantry";
-			default:
-				return "armor";
+		case "groundGroup": {
+			switch (item.groundGroupType) {
+				case "infantry":
+					return "infantry";
+				default:
+					return "armor";
+			}
 		}
-	} else {
-		return "waypoint";
+		case "sam":
+			return "airDefenceMissle";
+		default:
+			return "waypoint";
 	}
 }
 
@@ -89,6 +95,7 @@ function getDomain(item: Types.Campaign.MapItem): "air" | "ground" | "sea" {
 		case "structure":
 		case "airdrome":
 		case "groundGroup":
+		case "sam":
 			return "ground";
 		case "flightGroup":
 			return "air";
@@ -113,6 +120,7 @@ export const MapContainer = () => {
 	let selectedMarker: MarkerItem | undefined;
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const markers: Map<string, MarkerItem> = new Map();
+	const circles: Map<string, L.Circle> = new Map();
 	const [state, { selectEntity }] = useContext(CampaignContext);
 	onMount(() => {
 		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
@@ -158,12 +166,18 @@ export const MapContainer = () => {
 			}
 
 			deleteMarker(id, item.marker);
+			deleteCircle(id);
 		}
 
 		// Check if any markers need to be added
 		for (const [id, item] of items) {
 			if (!markers.has(id)) {
 				addMarker(id, item);
+
+				if (item.type === "sam") {
+					addCircle(id, item);
+				}
+
 				continue;
 			}
 
@@ -181,6 +195,25 @@ export const MapContainer = () => {
 
 			if (m.coalition !== item.coalition) {
 				updateCoalition(id, item);
+			}
+		}
+
+		// Check if any circles need to be updated
+		for (const [id, item] of items) {
+			if (item.type !== "sam") {
+				continue;
+			}
+
+			const circle = circles.get(id);
+
+			if (item.active) {
+				if (circle == null) {
+					addCircle(id, item);
+				}
+			} else {
+				if (circle != null) {
+					deleteCircle(id);
+				}
 			}
 		}
 	}
@@ -253,6 +286,40 @@ export const MapContainer = () => {
 		markers.delete(id);
 	}
 
+	function addCircle(id: Types.Campaign.Id, item: Types.Campaign.SAMMapItem) {
+		const map = leaftletMap();
+
+		if (map == null) {
+			return;
+		}
+
+		const mapPosition = getMapPosition(item.position);
+
+		const circle = L.circle(mapPosition, {
+			radius: item.range,
+			color: item.coalition === "blue" ? "#80e0ff" : "#ff8080",
+		}).addTo(map);
+
+		circles.set(id, circle);
+	}
+
+	function deleteCircle(id: Types.Campaign.Id) {
+		const circle = circles.get(id);
+		if (circle != null) {
+			const map = leaftletMap();
+
+			if (map == null) {
+				return;
+			}
+
+			if (map.hasLayer(circle)) {
+				map.removeLayer(circle);
+			}
+
+			circles.delete(id);
+		}
+	}
+
 	function updatePosition(id: Types.Campaign.Id, item: MarkerItem, position: DcsJs.Position) {
 		const mapPosition = getMapPosition(position);
 
@@ -262,7 +329,12 @@ export const MapContainer = () => {
 
 	function updateCoalition(id: Types.Campaign.Id, item: Types.Campaign.MapItem) {
 		deleteMarker(id, markers.get(id)?.marker);
+		deleteCircle(id);
 		addMarker(id, item);
+
+		if (item.type === "sam") {
+			addCircle(id, item);
+		}
 	}
 
 	createEffect(function highlightSelectedEntity() {

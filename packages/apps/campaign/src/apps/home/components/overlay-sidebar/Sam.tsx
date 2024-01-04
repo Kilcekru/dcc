@@ -1,63 +1,49 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import { createEffect, createMemo, For, Show, useContext } from "solid-js";
+import * as Types from "@kilcekru/dcc-shared-types";
+import { createMemo, For, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
-import { RunningCampaignState } from "../../../../logic/types";
-import { getCoalitionFaction } from "../../../../logic/utils";
+import { CampaignContext, useGetEntity } from "../../../../components";
 import { Flag } from "./Flag";
+import { GroundGroupUnit } from "./GroundGroupUnit";
 import Styles from "./Item.module.less";
-import { OverlaySidebarContext } from "./OverlaySidebarProvider";
-import { SamUnit } from "./SamUnit";
-import { useOverlayClose } from "./utils";
 
-export function Sam() {
+export function Sam(props: { sam: Types.Serialization.SAMSerialized }) {
 	const [state] = useContext(CampaignContext);
-	const [overlayStore] = useContext(OverlaySidebarContext);
-	const onClose = useOverlayClose();
+	const getEntity = useGetEntity();
 
-	const faction = createMemo(() => {
-		const coalition = overlayStore.coalition;
+	const countryName = createMemo(() => {
+		const coalition = props.sam.coalition;
+		const faction = state.factionDefinitions[coalition];
 
-		if (coalition == null) {
+		if (faction == null) {
 			return undefined;
 		}
-		return getCoalitionFaction(coalition, state as RunningCampaignState);
-	});
-
-	const sam = createMemo(() => {
-		const groundGroupId = overlayStore.groundGroupId;
-
-		return faction()?.groundGroups.find((gg) => gg.id === groundGroupId) as DcsJs.SamGroup;
-	});
-
-	// Close if the sam is removed
-	createEffect(() => {
-		if (sam() == null) {
-			onClose();
-		}
+		return faction.countryName;
 	});
 
 	return (
-		<Show when={sam() != null}>
+		<>
 			<div>
-				<Flag countryName={faction()?.countryName} />
-				<h2 class={Styles.title}>{sam()?.objectiveName}</h2>
-				<h3 class={Styles.subtitle}>{sam()?.type}</h3>
+				<Flag countryName={countryName()} />
+				<h2 class={Styles.title}>{props.sam.name}</h2>
+				<h3 class={Styles.subtitle}>{props.sam.type}</h3>
 				<div class={Styles.stats}>
 					<Components.Stat>
 						<Components.StatLabel>Status</Components.StatLabel>
-						<Components.StatValue>{sam()?.operational ? "Active" : "Inactive"}</Components.StatValue>
+						<Components.StatValue>{props.sam.active ? "Active" : "Inactive"}</Components.StatValue>
 					</Components.Stat>
 				</div>
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>
-					<For each={sam()?.unitIds}>
-						{(id) => <SamUnit unitId={id} coalition={overlayStore.coalition ?? "blue"} />}
+					<For each={props.sam.unitIds}>
+						{(unitId) => {
+							const unit = getEntity<Types.Serialization.GroundUnitSerialized>(unitId);
+							return <GroundGroupUnit unit={unit} />;
+						}}
 					</For>
 				</Components.List>
 			</Components.ScrollContainer>
-		</Show>
+		</>
 	);
 }

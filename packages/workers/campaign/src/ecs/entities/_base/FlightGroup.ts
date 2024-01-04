@@ -32,9 +32,8 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	readonly #aircraftIds: Types.Campaign.Id[];
 	public readonly task: DcsJs.Task;
 	readonly #flightplanId: Types.Campaign.Id;
-	public readonly startTime: number;
 	public readonly homeBaseId: Types.Campaign.Id;
-	public combat: A2ACombat | undefined;
+	#combat: A2ACombat | undefined;
 	#packageId: Types.Campaign.Id;
 
 	get aircrafts(): readonly Aircraft[] {
@@ -49,8 +48,26 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		return aircrafts;
 	}
 
+	get combat() {
+		return this.#combat;
+	}
+
 	get aliveAircrafts(): readonly Aircraft[] {
 		return this.aircrafts.filter((aircraft) => aircraft.alive);
+	}
+
+	get alive(): boolean {
+		return this.aliveAircrafts.length > 0;
+	}
+
+	get active(): boolean {
+		switch (this.state) {
+			case "destroyed":
+			case "landed":
+				return false;
+			default:
+				return true;
+		}
 	}
 
 	get package() {
@@ -62,10 +79,17 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	get isInCombat(): boolean {
-		return this.combat != null;
+		return this.#combat != null;
+	}
+
+	get startTime(): number {
+		return this.package.startTime;
 	}
 
 	get state(): Types.Serialization.FlightGroupState {
+		if (!this.alive) {
+			return "destroyed";
+		}
 		if (this.queries.has("flightGroups-start up") && this.startTime <= store.time) {
 			return "start up";
 		}
@@ -95,6 +119,14 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		return maxRange;
 	}
 
+	get readyToFire(): boolean {
+		if (this.combat == null) {
+			return true;
+		}
+
+		return store.time >= this.combat.cooldownTime;
+	}
+
 	get a2aTarget(): FlightGroup | undefined {
 		if (this.combat == null) {
 			return undefined;
@@ -120,13 +152,11 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		if (Serialization.isSerialized(args)) {
 			this.#packageId = args.packageId;
 			this.homeBaseId = args.homeBaseId;
-			this.startTime = args.startTime;
 			this.#flightplanId = args.flightplanId;
 		} else {
 			this.hidden = true;
 			this.#packageId = args.package.id;
 			this.homeBaseId = args.homeBase.id;
-			this.startTime = Utils.DateTime.toFullMinutes(store.time + Utils.DateTime.Minutes(Utils.Random.number(15, 25)));
 
 			args.aircraftIds.forEach((aircraftId, i) => {
 				const aircraft = getEntity<Aircraft>(aircraftId);
@@ -149,6 +179,14 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 				taskWaypoints: args.taskWaypoints,
 			}).id;
 		}
+
+		for (const aircraft of this.aircrafts) {
+			aircraft.on("destroyed", () => {
+				if (!this.alive) {
+					this.destroy();
+				}
+			});
+		}
 	}
 
 	takeOff() {
@@ -159,6 +197,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	land() {
 		this.moveSubQuery("flightGroups", "in air", "landed");
 		this.hidden = true;
+		this.emit("landed");
 	}
 
 	move(worldDelta: number) {
@@ -221,7 +260,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	engageA2A(enemy: FlightGroup) {
-		this.combat = {
+		this.#combat = {
 			type: "a2a",
 			targetId: enemy.id,
 			cooldownTime: store.time,
@@ -250,12 +289,22 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 
 							this.combat.cooldownTime = store.time + Utils.Config.combat.a2a.cooldownDuration;
 
-							// TODO
-							/* const flightGroupDestroyed = this.combat.target.destroyAircraft();
+							const target = getEntity<FlightGroup>(this.combat.targetId);
 
-							if (flightGroupDestroyed) {
-								this.combat = undefined;
-							} */
+							if (!target.alive) {
+								// eslint-disable-next-line no-console
+								console.warn("target is not alive", target);
+
+								this.#combat = undefined;
+
+								break aircraftLoop;
+							}
+
+							target.destroyAircraft();
+
+							if (!target.active) {
+								this.#combat = undefined;
+							}
 
 							break aircraftLoop;
 						} else {
@@ -289,9 +338,28 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		aircraft.destroy();
 	}
 
+	stopCombat() {
+		this.#combat = undefined;
+	}
+
+	destroy() {
+		this.queries.delete("flightGroups-start up");
+		this.queries.delete("flightGroups-in air");
+		this.queries.delete("flightGroups-landed");
+		this.queries.delete("flightGroups-waiting");
+		this.addToQuery("flightGroups-destroyed");
+		this.hidden = true;
+
+		if (this.a2aTarget != null) {
+			this.a2aTarget.stopCombat();
+		}
+
+		this.emit("destroyed");
+	}
+
 	override destructor(): void {
 		// eslint-disable-next-line no-console
-		console.log("destructor flight group", this.name);
+		console.log("destructor flight group", this.name, this.id);
 		super.destructor();
 		this.package.removeFlightGroup(this);
 	}

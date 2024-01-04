@@ -18,7 +18,10 @@ export interface EscortedFlightGroup {}
 
 export interface EscortingFlightGroup {}
 
-export interface FlightGroup {}
+export interface FlightGroup {
+	landed: void;
+	destroyed: void;
+}
 
 export interface Flightplan {}
 
@@ -42,7 +45,9 @@ export interface StrikeFlightGroup {}
 
 export interface Structure {}
 
-export interface Unit {}
+export interface Unit {
+	destroyed: void;
+}
 
 export type All = Aircraft &
 	Airdrome &

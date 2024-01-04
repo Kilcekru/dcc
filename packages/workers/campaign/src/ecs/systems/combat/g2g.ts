@@ -4,56 +4,15 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import type * as Entities from "../../entities";
 import { store } from "../../store";
 
-function calcHits(groundGroup: Entities.GroundGroup) {
-	let hits = 0;
-	for (const unit of groundGroup.units) {
-		if (unit.alive) {
-			const randomNumber = Utils.Random.number(1, 100);
-			const hitChance = Utils.Config.combat.g2g.hitChange;
-
-			if (randomNumber <= hitChance) {
-				hits++;
-			}
-		}
-	}
-
-	return hits;
-}
-
-function hitGroundGroup(groundGroup: Entities.GroundGroup, hits: number) {
-	if (hits === 0) {
-		return false;
-	}
-
-	for (const unit of groundGroup.units) {
-		if (unit.alive) {
-			const groupDestroyed = groundGroup.destroyUnit(unit);
-
-			if (groupDestroyed) {
-				return true;
-			}
-			hits--;
-
-			if (hits === 0) {
-				return false;
-			}
-		}
-	}
-
-	return false;
-}
 function combatRound(attacker: Entities.GroundGroup, defender: Entities.GroundGroup) {
-	const attackerHits = calcHits(attacker);
-	const defenderHits = calcHits(defender);
+	attacker.fire(defender);
+	defender.fire(attacker);
 
-	const attackerDestroyed = hitGroundGroup(attacker, defenderHits);
-	const defenderDestroyed = hitGroundGroup(defender, attackerHits);
-
-	if (attackerDestroyed) {
+	if (!attacker.alive) {
 		return;
 	}
 
-	if (defenderDestroyed) {
+	if (!defender.alive) {
 		attacker.target.conquer(attacker);
 
 		return;
