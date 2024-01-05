@@ -9,7 +9,20 @@ export function getUsableAircraftsByTask(args: {
 	task: DcsJs.Task;
 	excludedAircrafts?: Set<Entities.Aircraft>;
 }): Set<Entities.Aircraft> {
-	const task = args.task === "Escort" ? "CAP" : args.task;
+	let task: DcsJs.Task = "CAP";
+
+	switch (args.task) {
+		case "Escort":
+			task = "CAP";
+			break;
+		case "DEAD":
+			task = "Pinpoint Strike";
+			break;
+		default:
+			task = args.task;
+			break;
+	}
+
 	const desiredAircraftTypes = new Set(store.factionDefinitions[args.coalition]?.aircraftTypes[task]);
 
 	const aircraftsPerAircraftType = new Map<DcsJs.AircraftType, Set<Entities.Aircraft>>();

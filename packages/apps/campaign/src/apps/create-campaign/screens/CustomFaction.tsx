@@ -124,7 +124,7 @@ export const CustomFaction = (props: {
 	const [cap, setCap] = createSignal<Array<string>>(props.template?.aircraftTypes.CAP ?? []);
 	const [cas, setCas] = createSignal<Array<string>>(props.template?.aircraftTypes.CAS ?? []);
 	const [awacs, setAwacs] = createSignal<Array<string>>(props.template?.aircraftTypes.AWACS ?? []);
-	const [dead, setDead] = createSignal<Array<string>>(props.template?.aircraftTypes.DEAD ?? []);
+	const [sead, setSead] = createSignal<Array<string>>(props.template?.aircraftTypes.SEAD ?? []);
 	const [strike, setStrike] = createSignal<Array<string>>(props.template?.aircraftTypes["Pinpoint Strike"] ?? []);
 	const [csar, setCsar] = createSignal<Array<string>>(props.template?.aircraftTypes.CSAR ?? []);
 	const [airAssault, setAirAssault] = createSignal<Array<string>>(props.template?.aircraftTypes["Air Assault"] ?? []);
@@ -154,8 +154,8 @@ export const CustomFaction = (props: {
 				break;
 			}
 			case "DEAD": {
-				list = dead();
-				setter = setDead;
+				list = sead();
+				setter = setSead;
 				break;
 			}
 			case "Pinpoint Strike": {
@@ -192,7 +192,7 @@ export const CustomFaction = (props: {
 				CAP: cap() as DcsJs.AircraftType[],
 				CAS: cas() as DcsJs.AircraftType[],
 				AWACS: awacs() as DcsJs.AircraftType[],
-				DEAD: dead() as DcsJs.AircraftType[],
+				SEAD: sead() as DcsJs.AircraftType[],
 				"Pinpoint Strike": strike() as DcsJs.AircraftType[],
 				CSAR: csar() as DcsJs.AircraftType[],
 				"Air Assault": airAssault() as DcsJs.AircraftType[],
@@ -212,7 +212,7 @@ export const CustomFaction = (props: {
 	};
 
 	const validFaction = createMemo(
-		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && dead().length > 0 && strike().length > 0,
+		() => cap().length > 0 && cas().length > 0 && awacs().length > 0 && sead().length > 0 && strike().length > 0,
 	);
 
 	return (
@@ -245,8 +245,8 @@ export const CustomFaction = (props: {
 						selectedAircrafts={awacs()}
 						toggle={(name) => toggleAircraft("AWACS", name)}
 					/>
-					<h2 class={Styles["mission-task"]}>DEAD</h2>
-					<AircraftList missionTask="DEAD" selectedAircrafts={dead()} toggle={(name) => toggleAircraft("DEAD", name)} />
+					<h2 class={Styles["mission-task"]}>SEAD</h2>
+					<AircraftList missionTask="SEAD" selectedAircrafts={sead()} toggle={(name) => toggleAircraft("SEAD", name)} />
 					<h2 class={Styles["mission-task"]}>Strike</h2>
 					<AircraftList
 						missionTask="Pinpoint Strike"

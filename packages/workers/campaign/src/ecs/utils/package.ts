@@ -34,6 +34,14 @@ export type AircraftBundleTarget =
 	| {
 			task: "Air Assault";
 			targetGroundGroupId: Types.Campaign.Id;
+	  }
+	| {
+			task: "DEAD";
+			targetSAMId: Types.Campaign.Id;
+	  }
+	| {
+			task: "SEAD";
+			targetAircraftBundle: AircraftBundle;
 	  };
 
 export type AircraftBundleWithTarget = Omit<AircraftBundle, "task"> & AircraftBundleTarget;
@@ -52,6 +60,13 @@ type TaskProps =
 	  }
 	| {
 			task: "Air Assault";
+	  }
+	| {
+			task: "DEAD";
+	  }
+	| {
+			task: "SEAD";
+			targetAircraftBundle: AircraftBundle;
 	  };
 
 /**
@@ -108,6 +123,7 @@ export function getAircraftBundle(
 		}
 		case "Pinpoint Strike":
 		case "Air Assault":
+		case "DEAD":
 		case "CAS": {
 			const oppCoalition = Utils.Coalition.opposite(args.coalition);
 			let targetSet: Set<Entities.MapEntity> = new Set();
@@ -130,6 +146,11 @@ export function getAircraftBundle(
 					maxDistance = Utils.Config.packages["Air Assault"].maxDistance;
 					break;
 				}
+				case "DEAD": {
+					targetSet = store.queries.SAMs[oppCoalition].get("active");
+					maxDistance = Utils.Config.packages.DEAD.maxDistance;
+					break;
+				}
 			}
 
 			for (const homeBase of homeBasesWithMinAmount) {
@@ -145,7 +166,8 @@ export function getAircraftBundle(
 
 			break;
 		}
-		case "Escort": {
+		case "Escort":
+		case "SEAD": {
 			let distanceToHomeBase = 99999999;
 
 			for (const homeBase of homeBasesWithMinAmount) {
@@ -312,6 +334,45 @@ function getAircraftBundleWithTarget(
 				targetGroundGroupId: targetGroundGroup.id,
 			};
 		}
+		case "DEAD": {
+			const bundle = getAircraftBundle(args);
+
+			if (bundle == null) {
+				// eslint-disable-next-line no-console
+				console.log("aircraft bundle not found for DEAD", args.coalition);
+				return undefined;
+			}
+
+			const targetSAM = Entities.DeadFlightGroup.getValidTarget({
+				coalition: args.coalition,
+				homeBase: bundle.homeBase,
+			});
+
+			if (targetSAM == null) {
+				// eslint-disable-next-line no-console
+				console.log("No target found for CAS", args.coalition);
+				return undefined;
+			}
+
+			return {
+				...bundle,
+				task: "DEAD",
+				targetSAMId: targetSAM.id,
+			};
+		}
+		case "SEAD": {
+			const bundle = getAircraftBundle(args);
+
+			if (bundle == null) {
+				return undefined;
+			}
+
+			return {
+				...bundle,
+				task: "SEAD",
+				targetAircraftBundle: args.targetAircraftBundle,
+			};
+		}
 		default: {
 			return;
 		}
@@ -420,6 +481,48 @@ export function getValidAircraftBundles(
 
 			break;
 		}
+		case "DEAD": {
+			const deadBundle = getAircraftBundleWithTarget(args);
+
+			if (deadBundle == null || deadBundle.task !== "DEAD") {
+				return undefined;
+			}
+
+			aircraftBundles.set("DEAD", deadBundle);
+
+			const targetSAM = getEntity<Entities.SAM>(deadBundle.targetSAMId);
+
+			if (targetSAM.active) {
+				const seadBundle = getAircraftBundleWithTarget({
+					...args,
+					task: "SEAD",
+					targetAircraftBundle: deadBundle,
+				});
+
+				if (seadBundle == null) {
+					// eslint-disable-next-line no-console
+					console.log("No SEAD bundle found for DEAD package", args);
+					return undefined;
+				}
+
+				aircraftBundles.set("SEAD", seadBundle);
+			}
+			const escortBundle = getAircraftBundleWithTarget({
+				...args,
+				task: "Escort",
+				targetAircraftBundle: deadBundle,
+			});
+
+			if (escortBundle == null) {
+				// eslint-disable-next-line no-console
+				console.log("No escort bundle found for DEAD package", args);
+				return undefined;
+			}
+
+			aircraftBundles.set("Escort", escortBundle);
+
+			break;
+		}
 	}
 
 	return aircraftBundles;
@@ -466,6 +569,17 @@ export function calcHoldWaypoint(aircraftBundles: Map<DcsJs.Task, AircraftBundle
 			}
 			case "Pinpoint Strike": {
 				const target = getEntity<Entities.Structure>(bundle.targetStructureId);
+
+				holdPosition = Utils.Location.midpointAtDistance(
+					bundle.homeBase.position,
+					target.position,
+					Utils.Config.defaults.holdWaypointDistance,
+				);
+
+				break;
+			}
+			case "DEAD": {
+				const target = getEntity<Entities.SAM>(bundle.targetSAMId);
 
 				holdPosition = Utils.Location.midpointAtDistance(
 					bundle.homeBase.position,

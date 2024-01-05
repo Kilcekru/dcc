@@ -4,8 +4,11 @@ import { Events, Serialization } from "../../../utils";
 import { WaypointTemplate } from "../../objects";
 import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface SeadFlightGroupProps extends Omit<EscortingFlightGroupProps, "entityType" | "task"> {}
+type SeadFlightGroupProps = Omit<EscortingFlightGroupProps, "entityType" | "task">;
+
+interface CreateSeadFlightGroupProps extends Omit<SeadFlightGroupProps, "taskWaypoints"> {
+	targetFlightGroupId: Types.Campaign.Id;
+}
 
 export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.SeadFlightGroup> {
 	private constructor(args: SeadFlightGroupProps | Types.Serialization.SeadFlightGroupSerialized) {
@@ -15,7 +18,7 @@ export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.
 		super(superArgs);
 	}
 
-	static create(args: SeadFlightGroupProps) {
+	static create(args: CreateSeadFlightGroupProps) {
 		const taskWaypoint: WaypointTemplate = args.holdWaypoint.toEscortWaypoint();
 
 		const waypoints: Array<WaypointTemplate> = [taskWaypoint];

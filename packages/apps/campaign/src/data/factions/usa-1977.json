@@ -4,13 +4,29 @@
 	"year": 1977,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": ["F-5E-3", "F-14A-135-GR"],
-		"CAS": ["A-10A", "AH-64D_BLK_II"],
-		"AWACS": ["E-3A"],
-		"DEAD": ["F-4E"],
-		"Pinpoint Strike": ["F-14A-135-GR"],
-		"CSAR": ["UH-1H"],
-		"Air Assault": ["UH-1H"]
+		"CAP": [
+			"F-5E-3",
+			"F-14A-135-GR"
+		],
+		"CAS": [
+			"A-10A",
+			"AH-64D_BLK_II"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"SEAD": [
+			"F-4E"
+		],
+		"Pinpoint Strike": [
+			"F-14A-135-GR"
+		],
+		"CSAR": [
+			"UH-1H"
+		],
+		"Air Assault": [
+			"UH-1H"
+		]
 	},
 	"templateName": "USA - Cold War"
 }

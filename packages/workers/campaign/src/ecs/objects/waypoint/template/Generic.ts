@@ -2,12 +2,7 @@ import { WaypointTemplate, WaypointTemplateProps } from "./Template";
 
 export class GenericWaypointTemplate extends WaypointTemplate {
 	constructor(args: WaypointTemplateProps) {
-		super({
-			name: "Landing",
-			onGround: true,
-			position: args.position,
-			type: "Landing",
-		});
+		super(args);
 	}
 
 	public static create(args: WaypointTemplateProps) {

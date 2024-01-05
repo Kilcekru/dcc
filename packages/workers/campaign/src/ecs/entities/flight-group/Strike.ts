@@ -11,6 +11,10 @@ interface StrikeFlightGroupProps extends Omit<EscortedFlightGroupProps, "entityT
 	targetStructureId: Types.Campaign.Id;
 }
 
+interface CreateStrikeFlightGroupProps extends Omit<StrikeFlightGroupProps, "task" | "taskWaypoints"> {
+	holdWaypoint: WaypointTemplate | undefined;
+}
+
 export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap.StrikeFlightGroup> {
 	readonly #targetStructureId: Types.Campaign.Id;
 
@@ -24,6 +28,27 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 			: { ...args, task: "Pinpoint Strike" as const, entityType: "StrikeFlightGroup" as const };
 		super(superArgs);
 		this.#targetStructureId = args.targetStructureId;
+	}
+
+	static create(args: CreateStrikeFlightGroupProps) {
+		const targetStructure = getEntity<Structure>(args.targetStructureId);
+
+		const duration = Utils.DateTime.Minutes(30);
+
+		const waypoints: Array<WaypointTemplate> = [
+			GenericWaypointTemplate.create({
+				position: targetStructure.position,
+				duration,
+				type: "Task",
+				name: "Strike",
+			}),
+		];
+
+		return new StrikeFlightGroup({
+			...args,
+			targetStructureId: targetStructure.id,
+			taskWaypoints: waypoints,
+		});
 	}
 
 	/**
@@ -93,36 +118,6 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 		}
 
 		return targetStructure;
-	}
-
-	static create(
-		args: Omit<StrikeFlightGroupProps, "task" | "taskWaypoints"> & {
-			holdWaypoint: WaypointTemplate | undefined;
-		},
-	) {
-		const targetStructure = this.#getTargetStructure(args);
-
-		if (targetStructure == null) {
-			// eslint-disable-next-line no-console
-			throw new Error("no ground group target found for cas package");
-		}
-
-		const duration = Utils.DateTime.Minutes(30);
-
-		const waypoints: Array<WaypointTemplate> = [
-			GenericWaypointTemplate.create({
-				position: targetStructure.position,
-				duration,
-				type: "Task",
-				name: "Strike",
-			}),
-		];
-
-		return new StrikeFlightGroup({
-			...args,
-			targetStructureId: targetStructure.id,
-			taskWaypoints: waypoints,
-		});
 	}
 
 	static deserialize(args: Types.Serialization.StrikeFlightGroupSerialized) {

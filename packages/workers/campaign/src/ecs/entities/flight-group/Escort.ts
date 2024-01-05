@@ -6,6 +6,10 @@ import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
 
 type EscortFlightGroupProps = Omit<EscortingFlightGroupProps, "entityType" | "task">;
 
+interface CreateEscortFlightGroupProps extends Omit<EscortFlightGroupProps, "taskWaypoints"> {
+	targetFlightGroupId: Types.Campaign.Id;
+}
+
 export class EscortFlightGroup extends EscortingFlightGroup {
 	private constructor(args: EscortFlightGroupProps | Types.Serialization.EscortFlightGroupSerialized) {
 		const superArgs = Serialization.isSerialized(args)
@@ -14,11 +18,7 @@ export class EscortFlightGroup extends EscortingFlightGroup {
 		super(superArgs);
 	}
 
-	static create(
-		args: Omit<EscortFlightGroupProps, "taskWaypoints"> & {
-			targetFlightGroupId: Types.Campaign.Id;
-		},
-	) {
+	static create(args: CreateEscortFlightGroupProps) {
 		const taskWaypoint: WaypointTemplate = args.holdWaypoint.toEscortWaypoint();
 
 		const waypoints: Array<WaypointTemplate> = [taskWaypoint];

@@ -390,6 +390,8 @@ namespace Schema {
 		"HQ-7_STR_SP",
 		"PLZ05",
 		"TYPE-59",
+		"M45_Quadmount",
+		"M1_37mm",
 	]);
 	export const faction = z.object({
 		aircraftTypes: z.record(z.array(aircraftType)),

@@ -128,7 +128,18 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 
 		const arrivalDuration = Utils.DateTime.Seconds(Math.round(distance / speed));
 
-		this.#list.push(new Waypoint({ ...waypoint, arrivalDuration, flightplanId: this.id }));
+		this.#list.push(
+			new Waypoint({
+				name: waypoint.name,
+				position: waypoint.position,
+				type: waypoint.type,
+				duration: waypoint.duration,
+				onGround: waypoint.onGround,
+				raceTrack: waypoint.racetrack,
+				arrivalDuration,
+				flightplanId: this.id,
+			}),
+		);
 	}
 
 	add(...waypoints: Array<WaypointTemplate>) {

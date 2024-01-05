@@ -7,7 +7,15 @@ import { getEntity, QueryKey } from "../store";
 import { calcCruiseSpeed, calcHoldWaypoint, calcStartTime, getValidAircraftBundles } from "../utils";
 import { Entity } from "./_base/Entity";
 import { HomeBase } from "./_base/HomeBase";
-import { AirAssaultFlightGroup, CapFlightGroup, CasFlightGroup, FlightGroup, StrikeFlightGroup } from "./flight-group";
+import {
+	AirAssaultFlightGroup,
+	CapFlightGroup,
+	CasFlightGroup,
+	DeadFlightGroup,
+	FlightGroup,
+	SeadFlightGroup,
+	StrikeFlightGroup,
+} from "./flight-group";
 import { EscortFlightGroup } from "./flight-group/Escort";
 import { GroundGroup } from "./GroundGroup";
 import { UnitCamp } from "./UnitCamp";
@@ -27,6 +35,9 @@ type TaskProps =
 	| {
 			task: "Air Assault";
 			unitCamp: UnitCamp;
+	  }
+	| {
+			task: "DEAD";
 	  };
 
 export type PackageCreateProps = BasicProps & TaskProps;
@@ -269,6 +280,77 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 				targetGroundGroup.target.incomingGroundGroup = gg;
 
 				args.unitCamp.deploymentScore -= args.unitCamp.deploymentCostAirAssault;
+
+				break;
+			}
+			case "DEAD": {
+				const holdWaypoint = calcHoldWaypoint(aircraftBundles, "DEAD");
+
+				const deadBundle = aircraftBundles.get("DEAD");
+
+				if (deadBundle == null || deadBundle.task !== "DEAD") {
+					throw new Error("DEAD bundle is null");
+				}
+
+				const deadFg = DeadFlightGroup.create({
+					coalition: args.coalition,
+					position: deadBundle.homeBase.position,
+					package: pkg,
+					aircraftIds: Array.from(deadBundle.aircrafts).map((a) => a.id),
+					homeBase: deadBundle.homeBase,
+					targetSAMId: deadBundle.targetSAMId,
+					holdWaypoint,
+				});
+
+				if (deadFg == null) {
+					throw new Error("Flight group could not be created");
+				}
+
+				pkg.#flightGroupIds.add(deadFg.id);
+
+				const escortBundle = aircraftBundles.get("Escort");
+
+				if (escortBundle != null && holdWaypoint != null) {
+					const escortFg = EscortFlightGroup.create({
+						coalition: args.coalition,
+						position: escortBundle.homeBase.position,
+						package: pkg,
+						aircraftIds: Array.from(escortBundle.aircrafts).map((a) => a.id),
+						homeBase: escortBundle.homeBase,
+						targetFlightGroupId: deadFg.id,
+						holdWaypoint: holdWaypoint,
+					});
+
+					if (escortFg == null) {
+						throw new Error("Flight group could not be created");
+					}
+
+					pkg.#flightGroupIds.add(escortFg.id);
+
+					deadFg.addEscortFlightGroupId("Escort", escortFg.id);
+				}
+
+				const seadBundle = aircraftBundles.get("SEAD");
+
+				if (seadBundle != null && holdWaypoint != null) {
+					const seadFg = SeadFlightGroup.create({
+						coalition: args.coalition,
+						position: seadBundle.homeBase.position,
+						package: pkg,
+						aircraftIds: Array.from(seadBundle.aircrafts).map((a) => a.id),
+						homeBase: seadBundle.homeBase,
+						targetFlightGroupId: deadFg.id,
+						holdWaypoint: holdWaypoint,
+					});
+
+					if (seadFg == null) {
+						throw new Error("Flight group could not be created");
+					}
+
+					pkg.#flightGroupIds.add(seadFg.id);
+
+					deadFg.addEscortFlightGroupId("Escort", seadFg.id);
+				}
 
 				break;
 			}

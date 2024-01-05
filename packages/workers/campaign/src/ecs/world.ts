@@ -120,6 +120,10 @@ export class World {
 		const flightGroups: Types.Serialization.FlightGroupSerialized[] = [];
 
 		for (const fg of store.queries.flightGroups.blue) {
+			if (!fg.alive) {
+				continue;
+			}
+
 			flightGroups.push(fg.serialize());
 		}
 

@@ -29,35 +29,63 @@ export class SAM extends Group {
 	get samTemplate() {
 		return store.dataStore?.samTemplates?.[this.type];
 	}
+
+	/**
+	 * Range of SAM in meters. If the SAM lost the search radar, the range is 10% of the original range.
+	 */
 	get range() {
-		return this.samTemplate?.range ?? 1000;
+		let hasSearchRadar = false;
+
+		for (const unit of this.units) {
+			if (unit.alive && unit.vehicleData?.vehicleTypes.includes("Search Radar")) {
+				hasSearchRadar = true;
+				break;
+			}
+		}
+
+		const range = this.samTemplate?.range ?? 1000;
+
+		return hasSearchRadar ? range : range * 0.1;
 	}
 
 	get units(): Array<GroundUnit> {
 		return this.#unitIds.map((id) => getEntity<GroundUnit>(id));
 	}
 
+	get aliveUnits(): Array<GroundUnit> {
+		return this.units.filter((u) => u.alive);
+	}
+
 	get readyToFire() {
 		return this.active && (this.#cooldownTime == null || this.#cooldownTime <= store.time);
 	}
 
+	/**
+	 * Is SAM active (has both track radar and launcher alive)
+	 */
 	get active() {
-		let active = false;
+		let hasTrackRadar = false;
+		let hasLauncher = false;
 
 		for (const unit of this.units) {
-			if (unit.alive && unit.vehicleData?.vehicleTypes.includes("Track Radar")) {
-				active = true;
-				break;
+			if (unit.alive) {
+				if (unit.vehicleData?.vehicleTypes.includes("Track Radar")) {
+					hasTrackRadar = true;
+					continue;
+				}
+				if (unit.vehicleData?.vehicleTypes.includes("SAM Launcher")) {
+					hasLauncher = true;
+				}
 			}
 		}
 
-		return active;
+		return hasTrackRadar && hasLauncher;
 	}
 
 	private constructor(args: SAMProps | Types.Serialization.SAMSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
-			: { ...args, entityType: "SAM" as const, queries: ["SAMs"] as QueryKey[] };
+			: { ...args, entityType: "SAM" as const, queries: ["SAMs-active"] as QueryKey[] };
 		super(superArgs);
 		this.#objectiveId = args.objectiveId;
 		this.type = args.type;

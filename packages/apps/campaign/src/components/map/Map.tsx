@@ -11,6 +11,7 @@ import { MapPosition } from "../../types";
 import { positionToMapPosition } from "../../utils";
 import { onWorkerEvent } from "../../worker";
 import { CampaignContext } from "../CampaignProvider";
+import { useGetEntity } from "../utils";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -111,6 +112,7 @@ type MarkerItem = {
 	symbolCode: string;
 	coalition: DcsJs.Coalition;
 	position: DcsJs.Position;
+	item: Types.Campaign.MapItem;
 };
 
 export const MapContainer = () => {
@@ -118,10 +120,14 @@ export const MapContainer = () => {
 	let workerSubscription: { dispose: () => void } | undefined;
 	let getMapPosition: (position: DcsJs.Position) => MapPosition = positionToMapPosition("caucasus");
 	let selectedMarker: MarkerItem | undefined;
+	let waypointMarkers: L.Marker[] = [];
+	let waypointLine: L.Polyline | undefined;
 	const [leaftletMap, setMap] = createSignal<L.Map | undefined>(undefined);
 	const markers: Map<string, MarkerItem> = new Map();
 	const circles: Map<string, L.Circle> = new Map();
 	const [state, { selectEntity }] = useContext(CampaignContext);
+	const getEntity = useGetEntity();
+
 	onMount(() => {
 		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
 			initializeMap(event.items, event.map);
@@ -172,7 +178,7 @@ export const MapContainer = () => {
 		// Check if any markers need to be added
 		for (const [id, item] of items) {
 			if (!markers.has(id)) {
-				addMarker(id, item);
+				addMapItemMarker(id, item);
 
 				if (item.type === "sam") {
 					addCircle(id, item);
@@ -218,35 +224,41 @@ export const MapContainer = () => {
 		}
 	}
 
-	function addMarker(id: string, item: Types.Campaign.MapItem) {
-		const map = leaftletMap();
-
-		if (map == null) {
-			return;
-		}
-		const hostile = item.coalition === "red";
-		const domain: "ground" | "air" | "sea" = getDomain(item);
-		const isWaypoint = false;
-		const color = hostile ? "rgb(255, 31, 31)" : "rgb(0, 193, 255)";
-		const unitCode = getUnitCode(item);
-		const riseOnHover = false;
-		const mapPosition = getMapPosition(item.position);
-
-		const symbolCode = isWaypoint
-			? `G${hostile ? "H" : "F"}C*${sidcUnitCode[unitCode]}`
-			: `S${hostile ? "H" : "F"}${domain === "air" ? "A" : domain === "sea" ? "S" : "G"}-${sidcUnitCode[unitCode]}`;
+	function getSymbolCode(args: {
+		unitCode: SidcUnitCodeKey;
+		domain: "ground" | "air" | "sea";
+		hostile: boolean;
+		isWaypoint: boolean;
+	}): string {
+		return args.isWaypoint
+			? `G${args.hostile ? "H" : "F"}C*${sidcUnitCode[args.unitCode]}`
+			: `S${args.hostile ? "H" : "F"}${args.domain === "air" ? "A" : args.domain === "sea" ? "S" : "G"}-${
+					sidcUnitCode[args.unitCode]
+			  }`;
+	}
+	function addMarker(args: {
+		unitCode: SidcUnitCodeKey;
+		color: string;
+		hostile: boolean;
+		domain: "ground" | "air" | "sea";
+		isWaypoint: boolean;
+		riseOnHover: boolean;
+		position: DcsJs.Position;
+	}) {
+		const mapPosition = getMapPosition(args.position);
+		const symbolCode = getSymbolCode(args);
 		const symbol = new MilSymbol.Symbol(symbolCode, {
 			size: 20,
-			...(color == null
+			...(args.color == null
 				? {}
 				: {
-						iconColor: color,
+						iconColor: args.color,
 						colorMode: {
-							Civilian: color,
-							Friend: color,
-							Hostile: color,
-							Neutral: color,
-							Unknown: color,
+							Civilian: args.color,
+							Friend: args.color,
+							Hostile: args.color,
+							Neutral: args.color,
+							Unknown: args.color,
 						},
 				  }),
 		});
@@ -256,7 +268,36 @@ export const MapContainer = () => {
 			iconAnchor: L.point(symbol.getAnchor().x, symbol.getAnchor().y),
 		});
 
-		const marker = L.marker(mapPosition, { icon, riseOnHover, zIndexOffset: riseOnHover ? 100 : 0 }).addTo(map);
+		const map = leaftletMap();
+
+		if (map == null) {
+			throw new Error("Map not initialized");
+		}
+
+		return L.marker(mapPosition, {
+			icon,
+			riseOnHover: args.riseOnHover,
+			zIndexOffset: args.riseOnHover ? 100 : 0,
+		}).addTo(map);
+	}
+
+	function addMapItemMarker(id: string, item: Types.Campaign.MapItem) {
+		const hostile = item.coalition === "red";
+		const domain: "ground" | "air" | "sea" = getDomain(item);
+		const isWaypoint = false;
+		const color = hostile ? "rgb(255, 31, 31)" : "rgb(0, 193, 255)";
+		const unitCode = getUnitCode(item);
+		const riseOnHover = false;
+
+		const marker = addMarker({
+			unitCode,
+			color,
+			hostile,
+			domain,
+			isWaypoint,
+			riseOnHover,
+			position: item.position,
+		});
 
 		marker.addEventListener("click", function () {
 			selectEntity?.(id);
@@ -266,9 +307,15 @@ export const MapContainer = () => {
 			id,
 			marker,
 			color,
-			symbolCode,
+			symbolCode: getSymbolCode({
+				unitCode,
+				hostile,
+				domain,
+				isWaypoint,
+			}),
 			coalition: item.coalition,
 			position: item.position,
+			item,
 		});
 	}
 
@@ -330,7 +377,7 @@ export const MapContainer = () => {
 	function updateCoalition(id: Types.Campaign.Id, item: Types.Campaign.MapItem) {
 		deleteMarker(id, markers.get(id)?.marker);
 		deleteCircle(id);
-		addMarker(id, item);
+		addMapItemMarker(id, item);
 
 		if (item.type === "sam") {
 			addCircle(id, item);
@@ -397,5 +444,93 @@ export const MapContainer = () => {
 		);
 		selectedMarker = marker;
 	});
+
+	function deleteWaypoints() {
+		if (waypointMarkers.length > 0) {
+			for (const waypoint of waypointMarkers) {
+				const map = leaftletMap();
+
+				if (map == null) {
+					return;
+				}
+
+				if (map.hasLayer(waypoint)) {
+					map.removeLayer(waypoint);
+				}
+			}
+
+			waypointMarkers = [];
+		}
+
+		if (waypointLine != null) {
+			const map = leaftletMap();
+
+			if (map == null) {
+				return;
+			}
+
+			if (map.hasLayer(waypointLine)) {
+				map.removeLayer(waypointLine);
+			}
+
+			waypointLine = undefined;
+		}
+	}
+	createEffect(function selectWaypoints() {
+		deleteWaypoints();
+
+		const entity = state.selectedEntityId == null ? undefined : getEntity(state.selectedEntityId);
+
+		if (entity?.entityType.includes("FlightGroup")) {
+			const flightGroup = entity as Types.Serialization.FlightGroupSerialized;
+			const flightPlan = getEntity<Types.Serialization.FlightplanSerialized>(flightGroup.flightplanId);
+			const linePoints: MapPosition[] = [];
+			const hostile = flightGroup.coalition === "red";
+			const color = hostile ? "rgb(255, 31, 31)" : "rgb(0, 193, 255)";
+
+			for (const waypoint of flightPlan.waypoints) {
+				const marker = addMarker({
+					unitCode: "waypoint",
+					color,
+					hostile,
+					domain: "air",
+					isWaypoint: true,
+					riseOnHover: false,
+					position: waypoint.position,
+				});
+
+				marker.bindTooltip(waypoint.name, { permanent: true });
+
+				waypointMarkers.push(marker);
+				linePoints.push(getMapPosition(waypoint.position));
+
+				if (waypoint.raceTrack != null) {
+					const marker = addMarker({
+						unitCode: "waypoint",
+						color,
+						hostile,
+						domain: "air",
+						isWaypoint: true,
+						riseOnHover: false,
+						position: waypoint.raceTrack.position,
+					});
+
+					marker.bindTooltip(waypoint.raceTrack.name, { permanent: true });
+
+					waypointMarkers.push(marker);
+					linePoints.push(getMapPosition(waypoint.raceTrack.position));
+				}
+			}
+
+			const map = leaftletMap();
+
+			if (map == null) {
+				return;
+			}
+
+			waypointLine = L.polyline(linePoints, { color: "#2a2a2a" }).addTo(map);
+		}
+	});
+
 	return <div class="map" ref={(el) => (mapDiv = el)} />;
 };

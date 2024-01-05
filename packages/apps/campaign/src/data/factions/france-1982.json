@@ -4,13 +4,29 @@
 	"year": 1982,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": ["M-2000C", "Mirage-F1EE"],
-		"CAS": ["SA342M"],
-		"AWACS": ["E-3A"],
-		"DEAD": ["F-16C_50"],
-		"Pinpoint Strike": ["M-2000C", "Mirage-F1EE"],
-		"CSAR": ["SA342L"],
-		"Air Assault": ["UH-1H"]
+		"CAP": [
+			"M-2000C",
+			"Mirage-F1EE"
+		],
+		"CAS": [
+			"SA342M"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"SEAD": [
+			"F-16C_50"
+		],
+		"Pinpoint Strike": [
+			"M-2000C",
+			"Mirage-F1EE"
+		],
+		"CSAR": [
+			"SA342L"
+		],
+		"Air Assault": [
+			"UH-1H"
+		]
 	},
 	"templateName": "France - Modern"
 }

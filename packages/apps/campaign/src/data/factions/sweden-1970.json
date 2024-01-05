@@ -4,13 +4,27 @@
 	"year": 1970,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": ["AJS37"],
-		"CAS": ["SK-60"],
-		"AWACS": ["E-3A"],
-		"DEAD": ["AJS37"],
-		"Pinpoint Strike": ["AJS37"],
-		"CSAR": ["SA342L"],
-		"Air Assault": ["UH-1H"]
+		"CAP": [
+			"AJS37"
+		],
+		"CAS": [
+			"SK-60"
+		],
+		"AWACS": [
+			"E-3A"
+		],
+		"SEAD": [
+			"AJS37"
+		],
+		"Pinpoint Strike": [
+			"AJS37"
+		],
+		"CSAR": [
+			"SA342L"
+		],
+		"Air Assault": [
+			"UH-1H"
+		]
 	},
 	"templateName": "Russia - Korea War"
 }

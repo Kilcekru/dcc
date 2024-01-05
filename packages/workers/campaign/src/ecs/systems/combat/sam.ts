@@ -5,12 +5,12 @@ import { store } from "../../store";
 
 function engage(coalition: DcsJs.Coalition) {
 	const oppCoalition = Utils.Coalition.opposite(coalition);
-	const sams = store.queries.SAMs[coalition];
+	const sams = store.queries.SAMs[coalition].get("active");
 	const oppFlightGroups = store.queries.flightGroups[oppCoalition].get("in air");
 
 	for (const sam of sams) {
 		if (!sam.readyToFire) {
-			return;
+			continue;
 		}
 
 		for (const oppFlightGroup of oppFlightGroups) {

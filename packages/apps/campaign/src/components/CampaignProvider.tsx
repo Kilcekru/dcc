@@ -130,6 +130,7 @@ export function CampaignProvider(props: {
 			activate() {
 				setState("active", true);
 				setState("paused", false);
+				setState("selectedEntityId", undefined);
 			},
 			setMultiplier(multiplier: number) {
 				setState("multiplier", multiplier);
@@ -185,11 +186,13 @@ export function CampaignProvider(props: {
 					payload: { multiplier: state.multiplier },
 				});
 				setState("paused", () => false);
+				setState("selectedEntityId", undefined);
 			},
 			reset() {
 				setState(initState);
 				setState("loaded", true);
 				setState("winner", undefined);
+				setState("selectedEntityId", undefined);
 			},
 			selectFlightGroup(flightGroup) {
 				setState("selectedFlightGroup", () => flightGroup);
