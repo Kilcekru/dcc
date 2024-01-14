@@ -1,45 +1,40 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import { useDataStore } from "../../../../components/DataProvider";
-import { timerToDate } from "../../../../utils";
 import { FlightGroupItem } from "./FlightGroupItem";
 import Styles from "./Sidebar.module.less";
 
 export const Sidebar = () => {
 	const [state, { skipToNextDay }] = useContext(CampaignContext);
-	const dataStore = useDataStore();
 
 	const sortedFlightGroups = createMemo(() => {
 		return Array.from(state.flightGroups).sort((a, b) => a.startTime - b.startTime);
 	});
 
 	const date = createMemo(() => {
-		const d = timerToDate(state.timer);
+		const d = Utils.DateTime.timerToDate(state.time);
 
 		return d;
 	});
 
 	const isNight = createMemo(() => {
-		if (dataStore.mapInfo == null) {
-			return false;
-		}
+		const theatre = DcsJs.Theatres[state.theatre];
 
 		const hour = date().getUTCHours();
 
-		return hour < dataStore.mapInfo.night.endHour || hour >= dataStore.mapInfo.night.startHour;
+		return hour < theatre.info.night.endHour || hour >= theatre.info.night.startHour;
 	});
 
 	return (
 		<div class={Styles.sidebar}>
-			<Show when={isNight() && !state.allowNightMissions}>
+			<Show when={isNight() && !state.campaignParams.nightMissions}>
 				<div class={Styles["night-wrapper"]}>
 					<p class={Styles["night-description"]}>No flight groups are planned during the night.</p>
 					<div class={Styles["night-buttons"]}>
-						<Components.Button onPress={() => skipToNextDay?.(dataStore)}>
-							Jump to Day {date().getDate() + 1}
-						</Components.Button>
+						<Components.Button onPress={() => skipToNextDay?.()}>Jump to Day {date().getDate() + 1}</Components.Button>
 					</div>
 				</div>
 			</Show>

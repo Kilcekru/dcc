@@ -1,7 +1,6 @@
 import "./Briefing.less";
 
-import type * as DcsJs from "@foxdelta2/dcsjs";
-import * as Components from "@kilcekru/dcc-lib-components";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createMemo, For, Show } from "solid-js";
@@ -9,50 +8,55 @@ import { createMemo, For, Show } from "solid-js";
 import Styles from "./Briefing.module.less";
 
 export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
+	const getEntity = createMemo(() => Utils.ECS.EntitySelector(props.data.entities));
+
 	let wpIndex = 0;
-	const dataAircraft = createMemo(() => {
-		const unit = props.data.flightGroup.units[0];
 
-		if (unit == null) {
-			return;
+	function flightGroupAircraft(flightGroup: Types.Serialization.FlightGroupSerialized) {
+		const firstAircraftId = flightGroup.aircraftIds[0];
+
+		if (firstAircraftId == null) {
+			throw new Error("FlightGroup has no aircrafts");
 		}
 
-		const aircraft = props.data.faction.inventory.aircrafts[unit.id];
+		const aircraftEntity = getEntity()<Types.Serialization.AircraftSerialized>(firstAircraftId);
 
-		if (aircraft == null) {
-			return;
-		}
+		return DcsJs.aircrafts[aircraftEntity.aircraftType];
+	}
 
-		return props.data.dataAircrafts[aircraft.aircraftType as DcsJs.AircraftType];
+	const waypoints = createMemo(() => {
+		const flightPlan = getEntity()<Types.Serialization.FlightplanSerialized>(props.data.flightGroup.flightplanId);
+
+		return flightPlan.waypoints;
 	});
-	const flightGroupAircraftType = (flightGroup: DcsJs.FlightGroup) => {
-		const unit = flightGroup.units[0];
 
-		if (unit == null) {
-			return "";
-		}
+	const flightGroupAircraftTypeText = (flightGroup: Types.Serialization.FlightGroupSerialized) => {
+		const aircraft = flightGroupAircraft(flightGroup);
 
-		const aircraft = props.data.faction.inventory.aircrafts[unit.id];
-
-		if (aircraft == null) {
-			return "";
-		}
-
-		const dataAircraft = props.data.dataAircrafts[aircraft.aircraftType as DcsJs.AircraftType];
-
-		return `${flightGroup.units.length}x ${dataAircraft?.display_name ?? ""}`;
+		return `${flightGroup.aircraftIds.length}x ${aircraft.display_name ?? ""}`;
 	};
 
 	const airdromeData = createMemo(() => {
-		const airdrome = props.data.mapData.airdromes[props.data.flightGroup.airdromeName];
+		const homeBase = getEntity()<Types.Serialization.HomeBaseSerialized>(props.data.flightGroup.homeBaseId);
+		const airdrome = DcsJs.Theatres[props.data.theatre].airdromes[homeBase.name];
 
 		if (airdrome == null) {
+			throw new Error(`Airdrome ${homeBase.name} not found`);
+		}
+		return {
+			frequency: airdrome.frequency,
+			tcn: "",
+			icls: "",
+			name: homeBase.name,
+		};
+		// TODO
+		/* if (airdrome == null) {
 			if (
 				props.data.flightGroup.airdromeName === "CVN-72 Abraham Lincoln" ||
 				props.data.flightGroup.airdromeName === "Admiral Kuznetsov" ||
 				props.data.flightGroup.airdromeName === "CV-59 Forrestal"
 			) {
-				if (dataAircraft()?.name === "AV8BNA" || dataAircraft()?.isHelicopter) {
+				if (playerAircraft()?.name === "AV8BNA" || playerAircraft()?.isHelicopter) {
 					return {
 						frequency: 128.5,
 						tcn: "12X",
@@ -82,7 +86,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				icls: "",
 				name: props.data.flightGroup.airdromeName,
 			};
-		}
+		} */
 	});
 
 	const taskDescription = createMemo(() => {
@@ -161,14 +165,18 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<p class={Styles.label}>Callsign</p>
 				<p class={Styles.label}>Aircraft Type</p>
 				<p class={Styles.label}>Task</p>
-				<For each={props.data.package.flightGroups}>
-					{(fg) => (
-						<>
-							<p>{fg.name}</p>
-							<p>{flightGroupAircraftType(fg)}</p>
-							<p>{fg.task}</p>
-						</>
-					)}
+				<For each={props.data.package.flightGroupIds}>
+					{(id) => {
+						const fg = getEntity()<Types.Serialization.FlightGroupSerialized>(id);
+
+						return (
+							<>
+								<p>{fg.name}</p>
+								<p>{flightGroupAircraftTypeText(fg)}</p>
+								<p>{fg.task}</p>
+							</>
+						);
+					}}
 				</For>
 			</div>
 			<h2 class={Styles.title}>Radio</h2>
@@ -183,15 +191,16 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<p>{airdromeData().frequency}</p>
 				<p>{airdromeData().name}</p>
 				<p class={Styles.label}>3</p>
-				<p>{props.data.faction.awacsFrequency}</p>
+				<p>{Utils.Config.defaults.awacsFrequency}</p>
 				<p>AWACS</p>
+				{/* TODO 
 				{props.data.flightGroup.jtacFrequency != null ? (
 					<>
 						<p class={Styles.label}>4</p>
 						<p>{props.data.flightGroup.jtacFrequency}</p>
 						<p>JTAC</p>
 					</>
-				) : null}
+				) : null} */}
 			</div>
 			<h2 class={Styles.title}>Flightplan</h2>
 			<div class={Styles["flight-plan"]}>
@@ -201,9 +210,9 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 				<p class={Styles.label}>Heading</p>
 				<p class={Styles.label}>Distance</p>
 				<p class={Styles.label}>Speed</p>
-				<For each={props.data.flightGroup.waypoints}>
-					{(wp, i) => {
-						const missionTime = wp.time + props.data.flightGroup.startTime;
+				<For each={waypoints()}>
+					{(wp) => {
+						/* const missionTime = wp.time + props.data.flightGroup.startTime;
 						const time = wp.name === "Take Off" ? missionTime + 600 : missionTime;
 						// eslint-disable-next-line solid/reactivity
 						const prevWp = props.data.flightGroup.waypoints[i() - 1];
@@ -235,15 +244,15 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 								  ).toString();
 						const speed = Math.round(Utils.Location.metersPerSecondToKnots(wp.speed));
 
-						if (i() === 0 /* eslint-disable-line solid/reactivity */) {
+						if (i() === 0) {
 							wpIndex = 0;
-						}
+						} */
 
 						return (
 							<>
 								<p class={Styles.label}>{wpIndex++}</p>
 								<p>{wp.name}</p>
-								<p>
+								{/* <p>
 									<Components.Clock value={time} />
 									{wp.duration == null ? null : (
 										<>
@@ -262,7 +271,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 									<p>{racetrackHeading}</p>
 									<p>{racetrackDistance}</p>
 									<p>{speed}</p>
-								</Show>
+									</Show> */}
 							</>
 						);
 					}}

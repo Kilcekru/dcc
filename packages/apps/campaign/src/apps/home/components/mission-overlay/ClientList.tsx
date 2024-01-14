@@ -1,44 +1,31 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { For, Show, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
-import { useDataStore } from "../../../../components/DataProvider";
-import { getClientFlightGroups } from "../../../../utils";
+import { CampaignContext, useGetEntity } from "../../../../components";
 import Styles from "./ClientList.module.less";
 
-function Item(props: { flightGroup: DcsJs.FlightGroup }) {
-	const [state] = useContext(CampaignContext);
-	const dataStore = useDataStore();
+function Item(props: { flightGroup: Types.Serialization.FlightGroupSerialized }) {
+	const getEntity = useGetEntity();
 
 	const aircraftTypes = () => {
 		const acTypes = new Map<DcsJs.AircraftType, number>();
-		props.flightGroup.units.forEach((u) => {
-			if (!u.client) {
-				return;
-			}
-			const aircraft = state.blueFaction?.inventory.aircrafts[u.id];
+		for (const id of props.flightGroup.aircraftIds) {
+			const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
 
-			if (aircraft == null) {
-				return;
+			if (!aircraft.isClient) {
+				continue;
 			}
 
-			acTypes.set(
-				aircraft.aircraftType as DcsJs.AircraftType,
-				(acTypes.get(aircraft.aircraftType as DcsJs.AircraftType) ?? 0) + 1,
-			);
-		});
+			acTypes.set(aircraft.aircraftType, (acTypes.get(aircraft.aircraftType) ?? 0) + 1);
+		}
 
 		return Array.from(acTypes);
 	};
 
 	const aircraftName = (aircraftType: DcsJs.AircraftType) => {
-		const aircrafts = dataStore.aircrafts;
-		if (aircrafts == null) {
-			return aircraftType;
-		}
-
-		return aircrafts[aircraftType]?.display_name ?? aircraftType;
+		return DcsJs.aircrafts[aircraftType]?.display_name ?? aircraftType;
 	};
 
 	return (
@@ -57,11 +44,12 @@ function Item(props: { flightGroup: DcsJs.FlightGroup }) {
 		</div>
 	);
 }
+
 export function ClientList() {
 	const [state] = useContext(CampaignContext);
 
 	const clientFlightGroups = () => {
-		return getClientFlightGroups(state.blueFaction?.packages);
+		return state.flightGroups.filter((fg) => fg.hasClients);
 	};
 
 	return (

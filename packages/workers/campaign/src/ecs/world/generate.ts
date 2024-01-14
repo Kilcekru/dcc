@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
@@ -17,10 +17,10 @@ function getObjective(objectives: Set<Entities.Objective>, name: string) {
 export function generateAirdromes(args: {
 	coalition: DcsJs.Coalition;
 	airdromeNames: Array<string>;
-	dataStore: Types.Campaign.DataStore;
+	theatre: DcsJs.Theatre;
 }) {
 	for (const name of args.airdromeNames) {
-		const airdrome = args.dataStore.airdromes?.[name];
+		const airdrome = DcsJs.Theatres[args.theatre].airdromes[name];
 
 		if (airdrome == null) {
 			throw new Error(`airdrome: ${name} not found`);
@@ -38,18 +38,18 @@ export function generateAirdromes(args: {
 export function generateStructures(args: {
 	coalition: DcsJs.Coalition;
 	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
-	dataStore: Types.Campaign.DataStore;
 	objectives: Set<Entities.Objective>;
+	theatre: DcsJs.Theatre;
 }) {
-	const strikeTargets = args.dataStore.strikeTargets;
+	const targets = DcsJs.Theatres[args.theatre].targets;
 
-	if (strikeTargets == null) {
+	if (targets == null) {
 		throw new Error("strikeTargets not found");
 	}
 
 	for (const plan of args.objectivePlans) {
 		for (const structurePlan of plan.structures) {
-			const strikeTarget = strikeTargets[plan.objectiveName]?.find((st) => st.name === structurePlan.structureName);
+			const strikeTarget = targets[plan.objectiveName]?.find((st) => st.name === structurePlan.structureName);
 
 			if (strikeTarget == null) {
 				// eslint-disable-next-line no-console
@@ -116,9 +116,9 @@ export function generateGroundGroups(args: {
 export function generateObjectives(args: {
 	blueOps: Array<Types.Campaign.DynamicObjectivePlan>;
 	redOps: Array<Types.Campaign.DynamicObjectivePlan>;
-	dataStore: Types.Campaign.DataStore;
+	theatre: DcsJs.Theatre;
 }) {
-	const objectives = args.dataStore.objectives;
+	const objectives = DcsJs.Theatres[args.theatre].objectives;
 	if (objectives == null) {
 		throw new Error("createObjectives: dataStore is not fetched");
 	}
@@ -142,12 +142,12 @@ export function generateObjectives(args: {
 export function generateSAMs(args: {
 	coalition: DcsJs.Coalition;
 	objectivePlans: Array<Types.Campaign.ObjectivePlan>;
-	dataStore: Types.Campaign.DataStore;
+	theatre: DcsJs.Theatre;
 	objectives: Set<Entities.Objective>;
 }) {
-	const strikeTargets = args.dataStore.strikeTargets;
+	const targets = DcsJs.Theatres[args.theatre].targets;
 
-	if (strikeTargets == null) {
+	if (targets == null) {
 		throw new Error("strikeTargets not found");
 	}
 
@@ -160,14 +160,14 @@ export function generateSAMs(args: {
 		}
 
 		// Get the targets for the plan
-		const targets = strikeTargets[plan.objectiveName];
+		const objectiveTargets = targets[plan.objectiveName];
 
-		if (targets == null) {
+		if (objectiveTargets == null) {
 			continue;
 		}
 
 		// Select a SAM target
-		const samTargets = targets.filter((target) => target.type === "SAM");
+		const samTargets = objectiveTargets.filter((target) => target.type === "SAM");
 
 		const selectedSamTarget = Utils.Random.item(samTargets);
 

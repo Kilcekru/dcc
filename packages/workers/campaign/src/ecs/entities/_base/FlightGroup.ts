@@ -5,7 +5,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { Events, Serialization } from "../../../utils";
 import { WaypointTemplate } from "../../objects/waypoint";
 import { getEntity, store } from "../../store";
-import { generateCallSign } from "../../utils";
+import { generateCallsign } from "../../utils";
 import type { Aircraft } from "../Aircraft";
 import { Flightplan } from "../Flightplan";
 import { type Package } from "../Package";
@@ -139,8 +139,12 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 		return getEntity<HomeBase>(this.homeBaseId);
 	}
 
+	get hasClients(): boolean {
+		return this.aircrafts.some((aircraft) => aircraft.isClient);
+	}
+
 	protected constructor(args: FlightGroupProps | Types.Serialization.FlightGroupSerialized) {
-		const cs = Serialization.isSerialized(args) ? undefined : generateCallSign(args.coalition, "aircraft");
+		const cs = Serialization.isSerialized(args) ? undefined : generateCallsign(args.coalition, "aircraft");
 		const superArgs: GroupProps | Types.Serialization.GroupSerialized = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: [`flightGroups-${args.task}`, `flightGroups-start up`], name: cs?.flightGroupName ?? "" };
@@ -386,6 +390,7 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 			combat: this.combat,
 			flightplanId: this.#flightplanId,
 			state: this.state,
+			hasClients: this.hasClients,
 		};
 	}
 }

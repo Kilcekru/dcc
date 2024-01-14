@@ -1,24 +1,26 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
-import { createMemo, createSignal, For, Match, onMount, Show, Switch } from "solid-js";
+import { createMemo, For, Match, Show, Switch } from "solid-js";
 
 import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
-import { useDataStore } from "../../../components/DataProvider";
-import * as Domain from "../../../domain";
 import Styles from "./Factions.module.less";
+import { useFactions } from "./utils";
+
+function isCustomFaction(faction: Types.Campaign.Faction) {
+	return faction.created != null;
+}
 
 const Faction = (props: {
-	faction: DcsJs.Faction;
+	faction: Types.Campaign.Faction;
 	onPress: (name: string) => void;
 	onCustomizeFaction: () => void;
 	onDeleteFaction: () => void;
 }) => {
-	const dataStore = useDataStore();
-	// const updateFactions = Domain.Faction.useUpdate();
-
 	const aircraftTypes = createMemo(() => {
-		const aircraftTypes: Array<string> = [];
+		const aircraftTypes: Array<DcsJs.AircraftType> = [];
 
 		Object.values(props.faction.aircraftTypes).forEach((taskAircrafts) => {
 			taskAircrafts.forEach((at) => {
@@ -28,13 +30,7 @@ const Faction = (props: {
 			});
 		});
 
-		const aircrafts = dataStore.aircrafts;
-
-		if (aircrafts == null) {
-			return [];
-		}
-
-		return aircraftTypes as Array<DcsJs.AircraftType>;
+		return aircraftTypes;
 	});
 
 	return (
@@ -51,7 +47,7 @@ const Faction = (props: {
 						<Components.Icons.PencilFill />
 					</Components.Button>
 				</Components.Tooltip>
-				<Show when={Domain.Faction.isCustomFaction(props.faction)}>
+				<Show when={isCustomFaction(props.faction)}>
 					<Components.Tooltip text="Remove Faction">
 						<Components.Button class={Styles["customize-button"]} unstyled onPress={() => props.onDeleteFaction()}>
 							<Components.Icons.TrashFill />
@@ -65,39 +61,25 @@ const Faction = (props: {
 export const Factions = (props: {
 	coalition: DcsJs.Coalition;
 	blueCountry?: string;
-	next: (faction: DcsJs.Faction) => void;
-	customFaction: (template?: DcsJs.Faction) => void;
+	next: (faction: Types.Campaign.Faction) => void;
+	customFaction: (template?: Types.Campaign.Faction) => void;
 	prev: () => void;
 }) => {
-	const [factions, setFactions] = createSignal<Array<DcsJs.Faction>>([]);
+	const { factions, onDelete } = useFactions();
 	const playableFactions = createMemo(() => factions().filter((faction) => faction.playable === true));
 	const enemyFactions = createMemo(() => factions().filter((faction) => faction.countryName !== props.blueCountry));
 	const sortedList = createMemo(() => {
 		const list = props.coalition === "blue" ? playableFactions() : enemyFactions();
 
-		const custom: Array<DcsJs.Faction> = [];
-		const predefined: Array<DcsJs.Faction> = [];
+		const custom: Array<Types.Campaign.Faction> = [];
+		const predefined: Array<Types.Campaign.Faction> = [];
 
 		list.forEach((f) => (f.created == null ? predefined.push(f) : custom.push(f)));
-		custom.sort((a, b) => Domain.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
-		predefined.sort((a, b) => Domain.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
+		custom.sort((a, b) => Utils.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
+		predefined.sort((a, b) => Utils.Sort.Number.desc(a.year ?? 0, b.year ?? 0));
 
 		return [...custom, ...predefined];
 	});
-
-	onMount(async () => {
-		const l = await Domain.Faction.list();
-
-		setFactions(l);
-	});
-
-	async function onDelete(faction: DcsJs.Faction) {
-		await Domain.Faction.remove(faction);
-
-		const l = await Domain.Faction.list();
-
-		setFactions(l);
-	}
 
 	return (
 		<div class={Styles.wrapper}>

@@ -4,6 +4,10 @@ export function timerToDate(value: number) {
 	return d;
 }
 
+export function dateToTimer(value: Date) {
+	return value.valueOf();
+}
+
 export function toSeconds(value: number) {
 	return value / 1000;
 }

@@ -1,4 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJSSave from "@foxdelta2/dcsjs/save";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import FS from "fs-extra";
@@ -38,46 +39,38 @@ const loadCampaignList: Types.Rpc.Campaign["loadCampaignList"] = async () => {
 	return Domain.Persistance.CampaignPersistance.list();
 };
 
-const getSamTemplates: Types.Rpc.Campaign["getSamTemplates"] = async () => {
-	return DcsJs.getSamTemplates();
-};
-
-const getVehicles: Types.Rpc.Campaign["getVehicles"] = async () => {
-	return DcsJs.getVehicles();
-};
-
-const getDataStore: Types.Rpc.Campaign["getDataStore"] = async (map) => {
-	const mapData: DcsJs.GetMapData = DcsJs.getMapData(map);
-
-	return {
-		map,
-		mapInfo: mapData.info,
-		airdromes: mapData.airdromes,
-		objectives: mapData.objectives,
-		strikeTargets: mapData.strikeTargets,
-		groundUnitsTemplates: DcsJs.GetGroundUnitsTemplates(),
-		vehicles: DcsJs.getVehicles(),
-		aircrafts: DcsJs.getAircrafts(),
-		samTemplates: DcsJs.getSamTemplates(),
-		structures: DcsJs.getStructures(),
-		callSigns: DcsJs.getCallSigns(),
-		launchers: DcsJs.getLaunchers(),
-		weapons: DcsJs.getWeapons(),
-		ships: DcsJs.getShips(),
-		tasks: DcsJs.getTasks(),
-	};
-};
-
-const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = async (campaign) => {
+const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = async (_) => {
 	const path = Domain.Campaign.getMissionPath();
 
 	if (path == undefined) {
 		return { success: false };
 	}
 
-	const kneeboards = await Domain.Campaign.generateBriefingKneeboards(campaign);
+	// const kneeboards = await Domain.Campaign.generateBriefingKneeboards(campaign); TODO
 
-	await DcsJs.generateCampaignMission(campaign, path, kneeboards);
+	const mission = new DcsJs.Mission({
+		date: new Date(),
+		startTime: 32400,
+		theatre: "Caucasus",
+		weather: {
+			cloudCover: 0,
+			cloudCoverData: [],
+			offset: 0,
+			temperature: 0,
+			wind: {
+				direction: 0,
+				speed: 0,
+			},
+		},
+		aiSkill: "Average",
+		airdromes: {
+			blue: new Set("Kobuleti"),
+			red: new Set("Gudauta"),
+			neutrals: new Set(),
+		},
+	});
+
+	await DcsJSSave.save(mission, path);
 
 	return { success: true };
 };
@@ -95,7 +88,7 @@ const loadMissionState: Types.Rpc.Campaign["loadMissionState"] = async () => {
 export async function loadFactions() {
 	try {
 		const result = await Domain.Persistance.readJson({
-			schema: DcsJs.Schema.factions,
+			schema: Types.Persistance.Schema.factions,
 			name: Domain.Persistance.campaignFactions,
 		});
 
@@ -110,13 +103,13 @@ export async function loadFactions() {
 	}
 }
 
-export async function saveCustomFactions(factions: Array<DcsJs.Faction>) {
+export async function saveCustomFactions(factions: Array<Types.Campaign.Faction>) {
 	try {
 		await Domain.Persistance.writeJson({
-			schema: DcsJs.Schema.factions,
+			schema: Types.Persistance.Schema.factions,
 			name: Domain.Persistance.campaignFactions,
 			data: {
-				version: 0,
+				version: 1,
 				factions,
 			},
 		});
@@ -128,9 +121,6 @@ export async function saveCustomFactions(factions: Array<DcsJs.Faction>) {
 
 export const campaign: Types.Rpc.Campaign = {
 	generateCampaignMission,
-	getSamTemplates,
-	getVehicles,
-	getDataStore,
 	saveCampaign,
 	resumeCampaign,
 	openCampaign,

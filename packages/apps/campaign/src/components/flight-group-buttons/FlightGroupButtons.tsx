@@ -1,20 +1,18 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { createMemo, Show } from "solid-js";
 
 import { sendWorkerMessage } from "../../worker";
-import { useDataStore } from "../DataProvider";
 import { useGetEntity } from "../utils";
 import Styles from "./FlightGroupButtons.module.less";
 
 export function FlightGroupButtons(props: { flightGroup: Types.Serialization.FlightGroupSerialized; class?: string }) {
-	const dataStore = useDataStore();
 	const getEntity = useGetEntity();
 
 	const aircrafts = createMemo(() => {
-		const list: Array<{ name: string; aircraftType: string; isClient: boolean }> = [];
+		const list: Array<{ name: string; aircraftType: DcsJs.AircraftType; isClient: boolean }> = [];
 
 		props.flightGroup?.aircraftIds.forEach((id) => {
 			const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
@@ -49,7 +47,7 @@ export function FlightGroupButtons(props: { flightGroup: Types.Serialization.Fli
 
 	const hasPlayableAircrafts = createMemo(() =>
 		aircrafts().some((ac) => {
-			const aircraft = dataStore.aircrafts?.[ac.aircraftType as DcsJs.AircraftType];
+			const aircraft = DcsJs.aircrafts?.[ac.aircraftType];
 
 			if (aircraft == null) {
 				return false;

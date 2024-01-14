@@ -1,17 +1,10 @@
-import * as Types from "@kilcekru/dcc-shared-types";
+import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import * as Domain from "../../domain";
-import { mapRange, round } from "../utils";
-
-export function getTemperature(
-	timer: number,
-	temperatureOffset: number,
-	cloudCover: number,
-	dataStore: Types.Campaign.DataStore,
-) {
-	const hours = timer / 60 / 60;
-	const temperatureAmplitude = dataStore.mapInfo?.weather.temperature.amplitude ?? 10; // Amplitude of temperature variation
-	const temperatureMean = dataStore.mapInfo?.weather.temperature.mean ?? 25; // Mean temperature for the day
+export function getTemperature(time: number, temperatureOffset: number, cloudCover: number, theatre: DcsJs.Theatre) {
+	const hours = time / 60 / 60;
+	const temperatureAmplitude = DcsJs.Theatres[theatre].info.weather.temperature.amplitude ?? 10; // Amplitude of temperature variation
+	const temperatureMean = DcsJs.Theatres[theatre].info.weather.temperature.mean ?? 25; // Mean temperature for the day
 	const period = 24; // Number of hours in a day
 	const hoursOffset = 15;
 
@@ -39,25 +32,25 @@ export function generateCloudCover(baseCloudCover: number, seasonalEffect: numbe
 		// Ensure cloudCover is within [0, 1] range
 		cloudCover = Math.max(0, Math.min(1, cloudCover));
 
-		cloudCoverData.push(round(cloudCover, 3));
+		cloudCoverData.push(Utils.round(cloudCover, 3));
 	}
 
 	return cloudCoverData;
 }
 
-export function getCloudCover(timer: number, cloudCoverData: Array<number>, allowBadWeather: boolean) {
-	const hours = round(timer / 60 / 60, 0);
+export function getCloudCover(time: number, cloudCoverData: Array<number>, allowBadWeather: boolean) {
+	const hours = Utils.round(time / 60 / 60, 0);
 
 	const i = hours % cloudCoverData.length;
 
 	const cover = cloudCoverData[i] ?? 0;
 
-	return allowBadWeather ? cover : mapRange(cover, 0, 1, 0, 0.6);
+	return allowBadWeather ? cover : Utils.mapRange(cover, 0, 1, 0, 0.6);
 }
 
-export function getWind(cloudCover: number, dataStore: Types.Campaign.DataStore) {
-	const speed = Math.max(0.1, (dataStore.mapInfo?.weather.wind.speed ?? 0) + cloudCover * 2);
-	const direction = (dataStore.mapInfo?.weather.wind.direction ?? 0) + Domain.Random.number(-20, 20);
+export function getWind(cloudCover: number, theatre: DcsJs.Theatre) {
+	const speed = Math.max(0.1, (DcsJs.Theatres[theatre].info.weather.wind.speed ?? 0) + cloudCover * 2);
+	const direction = (DcsJs.Theatres[theatre].info.weather.wind.direction ?? 0) + Utils.Random.number(-20, 20);
 
 	return {
 		speed,
@@ -66,15 +59,15 @@ export function getWind(cloudCover: number, dataStore: Types.Campaign.DataStore)
 }
 
 export function getCurrentWeather(
-	timer: number,
+	time: number,
 	temperatureOffset: number,
 	cloudCoverData: Array<number>,
 	allowBadWeather: boolean,
-	dataStore: Types.Campaign.DataStore,
+	theatre: DcsJs.Theatre,
 ) {
-	const cloudCover = getCloudCover(timer, cloudCoverData, allowBadWeather);
-	const temperature = getTemperature(timer, temperatureOffset, cloudCover, dataStore);
-	const wind = getWind(cloudCover, dataStore);
+	const cloudCover = getCloudCover(time, cloudCoverData, allowBadWeather);
+	const temperature = getTemperature(time, temperatureOffset, cloudCover, theatre);
+	const wind = getWind(cloudCover, theatre);
 
 	return {
 		cloudCover,

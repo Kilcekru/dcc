@@ -1,51 +1,45 @@
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createMemo, For, useContext } from "solid-js";
 
-import { CampaignContext } from "../../../../components";
-import { RunningCampaignState } from "../../../../logic/types";
-import { getCoalitionFaction } from "../../../../logic/utils";
-import { Aircraft } from "./Aircraft";
+import { CampaignContext, useGetEntity } from "../../../../components";
 import { Flag } from "./Flag";
+import { FlightGroupUnit } from "./FlightGroupUnit";
 import Style from "./Item.module.less";
 import { OverlaySidebarContext } from "./OverlaySidebarProvider";
 
-export function Airdrome() {
+export function Airdrome(props: { airdrome: Types.Serialization.AirdromeSerialized }) {
 	const [state] = useContext(CampaignContext);
-	const [overlayStore] = useContext(OverlaySidebarContext);
+	const getEntity = useGetEntity();
+	const countryName = createMemo(() => {
+		const coalition = props.airdrome.coalition;
+		const faction = state.factionDefinitions[coalition];
 
-	const faction = createMemo(() => {
-		const coalition = overlayStore.coalition;
-
-		if (coalition == null) {
+		if (faction == null) {
 			return undefined;
 		}
-		return getCoalitionFaction(coalition, state as RunningCampaignState);
+		return faction.countryName;
 	});
 
-	const aircrafts = createMemo(() => {
-		const fac = faction();
-
-		if (fac == null) {
-			return;
-		}
-
-		return Object.values(fac.inventory.aircrafts).filter((ac) => ac.homeBase.name === overlayStore.name && ac.alive);
-	});
+	const [overlayStore] = useContext(OverlaySidebarContext);
 
 	return (
 		<>
 			<div>
-				<Flag countryName={faction()?.countryName} />
+				<Flag countryName={countryName()} />
 				<h2 class={Style.title}>{overlayStore.name}</h2>
 			</div>
 			<Components.ScrollContainer>
 				<Components.List>
-					<For each={aircrafts()}>
-						{(unit) => (
-							<Components.ListItem>
-								<Aircraft unit={unit} />
-							</Components.ListItem>
-						)}
+					<For each={props.airdrome.aircraftIds}>
+						{(id) => {
+							const aircraft = getEntity<Types.Serialization.AircraftSerialized>(id);
+							return (
+								<Components.ListItem>
+									<FlightGroupUnit aircraft={aircraft} />
+								</Components.ListItem>
+							);
+						}}
 					</For>
 				</Components.List>
 			</Components.ScrollContainer>

@@ -39,11 +39,8 @@ importers:
   packages/apps/campaign:
     dependencies:
       '@kilcekru/dcs-coordinates':
-        specifier: 1.0.0
-        version: 1.0.0
-      '@lastolivegames/becsy':
-        specifier: 0.15.5
-        version: 0.15.5
+        specifier: 2.0.0
+        version: 2.0.0
       '@zag-js/checkbox':
         specifier: 0.26.0
         version: 0.26.0
@@ -59,33 +56,21 @@ importers:
       '@zag-js/solid':
         specifier: 0.26.0
         version: 0.26.0(solid-js@1.8.3)
-      bitecs:
-        specifier: 0.3.40
-        version: 0.3.40
       cnbuilder:
         specifier: 3.1.0
         version: 3.1.0
       esri-leaflet:
         specifier: 3.0.11
         version: 3.0.11(leaflet@1.9.4)
-      fast-astar:
-        specifier: 1.0.6
-        version: 1.0.6
       leaflet:
         specifier: 1.9.4
         version: 1.9.4
       milsymbol:
         specifier: 2.2.0
         version: 2.2.0
-      miniplex:
-        specifier: 2.0.0
-        version: 2.0.0
       solid-js:
         specifier: 1.8.3
         version: 1.8.3
-      uuid:
-        specifier: 9.0.1
-        version: 9.0.1
       zod:
         specifier: 3.22.4
         version: 3.22.4
@@ -96,9 +81,6 @@ importers:
       '@types/leaflet':
         specifier: 1.9.7
         version: 1.9.7
-      '@types/uuid':
-        specifier: 9.0.6
-        version: 9.0.6
 
   packages/apps/capture:
     dependencies:
@@ -911,14 +893,6 @@ packages:
       fs-extra: 11.2.0
       zod: 3.22.4
 
-  /@hmans/id@0.0.1:
-    resolution: {integrity: sha512-2BxHxZziST8F0P5Dt+UuttF2lwCaKK7QFR814PwEp708l6dm86pjWJAFr7BKyAGu27mRpYcghvCAUAucNdsCdw==}
-    dev: false
-
-  /@hmans/queue@0.0.1:
-    resolution: {integrity: sha512-Mm8oQRFRoiEYQ3QD9CD14DTaShd21nzNrUFyBhFxy+TduKf2PdMRfHHx7lDvEpbODGNlj+e8mcWGj/YjWmC3Bw==}
-    dev: false
-
   /@humanwhocodes/config-array@0.11.13:
     resolution: {integrity: sha512-JSBDMiDKSzQVngfRjOdFXgFfklaXI4K9nLF49Auh21lmBWRLIK3+xTErTWD4KU54pb6coM6ESE7Awz/FNU3zgQ==}
     engines: {node: '>=10.10.0'}
@@ -969,9 +943,12 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: false
 
-  /@kilcekru/dcs-coordinates@1.0.0:
-    resolution: {integrity: sha512-WCKCBZQNScwO5p2mR4QClCMqsJW0FqE+xJUgyAPMQfpiysJguB8VxaKkwtAlHgBgdruXcJw2C4SzjmaUDEmorw==}
+  /@kilcekru/dcs-coordinates@2.0.0:
+    resolution: {integrity: sha512-0Up/P+F21r39lDy0UmSSVZbFh8P4f4de1SRG3i8zQPVlrVpOhkv5GAv0d2LGFl2V0rdTZ08dJi9ax6jbLow21Q==}
     engines: {pnpm: '>=7.15.0'}
+    dependencies:
+      zod: 3.22.4
+      zod-validation-error: 2.1.0(zod@3.22.4)
     dev: false
 
   /@kilcekru/esbuild-plugin-css-extra@0.1.2(esbuild@0.19.5):
@@ -1010,17 +987,6 @@ packages:
       - eslint-import-resolver-webpack
       - supports-color
     dev: true
-
-  /@lastolivegames/becsy@0.15.5:
-    resolution: {integrity: sha512-RZEL52er3eH+zpczz2xPyVIxVId+tx0pfTRxYjvE4Vi14plgHzqX7q+4TTJvJDmaxR9pdVjGwFnrY0Oe23fN7Q==}
-    engines: {node: '>=12'}
-    dev: false
-
-  /@miniplex/bucket@2.0.0:
-    resolution: {integrity: sha512-jdAW0vG0tLel0dD0lyQqkQ4g4G9CscbVtenu35jB48fnVK3zmfFmQKIxXHsUvFs4KAN44UESAgaVOroTetFSRw==}
-    dependencies:
-      eventery: 0.0.4
-    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1153,10 +1119,6 @@ packages:
 
   /@types/semver@7.5.4:
     resolution: {integrity: sha512-MMzuxN3GdFwskAnb6fz0orFvhfqi752yjaXylr0Rp4oDg5H0Zn1IuyRhDVvYOwAXoJirx2xuS16I3WjxnAIHiQ==}
-    dev: true
-
-  /@types/uuid@9.0.6:
-    resolution: {integrity: sha512-BT2Krtx4xaO6iwzwMFUYvWBWkV2pr37zD68Vmp1CDV196MzczBRxuEpD6Pr395HAgebC/co7hOphs53r8V7jew==}
     dev: true
 
   /@types/yauzl@2.10.3:
@@ -1809,10 +1771,6 @@ packages:
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
-
-  /bitecs@0.3.40:
-    resolution: {integrity: sha512-wAylY4pNfX8IeIH5phtwt1lUNtHKrkoSNrArI7Ris2Y4nEQWFIVvXdgAuqprEg9bq8Wolmlj0gVfeG6MFmtI2Q==}
-    dev: false
 
   /boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
@@ -2561,10 +2519,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /eventery@0.0.4:
-    resolution: {integrity: sha512-rQbXJG8WX9z2cm3IJadkSUZLWFXuwGMIJ40oWyB23DhVb1e92T7Jx3qF0UwtgHI7D4VZzVswbZ7MXfW88cFF4Q==}
-    dev: false
-
   /extract-zip@2.0.1:
     resolution: {integrity: sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==}
     engines: {node: '>= 10.17.0'}
@@ -2578,10 +2532,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /fast-astar@1.0.6:
-    resolution: {integrity: sha512-r23aD+DIl2Y/XdhP/Z3kDyi9dJ4BID6z49gjc+lQo1fLBqi9uEkaevcX4v0bqHGxjwc7GKbt/OPRM/UwTCfiEw==}
-    dev: false
 
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -3438,14 +3388,6 @@ packages:
   /minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
     dev: true
-
-  /miniplex@2.0.0:
-    resolution: {integrity: sha512-pJlxmlPf5Qyx12amgOCyRE6Lzw28ct2G0lF9xn7/xudLtA/xDOUnCIU2xOxCk8GkjePYctcNpjmFshJp/Ht66A==}
-    dependencies:
-      '@hmans/id': 0.0.1
-      '@hmans/queue': 0.0.1
-      '@miniplex/bucket': 2.0.0
-    dev: false
 
   /ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -4559,11 +4501,6 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  /uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    hasBin: true
-    dev: false
-
   /validate-html-nesting@1.2.2:
     resolution: {integrity: sha512-hGdgQozCsQJMyfK5urgFcWEqsSSrK63Awe0t/IMR0bZ0QMtnuaiHzThW81guu3qx9abLi99NEuiaN6P9gVYsNg==}
     dev: false
@@ -4669,6 +4606,15 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod-validation-error@2.1.0(zod@3.22.4):
+    resolution: {integrity: sha512-VJh93e2wb4c3tWtGgTa0OF/dTt/zoPCPzXq4V11ZjxmEAFaPi/Zss1xIZdEB5RD8GD00U0/iVXgqkF77RV7pdQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      zod: ^3.18.0
+    dependencies:
+      zod: 3.22.4
+    dev: false
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}

@@ -1,12 +1,12 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
 import { createMemo, createSignal, For, onMount, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
 import { Config } from "../../data";
-import * as Domain from "../../domain";
 import { loadCampaignIntoStore } from "../../hooks";
 import Styles from "./Open.module.less";
 import { RemoveModal } from "./remove-modal";
@@ -51,7 +51,7 @@ const Campaign = (props: { synopsis: Types.Campaign.CampaignSynopsis; onRemove: 
 			<h3 class={Styles.timer}>
 				<Components.Clock value={props.synopsis.time} withDay />
 			</h3>
-			<h3 class={Styles.edited}>{Domain.Format.Date.formatDateTime(props.synopsis.edited)}</h3>
+			<h3 class={Styles.edited}>{Utils.Format.formatDateTime(props.synopsis.edited)}</h3>
 			<div class={Styles["customize-button-wrapper"]}>
 				<Components.Tooltip text="Remove Campaign">
 					<Components.Button class={Styles["customize-button"]} unstyled onPress={() => props.onRemove()}>

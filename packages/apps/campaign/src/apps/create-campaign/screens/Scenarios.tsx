@@ -24,12 +24,12 @@ const ScenarioItem = (props: {
 	};
 
 	const mapName = () => {
-		switch (props.scenario.map) {
-			case "caucasus":
+		switch (props.scenario.theatre) {
+			case "Caucasus":
 				return "Caucasus";
-			case "normandy":
+			case "Normandy":
 				return "Normandy";
-			case "syria":
+			case "Syria":
 				return "Syria";
 			default:
 				return "";

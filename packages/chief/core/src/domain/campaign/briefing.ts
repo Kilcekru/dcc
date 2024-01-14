@@ -1,34 +1,47 @@
-import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { capture } from "../capture";
 
-export async function generateBriefingKneeboards(campaign: DcsJs.CampaignState) {
+export async function generateBriefingKneeboards(campaign: Types.Campaign.UIState) {
 	const documents: Types.Capture.Document[] = [];
-	const faction = campaign.blueFaction;
+	const getEntity = Utils.ECS.EntitySelector(campaign.entities);
 
-	if (faction == null) {
-		return;
-	}
+	for (const entity of campaign.entities.values()) {
+		if (entity.entityType !== "Package" || entity.coalition !== "blue") {
+			continue;
+		}
 
-	faction.packages.forEach((pkg) => {
-		pkg.flightGroups.forEach((fg) => {
-			const hasClient = fg.units.some((u) => u.client);
+		for (const fgId of entity.flightGroupIds) {
+			const fg = getEntity<Types.Serialization.FlightGroupSerialized>(fgId);
+			if (fg == undefined) {
+				continue;
+			}
+
+			let hasClient = false;
+
+			for (const acId of fg.aircraftIds) {
+				const ac = getEntity<Types.Serialization.AircraftSerialized>(acId);
+
+				if (ac?.isClient) {
+					hasClient = true;
+					break;
+				}
+			}
 
 			if (hasClient) {
 				documents.push({
 					type: "campaign.briefing",
 					data: {
-						package: pkg,
+						package: entity,
 						flightGroup: fg,
-						faction,
-						dataAircrafts: DcsJs.getAircrafts(),
-						mapData: DcsJs.getMapData(campaign.map),
+						theatre: campaign.theatre,
+						entities: campaign.entities,
 					},
 				});
 			}
-		});
-	});
+		}
+	}
 
 	return capture(documents);
 }

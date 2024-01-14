@@ -1,4 +1,3 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { postEvent } from "../events";
@@ -24,23 +23,15 @@ export type Faction = {
 };
 
 export class World {
-	public setDataStore(next: Types.Campaign.DataStore) {
-		store.dataStore = next;
-	}
-
 	public generate(args: {
-		blueFactionDefinition: DcsJs.Faction;
-		redFactionDefinition: DcsJs.Faction;
+		blueFactionDefinition: Types.Campaign.Faction;
+		redFactionDefinition: Types.Campaign.Faction;
 		scenario: Types.Campaign.Scenario;
 	}) {
-		if (store.dataStore == null) {
-			throw new Error("createCampaign: dataStore is not fetched");
-		}
-
 		store.id = crypto.randomUUID();
 		store.version = 1;
 		store.time = 32400000; // 09:00 in milliseconds
-		store.map = args.scenario.map as DcsJs.MapName; // TODO: fix scenario map type
+		store.theatre = args.scenario.theatre;
 		store.name = args.scenario.name;
 		store.factionDefinitions = {
 			blue: args.blueFactionDefinition,
@@ -52,47 +43,51 @@ export class World {
 		generateAirdromes({
 			coalition: "blue",
 			airdromeNames: args.scenario.blue.airdromeNames,
-			dataStore: store.dataStore,
+			theatre: args.scenario.theatre,
 		});
-		generateAirdromes({ coalition: "red", airdromeNames: args.scenario.red.airdromeNames, dataStore: store.dataStore });
+		generateAirdromes({
+			coalition: "red",
+			airdromeNames: args.scenario.red.airdromeNames,
+			theatre: args.scenario.theatre,
+		});
 
 		const [blueOps, redOps] = generateObjectivePlans({
 			blueAirdromes: [...store.queries.airdromes["blue"].values()],
 			redAirdromes: [...store.queries.airdromes["red"].values()],
 			blueRange: args.scenario["blue-start-objective-range"],
-			dataStore: store.dataStore,
+			theatre: args.scenario.theatre,
 		});
 
 		// Create objectives
-		generateObjectives({ blueOps, redOps, dataStore: store.dataStore });
+		generateObjectives({ blueOps, redOps, theatre: args.scenario.theatre });
 
 		// Create structures
 		generateStructures({
 			coalition: "blue",
 			objectivePlans: blueOps,
-			dataStore: store.dataStore,
 			objectives: store.queries.objectives,
+			theatre: args.scenario.theatre,
 		});
 		generateStructures({
 			coalition: "red",
 			objectivePlans: redOps,
-			dataStore: store.dataStore,
 			objectives: store.queries.objectives,
+			theatre: args.scenario.theatre,
 		});
 
 		// Create SAMs
 		generateSAMs({
 			coalition: "blue",
-			dataStore: store.dataStore,
 			objectivePlans: blueOps,
 			objectives: store.queries.objectives,
+			theatre: args.scenario.theatre,
 		});
 
 		generateSAMs({
 			coalition: "red",
-			dataStore: store.dataStore,
 			objectivePlans: redOps,
 			objectives: store.queries.objectives,
+			theatre: args.scenario.theatre,
 		});
 
 		generateGroundGroups({
@@ -118,12 +113,21 @@ export class World {
 	}
 	public stateUpdate() {
 		const flightGroups: Types.Serialization.FlightGroupSerialized[] = [];
+		let hasClients = false;
+		let earliestStartTime = Infinity;
 
 		for (const fg of store.queries.flightGroups.blue) {
 			if (!fg.alive) {
 				continue;
 			}
 
+			if (fg.hasClients) {
+				hasClients = true;
+
+				if (fg.startTime < earliestStartTime) {
+					earliestStartTime = fg.startTime;
+				}
+			}
 			flightGroups.push(fg.serialize());
 		}
 
@@ -139,6 +143,11 @@ export class World {
 				flightGroups,
 				entities: new Map(state.entities.map((entity) => [entity.id, entity])),
 				factionDefinitions: store.factionDefinitions,
+				hasClients: hasClients,
+				campaignParams: state.campaignParams,
+				startTimeReached: store.time >= earliestStartTime,
+				theatre: store.theatre,
+				weather: store.weather,
 			},
 		});
 	}
@@ -154,7 +163,6 @@ export class World {
 		postEvent({
 			name: "mapUpdate",
 			items,
-			map: store.map,
 		});
 	}
 

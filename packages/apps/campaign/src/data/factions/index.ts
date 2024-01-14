@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 
 import * as france82 from "./france-1982.json";
 import * as israel67 from "./israel-1967.json";
@@ -13,17 +13,17 @@ import * as usa52 from "./usa-1952.json";
 import * as usa77 from "./usa-1977.json";
 import * as usa04 from "./usa-2004.json";
 
-export const factionList: Array<DcsJs.Faction> = [
-	usa52 as DcsJs.Faction,
-	russia55 as DcsJs.Faction,
-	usnavy64 as DcsJs.Faction,
-	israel67 as DcsJs.Faction,
-	sweden70 as DcsJs.Faction,
-	russia71 as DcsJs.Faction,
-	usa77 as DcsJs.Faction,
-	france82 as DcsJs.Faction,
-	russia84 as DcsJs.Faction,
-	usnavy87 as DcsJs.Faction,
-	russia96 as DcsJs.Faction,
-	usa04 as DcsJs.Faction,
+export const factionList: Array<Types.Campaign.Faction> = [
+	Types.Campaign.Schema.faction.parse(usa52),
+	Types.Campaign.Schema.faction.parse(russia55),
+	Types.Campaign.Schema.faction.parse(usnavy64),
+	Types.Campaign.Schema.faction.parse(israel67),
+	Types.Campaign.Schema.faction.parse(sweden70),
+	Types.Campaign.Schema.faction.parse(russia71),
+	Types.Campaign.Schema.faction.parse(usa77),
+	Types.Campaign.Schema.faction.parse(france82),
+	Types.Campaign.Schema.faction.parse(russia84),
+	Types.Campaign.Schema.faction.parse(usnavy87),
+	Types.Campaign.Schema.faction.parse(russia96),
+	Types.Campaign.Schema.faction.parse(usa04),
 ];

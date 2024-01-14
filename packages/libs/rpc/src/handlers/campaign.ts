@@ -4,9 +4,6 @@ import { rpc } from "../utils";
 
 export const campaign: Types.Rpc.Campaign = {
 	generateCampaignMission: rpc<Types.Rpc.Campaign["generateCampaignMission"]>("campaign", "generateCampaignMission"),
-	getSamTemplates: rpc<Types.Rpc.Campaign["getSamTemplates"]>("campaign", "getSamTemplates"),
-	getVehicles: rpc<Types.Rpc.Campaign["getVehicles"]>("campaign", "getVehicles"),
-	getDataStore: rpc<Types.Rpc.Campaign["getDataStore"]>("campaign", "getDataStore"),
 	saveCampaign: rpc<Types.Rpc.Campaign["saveCampaign"]>("campaign", "saveCampaign"),
 	resumeCampaign: rpc<Types.Rpc.Campaign["resumeCampaign"]>("campaign", "resumeCampaign"),
 	openCampaign: rpc<Types.Rpc.Campaign["openCampaign"]>("campaign", "openCampaign"),

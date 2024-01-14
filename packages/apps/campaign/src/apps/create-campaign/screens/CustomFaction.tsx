@@ -1,30 +1,23 @@
 /* eslint-disable solid/reactivity */
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createMemo, createSignal, For, Setter } from "solid-js";
 
 import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
-import { useDataStore } from "../../../components/DataProvider";
-import * as Domain from "../../../domain";
 import Styles from "./CustomFaction.module.less";
+import { useFactions } from "./utils";
 
 const AircraftList = (props: {
 	missionTask: DcsJs.Task;
 	selectedAircrafts: Array<string>;
 	toggle: (name: string) => void;
 }) => {
-	const dataStore = useDataStore();
-
 	const aircrafts = createMemo(() => {
-		const dataAircrafts = dataStore.aircrafts;
-
-		if (dataAircrafts == null) {
-			return [];
-		}
-
-		return Object.values(dataAircrafts)
+		return Object.values(DcsJs.aircrafts)
 			.filter((ac) => ac.availableTasks.some((t) => t === props.missionTask))
-			.sort((a, b) => Domain.Sort.String.asc(a.display_name, b.display_name));
+			.sort((a, b) => Utils.Sort.String.asc(a.display_name, b.display_name));
 	});
 
 	return (
@@ -45,11 +38,9 @@ const AircraftList = (props: {
 };
 
 const TemplateList = (props: { selectedTemplateName: string; toggle: (name: string) => void }) => {
-	const dataStore = useDataStore();
-
 	return (
 		<div class={Styles["aircraft-list"]}>
-			<For each={dataStore.groundUnitsTemplates}>
+			<For each={DcsJs.groundUnitsTemplates}>
 				{(template) => (
 					<Components.Button
 						class={Styles.aircraft}
@@ -68,8 +59,6 @@ const CarrierList = (props: {
 	selectedCarrierName: string | undefined;
 	toggle: (name: string | undefined) => void;
 }) => {
-	const dataStore = useDataStore();
-
 	const onPress = (name: string) => {
 		if (props.selectedCarrierName === name) {
 			props.toggle(undefined);
@@ -79,7 +68,7 @@ const CarrierList = (props: {
 	};
 	return (
 		<div class={Styles["aircraft-list"]}>
-			<For each={Object.values(dataStore.ships ?? []).filter((sg) => sg.groupType === "carrier")}>
+			<For each={Object.values(DcsJs.shipGroups)}>
 				{(sg) => (
 					<Components.Button
 						class={Styles.aircraft}
@@ -115,8 +104,8 @@ const CountryList = (props: { selectedCountry: string; toggle: (name: string) =>
 };
 
 export const CustomFaction = (props: {
-	template?: DcsJs.Faction;
-	next: (faction: DcsJs.Faction) => void;
+	template?: Types.Campaign.Faction;
+	next: (faction: Types.Campaign.Faction) => void;
 	prev: () => void;
 }) => {
 	const [name, setName] = createSignal(props.template?.name ?? "Custom");
@@ -131,7 +120,7 @@ export const CustomFaction = (props: {
 	const [templateName, setTemplateName] = createSignal(props.template?.templateName ?? "USA - Modern");
 	const [carrierName, setCarrierName] = createSignal<string | undefined>(props.template?.carrierName);
 	const [country, setCountry] = createSignal(props.template?.countryName ?? "USA");
-	// const updateFactions = Domain.Faction.useUpdate();
+	const { onSave } = useFactions();
 
 	const toggleAircraft = (task: DcsJs.Task, name: string) => {
 		let list: Array<string> = [];
@@ -187,7 +176,7 @@ export const CustomFaction = (props: {
 	};
 
 	const onNext = () => {
-		const f: DcsJs.Faction = {
+		const f: Types.Campaign.Faction = {
 			aircraftTypes: {
 				CAP: cap() as DcsJs.AircraftType[],
 				CAS: cas() as DcsJs.AircraftType[],
@@ -206,7 +195,8 @@ export const CustomFaction = (props: {
 			created: props.template?.created,
 		};
 
-		Domain.Faction.save(f).catch(Domain.Utils.catchAwait);
+		// eslint-disable-next-line no-console
+		onSave(f).catch((e) => console.error(Utils.errMsg(e)));
 
 		props.next(f);
 	};

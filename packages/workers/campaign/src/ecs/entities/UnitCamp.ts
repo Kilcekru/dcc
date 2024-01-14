@@ -1,4 +1,3 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
@@ -8,7 +7,7 @@ import { calcInitDeploymentScore } from "../utils";
 import { Structure, StructureProps } from "./_base/Structure";
 
 export interface UnitCampProps extends Omit<StructureProps, "entityType"> {
-	structureType: DcsJs.StructureTypeUnitCamp;
+	structureType: Types.Campaign.StructureTypeUnitCamp;
 }
 
 export class UnitCamp extends Structure {

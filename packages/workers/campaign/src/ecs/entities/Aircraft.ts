@@ -2,7 +2,7 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events, Serialization } from "../../utils";
-import { getEntity, QueryKey, store } from "../store";
+import { getEntity, QueryKey } from "../store";
 import type { FlightGroup } from "./_base/FlightGroup";
 import type { HomeBase } from "./_base/HomeBase";
 import { Unit, UnitProps } from "./_base/Unit";
@@ -20,7 +20,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	#name: string | undefined = undefined;
 	readonly #homeBaseId: Types.Campaign.Id;
 	#isClient = false;
-	#loadout: DcsJs.Loadout | undefined = undefined;
+	#loadout: Types.Campaign.CampaignLoadout | undefined = undefined;
 
 	get flightGroup(): FlightGroup | undefined {
 		if (this.#flightGroupId == null) {
@@ -35,7 +35,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	}
 
 	get aircraftData() {
-		const data = store.dataStore?.aircrafts?.[this.#aircraftType];
+		const data = DcsJs.aircrafts[this.#aircraftType];
 
 		if (data == null) {
 			throw new Error(`aircraft: ${this.#aircraftType} not found`);
@@ -96,15 +96,15 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		this.#loadout = {
 			...loadout,
 			task: task,
-			pylons: loadout.pylons.map((pylon): DcsJs.Pylon => {
-				const launcher = Object.values(store.dataStore?.launchers ?? {}).find((l) => pylon.CLSID === l.CLSID);
+			pylons: loadout.pylons.map((pylon): Types.Campaign.CampaignPylon => {
+				const launcher = Object.values(DcsJs.launchers).find((l) => pylon.CLSID === l.CLSID);
 
 				if (launcher == null) {
 					// eslint-disable-next-line no-console
 					throw new Error(`launcher not found for pylon: ${pylon.CLSID}`);
 				}
 
-				const weapon = launcher?.type === "Weapon" ? store.dataStore?.weapons?.[launcher.weapon] : undefined;
+				const weapon = launcher?.type === "Weapon" ? DcsJs.weapons[launcher.weapon] : undefined;
 
 				return {
 					CLSID: pylon.CLSID,
@@ -131,6 +131,10 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		}
 
 		for (const pylon of this.#loadout.pylons) {
+			if (pylon.type !== "Weapon") {
+				continue;
+			}
+
 			if (pylon.weapon == null) {
 				continue;
 			}

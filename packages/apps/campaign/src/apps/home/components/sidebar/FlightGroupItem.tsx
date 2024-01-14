@@ -1,24 +1,16 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { createMemo, For, Show, useContext } from "solid-js";
 
 import { CampaignContext, FlightGroupButtons } from "../../../../components";
-import { useDataStore } from "../../../../components/DataProvider";
 import { useGetEntity } from "../../../../components/utils";
 import Styles from "./FlightGroupItem.module.less";
 
 function AircraftItem(props: { aircraft: Types.Serialization.AircraftSerialized }) {
-	const dataStore = useDataStore();
-
 	const displayName = createMemo(() => {
-		const aircraftData = dataStore?.aircrafts?.[props.aircraft.aircraftType];
-
-		if (aircraftData == null) {
-			return props.aircraft.aircraftType;
-		}
-
-		return aircraftData.display_name;
+		return DcsJs.aircrafts[props.aircraft.aircraftType].display_name;
 	});
 
 	return (

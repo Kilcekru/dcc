@@ -1,95 +1,18 @@
-import { useCreateErrorToast, useCreateToast } from "@kilcekru/dcc-lib-components";
 import { onEvent } from "@kilcekru/dcc-lib-rpc";
-import { createEffect, createMemo, ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
+import { ErrorBoundary, onCleanup, onMount, useContext } from "solid-js";
 
 import { CampaignContext, MapContainer } from "../../components";
-import { useDataStore } from "../../components/DataProvider";
-import { useSave } from "../../hooks";
-import { calcTakeoffTime } from "../../utils";
 import { Header, NextDayModal, OverlaySidebar, OverlaySidebarProvider, Sidebar } from "./components";
 import styles from "./Home.module.less";
 
 export const Home = () => {
-	const [
-		state,
-		{
-			tick,
-			saveCampaignRound,
-			saveLongCampaignRound,
-			pause,
-			updateDeploymentScore,
-			updateRepairScore,
-			updateWeather,
-			updateDownedPilots,
-			togglePause,
-			clearToastMessages,
-		},
-	] = useContext(CampaignContext);
-	const dataStore = useDataStore();
-	let inter: number;
-	let longInter: number;
-	let tickFinished = true;
-	const intervalTimeout = createMemo(() => 1000 / (state.multiplier === 1 ? 1 : state.multiplier / 10));
-	const save = useSave();
-	const createToast = useCreateToast();
-	const createErrorToast = useCreateErrorToast();
+	const [, { togglePause }] = useContext(CampaignContext);
 
-	const interval = () => {
-		if (tickFinished === true) {
-			tickFinished = false;
-			const tickValue = state.multiplier === 1 ? 1 : 10;
-			const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
+	/* const createToast = useCreateToast();
+	const createErrorToast = useCreateErrorToast(); */
 
-			if (takeoffTime == null || takeoffTime > state.timer) {
-				tick?.(tickValue);
-
-				try {
-					saveCampaignRound?.(dataStore);
-				} catch (e) {
-					// eslint-disable-next-line no-console
-					console.error(e, state);
-					stopInterval();
-				}
-			} else {
-				pause?.();
-				save();
-			}
-			tickFinished = true;
-		} else {
-			// eslint-disable-next-line no-console
-			console.warn("tick skipped");
-		}
-	};
-
-	const longInterval = () => {
-		updateDeploymentScore?.();
-		updateRepairScore?.();
-		updateWeather?.(dataStore);
-		updateDownedPilots?.();
-
-		try {
-			saveLongCampaignRound?.(dataStore);
-		} catch (e) {
-			// eslint-disable-next-line no-console
-			console.error(e, state);
-			stopInterval();
-		}
-
-		save();
-	};
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const startInterval = () => {
-		stopInterval();
-		inter = window.setInterval(interval, intervalTimeout());
-		longInter = window.setInterval(longInterval, 1000);
-	};
-	const stopInterval = () => {
-		window.clearInterval(inter);
-		window.clearInterval(longInter);
-	};
-
-	createEffect(() => {
+	// TODO
+	/* createEffect(() => {
 		const ids: Array<string> = [];
 		state.toastMessages.forEach((msg) => {
 			switch (msg.type) {
@@ -113,10 +36,7 @@ export const Home = () => {
 		if (ids.length > 0) {
 			clearToastMessages?.(ids);
 		}
-	});
-	onCleanup(() => {
-		stopInterval();
-	});
+	}); */
 
 	const onKeyUp = (e: KeyboardEvent) => {
 		if (e.code === "Space") {

@@ -49,11 +49,11 @@ export function StructureBuilding(props: { building: Types.Serialization.Buildin
 	return (
 		<div>
 			<div class={Styles.header}>
-				<h3 class={Styles["item-title"]}>{staticTypeName[props.building.staticType]}</h3>
+				<h3 class={Styles["item-title"]}>{staticTypeName[props.building.buildingType]}</h3>
 			</div>
 			<div class={Styles.building}>
 				<div
-					class={cnb(Styles["item-image"], Styles[staticTypeImage[props.building.staticType] ?? "image-garage-b"])}
+					class={cnb(Styles["item-image"], Styles[staticTypeImage[props.building.buildingType] ?? "image-garage-b"])}
 				/>
 				<div class={Styles["building-stats"]}>
 					<div>

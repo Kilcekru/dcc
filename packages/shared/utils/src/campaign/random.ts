@@ -1,4 +1,4 @@
-import * as Types from "../../../types/src";
+import * as DcsJs from "@foxdelta2/dcsjs";
 
 export const number = (min: number, max: number): number => {
 	return Math.floor(Math.random() * (max - min + 1) + min);
@@ -26,8 +26,8 @@ export const list = <T>(arr: Array<T>, length: number): Array<T> => {
 	return selected;
 };
 
-export const callSign = (dataStore: Types.Campaign.DataStore, type: "aircraft" | "helicopter" | "awacs") => {
-	const callSigns = dataStore.callSigns?.[type];
+export const callSign = (type: "aircraft" | "awacs") => {
+	const callSigns = type === "aircraft" ? DcsJs.callsigns : DcsJs.AWACSCallsigns;
 
 	if (callSigns == null) {
 		return {

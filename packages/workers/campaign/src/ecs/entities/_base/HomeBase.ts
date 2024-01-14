@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import type * as Types from "@kilcekru/dcc-shared-types";
+import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../../utils";
@@ -58,15 +58,15 @@ export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = ne
 	}
 
 	public generateAircraftsForHomeBase(args: { coalition: DcsJs.Coalition }) {
-		for (const task in store.dataStore?.tasks ?? {}) {
+		for (const task in Types.Campaign.Schema.campaignTask.Values ?? {}) {
 			this.generateAircraftsForTask({
 				...args,
-				task: task as DcsJs.Task,
+				task: task as Types.Campaign.CampaignTask,
 			});
 		}
 	}
 
-	public generateAircraftsForTask(args: { coalition: DcsJs.Coalition; task: DcsJs.Task }) {
+	public generateAircraftsForTask(args: { coalition: DcsJs.Coalition; task: Types.Campaign.CampaignTask }) {
 		const taskAircraftTypes = store.factionDefinitions[args.coalition]?.aircraftTypes[args.task];
 
 		if (taskAircraftTypes == null) {

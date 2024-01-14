@@ -1,27 +1,20 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
-import { createContext, createEffect, JSX } from "solid-js";
-import { createStore, produce } from "solid-js/store";
-import { v4 as uuid } from "uuid";
+import { createContext, JSX } from "solid-js";
+import { createStore } from "solid-js/store";
 
-import * as Domain from "../domain";
-import {
-	campaignRound,
-	clearPackages,
-	deploymentScoreUpdate,
-	longCampaignRound,
-	missionRound,
-	repairScoreUpdate,
-	updateDownedPilots,
-	updateFactionState,
-} from "../logic";
-import { calcTakeoffTime, dateToTimer, getFlightGroups, getMissionStateTimer, timerToDate } from "../utils";
 import { sendWorkerMessage } from "../worker";
 
-type CampaignState = DcsJs.CampaignState &
-	Types.Campaign.UIState & {
-		selectedEntityId: undefined | Types.Campaign.Id;
-	};
+export type ModalName = "next day" | "game over";
+
+export type CampaignState = Types.Campaign.UIState & {
+	active: boolean;
+	paused: boolean;
+	loaded: boolean;
+	winner: DcsJs.Coalition | undefined;
+	openModals: Set<ModalName>;
+	selectedEntityId: undefined | Types.Campaign.Id;
+};
 type CampaignStore = [
 	CampaignState,
 	{
@@ -31,34 +24,14 @@ type CampaignStore = [
 		activate?: () => void;
 		selectEntity?: (id: Types.Campaign.Id) => void;
 		clearSelectedEntity?: () => void;
-		/* --- */
 		setMultiplier?: (multiplier: number) => void;
 		tick?: (multiplier: number) => void;
 		togglePause?: () => void;
 		pause?: () => void;
 		resume?: () => void;
 		reset?: () => void;
-
-		updatePackagesState?: (factionString: "blueFaction" | "redFaction") => void;
-		updateAircraftState?: () => void;
-		destroyStructure?: (objectiveName: string) => void;
-		selectFlightGroup?: (flightGroup: DcsJs.FlightGroup | undefined) => void;
-		setClient?: (flightGroupId: string, count: number) => void;
-		submitMissionState?: (state: Types.Campaign.MissionState, dataStore: Types.Campaign.DataStore) => void;
-		saveCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
-		saveLongCampaignRound?: (dataStore: Types.Campaign.DataStore) => void;
-		updateDeploymentScore?: () => void;
-		updateRepairScore?: () => void;
-		updateWeather?: (dataStore: Types.Campaign.DataStore) => void;
-		updateDownedPilots?: () => void;
-		skipToNextDay?: (dataStore: Types.Campaign.DataStore) => void;
-		resumeNextDay?: () => void;
-		generateMissionId?: () => void;
-		resetMissionId?: () => void;
-		clearToastMessages?: (ids: Array<string>) => void;
-		replaceCampaignState?: (next: Partial<DcsJs.CampaignState>) => void;
-
-		toggleHotStart?: () => void;
+		skipToNextDay?: () => void;
+		closeModal?: (name: ModalName) => void;
 	},
 ];
 
@@ -66,39 +39,9 @@ export const initState: CampaignState = {
 	id: "",
 	active: false,
 	loaded: false,
-	campaignTime: new Date("2022-06-01").getTime(),
-	timer: 32400,
-	lastTickTimer: 32400,
-	multiplier: 1,
 	paused: true,
-	selectedFlightGroup: undefined,
-	blueFaction: undefined,
-	redFaction: undefined,
-	objectives: {},
-	winningCondition: { type: "ground units" },
-	aiSkill: "Average",
 	name: "",
-	nextDay: false,
-	allowBadWeather: false,
-	training: false,
-	allowNightMissions: false,
-	missionId: undefined,
-	toastMessages: [],
-	map: "caucasus",
-	created: new Date(),
-	edited: new Date(),
-	weather: {
-		temperature: 0,
-		wind: {
-			direction: 0,
-			speed: 0,
-		},
-		cloudCover: 0,
-		cloudCoverData: [],
-		offset: 0,
-	},
-	version: 0,
-	time: 32400,
+	time: 32400000,
 	timeMultiplier: 1,
 	flightGroups: [],
 	entities: new Map(),
@@ -108,14 +51,33 @@ export const initState: CampaignState = {
 		red: undefined,
 		neutrals: undefined,
 	},
+	theatre: "Caucasus",
+	winner: undefined,
+	campaignParams: {
+		aiSkill: "Average",
+		badWeather: false,
+		hardcore: false,
+		nightMissions: false,
+		training: false,
+	},
+	openModals: new Set(),
+	startTimeReached: false,
+	hasClients: false,
+	weather: {
+		cloudCover: 0,
+		cloudCoverData: [],
+		offset: 0,
+		temperature: 0,
+		wind: {
+			direction: 0,
+			speed: 0,
+		},
+	},
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
 
-export function CampaignProvider(props: {
-	children?: JSX.Element;
-	campaignState: Partial<DcsJs.CampaignState> | null | undefined;
-}) {
+export function CampaignProvider(props: { children?: JSX.Element }) {
 	const [state, setState] = createStore<CampaignState>(initState);
 
 	const store: CampaignStore = [
@@ -133,24 +95,7 @@ export function CampaignProvider(props: {
 				setState("selectedEntityId", undefined);
 			},
 			setMultiplier(multiplier: number) {
-				setState("multiplier", multiplier);
-			},
-			tick(multiplier) {
-				setState(
-					produce((s) => {
-						s.lastTickTimer = s.timer;
-
-						const takeoffTime = calcTakeoffTime(s.blueFaction?.packages);
-
-						const newTimer = s.timer + multiplier;
-
-						if (takeoffTime != null && takeoffTime <= state.timer) {
-							s.timer = takeoffTime;
-						} else {
-							s.timer = newTimer;
-						}
-					}),
-				);
+				setState("timeMultiplier", multiplier);
 			},
 			togglePause() {
 				setState("paused", (v) => {
@@ -162,7 +107,7 @@ export function CampaignProvider(props: {
 						} else {
 							sendWorkerMessage({
 								name: "resume",
-								payload: { multiplier: state.multiplier },
+								payload: { multiplier: state.timeMultiplier },
 							});
 						}
 						return !v;
@@ -183,7 +128,7 @@ export function CampaignProvider(props: {
 			resume() {
 				sendWorkerMessage({
 					name: "resume",
-					payload: { multiplier: state.multiplier },
+					payload: { multiplier: state.timeMultiplier },
 				});
 				setState("paused", () => false);
 				setState("selectedEntityId", undefined);
@@ -194,189 +139,9 @@ export function CampaignProvider(props: {
 				setState("winner", undefined);
 				setState("selectedEntityId", undefined);
 			},
-			selectFlightGroup(flightGroup) {
-				setState("selectedFlightGroup", () => flightGroup);
-			},
-			setClient(flightGroupId, count) {
-				setState(
-					produce((s) => {
-						if (s.blueFaction == null) {
-							return;
-						}
 
-						s.blueFaction.packages.forEach((pkg) => {
-							const fg = pkg.flightGroups.find((fg) => fg.id === flightGroupId);
-
-							if (fg == null) {
-								return;
-							}
-
-							fg.units.forEach((unit, i) => {
-								unit.client = i < count;
-							});
-						});
-
-						const takeoffTime = Domain.Client.calcTakeoffTime(s.blueFaction.packages);
-
-						if (takeoffTime == null) {
-							s.blueFaction.packages.forEach((pkg) => {
-								pkg.flightGroups.forEach((fg) => {
-									if (fg.startTime !== fg.designatedStartTime) {
-										fg.startTime = fg.designatedStartTime;
-									}
-								});
-							});
-						} else {
-							s.blueFaction.packages.forEach((pkg) => {
-								if (Domain.Client.packageHasClient(pkg)) {
-									pkg.flightGroups.forEach((fg) => (fg.startTime = takeoffTime));
-								}
-							});
-						}
-						s.missionId = undefined;
-					}),
-				);
-			},
-			submitMissionState(state, dataStore) {
-				setState(
-					produce((s) => {
-						s.timer = getMissionStateTimer(state, s.timer);
-						s.missionId = undefined;
-
-						if (s.hardcore) {
-							const fgs = getFlightGroups(s.blueFaction?.packages);
-							const clientAircraftNames: Array<string> = [];
-
-							fgs.forEach((fg) => {
-								fg.units.filter((u) => u.client).forEach((u) => clientAircraftNames.push(u.name));
-							});
-
-							const clientKilled = state.killed_aircrafts.some((killedAc) =>
-								clientAircraftNames.some((name) => name === killedAc),
-							);
-
-							if (clientKilled) {
-								s.hardcore = "killed";
-								s.winner = "red";
-							}
-						}
-
-						if (s.blueFaction != null) {
-							updateFactionState("blue", s.blueFaction, s, state, dataStore);
-						}
-
-						if (s.redFaction != null) {
-							updateFactionState("red", s.redFaction, s, state, dataStore);
-						}
-
-						missionRound(s, dataStore);
-					}),
-				);
-			},
-			saveCampaignRound(dataStore) {
-				setState(produce((s) => campaignRound(s, dataStore)));
-			},
-			saveLongCampaignRound(dataStore) {
-				setState(produce((s) => longCampaignRound(s, dataStore)));
-			},
-			updateDeploymentScore() {
-				setState(produce((s) => deploymentScoreUpdate(s)));
-			},
-			updateRepairScore() {
-				setState(produce((s) => repairScoreUpdate(s)));
-			},
-			updateWeather(dataStore) {
-				setState(
-					produce((s) => {
-						const currentWeather = Domain.Weather.getCurrentWeather(
-							s.timer,
-							s.weather.offset,
-							s.weather.cloudCoverData,
-							s.allowBadWeather ?? false,
-							dataStore,
-						);
-						s.weather.temperature = currentWeather.temperature;
-						s.weather.cloudCover = currentWeather.cloudCover;
-						s.weather.wind = currentWeather.wind;
-
-						return s;
-					}),
-				);
-			},
-			updateDownedPilots() {
-				setState(
-					produce((s) => {
-						if (s.blueFaction == null || s.redFaction == null) {
-							return;
-						}
-
-						s.blueFaction = updateDownedPilots(s.blueFaction, s.timer);
-						s.redFaction = updateDownedPilots(s.redFaction, s.timer);
-					}),
-				);
-			},
-			skipToNextDay(dataStore) {
-				setState(
-					produce((s) => {
-						s.paused = true;
-						s.nextDay = true;
-
-						const d = timerToDate(s.timer);
-						d.setUTCDate(d.getUTCDate() + 1);
-						d.setUTCHours(dataStore.mapInfo?.night.endHour ?? 7);
-						d.setUTCMinutes(0);
-						d.setUTCSeconds(0);
-
-						s.timer = dateToTimer(d);
-
-						if (s.blueFaction) {
-							clearPackages(s.blueFaction);
-
-							s.blueFaction.groundGroups = s.blueFaction.groundGroups.filter((gg) => gg.state === "on objective");
-						}
-
-						if (s.redFaction) {
-							clearPackages(s.redFaction);
-
-							s.redFaction.groundGroups = s.redFaction.groundGroups.filter((gg) => gg.state === "on objective");
-						}
-
-						Object.values(s.objectives).forEach((obj) => {
-							const storeObjective = s.objectives[obj.name];
-
-							if (storeObjective == null) {
-								return;
-							}
-
-							storeObjective.incomingGroundGroups = {};
-						});
-					}),
-				);
-			},
-			resumeNextDay() {
-				setState("nextDay", () => false);
-				setState("paused", () => false);
-			},
-			generateMissionId() {
-				setState("missionId", uuid());
-			},
-			resetMissionId() {
-				setState("missionId", undefined);
-			},
-			clearToastMessages(ids) {
-				setState("toastMessages", (s) => s.filter((msg) => !ids.some((id) => id === msg.id)));
-			},
-			replaceCampaignState(next) {
-				setState({
-					...next,
-					active: true,
-				});
-			},
 			deactivate() {
 				setState("active", false);
-			},
-			toggleHotStart() {
-				setState("hotStart", (s) => !s);
 			},
 			selectEntity(id) {
 				setState("selectedEntityId", () => id);
@@ -384,18 +149,28 @@ export function CampaignProvider(props: {
 			clearSelectedEntity() {
 				setState("selectedEntityId", () => undefined);
 			},
+			skipToNextDay() {
+				this.pause?.();
+
+				sendWorkerMessage({
+					name: "skipToNextDay",
+				});
+
+				setState("openModals", (v) => {
+					const next = new Set(v);
+					next.add("next day");
+					return next;
+				});
+			},
+			closeModal(name) {
+				setState("openModals", (v) => {
+					const next = new Set(v);
+					next.delete(name);
+					return next;
+				});
+			},
 		},
 	];
-
-	createEffect(() =>
-		setState((state) => {
-			if (props.campaignState == null) {
-				return state;
-			} else {
-				return { ...state, ...props.campaignState };
-			}
-		}),
-	);
 
 	return <CampaignContext.Provider value={store}>{props.children}</CampaignContext.Provider>;
 }

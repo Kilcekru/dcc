@@ -3,7 +3,6 @@ import { createEffect, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components/CampaignProvider";
 import { useSave } from "../../../../hooks";
-import { calcTakeoffTime } from "../../../../utils";
 import Styles from "./TimerClock.module.less";
 
 export const TimerClock = () => {
@@ -15,16 +14,6 @@ export const TimerClock = () => {
 			setMultiplier?.(multiplier);
 			resume?.();
 		}
-	};
-
-	const takeoffTimeReached = () => {
-		const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
-
-		if (takeoffTime == null) {
-			return false;
-		}
-
-		return takeoffTime <= state.timer;
 	};
 
 	createEffect(() => {
@@ -46,7 +35,7 @@ export const TimerClock = () => {
 				<Components.Clock value={state.time} withDay />
 			</div>
 
-			<Components.Tooltip text="Takeoff Time reached" disabled={!takeoffTimeReached()}>
+			<Components.Tooltip text="Takeoff Time reached" disabled={!state.startTimeReached}>
 				<div class={Styles.buttons}>
 					<Components.Button onPress={onPause} unstyled class={Styles.icon}>
 						{state.paused ? <Components.Icons.PauseFill /> : <Components.Icons.Pause />}
@@ -55,17 +44,17 @@ export const TimerClock = () => {
 						onPress={() => onPressMultiplier?.(1)}
 						unstyled
 						class={Styles.icon}
-						disabled={takeoffTimeReached()}
+						disabled={state.startTimeReached}
 					>
-						{!state.paused && state.multiplier === 1 ? <Components.Icons.PlayFill /> : <Components.Icons.Play />}
+						{!state.paused && state.timeMultiplier === 1 ? <Components.Icons.PlayFill /> : <Components.Icons.Play />}
 					</Components.Button>
 					<Components.Button
 						onPress={() => onPressMultiplier?.(300)}
 						unstyled
 						class={Styles.icon}
-						disabled={takeoffTimeReached()}
+						disabled={state.startTimeReached}
 					>
-						{!state.paused && state.multiplier > 1 ? (
+						{!state.paused && state.timeMultiplier > 1 ? (
 							<Components.Icons.FastForwardFill />
 						) : (
 							<Components.Icons.FastForward />

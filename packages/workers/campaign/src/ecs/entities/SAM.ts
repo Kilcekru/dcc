@@ -27,7 +27,7 @@ export class SAM extends Group {
 	#cooldownTime: number | undefined;
 
 	get samTemplate() {
-		return store.dataStore?.samTemplates?.[this.type];
+		return DcsJs.samTemplates?.[this.type];
 	}
 
 	/**
@@ -37,7 +37,7 @@ export class SAM extends Group {
 		let hasSearchRadar = false;
 
 		for (const unit of this.units) {
-			if (unit.alive && unit.vehicleData?.vehicleTypes.includes("Search Radar")) {
+			if (unit.alive && unit.vehicleData?.vehicleTypes?.includes("Search Radar")) {
 				hasSearchRadar = true;
 				break;
 			}
@@ -69,11 +69,11 @@ export class SAM extends Group {
 
 		for (const unit of this.units) {
 			if (unit.alive) {
-				if (unit.vehicleData?.vehicleTypes.includes("Track Radar")) {
+				if (unit.vehicleData?.vehicleTypes?.includes("Track Radar")) {
 					hasTrackRadar = true;
 					continue;
 				}
-				if (unit.vehicleData?.vehicleTypes.includes("SAM Launcher")) {
+				if (unit.vehicleData?.vehicleTypes?.includes("SAM Launcher")) {
 					hasLauncher = true;
 				}
 			}
@@ -93,7 +93,7 @@ export class SAM extends Group {
 	}
 
 	static create(args: CreateSAMProps) {
-		const template = store.dataStore?.groundUnitsTemplates?.find(
+		const template = DcsJs.groundUnitsTemplates?.find(
 			(t) => store.factionDefinitions[args.coalition]?.templateName === t.name,
 		);
 
@@ -118,11 +118,7 @@ export class SAM extends Group {
 	}
 
 	static generateUnits(coalition: DcsJs.Coalition, type: DcsJs.SamType) {
-		const samTemplate = store.dataStore?.samTemplates?.[type];
-
-		if (samTemplate == null) {
-			throw new Error(`sam template: ${type} not found`);
-		}
+		const samTemplate = DcsJs.samTemplates[type];
 
 		const groundUnits: Array<GroundUnit> = [];
 

@@ -1,8 +1,8 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createSignal } from "solid-js";
 
-import { AiSkillMap } from "../../../utils";
 import Styles from "./Settings.module.less";
 
 export const Settings = (props: {
@@ -49,10 +49,10 @@ export const Settings = (props: {
 			</Components.Switch>
 			<h2 class={Styles["radio-title"]}>AI Skill Level</h2>
 			<Components.RadioGroup id={aiSkill()} onChange={(value) => setAiSkill(value as DcsJs.AiSkill)}>
-				<Components.RadioItem id="Average">{AiSkillMap["Average"]}</Components.RadioItem>
-				<Components.RadioItem id="Good">{AiSkillMap["Good"]}</Components.RadioItem>
-				<Components.RadioItem id="High">{AiSkillMap["High"]}</Components.RadioItem>
-				<Components.RadioItem id="Excellent">{AiSkillMap["Excellent"]}</Components.RadioItem>
+				<Components.RadioItem id="Average">{Utils.Params.AiSkillLabel["Average"]}</Components.RadioItem>
+				<Components.RadioItem id="Good">{Utils.Params.AiSkillLabel["Good"]}</Components.RadioItem>
+				<Components.RadioItem id="High">{Utils.Params.AiSkillLabel["High"]}</Components.RadioItem>
+				<Components.RadioItem id="Excellent">{Utils.Params.AiSkillLabel["Excellent"]}</Components.RadioItem>
 			</Components.RadioGroup>
 
 			<div class={Styles.buttons}>

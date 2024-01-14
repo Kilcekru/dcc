@@ -1,19 +1,17 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
-import { createMemo, For, Show } from "solid-js";
+import { createMemo, Show } from "solid-js";
 
-import { useDataStore } from "../../../../components/DataProvider";
-import { getWeaponsForFlightGroupUnit } from "../../../../logic/utils";
 import Styles from "./Item.module.less";
 
 export function FlightGroupUnit(props: { aircraft: Types.Serialization.AircraftSerialized }) {
-	const dataStore = useDataStore();
-
 	const displayName = createMemo(() => {
-		return dataStore?.aircrafts?.[props.aircraft.aircraftType]?.display_name ?? props.aircraft.aircraftType;
+		return DcsJs.aircrafts?.[props.aircraft.aircraftType]?.display_name ?? props.aircraft.aircraftType;
 	});
 
-	const weapons = createMemo(() => getWeaponsForFlightGroupUnit(props.aircraft));
+	// TODO
+	// const weapons = createMemo(() => getWeaponsForFlightGroupUnit(props.aircraft));
 
 	return (
 		<div>
@@ -24,14 +22,14 @@ export function FlightGroupUnit(props: { aircraft: Types.Serialization.AircraftS
 					<p class={Styles.player}>Player</p>
 				</Show>
 			</div>
-			<For each={[...weapons()]}>
+			{/* <For each={[...weapons()]}>
 				{([, { item, count }]) => (
 					<div class={Styles.weapon}>
 						<div class={Styles.weapon__count}>{count}x</div>
 						<div>{item.displayName}</div>
 					</div>
 				)}
-			</For>
+				</For> */}
 		</div>
 	);
 }

@@ -1,23 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
-import * as Components from "@kilcekru/dcc-lib-components";
-import * as Types from "@kilcekru/dcc-shared-types";
-import { createMemo, For, Show, useContext } from "solid-js";
-
-import { CampaignContext } from "../../../../components";
-import * as Domain from "../../../../domain";
-import {
-	killedAircraftIdsByFlightGroups,
-	killedBuildingNames,
-	killedGroundUnitIds,
-	killedSamNames,
-} from "../../../../logic";
-import Styles from "./Debrief.module.less";
-
-function useFlightGroupMissionState(
-	flightGroup: DcsJs.FlightGroup,
-	killedBlueAircrafts: Array<string>,
-	killedRedGroundUnits: Array<string>,
-) {
+/* function useFlightGroupMissionState() {
 	const [state] = useContext(CampaignContext);
 	const clientsKilled = flightGroup.units.some(
 		(unit) => unit.client && killedBlueAircrafts.some((id) => id === unit.id),
@@ -142,17 +123,10 @@ function FlightGroup(props: {
 			</For>
 		</div>
 	);
-}
+} */
 
-export function Debrief(props: {
-	missionState: Types.Campaign.MissionState | undefined;
-	flightGroups: {
-		blue: Array<DcsJs.FlightGroup>;
-		red: Array<DcsJs.FlightGroup>;
-	};
-	onClose: () => void;
-}) {
-	const [state] = useContext(CampaignContext);
+export function Debrief() {
+	/* const [state] = useContext(CampaignContext);
 
 	const stats = createMemo(() => {
 		if (state.blueFaction == null) {
@@ -259,5 +233,6 @@ export function Debrief(props: {
 				</div>
 			</div>
 		</div>
-	);
+	); */
+	return <div />;
 }

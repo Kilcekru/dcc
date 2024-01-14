@@ -1,162 +1,9 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { z } from "zod";
 
+import * as Campaign from "./campaign";
+
 namespace Schema {
-	export const coalition = z.enum(["blue", "red", "neutrals"]);
-	export const position = z.object({ x: z.number(), y: z.number() });
-	export const task = z.enum([
-		"DEAD",
-		"SEAD",
-		"AWACS",
-		"CAP",
-		"Escort",
-		"Pinpoint Strike",
-		"CAS",
-		"CSAR",
-		"Air Assault",
-	]);
-	export const structureType = z.enum([
-		"Ammo Depot",
-		"Farp",
-		"Command Center",
-		"Power Plant",
-		"Fuel Storage",
-		"Hospital",
-		"Prison",
-		"Barrack",
-		"Depot",
-	]);
-	export const aircraftType = z.enum([
-		"Tornado GR4",
-		"Tornado IDS",
-		"F/A-18A",
-		"F/A-18C",
-		"F-14A",
-		"Tu-22M3",
-		"F-4E",
-		"B-52H",
-		"MiG-27K",
-		"Su-27",
-		"MiG-23MLD",
-		"Su-25",
-		"Su-25TM",
-		"Su-25T",
-		"Su-33",
-		"MiG-25PD",
-		"MiG-25RBT",
-		"Su-30",
-		"Su-17M4",
-		"MiG-31",
-		"Tu-95MS",
-		"Su-24M",
-		"Su-24MR",
-		"Tu-160",
-		"F-117A",
-		"B-1B",
-		"S-3B",
-		"S-3B Tanker",
-		"Mirage 2000-5",
-		"Mirage-F1CE",
-		"Mirage-F1EE",
-		"F-15C",
-		"F-15E",
-		"F-15ESE",
-		"MiG-29A",
-		"MiG-29G",
-		"MiG-29S",
-		"Tu-142",
-		"C-130",
-		"An-26B",
-		"An-30M",
-		"C-17A",
-		"A-50",
-		"E-3A",
-		"IL-78M",
-		"E-2C",
-		"IL-76MD",
-		"F-16C bl.50",
-		"F-16C bl.52d",
-		"F-16A",
-		"F-16A MLU",
-		"RQ-1A Predator",
-		"Yak-40",
-		"KC-135",
-		"FW-190D9",
-		"FW-190A8",
-		"Bf-109K-4",
-		"SpitfireLFMkIX",
-		"SpitfireLFMkIXCW",
-		"P-51D",
-		"P-51D-30-NA",
-		"P-47D-30",
-		"P-47D-30bl1",
-		"P-47D-40",
-		"MosquitoFBMkVI",
-		"Ju-88A4",
-		"A-20G",
-		"A-4E-C",
-		"A-10A",
-		"A-10C",
-		"A-10C_2",
-		"AJS37",
-		"AV8BNA",
-		"KC130",
-		"KC135MPRS",
-		"C-101EB",
-		"C-101CC",
-		"J-11A",
-		"JF-17",
-		"KJ-2000",
-		"WingLoong-I",
-		"H-6J",
-		"Christen Eagle II",
-		"F-16C_50",
-		"F-5E",
-		"F-5E-3",
-		"F-86F Sabre",
-		"F-14B",
-		"F-14A-135-GR",
-		"FA-18C_hornet",
-		"Hawk",
-		"I-16",
-		"L-39C",
-		"L-39ZA",
-		"M-2000C",
-		"MB-339A",
-		"MB-339APAN",
-		"MQ-9 Reaper",
-		"MiG-15bis",
-		"MiG-19P",
-		"MiG-21Bis",
-		"Su-34",
-		"TF-51D",
-		"Mi-24V",
-		"Mi-8MT",
-		"Mi-26",
-		"Ka-27",
-		"UH-60A",
-		"UH-60L",
-		"CH-53E",
-		"CH-47D",
-		"SH-3W",
-		"AH-64A",
-		"AH-64D",
-		"AH-1W",
-		"SH-60B",
-		"UH-1H",
-		"Mi-28N",
-		"OH-58D",
-		"AH-64D_BLK_II",
-		"Ka-50",
-		"Ka-50_3",
-		"Mi-24P",
-		"SA342M",
-		"SA342L",
-		"SA342Mistral",
-		"SA342Minigun",
-		"VSN_F4B",
-		"VSN_F4C",
-		"SK-60",
-	]);
 	export const groundUnitType = z.enum([
 		"2B11 mortar",
 		"SAU Gvozdika",
@@ -393,111 +240,7 @@ namespace Schema {
 		"M45_Quadmount",
 		"M1_37mm",
 	]);
-	export const faction = z.object({
-		aircraftTypes: z.record(z.array(aircraftType)),
-		countryName: z.string(),
-		name: z.string(),
-		year: z.number().optional(),
-		playable: z.boolean(),
-		templateName: z.string(),
-		carrierName: z.string().optional(),
-		created: z.coerce.date().optional(),
-	});
-	export const weaponBase = z.object({
-		name: z.string(),
-		displayName: z.string(),
-		year: z.number().optional(),
-	});
-	export const A2AWeaponType = z.enum(["infrared", "active radar", "semi-active radar"]);
-	export const A2GWeaponType = z.enum([
-		"Bomb",
-		"Cluster",
-		"Rocket",
-		"Laser Guided Bomb",
-		"GPS Guided Bomb",
-		"TV Guided Bomb",
-		"Laser Guided Rocket",
-	]);
-	export const A2GRangeWeaponType = z.enum(["Missile", "Glide Bomb", "Laser Guided Missile", "Cruise Missile"]);
-	export const RangeType = z.enum(["short", "medium", "long"]);
-	export const A2GWeaponTarget = z.enum([
-		"Anti-Armor",
-		"Hard Target",
-		"Medium Target",
-		"Soft Target",
-		"Ship",
-		"Radar",
-		"Light Structure",
-		"Medium Structure",
-		"Hard Structure",
-	]);
-	export const a2AWeapon = z
-		.object({
-			type: A2AWeaponType,
-			range: z.number(),
-			rangeType: RangeType,
-		})
-		.merge(weaponBase);
 
-	export const a2GWeapon = z
-		.object({
-			type: A2GWeaponType,
-			target: A2GWeaponTarget,
-			weight: z.number().optional(),
-			highDrag: z.boolean().optional(),
-		})
-		.merge(weaponBase);
-
-	export const a2GRangeWeapon = z
-		.object({
-			type: A2GRangeWeaponType,
-			targets: z.array(A2GWeaponTarget),
-			range: z.number(),
-		})
-		.merge(weaponBase);
-
-	export const weapon = z.union([a2AWeapon, a2GWeapon, a2GRangeWeapon]);
-	export const pylonType = z.enum(["Fuel Tank", "Targeting Pod", "Gun Pod", "ECM Pod", "Other", "Weapon"]);
-	export const pylon = z.object({
-		CLSID: z.string(),
-		num: z.number(),
-		total: z.number(),
-		count: z.number(),
-		type: pylonType,
-		weapon: weapon.optional(),
-	});
-
-	export const loadout = z.object({
-		task: z.union([task, z.literal("default")]),
-		name: z.string(),
-		displayName: z.string(),
-		pylons: z.array(pylon),
-	});
-	export const campaignGroundGroupType = z.enum(["armor", "mbt", "infantry", "ew", "sam"]);
-	export const campaignGroundUnitType = z.union([campaignGroundGroupType, z.literal("shorad")]);
-	export const staticType = z.enum([
-		"Garage B",
-		"Tech hangar A",
-		"Electric power box",
-		"Repair workshop",
-		"FARP Tent",
-		"FARP CP Blindage",
-		"FARP Fuel Depot",
-		"FARP Ammo Dump Coating",
-		"Invisible FARP",
-		"Chemical tank A",
-		"Hangar B",
-		"Workshop A",
-		"Subsidiary structure 2",
-		"Boiler-house A",
-		"Military staff",
-		"Small werehouse 2",
-		"TV tower",
-		"Railway station",
-		"FARP_SINGLE_01",
-		"outpost",
-		"FARP",
-	]);
 	export const samType = z.enum(["SA-10-300", "SA-6", "SA-5", "SA-3", "SA-2", "Hawk"]);
 }
 export type GroundUnitType = z.infer<typeof Schema.groundUnitType>; // TODO
@@ -557,20 +300,20 @@ const entitySchema = z.object({
 	serialized: z.literal(true),
 	entityType: entityTypeSchema,
 	id: z.string(),
-	coalition: Schema.coalition,
+	coalition: DcsJs.coalition,
 	queries: z.array(queryKeySchema),
 });
 export type EntitySerialized = z.TypeOf<typeof entitySchema>;
 
 const mapEntitySchema = entitySchema.extend({
 	name: z.string(),
-	position: Schema.position,
+	position: DcsJs.Schema.position,
 	hidden: z.boolean(),
 });
 export type MapEntitySerialized = z.TypeOf<typeof mapEntitySchema>;
 
 const groupSchema = mapEntitySchema.extend({
-	position: Schema.position,
+	position: DcsJs.Schema.position,
 });
 export type GroupSerialized = z.TypeOf<typeof groupSchema>;
 
@@ -578,7 +321,7 @@ const groundGroupSchema = groupSchema.extend({
 	entityType: z.literal("GroundGroup"),
 	startId: z.string(),
 	targetId: z.string(),
-	type: Schema.campaignGroundGroupType,
+	type: Campaign.Schema.campaignGroundGroupType,
 	unitIds: z.array(z.string()),
 	shoradUnitIds: z.array(z.string()),
 	embarkedOntoFlightGroupId: z.string().optional(),
@@ -599,14 +342,14 @@ export type WaypointType = z.TypeOf<typeof waypointTypeSchema>;
 
 const waypointTemplateSchema = z.object({
 	name: z.string(),
-	position: Schema.position,
+	position: DcsJs.Schema.position,
 	onGround: z.boolean(),
 	duration: z.number().optional(),
 	type: waypointTypeSchema,
 	raceTrack: z
 		.object({
 			name: z.string(),
-			position: Schema.position,
+			position: DcsJs.Schema.position,
 		})
 		.optional(),
 });
@@ -630,7 +373,7 @@ export type FlightGroupState = z.TypeOf<typeof flightGroupState>;
 
 const flightGroupSchema = groupSchema.extend({
 	aircraftIds: z.array(z.string()),
-	task: Schema.task,
+	task: DcsJs.task,
 	startTime: z.number(), // ui
 	name: z.string(),
 	homeBaseId: z.string(),
@@ -644,11 +387,12 @@ const flightGroupSchema = groupSchema.extend({
 	packageId: z.string(),
 	flightplanId: z.string(),
 	state: flightGroupState, // ui
+	hasClients: z.boolean(), // ui
 });
 export type FlightGroupSerialized = z.TypeOf<typeof flightGroupSchema>;
 
 const escortedFlightGroupSchema = flightGroupSchema.extend({
-	escortFlightGroupId: z.record(Schema.task, z.string()).optional(),
+	escortFlightGroupId: z.record(DcsJs.task, z.string()).optional(),
 });
 export type EscortedFlightGroupSerialized = z.TypeOf<typeof escortedFlightGroupSchema>;
 
@@ -706,8 +450,8 @@ export type UnitSerialized = z.TypeOf<typeof unitSchema>;
 const buildingSchema = unitSchema.extend({
 	entityType: z.literal("Building"),
 	name: z.string(),
-	staticType: Schema.staticType,
-	offset: Schema.position,
+	buildingType: DcsJs.buildingType,
+	offset: DcsJs.Schema.position,
 	repairScore: z.number().optional(),
 	repairCost: z.number(), // ui
 });
@@ -723,20 +467,20 @@ export type CallSign = z.TypeOf<typeof callSignSchema>;
 
 const aircraftSchema = unitSchema.extend({
 	entityType: z.literal("Aircraft"),
-	aircraftType: Schema.aircraftType,
+	aircraftType: DcsJs.aircraftType,
 	flightGroupId: z.string().optional(),
 	callSign: callSignSchema.optional(),
 	name: z.string().optional(),
 	homeBaseId: z.string(),
 	isClient: z.boolean(),
-	loadout: Schema.loadout.optional(),
+	loadout: Campaign.Schema.campaignLoadout.optional(),
 });
 export type AircraftSerialized = z.TypeOf<typeof aircraftSchema>;
 
 const groundUnitSchema = unitSchema.extend({
 	name: z.string(),
 	entityType: z.literal("GroundUnit"),
-	category: Schema.campaignGroundUnitType,
+	category: Campaign.Schema.campaignGroundUnitType,
 	type: Schema.groundUnitType,
 });
 
@@ -744,7 +488,7 @@ export type GroundUnitSerialized = z.TypeOf<typeof groundUnitSchema>;
 
 const structureSchema = mapEntitySchema.extend({
 	name: z.string(),
-	structureType: Schema.structureType,
+	structureType: DcsJs.structureType,
 	objectiveId: z.string(),
 	buildingIds: z.array(z.string()),
 	active: z.boolean(),
@@ -768,17 +512,18 @@ export type UnitCampSerialized = z.TypeOf<typeof unitCampSchema>;
 
 const packageSchema = entitySchema.extend({
 	entityType: z.literal("Package"),
-	task: Schema.task,
+	task: DcsJs.task,
 	cruiseSpeed: z.number(),
 	startTime: z.number(),
 	flightGroupIds: z.array(z.string()),
+	frequency: z.number(),
 });
 export type PackageSerialized = z.TypeOf<typeof packageSchema>;
 
 const objectiveSchema = entitySchema.extend({
 	entityType: z.literal("Objective"),
 	name: z.string(),
-	position: Schema.position,
+	position: DcsJs.Schema.position,
 	incomingGroundGroupId: z.string().optional(),
 });
 export type ObjectiveSerialized = z.TypeOf<typeof objectiveSchema>;
@@ -823,9 +568,10 @@ export const stateSchema = z.object({
 	version: z.number(),
 	active: z.boolean(),
 	time: z.number(),
-	map: z.string(),
+	theatre: z.string(),
 	name: z.string(),
-	factionDefinitions: z.record(Schema.coalition, Schema.faction.optional()),
+	campaignParams: Campaign.Schema.campaignParams,
+	factionDefinitions: z.record(DcsJs.coalition, Campaign.Schema.faction.optional()),
 	entities: z.array(stateEntitySchema),
 });
 export type StateSerialized = z.TypeOf<typeof stateSchema>;

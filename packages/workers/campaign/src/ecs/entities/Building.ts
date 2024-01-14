@@ -9,11 +9,11 @@ import { Unit, UnitProps } from "./_base";
 export interface BuildingProps extends Omit<UnitProps, "entityType"> {
 	name: string;
 	offset: DcsJs.Position;
-	staticType: DcsJs.StaticType;
+	buildingType: DcsJs.BuildingType;
 }
 export class Building extends Unit {
 	public readonly name: string;
-	public readonly staticType: DcsJs.StaticType;
+	public readonly buildingType: DcsJs.BuildingType;
 	public readonly offset: DcsJs.Position;
 	#repairScore: number | undefined;
 
@@ -32,7 +32,7 @@ export class Building extends Unit {
 		super(superArgs);
 		this.name = args.name;
 		this.offset = args.offset;
-		this.staticType = args.staticType;
+		this.buildingType = args.buildingType;
 	}
 
 	static create(args: BuildingProps) {
@@ -49,7 +49,7 @@ export class Building extends Unit {
 			entityType: "Building",
 			name: this.name,
 			offset: this.offset,
-			staticType: this.staticType,
+			buildingType: this.buildingType,
 			repairCost: this.repairCost,
 			repairScore: this.#repairScore,
 		};

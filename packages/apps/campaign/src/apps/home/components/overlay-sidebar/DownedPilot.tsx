@@ -1,14 +1,6 @@
-import { createMemo, useContext } from "solid-js";
-
-import { CampaignContext } from "../../../../components";
-import { RunningCampaignState } from "../../../../logic/types";
-import { getCoalitionFaction } from "../../../../logic/utils";
-import { Flag } from "./Flag";
-import Style from "./Item.module.less";
-import { OverlaySidebarContext } from "./OverlaySidebarProvider";
-
 export function DownedPilot() {
-	const [state] = useContext(CampaignContext);
+	// TODO
+	/* const [state] = useContext(CampaignContext);
 	const [overlayStore] = useContext(OverlaySidebarContext);
 
 	const faction = createMemo(() => {
@@ -27,5 +19,6 @@ export function DownedPilot() {
 				Pilot {faction()?.downedPilots.find((p) => p.id === overlayStore.groundGroupId)?.name}
 			</h2>
 		</div>
-	);
+	); */
+	return <div />;
 }

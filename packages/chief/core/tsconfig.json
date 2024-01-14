@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"paths": {
 			// for easier development of campaign using dcsjs, uncomment following line
-			// "@foxdelta2/dcsjs": ["../../../../dcsjs/src/index.ts"],
+			"@foxdelta2/dcsjs": ["../../../../dcsjs/src/index.ts"],
+			"@foxdelta2/dcsjs/save": ["../../../../dcsjs/src/save.ts"],
 			"@kilcekru/dcc-shared-*": ["../../shared/*/src/index.ts"]
 		}
 	},

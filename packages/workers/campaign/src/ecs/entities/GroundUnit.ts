@@ -1,7 +1,8 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 
 import { Events, Serialization } from "../../utils";
-import { QueryKey, store } from "../store";
+import { QueryKey } from "../store";
 import { Unit, UnitProps } from "./_base/Unit";
 
 export interface GroundUnitProps extends Omit<UnitProps, "entityType" | "queries"> {
@@ -10,11 +11,11 @@ export interface GroundUnitProps extends Omit<UnitProps, "entityType" | "queries
 }
 export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly name: string;
-	public readonly type: Types.Serialization.GroundUnitType;
+	public readonly type: DcsJs.GroundUnitType;
 	public readonly category: Types.Campaign.GroundUnitCategory;
 
 	get vehicleData() {
-		return store.dataStore?.vehicles?.[this.type];
+		return DcsJs.groundUnits[this.type];
 	}
 
 	private constructor(args: GroundUnitProps | Types.Serialization.GroundUnitSerialized) {

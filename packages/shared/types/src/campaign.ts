@@ -1,25 +1,8 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { z } from "zod";
 
+import { Serialization } from ".";
 import { FlightGroupSerialized, StateEntitySerialized } from "./serialization";
-
-export type DataStore = {
-	map: DcsJs.MapName;
-	aircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>> | undefined;
-	groundUnitsTemplates: DcsJs.GetGroundUnitsTemplates | undefined;
-	airdromes: DcsJs.GetMapData["airdromes"] | undefined;
-	objectives: DcsJs.GetMapData["objectives"] | undefined;
-	strikeTargets: DcsJs.GetMapData["strikeTargets"] | undefined;
-	mapInfo: DcsJs.GetMapData["info"] | undefined;
-	samTemplates: DcsJs.GetSamTemplates | undefined;
-	vehicles: DcsJs.GetVehicles | undefined;
-	structures: DcsJs.GetStructures | undefined;
-	callSigns: DcsJs.GetCallSigns | undefined;
-	launchers: DcsJs.GetLaunchers | undefined;
-	weapons: DcsJs.GetWeapons | undefined;
-	ships: DcsJs.GetShips | undefined;
-	tasks: DcsJs.GetTasks | undefined;
-};
 
 export type MissionState = {
 	killed_aircrafts: Array<string>;
@@ -53,16 +36,108 @@ export namespace Schema {
 		time: z.number(),
 		version: z.number().optional(),
 	});
+
+	export const faction = z.object({
+		aircraftTypes: z.record(z.array(DcsJs.aircraftType)),
+		countryName: z.string(),
+		name: z.string(),
+		year: z.number().optional(),
+		playable: z.boolean(),
+		templateName: z.string(),
+		carrierName: z.string().optional(),
+		created: z.coerce.date().optional(),
+	});
+
+	export const scenarioCoalition = z.object({
+		airdromeNames: z.array(z.string()),
+		carrierObjective: z.string().optional(),
+	});
+
+	export const scenario = z.object({
+		theatre: DcsJs.theatre,
+		id: z.string(),
+		available: z.boolean(),
+		name: z.string(),
+		era: DcsJs.era,
+		date: z.string(),
+		briefing: z.string(),
+		"blue-start-objective-range": z.tuple([z.number(), z.number()]),
+		"win-condition": z.union([
+			z.object({
+				type: z.literal("ground units"),
+			}),
+			z.object({
+				type: z.literal("objective"),
+				value: z.string(),
+			}),
+		]),
+		blue: scenarioCoalition,
+		red: scenarioCoalition,
+	});
+
+	export const campaignParams = z.object({
+		aiSkill: DcsJs.aiSkill,
+		hardcore: z.union([z.boolean(), z.literal("killed")]),
+		training: z.boolean(),
+		nightMissions: z.boolean(),
+		badWeather: z.boolean(),
+	});
+
+	export const campaignTask = z.enum([
+		"CAP",
+		"CAS",
+		"AWACS",
+		"Pinpoint Strike",
+		"DEAD",
+		"CSAR",
+		"Escort",
+		"Air Assault",
+		"SEAD",
+	]);
+
+	export const campaignGroundGroupType = z.enum(["armor", "mbt", "infantry", "ew", "sam"]);
+	export const campaignGroundUnitType = z.union([campaignGroundGroupType, z.literal("shorad")]);
+
+	export const campaignPylon = z.union([
+		DcsJs.Schema.pylon.extend({
+			type: DcsJs.launcherType.extract(["Weapon"]),
+			count: z.number(),
+			total: z.number(),
+			weapon: DcsJs.Schema.weapon.optional(),
+		}),
+		DcsJs.Schema.pylon.extend({
+			type: DcsJs.launcherType.exclude(["Weapon"]),
+			count: z.number(),
+			total: z.number(),
+		}),
+	]);
+
+	export const campaignLoadout = z.object({
+		task: z.union([DcsJs.task, z.literal("default")]),
+		name: z.string(),
+		displayName: z.string(),
+		pylons: z.array(campaignPylon),
+	});
+
+	export const structureTypeUnitCamp = z.enum(["Barrack", "Depot"]);
 }
 
 export type CampaignSynopsis = z.infer<typeof Schema.campaignSynopsis>;
+export type Faction = z.infer<typeof Schema.faction>;
+export type CampaignParams = z.infer<typeof Schema.campaignParams>;
+export type Scenario = z.infer<typeof Schema.scenario>;
+export type CampaignTask = z.infer<typeof Schema.campaignTask>;
+export type CampaignGroundGroupType = z.infer<typeof Schema.campaignGroundGroupType>;
+export type CampaignGroundGroupUnitType = z.infer<typeof Schema.campaignGroundGroupType>;
+export type CampaignPylon = z.infer<typeof Schema.campaignPylon>;
+export type CampaignLoadout = z.infer<typeof Schema.campaignLoadout>;
+export type StructureTypeUnitCamp = z.infer<typeof Schema.structureTypeUnitCamp>;
 
 export interface BriefingDocument {
-	package: DcsJs.FlightPackage;
-	flightGroup: DcsJs.FlightGroup;
-	faction: DcsJs.CampaignFaction;
-	dataAircrafts: Partial<Record<DcsJs.AircraftType, DcsJs.DCS.Aircraft>>;
-	mapData: DcsJs.MapData;
+	package: Serialization.PackageSerialized;
+	flightGroup: Serialization.FlightGroupSerialized;
+	theatre: DcsJs.Theatre;
+	entities: Map<Id, StateEntitySerialized>;
 }
 
 export type StructurePlan = {
@@ -75,35 +150,9 @@ export type ObjectivePlan = {
 	groundUnitTypes: Array<string>;
 };
 
-export type DynamicObjectivePlan = ObjectivePlan & { objective: DcsJs.Import.Objective };
+export type DynamicObjectivePlan = ObjectivePlan & { objective: DcsJs.Objective };
 
-export type ScenarioCoalition = {
-	airdromeNames: Array<string>;
-	carrierObjective?: string;
-	objectivePlans: Array<ObjectivePlan>;
-};
-export type Scenario = {
-	map: string;
-	id: string;
-	available: boolean;
-	name: string;
-	era: string;
-	date: string;
-	briefing: string;
-	"blue-start-objective-range": [number, number];
-	"win-condition":
-		| {
-				type: "ground units";
-		  }
-		| {
-				type: "objective";
-				value: string;
-		  };
-	blue: ScenarioCoalition;
-	red: ScenarioCoalition;
-};
-
-export type GroundUnitCategory = DcsJs.CampaignGroundGroupType | "shorad";
+export type GroundUnitCategory = CampaignGroundGroupUnitType | "shorad";
 
 export type Id = string;
 
@@ -129,7 +178,7 @@ export interface FlightGroupMapItem extends MapItemBase {
 
 export interface GroundGroupMapItem extends MapItemBase {
 	type: "groundGroup";
-	groundGroupType: DcsJs.CampaignGroundGroupType;
+	groundGroupType: CampaignGroundGroupUnitType;
 }
 
 export interface SAMMapItem extends MapItemBase {
@@ -190,7 +239,7 @@ export type GroundGroupItem = EntityItem & {
 	target: string;
 	units: Array<GroundUnitItem>;
 	shoradUnits: Array<GroundUnitItem>;
-	type: DcsJs.CampaignGroundGroupType;
+	type: CampaignGroundGroupUnitType;
 };
 
 export type BuildingItem = {
@@ -203,7 +252,6 @@ export type StructureItem = EntityItem & {
 	name: string;
 	objective: string;
 	structureType: DcsJs.StructureType;
-	state: DcsJs.StructureState;
 	buildings: Array<BuildingItem>;
 };
 
@@ -213,17 +261,16 @@ export type WorkerMessage =
 	| {
 			name: "generate";
 			payload: {
-				blueFactionDefinition: DcsJs.Faction;
-				redFactionDefinition: DcsJs.Faction;
+				blueFactionDefinition: Faction;
+				redFactionDefinition: Faction;
 				scenario: Scenario;
 			};
 	  }
 	| {
-			name: "setDataStore";
-			payload: DataStore;
+			name: "serialize";
 	  }
 	| {
-			name: "serialize";
+			name: "skipToNextDay";
 	  }
 	| {
 			name: "load";
@@ -247,8 +294,8 @@ export type WorkerState = {
 	entities: object[];
 	active: boolean;
 	version: number;
-	factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined>;
-	map: DcsJs.MapName;
+	factionDefinitions: Record<DcsJs.Coalition, Faction | undefined>;
+	theatre: DcsJs.Theatre;
 };
 
 export type UIState = {
@@ -258,14 +305,18 @@ export type UIState = {
 	timeMultiplier: number;
 	flightGroups: Array<FlightGroupSerialized>;
 	entities: Map<Id, StateEntitySerialized>;
-	factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined>;
+	factionDefinitions: Record<DcsJs.Coalition, Faction | undefined>;
+	theatre: DcsJs.Theatre;
+	campaignParams: CampaignParams;
+	startTimeReached: boolean;
+	hasClients: boolean;
+	weather: DcsJs.Weather;
 };
 
 export type WorkerEventTick = { name: "tick"; dt: number };
 export type WorkerEventMapUpdate = {
 	name: "mapUpdate";
 	items: Map<string, MapItem>;
-	map: DcsJs.MapName;
 };
 export type WorkerEventTimeUpdate = { name: "timeUpdate"; time: number };
 export type WorkerEventStateUpdate = { name: "stateUpdate"; state: UIState };

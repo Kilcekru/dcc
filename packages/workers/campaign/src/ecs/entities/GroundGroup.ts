@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
@@ -11,7 +11,7 @@ import { Objective } from "./Objective";
 export interface GroundGroupProps extends Omit<GroupProps, "entityType" | "queries" | "position"> {
 	start: Objective;
 	target: Objective;
-	type: DcsJs.CampaignGroundGroupType;
+	type: Types.Campaign.CampaignGroundGroupType;
 	embarked?: FlightGroup;
 	unitIds: Array<Types.Campaign.Id>;
 	shoradUnitIds: Array<Types.Campaign.Id>;
@@ -20,7 +20,7 @@ export interface GroundGroupProps extends Omit<GroupProps, "entityType" | "queri
 export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 	readonly #startId: Types.Campaign.Id;
 	readonly #targetId: Types.Campaign.Id;
-	public readonly type: DcsJs.CampaignGroundGroupType;
+	public readonly type: Types.Campaign.CampaignGroundGroupType;
 	readonly #unitIds: Array<Types.Campaign.Id>;
 	readonly #shoradUnitIds: Array<Types.Campaign.Id>;
 	#embarkedOntoFlightGroupId: Types.Campaign.Id | undefined;
@@ -105,8 +105,8 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 		});
 	}
 
-	static generateUnits(coalition: DcsJs.Coalition, groupType: DcsJs.CampaignGroundGroupType) {
-		const template = store.dataStore?.groundUnitsTemplates?.find(
+	static generateUnits(coalition: DcsJs.Coalition, groupType: Types.Campaign.CampaignGroundGroupType) {
+		const template = DcsJs.groundUnitsTemplates?.find(
 			(t) => store.factionDefinitions[coalition]?.templateName === t.name,
 		);
 

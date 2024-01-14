@@ -1,4 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import * as Entities from "../entities";
@@ -6,7 +7,7 @@ import { store } from "../store";
 
 export function getUsableAircraftsByTask(args: {
 	coalition: DcsJs.Coalition;
-	task: DcsJs.Task;
+	task: Types.Campaign.CampaignTask;
 	excludedAircrafts?: Set<Entities.Aircraft>;
 }): Set<Entities.Aircraft> {
 	let task: DcsJs.Task = "CAP";

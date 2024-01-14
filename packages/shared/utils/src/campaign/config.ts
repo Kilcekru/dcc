@@ -1,8 +1,9 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 
+import * as Types from "../../../types/src";
 import { Minutes } from "./dateTime";
 
-type PerTask<Value> = Record<DcsJs.Task, Value>;
+type PerTask<Value> = Record<Types.Campaign.CampaignTask, Value>;
 type PerCoalition = Record<DcsJs.Coalition, number>;
 
 type Config = {
@@ -48,13 +49,14 @@ type Config = {
 	waypoint: {
 		takeOff: number;
 	};
-	mapOrigin: Record<DcsJs.MapName, DcsJs.Position>;
+	mapOrigin: Record<DcsJs.Theatre, DcsJs.Position>;
 	defaults: {
 		cruiseSpeed: number;
 		groundGroupSpeed: number;
 		holdWaypointDistance: number;
 		holdWaypointDuration: number;
 		casEscortRange: number;
+		awacsFrequency: number;
 	};
 	combat: {
 		a2a: {
@@ -133,23 +135,23 @@ export const Config: Config = {
 		takeOff: 600,
 	},
 	mapOrigin: {
-		caucasus: {
+		Caucasus: {
 			x: -37.17517531,
 			y: 634800.6017,
 		},
-		normandy: {
+		Normandy: {
 			x: 0,
 			y: 0,
 		},
-		persianGulf: {
+		PersianGulf: {
 			x: 0,
 			y: 0,
 		},
-		southAtlantic: {
+		SouthAtlantic: {
 			x: 0,
 			y: 0,
 		},
-		syria: {
+		Syria: {
 			x: -587.411551255995,
 			y: -56132.3249950192,
 		},
@@ -160,6 +162,7 @@ export const Config: Config = {
 		holdWaypointDistance: 15_000,
 		holdWaypointDuration: Minutes(5),
 		groundGroupSpeed: 6,
+		awacsFrequency: 144,
 	},
 	combat: {
 		a2a: {

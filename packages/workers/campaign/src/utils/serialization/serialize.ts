@@ -8,10 +8,11 @@ export function serialize() {
 		name: store.name,
 		version: store.version,
 		time: store.time,
-		map: store.map,
+		theatre: store.theatre,
 		active: true,
 		factionDefinitions: store.factionDefinitions,
 		entities: [],
+		campaignParams: store.campaignParams,
 	};
 	for (const entity of store.entities.values()) {
 		serialized.entities.push(

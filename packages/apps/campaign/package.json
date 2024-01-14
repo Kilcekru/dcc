@@ -9,27 +9,21 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@kilcekru/dcs-coordinates": "1.0.0",
-		"@lastolivegames/becsy": "0.15.5",
+		"@kilcekru/dcs-coordinates": "2.0.0",
 		"@zag-js/checkbox": "0.26.0",
 		"@zag-js/dialog": "0.26.0",
 		"@zag-js/editable": "0.26.0",
 		"@zag-js/pressable": "0.25.0",
 		"@zag-js/solid": "0.26.0",
-		"bitecs": "0.3.40",
 		"cnbuilder": "3.1.0",
 		"esri-leaflet": "3.0.11",
-		"fast-astar": "1.0.6",
 		"leaflet": "1.9.4",
 		"milsymbol": "2.2.0",
-		"miniplex": "2.0.0",
 		"solid-js": "1.8.3",
-		"uuid": "9.0.1",
 		"zod": "3.22.4"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.4.0-next.5",
-		"@types/leaflet": "1.9.7",
-		"@types/uuid": "9.0.6"
+		"@types/leaflet": "1.9.7"
 	}
 }

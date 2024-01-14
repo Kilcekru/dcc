@@ -1,6 +1,8 @@
 import "./utils/serialization";
 
+import * as DcsJs from "@foxdelta2/dcsjs";
 import { Campaign } from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Entities, world } from "./ecs";
 import { getEntity, reset, store } from "./ecs/store";
@@ -16,10 +18,6 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 		}
 		case "pause": {
 			pauseTicker();
-			break;
-		}
-		case "setDataStore": {
-			world.setDataStore(e.data.payload);
 			break;
 		}
 		case "generate": {
@@ -39,7 +37,7 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 				state: {
 					...state,
 					factionDefinitions: store.factionDefinitions,
-					map: store.map,
+					theatre: store.theatre,
 				},
 			});
 
@@ -53,7 +51,7 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 			store.version = e.data.state.version;
 			store.name = e.data.state.name;
 			store.time = e.data.state.time;
-			store.map = e.data.state.map;
+			store.theatre = e.data.state.theatre;
 			store.factionDefinitions = e.data.state.factionDefinitions;
 			Serialization.deserialize(e.data.state);
 
@@ -76,7 +74,7 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 					...state,
 					active: false,
 					factionDefinitions: store.factionDefinitions,
-					map: store.map,
+					theatre: store.theatre,
 				},
 			});
 
@@ -97,9 +95,27 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 				state: {
 					...state,
 					factionDefinitions: store.factionDefinitions,
-					map: store.map,
+					theatre: store.theatre,
 				},
 			});
+
+			break;
+		}
+		case "skipToNextDay": {
+			const d = Utils.DateTime.timerToDate(store.time);
+			d.setUTCDate(d.getUTCDate() + 1);
+			d.setUTCHours(DcsJs.Theatres[store.theatre].info.night.endHour);
+			d.setUTCMinutes(0);
+			d.setUTCSeconds(0);
+
+			store.time = Utils.DateTime.dateToTimer(d);
+
+			for (const pkg of store.queries.packages["blue"]) {
+				pkg.destructor();
+			}
+			for (const pkg of store.queries.packages["red"]) {
+				pkg.destructor();
+			}
 
 			break;
 		}

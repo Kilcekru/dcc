@@ -35,14 +35,8 @@ const calcCallSignNumber = (
 	return calcCallSignNumber(coalition, base, index, number + 1);
 };
 
-export const generateCallSign = (coalition: DcsJs.Coalition, type: "aircraft" | "helicopter" | "awacs") => {
-	const ds = store.dataStore;
-
-	if (ds == null) {
-		throw new Error("dataStore not initialized");
-	}
-
-	const { name, index } = Utils.Random.callSign(ds, type);
+export const generateCallsign = (coalition: DcsJs.Coalition, type: "aircraft" | "awacs") => {
+	const { name, index } = Utils.Random.callSign(type);
 
 	const number = calcCallSignNumber(coalition, name, index, 1);
 

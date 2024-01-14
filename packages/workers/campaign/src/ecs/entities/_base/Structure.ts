@@ -1,4 +1,4 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
@@ -20,7 +20,6 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	public readonly structureType: DcsJs.StructureType;
 	readonly #buildingIds: Types.Campaign.Id[];
 	#objectiveId: Types.Campaign.Id;
-	#state: DcsJs.StructureState = "active";
 
 	get objective() {
 		return getEntity<Objective>(this.#objectiveId);
@@ -52,7 +51,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 	}
 
 	static createBuildings(args: Pick<StructureProps, "structureType" | "name" | "coalition">) {
-		const structureTemplate = Utils.Random.item(store.dataStore?.structures?.[args.structureType] ?? []);
+		const structureTemplate = Utils.Random.item(DcsJs.structures[args.structureType]);
 
 		if (structureTemplate == null) {
 			throw new Error("structureTemplate not found");
@@ -63,7 +62,7 @@ export abstract class Structure extends MapEntity<keyof Events.EventMap.Structur
 				name: `${args.name}|${i + 1}`,
 				offset: buildingTemplate.offset,
 				coalition: args.coalition,
-				staticType: buildingTemplate.type,
+				buildingType: buildingTemplate.type,
 			});
 		});
 	}

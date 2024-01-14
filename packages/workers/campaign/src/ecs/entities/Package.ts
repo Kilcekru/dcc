@@ -4,7 +4,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../utils";
 import { getEntity, QueryKey } from "../store";
-import { calcCruiseSpeed, calcHoldWaypoint, calcStartTime, getValidAircraftBundles } from "../utils";
+import { calcCruiseSpeed, calcFrequency, calcHoldWaypoint, calcStartTime, getValidAircraftBundles } from "../utils";
 import { Entity } from "./_base/Entity";
 import { HomeBase } from "./_base/HomeBase";
 import {
@@ -47,12 +47,14 @@ export interface PackageProps {
 	task: DcsJs.Task;
 	startTime: number;
 	cruiseSpeed: number;
+	frequency: number;
 }
 
 export class Package extends Entity<keyof Events.EventMap.Package> {
 	#flightGroupIds = new Set<Types.Campaign.Id>();
 	public readonly task: DcsJs.Task;
 	#cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
+	#frequency: number;
 	#startTime: number;
 	#listenersTrys = 0;
 
@@ -76,6 +78,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		this.task = args.task;
 		this.#startTime = args.startTime;
 		this.#cruiseSpeed = args.cruiseSpeed;
+		this.#frequency = args.frequency;
 
 		if (Serialization.isSerialized(args)) {
 			this.#flightGroupIds = new Set(args.flightGroupIds);
@@ -117,6 +120,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			task: args.task,
 			startTime: calcStartTime(aircraftBundles),
 			cruiseSpeed: calcCruiseSpeed(aircraftBundles),
+			frequency: calcFrequency(aircraftBundles),
 		});
 
 		switch (args.task) {
@@ -418,6 +422,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			cruiseSpeed: this.#cruiseSpeed,
 			flightGroupIds: [...this.#flightGroupIds],
 			startTime: this.#startTime,
+			frequency: this.#frequency,
 		};
 	}
 }

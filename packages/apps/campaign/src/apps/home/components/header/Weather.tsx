@@ -2,12 +2,12 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import { createMemo, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import * as Domain from "../../../../domain";
+import { getCloudPreset } from "./utils";
 import Styles from "./Weather.module.less";
 
 export const Weather = () => {
 	const [state] = useContext(CampaignContext);
-	const cloudCoverPreset = createMemo(() => Domain.Weather.getCloudPreset(state.weather.cloudCover));
+	const cloudCoverPreset = createMemo(() => getCloudPreset(state.weather.cloudCover));
 
 	return (
 		<div class={Styles.wrapper}>

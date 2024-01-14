@@ -626,3 +626,37 @@ export function calcCruiseSpeed(aircraftBundles: Map<DcsJs.Task, AircraftBundleW
 
 	return speed;
 }
+
+export function calcFrequency(aircraftBundles: Map<DcsJs.Task, AircraftBundleWithTarget>) {
+	let allowedFrequencies: [number, number] | undefined = undefined;
+
+	/*
+	 * Check if any aircraft in the bundle has a limited frequency range
+	 */
+	for (const aircraftBundle of aircraftBundles.values()) {
+		const [aircraft] = aircraftBundle.aircrafts;
+
+		if (aircraft?.aircraftData.allowedFrequency != null) {
+			if (allowedFrequencies == null) {
+				allowedFrequencies = aircraft.aircraftData.allowedFrequency;
+			} else {
+				if (aircraft.aircraftData.allowedFrequency[0] > allowedFrequencies[0]) {
+					allowedFrequencies[0] = aircraft.aircraftData.allowedFrequency[0];
+				}
+
+				if (aircraft.aircraftData.allowedFrequency[1] < allowedFrequencies[1]) {
+					allowedFrequencies[1] = aircraft.aircraftData.allowedFrequency[1];
+				}
+			}
+		}
+	}
+
+	/*
+	 * If there are no limited frequencies, we use the default frequency range
+	 */
+	if (allowedFrequencies == null) {
+		allowedFrequencies = [310, 343];
+	}
+
+	return Utils.Random.number(allowedFrequencies[0], allowedFrequencies[1]);
+}

@@ -84,10 +84,26 @@ function initializeStore(): Store {
 			neutrals: undefined,
 			red: undefined,
 		},
-		dataStore: undefined,
 		time: 32400000, // 09:00 in milliseconds
 		timeMultiplier: 1,
-		map: "caucasus",
+		theatre: "Caucasus",
+		weather: {
+			cloudCover: 0,
+			cloudCoverData: [],
+			offset: 0,
+			temperature: 0,
+			wind: {
+				direction: 0,
+				speed: 0,
+			},
+		},
+		campaignParams: {
+			aiSkill: "Average",
+			badWeather: false,
+			hardcore: false,
+			nightMissions: false,
+			training: false,
+		},
 		version: 1,
 	};
 }
@@ -115,11 +131,12 @@ interface Store {
 	name: string;
 	entities: Map<Types.Campaign.Id, Entities.Entity>;
 	queries: Queries;
-	factionDefinitions: Record<DcsJs.Coalition, DcsJs.Faction | undefined>;
-	dataStore: Types.Campaign.DataStore | undefined;
+	factionDefinitions: Record<DcsJs.Coalition, Types.Campaign.Faction | undefined>;
 	time: number;
 	timeMultiplier: number;
-	map: DcsJs.MapName;
+	theatre: DcsJs.Theatre;
+	weather: DcsJs.Weather;
+	campaignParams: Types.Campaign.CampaignParams;
 	version: number;
 }
 

@@ -3,12 +3,11 @@ import "leaflet/dist/leaflet.css";
 
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import { LOtoLL } from "@kilcekru/dcs-coordinates";
 import L from "leaflet";
 import MilSymbol from "milsymbol";
 import { createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
 
-import { MapPosition } from "../../types";
-import { positionToMapPosition } from "../../utils";
 import { onWorkerEvent } from "../../worker";
 import { CampaignContext } from "../CampaignProvider";
 import { useGetEntity } from "../utils";
@@ -105,6 +104,27 @@ function getDomain(item: Types.Campaign.MapItem): "air" | "ground" | "sea" {
 	}
 }
 
+export function usePositionToMapPosition() {
+	const [state] = useContext(CampaignContext);
+	return positionToMapPosition(state.theatre);
+}
+
+export const positionToMapPosition =
+	(theatre: DcsJs.Theatre) =>
+	(pos: { x: number; y: number }): MapPosition => {
+		try {
+			const latLng = LOtoLL({ theatre, x: pos.x, z: pos.y });
+
+			return [latLng.lat, latLng.lng];
+		} catch (e: unknown) {
+			// eslint-disable-next-line no-console
+			console.error(e, pos);
+			throw new Error("invalid map position");
+		}
+	};
+
+type MapPosition = [number, number];
+
 type MarkerItem = {
 	id: Types.Campaign.Id;
 	marker: L.Marker;
@@ -118,7 +138,7 @@ type MarkerItem = {
 export const MapContainer = () => {
 	let mapDiv: HTMLDivElement;
 	let workerSubscription: { dispose: () => void } | undefined;
-	let getMapPosition: (position: DcsJs.Position) => MapPosition = positionToMapPosition("caucasus");
+	const getMapPosition = usePositionToMapPosition();
 	let selectedMarker: MarkerItem | undefined;
 	let waypointMarkers: L.Marker[] = [];
 	let waypointLine: L.Polyline | undefined;
@@ -130,7 +150,7 @@ export const MapContainer = () => {
 
 	onMount(() => {
 		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
-			initializeMap(event.items, event.map);
+			initializeMap(event.items);
 			onMapUpdate(event.items);
 		});
 	});
@@ -139,7 +159,7 @@ export const MapContainer = () => {
 		workerSubscription?.dispose();
 	});
 
-	function initializeMap(items: Map<string, Types.Campaign.MapItem>, map: DcsJs.MapName) {
+	function initializeMap(items: Map<string, Types.Campaign.MapItem>) {
 		if (leaftletMap() != null) {
 			return;
 		}
@@ -149,8 +169,6 @@ export const MapContainer = () => {
 		if (item == null) {
 			return;
 		}
-
-		getMapPosition = positionToMapPosition(map);
 
 		const firstPosition = getMapPosition(item[1].position);
 

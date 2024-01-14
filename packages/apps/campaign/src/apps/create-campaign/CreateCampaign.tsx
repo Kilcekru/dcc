@@ -1,11 +1,8 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import { useCreateErrorToast } from "@kilcekru/dcc-lib-components";
-import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js";
 
 import { CampaignContext } from "../../components";
-import { useSetDataMap } from "../../components/DataProvider";
 import { scenarioList } from "../../data";
 import { sendWorkerMessage } from "../../worker";
 import styles from "./CreateCampaign.module.less";
@@ -17,11 +14,10 @@ export const optionalClass = (className: string, optionalClass?: string) => {
 export const CreateCampaign = () => {
 	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
 	const [scenario, setScenario] = createSignal("");
-	const [blueFaction, setBlueFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
-	const [redFaction, setRedFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
-	const [templateFaction, setTemplateFaction] = createSignal<DcsJs.Faction | undefined>(undefined);
+	const [blueFaction, setBlueFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
+	const [redFaction, setRedFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
+	const [templateFaction, setTemplateFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
 	const [, { activate }] = useContext(CampaignContext);
-	const setDataMap = useSetDataMap();
 	const createToast = useCreateErrorToast();
 
 	const onActivate = async () =>
@@ -43,13 +39,6 @@ export const CreateCampaign = () => {
 				if (scenarioDefinition == null) {
 					throw new Error("Scenario not found");
 				}
-
-				const data = await rpc.campaign.getDataStore(scenarioDefinition.map as DcsJs.MapName);
-
-				sendWorkerMessage({
-					name: "setDataStore",
-					payload: data,
-				});
 
 				sendWorkerMessage({
 					name: "generate",
@@ -88,7 +77,7 @@ export const CreateCampaign = () => {
 			setCurrentScreen("Red Faction");
 		}
 	};
-	const onCustomFactionNext = (faction: DcsJs.Faction) => {
+	const onCustomFactionNext = (faction: Types.Campaign.Faction) => {
 		if (blueFaction() == null) {
 			setBlueFaction(faction);
 			setCurrentScreen("Red Faction");
@@ -101,10 +90,9 @@ export const CreateCampaign = () => {
 	const onSelectScenario = (scenario: Types.Campaign.Scenario) => {
 		setScenario(scenario.name);
 		setCurrentScreen("Start");
-		setDataMap(scenario.map as DcsJs.MapName);
 	};
 
-	const onCustomFaction = (template?: DcsJs.Faction) => {
+	const onCustomFaction = (template?: Types.Campaign.Faction) => {
 		if (template != null) {
 			setTemplateFaction(template);
 		} else {

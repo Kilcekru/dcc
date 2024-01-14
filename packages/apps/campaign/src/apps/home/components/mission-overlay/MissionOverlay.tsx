@@ -1,33 +1,24 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
 import { createEffect, createMemo, createSignal, Show, useContext } from "solid-js";
-import { unwrap } from "solid-js/store";
 
 import { CampaignContext } from "../../../../components";
-import { useDataStore } from "../../../../components/DataProvider";
 import { useModalContext, useSetIsPersistanceModalOpen } from "../../../../components/modalProvider";
 import { useSave } from "../../../../hooks";
-import { calcTakeoffTime, getFlightGroups } from "../../../../utils";
 import { ClientList } from "./ClientList";
-import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
 import Styles from "./MissionOverlay.module.less";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
 	const modalContext = useModalContext();
-	const [state, { submitMissionState, pause, generateMissionId, toggleHotStart }] = useContext(CampaignContext);
+	const [state] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
-	const [flightGroups, setFlightGroups] = createSignal<{
-		blue: Array<DcsJs.FlightGroup>;
-		red: Array<DcsJs.FlightGroup>;
-	}>({ blue: [], red: [] });
 	const isReady = createMemo(() => overlayState() === "ready");
 	const isGenerated = createMemo(() => overlayState() === "generated");
 
@@ -46,8 +37,8 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 	const onGenerateMission = async () => {
 		try {
-			generateMissionId?.();
-			await rpc.campaign.generateCampaignMission(structuredClone(unwrap(state)));
+			// generateMissionId?.(); TODO
+			await rpc.campaign.generateCampaignMission(state);
 
 			if (modalContext.isPersistanceIgnored || (await detectPersistance())) {
 				setOverlayState("generated");
@@ -71,7 +62,8 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	};
 
 	createEffect(() => {
-		const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
+		// TODO
+		/* const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
 		if (takeoffTime != null && props.show) {
 			if (state.timer >= takeoffTime) {
 				setOverlayState("ready");
@@ -80,10 +72,9 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			} else {
 				setOverlayState("forwarding");
 			}
-		}
+		} */
 	});
 
-	const dataStore = useDataStore();
 	const createToast = Components.useCreateErrorToast();
 
 	const onSubmit = async () => {
@@ -100,24 +91,17 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 				return;
 			}
 
-			if (loadedMissionState.mission_id !== state.missionId) {
+			// TODO
+			/* if (loadedMissionState.mission_id !== state.missionId) {
 				createToast({
 					description: "Incorrect Mission State",
 					title: "Mission not saved",
 				});
 				return;
-			}
+			} */
 
-			setFlightGroups({
-				blue: structuredClone(
-					unwrap(getFlightGroups(state.blueFaction?.packages)),
-				) as unknown as Array<DcsJs.FlightGroup>,
-				red: structuredClone(
-					unwrap(getFlightGroups(state.redFaction?.packages)),
-				) as unknown as Array<DcsJs.FlightGroup>,
-			});
-
-			submitMissionState?.(loadedMissionState, dataStore);
+			// TODO
+			// submitMissionState?.(loadedMissionState, dataStore);
 			save();
 
 			setMissionState(loadedMissionState);
@@ -147,7 +131,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					<h1 class={cnb(Styles.title, isGenerated() ? Styles["title--show"] : null)}>Mission generated</h1>
 					<h1 class={cnb(Styles.title, isReady() ? Styles["title--show"] : null)}>Ready for Takeoff</h1>
 					<div class={cnb(Styles.clock, !isGenerated() ? Styles["clock--forwarding"] : null)}>
-						<Components.Clock value={state.timer} />
+						<Components.Clock value={state.time} />
 					</div>
 					<div class={cnb(Styles["help-text"], isGenerated() ? Styles["help-text--show"] : null)}>
 						<div>
@@ -173,13 +157,14 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 						</Components.Button>
 					</div>
 					<div class={cnb(Styles["buttons"], isReady() ? Styles["buttons--show"] : null, Styles["buttons--generate"])}>
+						{/* TODO
 						<Components.Switch
 							checked={state.hotStart ?? false}
 							onChange={() => toggleHotStart?.()}
 							class={Styles["hot-start"]}
 						>
 							Hot Start
-						</Components.Switch>
+	</Components.Switch> */}
 						<div class={Styles.buttons__container}>
 							<Components.Button onPress={onClose} class={Styles.button} large>
 								Cancel
@@ -190,9 +175,11 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 						</div>
 					</div>
 				</Show>
+				{/* TODO 
 				<Show when={missionState() != undefined}>
-					<Debrief missionState={missionState()} flightGroups={flightGroups()} onClose={onClose} />
+					<Debrief missionState={missionState()} flightGroups={[]} onClose={onClose} />
 				</Show>
+				*/}
 			</div>
 
 			<HowToStartModal isOpen={isHowToStartOpen()} onClose={() => setIsHowToStartOpen(false)} />

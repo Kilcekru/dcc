@@ -4,29 +4,13 @@
 	"year": 1987,
 	"playable": true,
 	"aircraftTypes": {
-		"CAP": [
-			"F-14B",
-			"FA-18C_hornet"
-		],
-		"CAS": [
-			"AV8BNA"
-		],
-		"AWACS": [
-			"E-2C"
-		],
-		"SEAD": [
-			"FA-18C_hornet"
-		],
-		"Pinpoint Strike": [
-			"AV8BNA",
-			"FA-18C_hornet"
-		],
-		"CSAR": [
-			"UH-1H"
-		],
-		"Air Assault": [
-			"UH-1H"
-		]
+		"CAP": ["F-14B", "FA-18C_hornet"],
+		"CAS": ["AV8BNA"],
+		"AWACS": ["E-2C"],
+		"SEAD": ["FA-18C_hornet"],
+		"Pinpoint Strike": ["AV8BNA", "FA-18C_hornet"],
+		"CSAR": ["UH-1H"],
+		"Air Assault": ["UH-1H"]
 	},
 	"templateName": "USA - Modern",
 	"carrierName": "CVN-72 Abraham Lincoln"
