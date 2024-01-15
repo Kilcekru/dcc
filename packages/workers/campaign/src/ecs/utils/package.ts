@@ -423,6 +423,7 @@ export function getValidAircraftBundles(
 						...args,
 						task: "Escort",
 						targetAircraftBundle: casBundle,
+						excludedAircrafts: casBundle.aircrafts,
 					});
 
 					if (escortBundle == null) {
@@ -455,6 +456,7 @@ export function getValidAircraftBundles(
 					...args,
 					task: "Escort",
 					targetAircraftBundle: strikeBundle,
+					excludedAircrafts: strikeBundle.aircrafts,
 				});
 
 				if (escortBundle == null) {
@@ -492,11 +494,14 @@ export function getValidAircraftBundles(
 
 			const targetSAM = getEntity<Entities.SAM>(deadBundle.targetSAMId);
 
+			const excludedAircrafts = new Set<Entities.Aircraft>(deadBundle.aircrafts);
+
 			if (targetSAM.active) {
 				const seadBundle = getAircraftBundleWithTarget({
 					...args,
 					task: "SEAD",
 					targetAircraftBundle: deadBundle,
+					excludedAircrafts: excludedAircrafts,
 				});
 
 				if (seadBundle == null) {
@@ -506,11 +511,16 @@ export function getValidAircraftBundles(
 				}
 
 				aircraftBundles.set("SEAD", seadBundle);
+
+				for (const aircraft of seadBundle.aircrafts) {
+					excludedAircrafts.add(aircraft);
+				}
 			}
 			const escortBundle = getAircraftBundleWithTarget({
 				...args,
 				task: "Escort",
 				targetAircraftBundle: deadBundle,
+				excludedAircrafts,
 			});
 
 			if (escortBundle == null) {

@@ -24,6 +24,12 @@ export const TimerClock = () => {
 		pause?.();
 	});
 
+	createEffect(() => {
+		if (!state.paused && state.startTimeReached) {
+			pause?.();
+		}
+	});
+
 	const onPause = () => {
 		pause?.();
 		save();

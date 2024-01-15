@@ -8,7 +8,7 @@ import L from "leaflet";
 import MilSymbol from "milsymbol";
 import { createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
 
-import { onWorkerEvent } from "../../worker";
+import { onWorkerEvent, sendWorkerMessage } from "../../worker";
 import { CampaignContext } from "../CampaignProvider";
 import { useGetEntity } from "../utils";
 
@@ -149,8 +149,8 @@ export const MapContainer = () => {
 	const getEntity = useGetEntity();
 
 	onMount(() => {
+		initializeMap();
 		workerSubscription = onWorkerEvent("mapUpdate", (event: Types.Campaign.WorkerEventMapUpdate) => {
-			initializeMap(event.items);
 			onMapUpdate(event.items);
 		});
 	});
@@ -159,20 +159,9 @@ export const MapContainer = () => {
 		workerSubscription?.dispose();
 	});
 
-	function initializeMap(items: Map<string, Types.Campaign.MapItem>) {
-		if (leaftletMap() != null) {
-			return;
-		}
-
-		const [item] = items;
-
-		if (item == null) {
-			return;
-		}
-
-		const firstPosition = getMapPosition(item[1].position);
-
-		const m = L.map(mapDiv).setView(firstPosition, 8);
+	function initializeMap() {
+		const centerPosition = getMapPosition(DcsJs.Theatres[state.theatre].info.center);
+		const m = L.map(mapDiv).setView(centerPosition, 8);
 
 		// Create Tile Layer
 		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -180,6 +169,8 @@ export const MapContainer = () => {
 		}).addTo(m);
 
 		setMap(m);
+
+		sendWorkerMessage({ name: "getMapUpdate" });
 	}
 
 	function onMapUpdate(items: Map<string, Types.Campaign.MapItem>) {

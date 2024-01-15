@@ -52,8 +52,16 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return getEntity<HomeBase>(this.#homeBaseId);
 	}
 
+	get isClient() {
+		return this.#isClient;
+	}
+
 	set isClient(value: boolean) {
 		this.#isClient = value;
+	}
+
+	get callsign() {
+		return this.#callSign;
 	}
 
 	private constructor(args: AircraftProps | Types.Serialization.AircraftSerialized) {

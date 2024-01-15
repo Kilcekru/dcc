@@ -19,6 +19,26 @@ const App = () => {
 	let serializedSubscription: { dispose: () => void } | undefined;
 	let stateUpdateSubscription: { dispose: () => void } | undefined;
 	let timeUpdateSubscription: { dispose: () => void } | undefined;
+	const [resumeState, setResumeState] = createSignal<"loading" | "loaded" | "error" | "empty">("loading");
+
+	onMount(async () => {
+		rpc.campaign
+			.resumeCampaign(Config.campaignVersion)
+			.then(async (loadedState) => {
+				console.log("load", loadedState); // eslint-disable-line no-console
+
+				if (loadedState == null) {
+					setResumeState("empty");
+					return;
+				}
+
+				await loadCampaignIntoStore(loadedState);
+			})
+			.catch((e) => {
+				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
+				setResumeState("error");
+			});
+	});
 
 	onEvent("menu.dev.logState", () => {
 		console.log(unwrap(state)); // eslint-disable-line no-console
@@ -54,6 +74,7 @@ const App = () => {
 		});
 		stateUpdateSubscription = onWorkerEvent("stateUpdate", async (event: Types.Campaign.WorkerEventStateUpdate) => {
 			stateUpdate?.(event.state);
+			setResumeState("loaded");
 		});
 		timeUpdateSubscription = onWorkerEvent("timeUpdate", (event: Types.Campaign.WorkerEventTimeUpdate) => {
 			timeUpdate?.(event.time);
@@ -72,7 +93,7 @@ const App = () => {
 
 	return (
 		<>
-			<Show when={state.loaded} fallback={<div>Loading Campaigns...</div>}>
+			<Show when={resumeState() !== "loading"} fallback={<div>Loading Campaigns...</div>}>
 				<Switch fallback={<div>Not Found</div>}>
 					<Match when={state.active === true}>
 						<Home />
@@ -95,23 +116,6 @@ const App = () => {
 };
 
 const AppWithContext = () => {
-	onMount(async () => {
-		rpc.campaign
-			.resumeCampaign(Config.campaignVersion)
-			.then(async (loadedState) => {
-				console.log("load", loadedState); // eslint-disable-line no-console
-
-				if (loadedState == null) {
-					return;
-				}
-
-				await loadCampaignIntoStore(loadedState);
-			})
-			.catch((e) => {
-				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
-			});
-	});
-
 	return (
 		<CampaignProvider>
 			<App />

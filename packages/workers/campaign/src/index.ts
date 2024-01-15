@@ -44,19 +44,21 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 			break;
 		}
 		case "load": {
-			// reset();
-			// eslint-disable-next-line no-console
-			console.log("load store", e.data.state);
-			store.id = e.data.state.id;
-			store.version = e.data.state.version;
-			store.name = e.data.state.name;
-			store.time = e.data.state.time;
-			store.theatre = e.data.state.theatre;
-			store.factionDefinitions = e.data.state.factionDefinitions;
-			Serialization.deserialize(e.data.state);
+			try {
+				Serialization.deserialize(e.data.state);
 
-			world.mapUpdate();
-			world.stateUpdate();
+				store.id = e.data.state.id;
+				store.version = e.data.state.version;
+				store.name = e.data.state.name;
+				store.time = e.data.state.time;
+				store.theatre = e.data.state.theatre;
+				store.factionDefinitions = e.data.state.factionDefinitions;
+
+				world.stateUpdate();
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error(e);
+			}
 
 			break;
 		}
@@ -117,6 +119,10 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 				pkg.destructor();
 			}
 
+			break;
+		}
+		case "getMapUpdate": {
+			world.mapUpdate();
 			break;
 		}
 		default: {

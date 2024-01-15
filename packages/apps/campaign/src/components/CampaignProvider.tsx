@@ -10,7 +10,6 @@ export type ModalName = "next day" | "game over";
 export type CampaignState = Types.Campaign.UIState & {
 	active: boolean;
 	paused: boolean;
-	loaded: boolean;
 	winner: DcsJs.Coalition | undefined;
 	openModals: Set<ModalName>;
 	selectedEntityId: undefined | Types.Campaign.Id;
@@ -38,7 +37,6 @@ type CampaignStore = [
 export const initState: CampaignState = {
 	id: "",
 	active: false,
-	loaded: false,
 	paused: true,
 	name: "",
 	time: 32400000,
@@ -84,7 +82,7 @@ export function CampaignProvider(props: { children?: JSX.Element }) {
 		state,
 		{
 			stateUpdate(next) {
-				setState(next);
+				setState({ ...next, active: true });
 			},
 			timeUpdate(next) {
 				setState("time", next);
@@ -135,7 +133,6 @@ export function CampaignProvider(props: { children?: JSX.Element }) {
 			},
 			reset() {
 				setState(initState);
-				setState("loaded", true);
 				setState("winner", undefined);
 				setState("selectedEntityId", undefined);
 			},

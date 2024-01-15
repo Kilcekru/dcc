@@ -98,7 +98,6 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 			if (this.#listenersTrys <= 3) {
 				this.#listenersTrys++;
 				// eslint-disable-next-line no-console
-				console.log("Package listener error, trying again", e);
 				setTimeout(() => this.#addListener(), 10);
 			} else {
 				throw e;

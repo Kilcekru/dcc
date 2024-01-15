@@ -140,7 +140,9 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	get hasClients(): boolean {
-		return this.aircrafts.some((aircraft) => aircraft.isClient);
+		return this.aircrafts.some((aircraft) => {
+			return aircraft.isClient;
+		});
 	}
 
 	protected constructor(args: FlightGroupProps | Types.Serialization.FlightGroupSerialized) {

@@ -42,17 +42,11 @@ const entityClasses = {
 };
 
 export function deserialize(serialized: unknown) {
-	const parsed = Types.Serialization.stateSchema.safeParse(serialized);
-	if (!parsed.success) {
-		// todo: handle invalid data
-		// eslint-disable-next-line no-console
-		console.error("deserialize: invalid data", parsed.error);
-		return;
-	}
+	const parsed = Types.Serialization.stateSchema.parse(serialized);
 
 	const res = [];
 
-	for (const entity of parsed.data.entities) {
+	for (const entity of parsed.entities) {
 		// If are error with property missing, make sure the missing class is imported and in the entityClasses object
 		const entityClass = entityClasses[entity.entityType] as { deserialize: (entity: unknown) => void }; // TODO
 		res.push(entityClass.deserialize(entity));

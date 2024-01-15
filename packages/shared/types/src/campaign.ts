@@ -285,6 +285,9 @@ export type WorkerMessage =
 				flightGroupId: Id;
 				count: number;
 			};
+	  }
+	| {
+			name: "getMapUpdate";
 	  };
 
 export type WorkerState = {
