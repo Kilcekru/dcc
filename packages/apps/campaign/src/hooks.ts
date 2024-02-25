@@ -1,5 +1,7 @@
 import * as Types from "@kilcekru/dcc-shared-types";
+import { useContext } from "solid-js";
 
+import { CampaignContext } from "./components";
 import { sendWorkerMessage } from "./worker";
 
 export function useSave() {
@@ -11,6 +13,9 @@ export function useSave() {
 }
 
 export function closeCampaign() {
+	const [, { reset }] = useContext(CampaignContext);
+
+	reset?.();
 	sendWorkerMessage({
 		name: "closeCampaign",
 	});

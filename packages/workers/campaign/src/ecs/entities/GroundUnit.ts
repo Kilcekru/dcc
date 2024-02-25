@@ -14,8 +14,8 @@ export class GroundUnit extends Unit<keyof Events.EventMap.GroundUnit> {
 	public readonly type: DcsJs.GroundUnitType;
 	public readonly category: Types.Campaign.GroundUnitCategory;
 
-	get vehicleData() {
-		return DcsJs.groundUnits[this.type];
+	get definition() {
+		return DcsJs.groundUnitDefinitions[this.type];
 	}
 
 	private constructor(args: GroundUnitProps | Types.Serialization.GroundUnitSerialized) {

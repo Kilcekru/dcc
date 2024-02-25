@@ -32,11 +32,11 @@ export const useCreateToast = () => {
 export const useCreateErrorToast = () => {
 	const toast = useToast();
 
-	return ({ title, description }: { title?: string; description?: string }) => {
+	return ({ title, description, duration = 5000 }: { title?: string; description?: string; duration?: number }) => {
 		toast.create({
 			title,
 			description,
-			duration: 5000,
+			duration,
 			placement: "top-end",
 			type: "error",
 		});

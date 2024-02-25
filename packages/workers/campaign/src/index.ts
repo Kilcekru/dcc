@@ -58,6 +58,9 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 			} catch (e) {
 				// eslint-disable-next-line no-console
 				console.error(e);
+				postEvent({
+					name: "loadFailed",
+				});
 			}
 
 			break;
@@ -66,6 +69,9 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 			if (store.id === "") {
 				// eslint-disable-next-line no-console
 				console.warn("Cannot close empty campaign");
+
+				reset();
+
 				return;
 			}
 
@@ -123,6 +129,10 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 		}
 		case "getMapUpdate": {
 			world.mapUpdate();
+			break;
+		}
+		case "submitMissionState": {
+			world.submitMissionState(e.data.payload);
 			break;
 		}
 		default: {

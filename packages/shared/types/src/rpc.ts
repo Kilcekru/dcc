@@ -1,6 +1,7 @@
-import { CampaignSynopsis, Faction, MissionState, UIState, WorkerState } from "./campaign";
+import { CampaignSynopsis, Faction, MissionState, WorkerState } from "./campaign";
 import { AppName, DcsPaths, SystemConfig, UserConfig, Versions } from "./core";
 import * as Patch from "./patch";
+import { UIStateEntitiesArray } from "./serialization";
 import { DeepReadonly } from "./util";
 
 export interface Misc {
@@ -26,7 +27,7 @@ export interface Home {
 }
 
 export interface Campaign {
-	generateCampaignMission: (campaign: UIState) => Promise<{ success: boolean }>;
+	generateCampaignMission: (campaign: UIStateEntitiesArray) => Promise<{ success: boolean }>;
 	resumeCampaign: (version: number) => Promise<WorkerState | undefined | null>;
 	openCampaign: (id: string) => Promise<WorkerState | undefined | null>;
 	loadCampaignList: () => Promise<Record<string, CampaignSynopsis>>;

@@ -1,3 +1,4 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createMemo, For, Show, useContext } from "solid-js";
@@ -5,6 +6,7 @@ import { createMemo, For, Show, useContext } from "solid-js";
 import { CampaignContext, FlightGroupButtons, useGetEntity } from "../../../../components";
 import { Flag } from "./Flag";
 import { FlightGroupUnit } from "./FlightGroupUnit";
+import { FlightGroupWaypoint } from "./FlightGroupWaypoint";
 import Styles from "./Item.module.less";
 
 export function FlightGroup(props: { flightGroup: Types.Serialization.FlightGroupSerialized }) {
@@ -26,6 +28,38 @@ export function FlightGroup(props: { flightGroup: Types.Serialization.FlightGrou
 			return undefined;
 		}
 		return getEntity<Types.Serialization.FlightGroupSerialized>(targetId);
+	});
+
+	const waypoints = createMemo(() => {
+		const flightplan = getEntity<Types.Serialization.FlightplanSerialized>(props.flightGroup.flightplanId);
+		if (flightplan == null) {
+			return [];
+		}
+
+		const waypoints: DcsJs.InputTypes.Waypoint[] = [];
+
+		for (const wp of flightplan.waypoints) {
+			waypoints.push({
+				arrivalTime: wp.arrivalTime,
+				name: wp.name,
+				onGround: wp.onGround,
+				position: wp.position,
+				type: wp.type,
+				duration: wp.duration,
+			});
+
+			if (wp.raceTrack != null) {
+				waypoints.push({
+					arrivalTime: wp.raceTrack.arrivalTime,
+					name: wp.raceTrack.name,
+					onGround: wp.onGround,
+					position: wp.raceTrack.position,
+					type: "RaceTrack End",
+				});
+			}
+		}
+
+		return waypoints;
 	});
 
 	return (
@@ -68,6 +102,16 @@ export function FlightGroup(props: { flightGroup: Types.Serialization.FlightGrou
 							return (
 								<Components.ListItem>
 									<FlightGroupUnit aircraft={aircraft} />
+								</Components.ListItem>
+							);
+						}}
+					</For>
+					<h3 class={Styles.subtitle}>Waypoints</h3>
+					<For each={waypoints()}>
+						{(wp) => {
+							return (
+								<Components.ListItem>
+									<FlightGroupWaypoint waypoint={wp} />
 								</Components.ListItem>
 							);
 						}}

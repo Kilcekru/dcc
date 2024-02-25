@@ -47,7 +47,7 @@ export function FlightGroupButtons(props: { flightGroup: Types.Serialization.Fli
 
 	const hasPlayableAircrafts = createMemo(() =>
 		aircrafts().some((ac) => {
-			const aircraft = DcsJs.aircrafts?.[ac.aircraftType];
+			const aircraft = DcsJs.aircraftDefinitions[ac.aircraftType];
 
 			if (aircraft == null) {
 				return false;

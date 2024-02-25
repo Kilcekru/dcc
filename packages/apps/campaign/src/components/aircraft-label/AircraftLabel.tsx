@@ -3,7 +3,7 @@ import { createMemo, Show } from "solid-js";
 
 export function AircraftLabel(props: { aircraftType: DcsJs.AircraftType }) {
 	const aircraft = createMemo(() => {
-		return DcsJs.aircrafts[props.aircraftType];
+		return DcsJs.aircraftDefinitions[props.aircraftType];
 	});
 
 	return (

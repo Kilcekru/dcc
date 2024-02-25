@@ -14,7 +14,7 @@ export class Airdrome extends HomeBase<keyof Events.EventMap.Airdrome> {
 	private constructor(args: AirdromeProps | Types.Serialization.AirdromeSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
-			: { ...args, type: "airdrome" as const, entityType: "Airdrome" as const, queries: ["airdromes"] as QueryKey[] };
+			: { ...args, type: "Airdrome" as const, entityType: "Airdrome" as const, queries: ["airdromes"] as QueryKey[] };
 		super(superArgs);
 		this.frequencyList = args.frequencyList;
 	}

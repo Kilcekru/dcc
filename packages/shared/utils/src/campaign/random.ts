@@ -26,8 +26,16 @@ export const list = <T>(arr: Array<T>, length: number): Array<T> => {
 	return selected;
 };
 
-export const callSign = (type: "aircraft" | "awacs") => {
+export const callSign = (aircraftType: DcsJs.AircraftType, type: "aircraft" | "awacs") => {
 	const callSigns = type === "aircraft" ? DcsJs.callsigns : DcsJs.AWACSCallsigns;
+
+	const aircraftCallsigns = DcsJs.aircraftDefinitions[aircraftType].customCallsigns;
+
+	if (aircraftCallsigns != null) {
+		for (const cs of aircraftCallsigns) {
+			callSigns.push(cs);
+		}
+	}
 
 	if (callSigns == null) {
 		return {

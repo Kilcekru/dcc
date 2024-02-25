@@ -7,7 +7,8 @@ worker.addEventListener("message", (e: MessageEvent<Campaign.WorkerEvent>) => {
 		case "mapUpdate":
 		case "serialized":
 		case "timeUpdate":
-		case "stateUpdate": {
+		case "stateUpdate":
+		case "loadFailed": {
 			// handled in onWorkerEvent
 			break;
 		}

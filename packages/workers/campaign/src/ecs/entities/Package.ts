@@ -182,7 +182,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						package: pkg,
 						aircraftIds: Array.from(escortBundle.aircrafts).map((a) => a.id),
 						homeBase: escortBundle.homeBase,
-						targetFlightGroupId: casFg.id,
+						targetFlightGroup: casFg,
 						holdWaypoint: holdWaypoint,
 					});
 
@@ -231,7 +231,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						package: pkg,
 						aircraftIds: Array.from(escortBundle.aircrafts).map((a) => a.id),
 						homeBase: escortBundle.homeBase,
-						targetFlightGroupId: strikeFg.id,
+						targetFlightGroup: strikeFg,
 						holdWaypoint: holdWaypoint,
 					});
 
@@ -320,8 +320,8 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						package: pkg,
 						aircraftIds: Array.from(escortBundle.aircrafts).map((a) => a.id),
 						homeBase: escortBundle.homeBase,
-						targetFlightGroupId: deadFg.id,
 						holdWaypoint: holdWaypoint,
+						targetFlightGroup: deadFg,
 					});
 
 					if (escortFg == null) {
@@ -342,7 +342,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 						package: pkg,
 						aircraftIds: Array.from(seadBundle.aircrafts).map((a) => a.id),
 						homeBase: seadBundle.homeBase,
-						targetFlightGroupId: deadFg.id,
+						targetFlightGroup: deadFg,
 						holdWaypoint: holdWaypoint,
 					});
 
@@ -368,15 +368,6 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		this.#flightGroupIds.add(flightGroup.id);
 		flightGroup.on("destroyed", () => this.checkFinished());
 		flightGroup.on("landed", () => this.checkFinished());
-	}
-
-	removeFlightGroup(flightGroup: FlightGroup) {
-		this.#flightGroupIds.delete(flightGroup.id);
-
-		// If there are no more flight groups in this package, remove it from the world
-		if (this.#flightGroupIds.size === 0) {
-			this.destructor();
-		}
 	}
 
 	checkFinished() {

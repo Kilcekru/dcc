@@ -146,7 +146,11 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	}
 
 	protected constructor(args: FlightGroupProps | Types.Serialization.FlightGroupSerialized) {
-		const cs = Serialization.isSerialized(args) ? undefined : generateCallsign(args.coalition, "aircraft");
+		const firstId = args.aircraftIds[0];
+		const cs =
+			Serialization.isSerialized(args) || firstId == null
+				? undefined
+				: generateCallsign(args.coalition, getEntity<Aircraft>(firstId).aircraftData.name, "aircraft");
 		const superArgs: GroupProps | Types.Serialization.GroupSerialized = Serialization.isSerialized(args)
 			? args
 			: { ...args, queries: [`flightGroups-${args.task}`, `flightGroups-start up`], name: cs?.flightGroupName ?? "" };
@@ -366,8 +370,8 @@ export abstract class FlightGroup<EventNames extends keyof Events.EventMap.All =
 	override destructor(): void {
 		// eslint-disable-next-line no-console
 		console.log("destructor flight group", this.name, this.id);
+		this.flightplan.destructor();
 		super.destructor();
-		this.package.removeFlightGroup(this);
 	}
 
 	override toMapJSON(): Types.Campaign.FlightGroupMapItem {

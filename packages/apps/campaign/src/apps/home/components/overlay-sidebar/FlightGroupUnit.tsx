@@ -7,7 +7,7 @@ import Styles from "./Item.module.less";
 
 export function FlightGroupUnit(props: { aircraft: Types.Serialization.AircraftSerialized }) {
 	const displayName = createMemo(() => {
-		return DcsJs.aircrafts?.[props.aircraft.aircraftType]?.display_name ?? props.aircraft.aircraftType;
+		return DcsJs.aircraftDefinitions[props.aircraft.aircraftType]?.display_name ?? props.aircraft.aircraftType;
 	});
 
 	// TODO

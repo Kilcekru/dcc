@@ -1,5 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../utils";
 import { getEntity, QueryKey } from "../store";
@@ -18,6 +19,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	#flightGroupId: Types.Campaign.Id | undefined = undefined;
 	#callSign: Types.Serialization.CallSign | undefined = undefined;
 	#name: string | undefined = undefined;
+	#onboardNumber: number;
 	readonly #homeBaseId: Types.Campaign.Id;
 	#isClient = false;
 	#loadout: Types.Campaign.CampaignLoadout | undefined = undefined;
@@ -35,7 +37,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 	}
 
 	get aircraftData() {
-		const data = DcsJs.aircrafts[this.#aircraftType];
+		const data = DcsJs.aircraftDefinitions[this.#aircraftType];
 
 		if (data == null) {
 			throw new Error(`aircraft: ${this.#aircraftType} not found`);
@@ -64,6 +66,10 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 		return this.#callSign;
 	}
 
+	get name() {
+		return this.#name;
+	}
+
 	private constructor(args: AircraftProps | Types.Serialization.AircraftSerialized) {
 		const superArgs = Serialization.isSerialized(args)
 			? args
@@ -77,6 +83,9 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 			this.#name = args.name;
 			this.#isClient = args.isClient;
 			this.#loadout = args.loadout;
+			this.#onboardNumber = args.onboardNumber;
+		} else {
+			this.#onboardNumber = Utils.Random.number(1, 99);
 		}
 	}
 
@@ -226,6 +235,7 @@ export class Aircraft extends Unit<keyof Events.EventMap.Aircraft> {
 			aircraftType: this.#aircraftType,
 			homeBaseId: this.#homeBaseId,
 			callSign: this.#callSign,
+			onboardNumber: this.#onboardNumber,
 			name: this.#name,
 			isClient: this.#isClient,
 			loadout: this.#loadout,

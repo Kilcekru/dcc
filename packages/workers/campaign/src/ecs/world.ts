@@ -27,6 +27,7 @@ export class World {
 		blueFactionDefinition: Types.Campaign.Faction;
 		redFactionDefinition: Types.Campaign.Faction;
 		scenario: Types.Campaign.Scenario;
+		campaignParams: Types.Campaign.CampaignParams;
 	}) {
 		store.id = crypto.randomUUID();
 		store.version = 1;
@@ -38,6 +39,8 @@ export class World {
 			neutrals: undefined,
 			red: args.redFactionDefinition,
 		};
+		store.campaignParams = args.campaignParams;
+		store.date = args.scenario.date;
 
 		// Create airdromes
 		generateAirdromes({
@@ -133,9 +136,19 @@ export class World {
 
 		const state = Serialization.serialize();
 
+		const blueAirdromes = new Set<string>();
+		for (const airdrome of store.queries.airdromes.blue) {
+			blueAirdromes.add(airdrome.name);
+		}
+		const redAirdromes = new Set<string>();
+		for (const airdrome of store.queries.airdromes.red) {
+			redAirdromes.add(airdrome.name);
+		}
+
 		postEvent({
 			name: "stateUpdate",
 			state: {
+				date: store.date,
 				time: store.time,
 				timeMultiplier: store.timeMultiplier,
 				id: store.id,
@@ -143,6 +156,11 @@ export class World {
 				flightGroups,
 				entities: new Map(state.entities.map((entity) => [entity.id, entity])),
 				factionDefinitions: store.factionDefinitions,
+				airdromes: {
+					blue: blueAirdromes,
+					red: redAirdromes,
+					neutrals: new Set<string>(),
+				},
 				hasClients: hasClients,
 				campaignParams: state.campaignParams,
 				startTimeReached: store.time >= earliestStartTime,
@@ -173,14 +191,91 @@ export class World {
 	}
 
 	public frameTick(tickDelta: number, multiplier: number) {
-		const worldDelta = tickDelta * multiplier;
-		store.time += worldDelta;
+		let worldDelta = tickDelta * multiplier;
+		let earliestStartTime = Infinity;
+
+		for (const fg of store.queries.flightGroups.blue) {
+			if (!fg.alive) {
+				continue;
+			}
+
+			if (fg.hasClients) {
+				if (fg.startTime < earliestStartTime) {
+					earliestStartTime = fg.startTime;
+				}
+			}
+		}
+
+		const next = store.time + worldDelta;
+
+		// If we next tick will be after the earliest start time, we stop at the start time
+		if (next > earliestStartTime) {
+			if (earliestStartTime < store.time) {
+				worldDelta = 0;
+			} else {
+				worldDelta = earliestStartTime - store.time;
+				store.time = earliestStartTime;
+			}
+		} else {
+			store.time += worldDelta;
+		}
+
 		store.timeMultiplier = multiplier;
 
 		frameTickSystems(worldDelta);
 
 		this.mapUpdate();
 		this.timeUpdate();
+	}
+
+	public submitMissionState(state: Types.Campaign.MissionState) {
+		for (const name of state.destroyedGroundUnits) {
+			for (const unit of store.queries.groundUnits.blue.values()) {
+				if (unit.name === name) {
+					unit.destroy();
+				}
+			}
+			for (const unit of store.queries.groundUnits.red.values()) {
+				if (unit.name === name) {
+					unit.destroy();
+				}
+			}
+
+			for (const building of store.queries.buildings.blue.values()) {
+				if (building.name === name) {
+					building.destroy();
+				}
+			}
+
+			for (const building of store.queries.buildings.red.values()) {
+				if (building.name === name) {
+					building.destroy();
+				}
+			}
+		}
+
+		for (const name of state.crashedAircrafts) {
+			for (const aircraft of store.queries.aircrafts.blue) {
+				if (aircraft.name === name) {
+					aircraft.destroy();
+				}
+			}
+			for (const aircraft of store.queries.aircrafts.blue) {
+				if (aircraft.name === name) {
+					aircraft.destroy();
+				}
+			}
+		}
+
+		if (state.groupPositions.blue != null) {
+			for (const entry of state.groupPositions.blue) {
+				for (const group of store.queries.flightGroups.blue) {
+					if (group.name === entry.name) {
+						group.position = { x: entry.x, y: entry.y };
+					}
+				}
+			}
+		}
 	}
 }
 

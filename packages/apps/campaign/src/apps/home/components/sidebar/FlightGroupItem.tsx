@@ -10,7 +10,7 @@ import Styles from "./FlightGroupItem.module.less";
 
 function AircraftItem(props: { aircraft: Types.Serialization.AircraftSerialized }) {
 	const displayName = createMemo(() => {
-		return DcsJs.aircrafts[props.aircraft.aircraftType].display_name;
+		return DcsJs.aircraftDefinitions[props.aircraft.aircraftType].display_name;
 	});
 
 	return (

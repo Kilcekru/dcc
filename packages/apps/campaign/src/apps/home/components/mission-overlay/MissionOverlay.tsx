@@ -8,20 +8,21 @@ import { createEffect, createMemo, createSignal, Show, useContext } from "solid-
 import { CampaignContext } from "../../../../components";
 import { useModalContext, useSetIsPersistanceModalOpen } from "../../../../components/modalProvider";
 import { useSave } from "../../../../hooks";
+import { sendWorkerMessage } from "../../../../worker";
 import { ClientList } from "./ClientList";
+import { Debrief } from "./Debrief";
 import { HowToStartModal } from "./HowToStartModal";
 import Styles from "./MissionOverlay.module.less";
 
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
 	const modalContext = useModalContext();
-	const [state] = useContext(CampaignContext);
+	const [state, { pause, setMissionId: generateMissionId }] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
 	const isReady = createMemo(() => overlayState() === "ready");
 	const isGenerated = createMemo(() => overlayState() === "generated");
-
 	const save = useSave();
 
 	const detectPersistance = async (): Promise<boolean> => {
@@ -37,10 +38,23 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 	const onGenerateMission = async () => {
 		try {
-			// generateMissionId?.(); TODO
-			await rpc.campaign.generateCampaignMission(state);
+			const id = `${state.id}-${Date.now()}`;
+
+			await rpc.campaign.generateCampaignMission(
+				Types.Serialization.uiStateEntitiesArray.parse({
+					...state,
+					missionId: id,
+					airdromes: {
+						blue: Array.from(state.airdromes.blue ?? []),
+						red: Array.from(state.airdromes.red ?? []),
+						neutrals: Array.from(state.airdromes.neutrals ?? []),
+					},
+					entities: Array.from(state.entities.values()),
+				}),
+			);
 
 			if (modalContext.isPersistanceIgnored || (await detectPersistance())) {
+				generateMissionId?.(id);
 				setOverlayState("generated");
 			} else {
 				setIsPersistanceModalOpen(true);
@@ -62,17 +76,15 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	};
 
 	createEffect(() => {
-		// TODO
-		/* const takeoffTime = calcTakeoffTime(state.blueFaction?.packages);
-		if (takeoffTime != null && props.show) {
-			if (state.timer >= takeoffTime) {
+		if (props.show) {
+			if (state.startTimeReached) {
 				setOverlayState("ready");
 				pause?.();
 				save();
 			} else {
 				setOverlayState("forwarding");
 			}
-		} */
+		}
 	});
 
 	const createToast = Components.useCreateErrorToast();
@@ -102,6 +114,12 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 			// TODO
 			// submitMissionState?.(loadedMissionState, dataStore);
+
+			sendWorkerMessage({
+				name: "submitMissionState",
+				payload: loadedMissionState,
+			});
+
 			save();
 
 			setMissionState(loadedMissionState);
@@ -175,11 +193,11 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 						</div>
 					</div>
 				</Show>
-				{/* TODO 
-				<Show when={missionState() != undefined}>
-					<Debrief missionState={missionState()} flightGroups={[]} onClose={onClose} />
+				<Show when={missionState()}>
+					{(s) => {
+						return <Debrief missionState={s()} onClose={onClose} />;
+					}}
 				</Show>
-				*/}
 			</div>
 
 			<HowToStartModal isOpen={isHowToStartOpen()} onClose={() => setIsHowToStartOpen(false)} />

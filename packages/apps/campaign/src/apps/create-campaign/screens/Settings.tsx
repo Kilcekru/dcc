@@ -1,18 +1,13 @@
 import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createSignal } from "solid-js";
 
 import Styles from "./Settings.module.less";
 
 export const Settings = (props: {
-	next: (
-		aiSkill: DcsJs.AiSkill,
-		hardcore: boolean,
-		training: boolean,
-		nightMissions: boolean,
-		badWeather: boolean,
-	) => void;
+	next: (campaignParams: Types.Campaign.CampaignParams) => void;
 	prev: () => void;
 }) => {
 	const [hardcore, setHardcore] = createSignal(false);
@@ -58,7 +53,15 @@ export const Settings = (props: {
 			<div class={Styles.buttons}>
 				<Components.Button
 					large
-					onPress={() => props.next(aiSkill(), hardcore(), training(), nightMissions(), badWeather())}
+					onPress={() =>
+						props.next({
+							aiSkill: aiSkill(),
+							hardcore: hardcore(),
+							training: training(),
+							nightMissions: nightMissions(),
+							badWeather: badWeather(),
+						})
+					}
 				>
 					Next
 				</Components.Button>

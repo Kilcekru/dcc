@@ -13,11 +13,11 @@ export interface RaceTrackWaypointTemplateProps {
 export class RaceTrackWaypointTemplate extends WaypointTemplate {
 	constructor(args: RaceTrackWaypointTemplateProps) {
 		super({
-			name: "Race Track-Start",
+			name: "Race-Track Start",
 			onGround: true,
 			position: args.positions.from,
 			raceTrack: {
-				name: "Race Track-End",
+				name: "Race-Track End",
 				position: args.positions.to,
 			},
 			duration: args.duration,

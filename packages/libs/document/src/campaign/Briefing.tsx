@@ -21,7 +21,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 
 		const aircraftEntity = getEntity()<Types.Serialization.AircraftSerialized>(firstAircraftId);
 
-		return DcsJs.aircrafts[aircraftEntity.aircraftType];
+		return DcsJs.aircraftDefinitions[aircraftEntity.aircraftType];
 	}
 
 	const waypoints = createMemo(() => {
@@ -38,7 +38,7 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 
 	const airdromeData = createMemo(() => {
 		const homeBase = getEntity()<Types.Serialization.HomeBaseSerialized>(props.data.flightGroup.homeBaseId);
-		const airdrome = DcsJs.Theatres[props.data.theatre].airdromes[homeBase.name];
+		const airdrome = DcsJs.Theatres[props.data.theatre].airdromeDefinitions[homeBase.name];
 
 		if (airdrome == null) {
 			throw new Error(`Airdrome ${homeBase.name} not found`);

@@ -20,7 +20,7 @@ export function generateAirdromes(args: {
 	theatre: DcsJs.Theatre;
 }) {
 	for (const name of args.airdromeNames) {
-		const airdrome = DcsJs.Theatres[args.theatre].airdromes[name];
+		const airdrome = DcsJs.Theatres[args.theatre].airdromeDefinitions[name];
 
 		if (airdrome == null) {
 			throw new Error(`airdrome: ${name} not found`);

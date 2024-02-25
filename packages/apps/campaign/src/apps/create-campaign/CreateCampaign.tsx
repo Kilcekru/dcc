@@ -1,8 +1,7 @@
 import { useCreateErrorToast } from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
-import { createSignal, ErrorBoundary, Match, Switch, useContext } from "solid-js";
+import { createSignal, ErrorBoundary, Match, Switch } from "solid-js";
 
-import { CampaignContext } from "../../components";
 import { scenarioList } from "../../data";
 import { sendWorkerMessage } from "../../worker";
 import styles from "./CreateCampaign.module.less";
@@ -17,48 +16,46 @@ export const CreateCampaign = () => {
 	const [blueFaction, setBlueFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
 	const [redFaction, setRedFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
 	const [templateFaction, setTemplateFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
-	const [, { activate }] = useContext(CampaignContext);
 	const createToast = useCreateErrorToast();
 
-	const onActivate = async () =>
-		/* aiSkill: DcsJs.AiSkill,
-		hardcore: boolean,
-		training: boolean,
-		nightMissions: boolean,
-		badWeather: boolean, */
-		{
-			const blue = blueFaction();
-			const red = redFaction();
-			if (blue == null || red == null) {
-				return;
+	const onActivate = async (campaignParams: Types.Campaign.CampaignParams) => {
+		const blue = blueFaction();
+		const red = redFaction();
+		if (blue == null || red == null) {
+			return;
+		}
+
+		try {
+			const scenarioDefinition = scenarioList.find((s) => s.name === scenario());
+
+			if (scenarioDefinition == null) {
+				throw new Error("Scenario not found");
 			}
 
-			try {
-				const scenarioDefinition = scenarioList.find((s) => s.name === scenario());
+			sendWorkerMessage({
+				name: "generate",
+				payload: {
+					blueFactionDefinition: blue,
+					redFactionDefinition: red,
+					scenario: scenarioDefinition,
+					campaignParams,
+				},
+			});
 
-				if (scenarioDefinition == null) {
-					throw new Error("Scenario not found");
-				}
+			sendWorkerMessage({
+				name: "resume",
+				payload: { multiplier: 1 },
+			});
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e);
+			createToast({
+				title: "Campaign not created",
+				description: e instanceof Error ? e.message : "Unknown Error",
+			});
+		}
 
-				sendWorkerMessage({
-					name: "generate",
-					payload: { blueFactionDefinition: blue, redFactionDefinition: red, scenario: scenarioDefinition },
-				});
-
-				sendWorkerMessage({
-					name: "resume",
-					payload: { multiplier: 1 },
-				});
-			} catch (e) {
-				// eslint-disable-next-line no-console
-				console.error(e);
-				createToast({
-					title: "Campaign not created",
-					description: e instanceof Error ? e.message : "Unknown Error",
-				});
-			}
-
-			try {
+		/* try {
 				activate?.();
 			} catch (e) {
 				// eslint-disable-next-line no-console
@@ -67,8 +64,8 @@ export const CreateCampaign = () => {
 					title: "Campaign not created",
 					description: e instanceof Error ? e.message : "Unknown Error",
 				});
-			}
-		};
+			} */
+	};
 
 	const customFactionPrev = () => {
 		if (blueFaction() == null) {

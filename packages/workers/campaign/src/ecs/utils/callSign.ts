@@ -21,6 +21,13 @@ const calcCallSignNumber = (
 		}
 	}
 
+	for (const fg of store.queries.flightGroups[Utils.Coalition.opposite(coalition)]) {
+		if (fg.name === tmp) {
+			callSignFg = fg;
+			break;
+		}
+	}
+
 	if (callSignFg == null) {
 		return {
 			flightGroup: tmp,
@@ -35,8 +42,12 @@ const calcCallSignNumber = (
 	return calcCallSignNumber(coalition, base, index, number + 1);
 };
 
-export const generateCallsign = (coalition: DcsJs.Coalition, type: "aircraft" | "awacs") => {
-	const { name, index } = Utils.Random.callSign(type);
+export const generateCallsign = (
+	coalition: DcsJs.Coalition,
+	aircraftType: DcsJs.AircraftType,
+	type: "aircraft" | "awacs",
+) => {
+	const { name, index } = Utils.Random.callSign(aircraftType, type);
 
 	const number = calcCallSignNumber(coalition, name, index, 1);
 

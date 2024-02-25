@@ -37,7 +37,7 @@ export class SAM extends Group {
 		let hasSearchRadar = false;
 
 		for (const unit of this.units) {
-			if (unit.alive && unit.vehicleData?.vehicleTypes?.includes("Search Radar")) {
+			if (unit.alive && unit.definition?.vehicleTypes?.includes("Search Radar")) {
 				hasSearchRadar = true;
 				break;
 			}
@@ -69,11 +69,11 @@ export class SAM extends Group {
 
 		for (const unit of this.units) {
 			if (unit.alive) {
-				if (unit.vehicleData?.vehicleTypes?.includes("Track Radar")) {
+				if (unit.definition?.vehicleTypes?.includes("Track Radar")) {
 					hasTrackRadar = true;
 					continue;
 				}
-				if (unit.vehicleData?.vehicleTypes?.includes("SAM Launcher")) {
+				if (unit.definition?.vehicleTypes?.includes("SAM Launcher")) {
 					hasLauncher = true;
 				}
 			}

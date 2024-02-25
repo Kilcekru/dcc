@@ -6,9 +6,7 @@ import { EscortingFlightGroup, EscortingFlightGroupProps } from "../_base";
 
 type SeadFlightGroupProps = Omit<EscortingFlightGroupProps, "entityType" | "task">;
 
-interface CreateSeadFlightGroupProps extends Omit<SeadFlightGroupProps, "taskWaypoints"> {
-	targetFlightGroupId: Types.Campaign.Id;
-}
+type CreateSeadFlightGroupProps = Omit<SeadFlightGroupProps, "taskWaypoints">;
 
 export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.SeadFlightGroup> {
 	private constructor(args: SeadFlightGroupProps | Types.Serialization.SeadFlightGroupSerialized) {
@@ -21,12 +19,9 @@ export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.
 	static create(args: CreateSeadFlightGroupProps) {
 		const taskWaypoint: WaypointTemplate = args.holdWaypoint.toEscortWaypoint();
 
-		const waypoints: Array<WaypointTemplate> = [taskWaypoint];
-
 		return new SeadFlightGroup({
 			...args,
-			taskWaypoints: waypoints,
-			targetFlightGroupId: args.targetFlightGroupId,
+			taskWaypoints: [taskWaypoint],
 		});
 	}
 

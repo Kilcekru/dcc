@@ -1,3 +1,11 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
+import * as Components from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
+import { createMemo, For, useContext } from "solid-js";
+
+import { CampaignContext } from "../../../../components";
+import Styles from "./Debrief.module.less";
+
 /* function useFlightGroupMissionState() {
 	const [state] = useContext(CampaignContext);
 	const clientsKilled = flightGroup.units.some(
@@ -125,58 +133,78 @@ function FlightGroup(props: {
 	);
 } */
 
-export function Debrief() {
-	/* const [state] = useContext(CampaignContext);
+export function Debrief(props: { missionState: Types.Campaign.MissionState; onClose: () => void }) {
+	const [state] = useContext(CampaignContext);
+
+	function getEntityByName(name: string) {
+		for (const entity of state.entities.values()) {
+			if (entity.entityType === "Aircraft" || entity.entityType === "GroundUnit" || entity.entityType === "Building") {
+				if (entity.name == name) {
+					return entity;
+				}
+			}
+		}
+
+		return undefined;
+	}
 
 	const stats = createMemo(() => {
-		if (state.blueFaction == null) {
-			throw "blue faction not found";
+		const aircrafts: Record<DcsJs.Coalition, number> = {
+			blue: 0,
+			red: 0,
+			neutrals: 0,
+		};
+
+		const groundUnits: Record<DcsJs.Coalition, number> = {
+			blue: 0,
+			red: 0,
+			neutrals: 0,
+		};
+
+		const buildings: Record<DcsJs.Coalition, number> = {
+			blue: 0,
+			red: 0,
+			neutrals: 0,
+		};
+
+		for (const aircraftName of props.missionState.crashedAircrafts) {
+			const aircraft = getEntityByName(aircraftName);
+
+			if (aircraft == null) {
+				continue;
+			}
+			switch (aircraft?.entityType) {
+				case "Aircraft":
+					aircrafts[aircraft?.coalition]++;
+					break;
+			}
 		}
 
-		if (state.redFaction == null) {
-			throw "red faction not found";
+		for (const aircraftName of props.missionState.destroyedGroundUnits) {
+			const aircraft = getEntityByName(aircraftName);
+
+			if (aircraft == null) {
+				continue;
+			}
+			switch (aircraft?.entityType) {
+				case "GroundUnit":
+					groundUnits[aircraft?.coalition]++;
+					break;
+				case "Building":
+					buildings[aircraft?.coalition]++;
+					break;
+			}
 		}
-
-		const blueAircrafts = killedAircraftIdsByFlightGroups(
-			props.flightGroups.blue,
-			props.missionState?.killed_aircrafts ?? [],
-		);
-		const redAircrafts = killedAircraftIdsByFlightGroups(
-			props.flightGroups.red,
-			props.missionState?.killed_aircrafts ?? [],
-		);
-
-		const blueGroundUnits = killedGroundUnitIds(state.blueFaction, props.missionState?.killed_ground_units ?? [], true);
-		const redGroundUnits = killedGroundUnitIds(state.redFaction, props.missionState?.killed_ground_units ?? [], true);
-
-		const blueBuildings = killedBuildingNames(state.blueFaction, props.missionState?.killed_ground_units ?? []);
-		const redBuildings = killedBuildingNames(state.redFaction, props.missionState?.killed_ground_units ?? []);
-
-		const blueSams = killedSamNames(state.blueFaction, props.missionState?.killed_ground_units ?? []);
-		const redSams = killedSamNames(state.redFaction, props.missionState?.killed_ground_units ?? []);
 
 		return {
-			aircrafts: {
-				blue: blueAircrafts,
-				red: redAircrafts,
-			},
-			groundUnits: {
-				blue: blueGroundUnits,
-				red: redGroundUnits,
-			},
-			buildings: {
-				blue: blueBuildings,
-				red: redBuildings,
-			},
-			sams: {
-				blue: blueSams,
-				red: redSams,
-			},
+			aircrafts,
+			groundUnits,
+			buildings,
 		};
 	});
 
 	const clientFlightGroups = createMemo(() => {
-		return props.flightGroups.blue.filter((fg) => fg.units.some((u) => u.client));
+		return [];
 	});
 
 	return (
@@ -184,46 +212,47 @@ export function Debrief() {
 			<div class={Styles.content}>
 				<h1 class={Styles.title}>Debrief</h1>
 				<Components.ScrollContainer>
-					<h2 class={Styles.subtitle}>{props.flightGroups.blue.length > 1 ? "Flight Groups" : "Flight Group"}</h2>
+					<h2 class={Styles.subtitle}>{clientFlightGroups().length > 1 ? "Flight Groups" : "Flight Group"}</h2>
 					<For each={clientFlightGroups()}>
-						{(fg) => (
-							<FlightGroup
+						{() => (
+							/* <FlightGroup
 								flightGroup={fg}
 								killedBlueAircrafts={stats().aircrafts.blue}
 								killedRedGroundUnits={stats().groundUnits.red}
-							/>
+							/> */
+							<div />
 						)}
 					</For>
 					<div class={Styles.stats}>
 						<div class={Styles["stats-row"]}>
-							<p class={Styles.country}>{state.blueFaction?.countryName}</p>
+							<p class={Styles.country}>{state.factionDefinitions.blue?.countryName}</p>
 							<div />
-							<p class={Styles.country}>{state.redFaction?.countryName}</p>
+							<p class={Styles.country}>{state.factionDefinitions.red?.countryName}</p>
 						</div>
 
 						<div class={Styles["stats-row"]}>
-							<p class={Styles.stat}>{stats().aircrafts.blue.length}</p>
+							<p class={Styles.stat}>{stats().aircrafts.blue}</p>
 							<h3 class={Styles["stats-title"]}>Lost Aircraft</h3>
-							<p class={Styles.stat}>{stats().aircrafts.red.length}</p>
+							<p class={Styles.stat}>{stats().aircrafts.red}</p>
 						</div>
 
 						<div class={Styles["stats-row"]}>
-							<p class={Styles.stat}>{stats().groundUnits.blue.length}</p>
+							<p class={Styles.stat}>{stats().groundUnits.blue}</p>
 							<h3 class={Styles["stats-title"]}>Lost Ground Units</h3>
-							<p class={Styles.stat}>{stats().groundUnits.red.length}</p>
+							<p class={Styles.stat}>{stats().groundUnits.red}</p>
 						</div>
 
 						<div class={Styles["stats-row"]}>
-							<p class={Styles.stat}>{stats().buildings.blue.length}</p>
+							<p class={Styles.stat}>{stats().buildings.blue}</p>
 							<h3 class={Styles["stats-title"]}>Lost Buildings</h3>
-							<p class={Styles.stat}>{stats().buildings.red.length}</p>
+							<p class={Styles.stat}>{stats().buildings.red}</p>
 						</div>
 
-						<div class={Styles["stats-row"]}>
+						{/* <div class={Styles["stats-row"]}>
 							<p class={Styles.stat}>{stats().sams.blue.length}</p>
 							<h3 class={Styles["stats-title"]}>Lost SAMs</h3>
 							<p class={Styles.stat}>{stats().sams.red.length}</p>
-						</div>
+						</div> */}
 					</div>
 				</Components.ScrollContainer>
 				<div class={Styles.buttons}>
@@ -233,6 +262,5 @@ export function Debrief() {
 				</div>
 			</div>
 		</div>
-	); */
-	return <div />;
+	);
 }

@@ -337,27 +337,26 @@ const samSchema = groupSchema.extend({
 });
 export type SAMSerialized = z.TypeOf<typeof samSchema>;
 
-const waypointTypeSchema = z.enum(["TakeOff", "Landing", "Task", "Nav", "Hold"]);
-export type WaypointType = z.TypeOf<typeof waypointTypeSchema>;
-
 const waypointTemplateSchema = z.object({
 	name: z.string(),
 	position: DcsJs.Schema.position,
 	onGround: z.boolean(),
 	duration: z.number().optional(),
-	type: waypointTypeSchema,
+	type: DcsJs.waypointType,
 	raceTrack: z
 		.object({
 			name: z.string(),
 			position: DcsJs.Schema.position,
+			arrivalDuration: z.number(),
+			arrivalTime: z.number(), // ui
 		})
 		.optional(),
 });
 export type WaypointTemplateSerialized = z.TypeOf<typeof waypointTemplateSchema>;
 
 const waypointSchema = waypointTemplateSchema.extend({
-	flightplanId: z.string(),
 	arrivalDuration: z.number(),
+	arrivalTime: z.number(), // ui
 });
 export type WaypointSerialized = z.TypeOf<typeof waypointSchema>;
 
@@ -365,13 +364,14 @@ const flightplanSchema = entitySchema.extend({
 	entityType: z.literal("Flightplan"),
 	flightGroupId: z.string(),
 	waypoints: z.array(waypointSchema),
+	taskWaypointTemplates: z.array(waypointTemplateSchema),
 });
 export type FlightplanSerialized = z.TypeOf<typeof flightplanSchema>;
 
 const flightGroupState = z.enum(["waiting", "start up", "in air", "landed", "destroyed"]);
 export type FlightGroupState = z.TypeOf<typeof flightGroupState>;
 
-const flightGroupSchema = groupSchema.extend({
+export const flightGroupSchema = groupSchema.extend({
 	aircraftIds: z.array(z.string()),
 	task: DcsJs.task,
 	startTime: z.number(), // ui
@@ -471,6 +471,7 @@ const aircraftSchema = unitSchema.extend({
 	flightGroupId: z.string().optional(),
 	callSign: callSignSchema.optional(),
 	name: z.string().optional(),
+	onboardNumber: z.number(),
 	homeBaseId: z.string(),
 	isClient: z.boolean(),
 	loadout: Campaign.Schema.campaignLoadout.optional(),
@@ -530,7 +531,7 @@ export type ObjectiveSerialized = z.TypeOf<typeof objectiveSchema>;
 
 const homeBaseSchema = mapEntitySchema.extend({
 	name: z.string(),
-	type: z.enum(["airdrome", "carrier", "farp"]),
+	type: DcsJs.homeBaseType,
 	aircraftIds: z.array(z.string()),
 });
 export type HomeBaseSerialized = z.TypeOf<typeof homeBaseSchema>;
@@ -575,3 +576,28 @@ export const stateSchema = z.object({
 	entities: z.array(stateEntitySchema),
 });
 export type StateSerialized = z.TypeOf<typeof stateSchema>;
+
+export const uiState = z.object({
+	id: z.string(),
+	name: z.string(),
+	date: z.string(),
+	time: z.number(),
+	timeMultiplier: z.number(),
+	flightGroups: z.array(flightGroupSchema),
+	entities: z.map(z.string(), stateEntitySchema),
+	factionDefinitions: z.record(DcsJs.coalition, Campaign.Schema.faction.optional()),
+	airdromes: z.record(DcsJs.coalition, z.set(z.string())),
+	theatre: DcsJs.theatre,
+	campaignParams: Campaign.Schema.campaignParams,
+	startTimeReached: z.boolean(),
+	hasClients: z.boolean(),
+	weather: DcsJs.Schema.weather,
+});
+export type UIState = z.TypeOf<typeof uiState>;
+
+export const uiStateEntitiesArray = uiState.extend({
+	missionId: z.string(),
+	entities: z.array(stateEntitySchema),
+	airdromes: z.record(DcsJs.coalition, z.array(z.string())),
+});
+export type UIStateEntitiesArray = z.TypeOf<typeof uiStateEntitiesArray>;

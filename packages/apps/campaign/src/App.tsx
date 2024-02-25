@@ -1,7 +1,7 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import type * as Types from "@kilcekru/dcc-shared-types";
-import { createSignal, Match, onCleanup, onMount, Show, Switch, useContext } from "solid-js";
+import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
 import { CreateCampaign, Home, Open } from "./apps";
@@ -19,20 +19,23 @@ const App = () => {
 	let serializedSubscription: { dispose: () => void } | undefined;
 	let stateUpdateSubscription: { dispose: () => void } | undefined;
 	let timeUpdateSubscription: { dispose: () => void } | undefined;
+	const [loadedState, setLoadedState] = createSignal<Types.Campaign.WorkerState | undefined>(undefined);
 	const [resumeState, setResumeState] = createSignal<"loading" | "loaded" | "error" | "empty">("loading");
+	const createErrorToast = Components.useCreateErrorToast();
 
 	onMount(async () => {
 		rpc.campaign
 			.resumeCampaign(Config.campaignVersion)
-			.then(async (loadedState) => {
-				console.log("load", loadedState); // eslint-disable-line no-console
+			.then(async (state) => {
+				console.log("load", state); // eslint-disable-line no-console
 
-				if (loadedState == null) {
+				if (state == null) {
 					setResumeState("empty");
 					return;
 				}
 
-				await loadCampaignIntoStore(loadedState);
+				setLoadedState(state);
+				await loadCampaignIntoStore(state);
 			})
 			.catch((e) => {
 				console.error("RPC Load", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
@@ -64,6 +67,28 @@ const App = () => {
 			// eslint-disable-next-line no-console
 			.catch((e) => console.error(e instanceof Error ? e.message : "unknown error"));
 	}
+
+	createEffect(() => {
+		// eslint-disable-next-line solid/reactivity
+		const subscription = onWorkerEvent("loadFailed", () => {
+			setResumeState("error");
+			createErrorToast({
+				title: "Campaign failed to load",
+				description: "Your app version is probably the wrong version for the campaign.",
+				duration: 10000,
+			});
+
+			const state = loadedState();
+
+			if (state != null) {
+				void saveCampaign({
+					...state,
+					active: false,
+				});
+			}
+		});
+		onCleanup(() => subscription.dispose());
+	});
 
 	onMount(function onMount() {
 		serializedSubscription = onWorkerEvent("serialized", async (event: Types.Campaign.WorkerEventSerialized) => {

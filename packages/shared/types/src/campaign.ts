@@ -1,28 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { z } from "zod";
 
-import { Serialization } from ".";
-import { FlightGroupSerialized, StateEntitySerialized } from "./serialization";
-
-export type MissionState = {
-	killed_aircrafts: Array<string>;
-	killed_ground_units: Array<string>;
-	mission_ended: boolean;
-	downed_pilots: Array<{
-		name: string;
-		coalition: number;
-		time: number;
-		x: number;
-		y: number;
-	}>;
-	group_positions: Array<{
-		name: string;
-		x: number;
-		y: number;
-	}>;
-	time: number;
-	mission_id: string;
-};
+import type * as Serialization from "./serialization";
 
 export namespace Schema {
 	export const campaignSynopsis = z.object({
@@ -39,7 +18,7 @@ export namespace Schema {
 
 	export const faction = z.object({
 		aircraftTypes: z.record(z.array(DcsJs.aircraftType)),
-		countryName: z.string(),
+		countryName: DcsJs.countryName,
 		name: z.string(),
 		year: z.number().optional(),
 		playable: z.boolean(),
@@ -120,6 +99,14 @@ export namespace Schema {
 	});
 
 	export const structureTypeUnitCamp = z.enum(["Barrack", "Depot"]);
+
+	export const missionState = z.object({
+		missionId: z.string(),
+		missionEnded: z.boolean(),
+		crashedAircrafts: z.array(z.string()),
+		destroyedGroundUnits: z.array(z.string()),
+		groupPositions: z.record(DcsJs.coalition, z.array(z.object({ name: z.string(), x: z.number(), y: z.number() }))),
+	});
 }
 
 export type CampaignSynopsis = z.infer<typeof Schema.campaignSynopsis>;
@@ -132,12 +119,13 @@ export type CampaignGroundGroupUnitType = z.infer<typeof Schema.campaignGroundGr
 export type CampaignPylon = z.infer<typeof Schema.campaignPylon>;
 export type CampaignLoadout = z.infer<typeof Schema.campaignLoadout>;
 export type StructureTypeUnitCamp = z.infer<typeof Schema.structureTypeUnitCamp>;
+export type MissionState = z.infer<typeof Schema.missionState>;
 
 export interface BriefingDocument {
 	package: Serialization.PackageSerialized;
 	flightGroup: Serialization.FlightGroupSerialized;
 	theatre: DcsJs.Theatre;
-	entities: Map<Id, StateEntitySerialized>;
+	entities: Map<Id, Serialization.StateEntitySerialized>;
 }
 
 export type StructurePlan = {
@@ -264,6 +252,7 @@ export type WorkerMessage =
 				blueFactionDefinition: Faction;
 				redFactionDefinition: Faction;
 				scenario: Scenario;
+				campaignParams: CampaignParams;
 			};
 	  }
 	| {
@@ -288,6 +277,10 @@ export type WorkerMessage =
 	  }
 	| {
 			name: "getMapUpdate";
+	  }
+	| {
+			name: "submitMissionState";
+			payload: MissionState;
 	  };
 
 export type WorkerState = {
@@ -301,33 +294,20 @@ export type WorkerState = {
 	theatre: DcsJs.Theatre;
 };
 
-export type UIState = {
-	id: string;
-	name: string;
-	time: number;
-	timeMultiplier: number;
-	flightGroups: Array<FlightGroupSerialized>;
-	entities: Map<Id, StateEntitySerialized>;
-	factionDefinitions: Record<DcsJs.Coalition, Faction | undefined>;
-	theatre: DcsJs.Theatre;
-	campaignParams: CampaignParams;
-	startTimeReached: boolean;
-	hasClients: boolean;
-	weather: DcsJs.Weather;
-};
-
 export type WorkerEventTick = { name: "tick"; dt: number };
 export type WorkerEventMapUpdate = {
 	name: "mapUpdate";
 	items: Map<string, MapItem>;
 };
 export type WorkerEventTimeUpdate = { name: "timeUpdate"; time: number };
-export type WorkerEventStateUpdate = { name: "stateUpdate"; state: UIState };
+export type WorkerEventStateUpdate = { name: "stateUpdate"; state: Serialization.UIState };
 export type WorkerEventSerialized = { name: "serialized"; state: WorkerState };
+export type WorkerEventLoadFailed = { name: "loadFailed" };
 
 export type WorkerEvent =
 	| WorkerEventTick
 	| WorkerEventMapUpdate
 	| WorkerEventTimeUpdate
 	| WorkerEventStateUpdate
-	| WorkerEventSerialized;
+	| WorkerEventSerialized
+	| WorkerEventLoadFailed;

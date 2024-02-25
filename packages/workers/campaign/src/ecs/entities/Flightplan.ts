@@ -1,14 +1,22 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Events, Serialization } from "../../utils";
-import { LandingWaypointTemplate, TakeoffWaypointTemplate, Waypoint, WaypointTemplate } from "../objects/waypoint";
+import {
+	GenericWaypointTemplate,
+	LandingWaypointTemplate,
+	TakeoffWaypointTemplate,
+	Waypoint,
+	WaypointTemplate,
+} from "../objects/waypoint";
 import {} from "../objects/waypoint/template/TakeOff";
 import { getEntity, store } from "../store";
 import { Entity, EntityProps, FlightGroup } from ".";
 
 export interface FlightplanProps extends EntityProps {
 	flightGroupId: Types.Campaign.Id;
+	taskWaypointTemplates: Array<WaypointTemplate>;
 }
 
 export interface CreateFlightplanProps extends EntityProps {
@@ -19,6 +27,11 @@ export interface CreateFlightplanProps extends EntityProps {
 export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 	#flightGroupId: Types.Campaign.Id;
 	#list: Array<Waypoint> = [];
+	#taskWaypointTemplates: Array<WaypointTemplate>;
+
+	get taskWaypointTemplates() {
+		return this.#taskWaypointTemplates;
+	}
 
 	private constructor(args: FlightplanProps | Types.Serialization.FlightplanSerialized) {
 		const superArgs = Serialization.isSerialized(args) ? args : { ...args, entityType: "Flightplan" as const };
@@ -26,12 +39,19 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 		this.#flightGroupId = args.flightGroupId;
 
 		if (Serialization.isSerialized(args)) {
-			this.#list = args.waypoints.map((wp) => new Waypoint(wp));
+			this.#list = args.waypoints.map((wp) => new Waypoint({ ...wp, flightplanId: this.id }));
+			this.#taskWaypointTemplates = args.taskWaypointTemplates.map((wp) => GenericWaypointTemplate.deserialize(wp));
+		} else {
+			this.#taskWaypointTemplates = args.taskWaypointTemplates;
 		}
 	}
 
 	public static create(args: CreateFlightplanProps) {
-		const plan = new Flightplan({ ...args, flightGroupId: args.flightGroup.id });
+		const plan = new Flightplan({
+			...args,
+			flightGroupId: args.flightGroup.id,
+			taskWaypointTemplates: args.taskWaypoints,
+		});
 
 		plan.add(TakeoffWaypointTemplate.create({ homeBase: args.flightGroup.homeBase }));
 		plan.add(...args.taskWaypoints);
@@ -115,6 +135,12 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 		return this.#list;
 	}
 
+	#calcArrivalDuration(prevPosition: DcsJs.Position, position: DcsJs.Position, speed: number) {
+		const distance = Utils.Location.distanceToPosition(prevPosition, position);
+
+		return Utils.DateTime.Seconds(Math.round(distance / speed));
+	}
+
 	#addSingle(waypoint: WaypointTemplate) {
 		const prev = this.prevWaypoint;
 		if (prev == null) {
@@ -122,11 +148,7 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 			return;
 		}
 
-		const distance = Utils.Location.distanceToPosition(prev.position, waypoint.position);
-
 		const speed = this.flightGroup.package.cruiseSpeed;
-
-		const arrivalDuration = Utils.DateTime.Seconds(Math.round(distance / speed));
 
 		this.#list.push(
 			new Waypoint({
@@ -135,8 +157,14 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 				type: waypoint.type,
 				duration: waypoint.duration,
 				onGround: waypoint.onGround,
-				raceTrack: waypoint.racetrack,
-				arrivalDuration,
+				raceTrack:
+					waypoint.racetrack == null
+						? undefined
+						: {
+								...waypoint.racetrack,
+								arrivalDuration: this.#calcArrivalDuration(waypoint.position, waypoint.racetrack.position, speed),
+						  },
+				arrivalDuration: this.#calcArrivalDuration(prev.position, waypoint.position, speed),
 				flightplanId: this.id,
 			}),
 		);
@@ -158,6 +186,7 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 			entityType: "Flightplan",
 			flightGroupId: this.#flightGroupId,
 			waypoints: this.#list.map((wp) => wp.serialize()),
+			taskWaypointTemplates: this.#taskWaypointTemplates.map((wp) => wp.serialize()),
 		};
 	}
 }

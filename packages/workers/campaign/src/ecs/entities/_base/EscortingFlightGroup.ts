@@ -1,12 +1,12 @@
 import type * as Types from "@kilcekru/dcc-shared-types";
 
-import { Events } from "../../../utils";
-import { HoldWaypointTemplate } from "../../objects";
+import { Events, Serialization } from "../../../utils";
+import { GenericWaypointTemplate, HoldWaypointTemplate } from "../../objects";
 import { getEntity } from "../../store";
 import { FlightGroup, FlightGroupProps } from "./FlightGroup";
 
 export interface EscortingFlightGroupProps extends FlightGroupProps {
-	targetFlightGroupId: Types.Campaign.Id;
+	targetFlightGroup: FlightGroup;
 	holdWaypoint: HoldWaypointTemplate;
 }
 
@@ -20,8 +20,29 @@ export abstract class EscortingFlightGroup<EventNames extends keyof Events.Event
 	}
 
 	protected constructor(args: EscortingFlightGroupProps | Types.Serialization.EscortingFlightGroupSerialized) {
-		super(args);
-		this.#targetFlightGroupId = args.targetFlightGroupId;
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: {
+					...args,
+					taskWaypoints: [
+						...args.taskWaypoints,
+						...args.targetFlightGroup.flightplan.taskWaypointTemplates.map((template) =>
+							GenericWaypointTemplate.create({
+								position: template.position,
+								duration: template.duration,
+								type: "Nav",
+								name: "Nav",
+							}),
+						),
+					],
+			  };
+		super(superArgs);
+
+		if (Serialization.isSerialized(args)) {
+			this.#targetFlightGroupId = args.targetFlightGroupId;
+		} else {
+			this.#targetFlightGroupId = args.targetFlightGroup.id;
+		}
 	}
 
 	public override serialize(): Types.Serialization.EscortingFlightGroupSerialized {

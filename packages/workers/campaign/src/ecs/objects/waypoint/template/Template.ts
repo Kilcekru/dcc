@@ -6,7 +6,7 @@ export interface WaypointTemplateProps {
 	onGround?: boolean;
 	position: DcsJs.Position;
 	duration?: number;
-	type: Types.Serialization.WaypointType;
+	type: DcsJs.WaypointType;
 	raceTrack?: {
 		name: string;
 		position: DcsJs.Position;
@@ -18,7 +18,7 @@ export abstract class WaypointTemplate {
 	public readonly position: DcsJs.Position;
 	public readonly onGround: boolean;
 	public readonly duration: number | undefined;
-	public readonly type: Types.Serialization.WaypointType;
+	public readonly type: DcsJs.WaypointType;
 	public readonly racetrack:
 		| {
 				name: string;
@@ -42,7 +42,6 @@ export abstract class WaypointTemplate {
 			onGround: this.onGround,
 			duration: this.duration,
 			type: this.type,
-			raceTrack: this.racetrack,
 		};
 	}
 }

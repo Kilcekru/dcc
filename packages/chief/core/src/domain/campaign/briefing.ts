@@ -3,7 +3,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { capture } from "../capture";
 
-export async function generateBriefingKneeboards(campaign: Types.Campaign.UIState) {
+export async function generateBriefingKneeboards(campaign: Types.Serialization.UIState) {
 	const documents: Types.Capture.Document[] = [];
 	const getEntity = Utils.ECS.EntitySelector(campaign.entities);
 

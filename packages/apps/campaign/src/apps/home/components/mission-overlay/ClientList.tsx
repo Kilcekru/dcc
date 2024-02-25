@@ -25,7 +25,7 @@ function Item(props: { flightGroup: Types.Serialization.FlightGroupSerialized })
 	};
 
 	const aircraftName = (aircraftType: DcsJs.AircraftType) => {
-		return DcsJs.aircrafts[aircraftType]?.display_name ?? aircraftType;
+		return DcsJs.aircraftDefinitions[aircraftType]?.display_name ?? aircraftType;
 	};
 
 	return (

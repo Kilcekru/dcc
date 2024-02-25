@@ -1,3 +1,4 @@
+import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 
 import type * as Entities from "../../entities";
@@ -7,16 +8,29 @@ import { WaypointTemplate, WaypointTemplateProps } from "./template";
 export interface WaypointProps extends WaypointTemplateProps {
 	arrivalDuration: number;
 	flightplanId: Types.Campaign.Id;
+	raceTrack?: {
+		name: string;
+		position: DcsJs.Position;
+		arrivalDuration: number;
+	};
 }
 
 export class Waypoint extends WaypointTemplate {
 	public readonly arrivalDuration: number;
 	readonly #flightplanId: Types.Campaign.Id;
+	public override readonly racetrack:
+		| {
+				name: string;
+				position: DcsJs.Position;
+				arrivalDuration: number;
+		  }
+		| undefined;
 
-	constructor(args: WaypointProps | Types.Serialization.WaypointSerialized) {
+	constructor(args: WaypointProps | (Types.Serialization.WaypointSerialized & { flightplanId: Types.Campaign.Id })) {
 		super(args);
 		this.#flightplanId = args.flightplanId;
 		this.arrivalDuration = args.arrivalDuration;
+		this.racetrack = args.raceTrack;
 	}
 
 	get #flightplan() {
@@ -54,7 +68,14 @@ export class Waypoint extends WaypointTemplate {
 		return {
 			...super.serialize(),
 			arrivalDuration: this.arrivalDuration,
-			flightplanId: this.#flightplanId,
+			arrivalTime: this.arrivalTime,
+			raceTrack:
+				this.racetrack == null
+					? undefined
+					: {
+							...this.racetrack,
+							arrivalTime: this.arrivalTime + this.racetrack.arrivalDuration,
+					  },
 		};
 	}
 }

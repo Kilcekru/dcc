@@ -7,17 +7,15 @@ import { getEntity, store } from "../../store";
 import { Aircraft } from "../Aircraft";
 import { MapEntity, MapEntityProps } from "./MapEntity";
 
-export type HomeBaseType = "airdrome" | "carrier" | "farp";
-
 export interface HomeBaseProps extends MapEntityProps {
 	name: string;
-	type: HomeBaseType;
+	type: DcsJs.HomeBaseType;
 }
 
 export abstract class HomeBase<EventNames extends keyof Events.EventMap.All = never> extends MapEntity<
 	EventNames | keyof Events.EventMap.HomeBase
 > {
-	public readonly type: HomeBaseType;
+	public readonly type: DcsJs.HomeBaseType;
 	#aircraftIds: Types.Campaign.Id[] = [];
 
 	get aircrafts(): readonly Aircraft[] {

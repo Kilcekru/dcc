@@ -24,6 +24,7 @@ function initializeStore(): Store {
 	return {
 		id: "",
 		name: "New Campaign",
+		date: "2021-07-01",
 		entities: new Map(),
 		queries: {
 			airdromes: {
@@ -129,6 +130,7 @@ export type QueryKey = QueryName | `${QueryName}-${string}`;
 interface Store {
 	id: string;
 	name: string;
+	date: string;
 	entities: Map<Types.Campaign.Id, Entities.Entity>;
 	queries: Queries;
 	factionDefinitions: Record<DcsJs.Coalition, Types.Campaign.Faction | undefined>;

@@ -15,7 +15,7 @@ const AircraftList = (props: {
 	toggle: (name: string) => void;
 }) => {
 	const aircrafts = createMemo(() => {
-		return Object.values(DcsJs.aircrafts)
+		return Object.values(DcsJs.aircraftDefinitions)
 			.filter((ac) => ac.availableTasks.some((t) => t === props.missionTask))
 			.sort((a, b) => Utils.Sort.String.asc(a.display_name, b.display_name));
 	});

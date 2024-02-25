@@ -7,17 +7,18 @@ import { sendWorkerMessage } from "../worker";
 
 export type ModalName = "next day" | "game over";
 
-export type CampaignState = Types.Campaign.UIState & {
+export type CampaignState = Omit<Types.Serialization.UIState, "missionId"> & {
 	active: boolean;
 	paused: boolean;
 	winner: DcsJs.Coalition | undefined;
 	openModals: Set<ModalName>;
 	selectedEntityId: undefined | Types.Campaign.Id;
+	missionId: string | undefined;
 };
 type CampaignStore = [
 	CampaignState,
 	{
-		stateUpdate?: (next: Types.Campaign.UIState) => void;
+		stateUpdate?: (next: Types.Serialization.UIState) => void;
 		timeUpdate?: (next: number) => void;
 		deactivate?: () => void;
 		activate?: () => void;
@@ -31,6 +32,7 @@ type CampaignStore = [
 		reset?: () => void;
 		skipToNextDay?: () => void;
 		closeModal?: (name: ModalName) => void;
+		setMissionId?: (id: string) => void;
 	},
 ];
 
@@ -39,6 +41,7 @@ export const initState: CampaignState = {
 	active: false,
 	paused: true,
 	name: "",
+	date: "2021-07-01",
 	time: 32400000,
 	timeMultiplier: 1,
 	flightGroups: [],
@@ -48,6 +51,11 @@ export const initState: CampaignState = {
 		blue: undefined,
 		red: undefined,
 		neutrals: undefined,
+	},
+	airdromes: {
+		blue: new Set(),
+		red: new Set(),
+		neutrals: new Set(),
 	},
 	theatre: "Caucasus",
 	winner: undefined,
@@ -71,6 +79,7 @@ export const initState: CampaignState = {
 			speed: 0,
 		},
 	},
+	missionId: undefined,
 };
 
 export const CampaignContext = createContext<CampaignStore>([{ ...initState }, {}]);
@@ -165,6 +174,9 @@ export function CampaignProvider(props: { children?: JSX.Element }) {
 					next.delete(name);
 					return next;
 				});
+			},
+			setMissionId(id) {
+				setState("missionId", id);
 			},
 		},
 	];
