@@ -96,13 +96,28 @@ export function getAircraftBundle(
 	}
 
 	// Only allow home bases with at least the min count of aircrafts
-	const homeBasesWithMinAmount: Array<Entities.HomeBase> = [];
+	const homeBasesWithMinAmount: {
+		homeBase: Entities.HomeBase;
+		onlyHelicopters: boolean;
+		aircrafts: Set<Entities.Aircraft>;
+	}[] = [];
 
 	for (const [homeBase, aircrafts] of aircraftsPerHomeBase) {
 		if (aircrafts.size >= Utils.Config.packages[args.task].aircrafts) {
-			homeBasesWithMinAmount.push(homeBase);
+			let onlyHelicopters = true;
+
+			for (const aircraft of aircrafts) {
+				if (!aircraft.isHelicopter) {
+					onlyHelicopters = false;
+					break;
+				}
+			}
+
+			homeBasesWithMinAmount.push({ homeBase, onlyHelicopters, aircrafts });
 		}
 	}
+
+	// for (const homeBase of homeBasesWithMinAmount) {}
 
 	let selectedHomeBase: Entities.HomeBase | undefined;
 
@@ -112,10 +127,10 @@ export function getAircraftBundle(
 			let distanceToHomeBase = 99999999;
 
 			for (const homeBase of homeBasesWithMinAmount) {
-				const distance = Utils.Location.distanceToPosition(homeBase.position, args.target.position);
+				const distance = Utils.Location.distanceToPosition(homeBase.homeBase.position, args.target.position);
 
 				if (distance < distanceToHomeBase) {
-					selectedHomeBase = homeBase;
+					selectedHomeBase = homeBase.homeBase;
 					distanceToHomeBase = distance;
 				}
 			}
@@ -128,7 +143,7 @@ export function getAircraftBundle(
 			const oppCoalition = Utils.Coalition.opposite(args.coalition);
 			let targetSet: Set<Entities.MapEntity> = new Set();
 			let maxDistance = 0;
-			let distanceToHomeBase = 99999999;
+			let distanceToHomeBase = Infinity;
 
 			switch (args.task) {
 				case "CAS": {
@@ -155,10 +170,14 @@ export function getAircraftBundle(
 
 			for (const homeBase of homeBasesWithMinAmount) {
 				for (const targetEntity of targetSet) {
-					const distance = Utils.Location.distanceToPosition(homeBase.position, targetEntity.position);
+					const distance = Utils.Location.distanceToPosition(homeBase.homeBase.position, targetEntity.position);
 
 					if (distance < distanceToHomeBase && distance <= maxDistance) {
-						selectedHomeBase = homeBase;
+						if (homeBase.onlyHelicopters && distance > Utils.Config.defaults.helicopterMaxDistanceToTarget) {
+							continue;
+						}
+
+						selectedHomeBase = homeBase.homeBase;
 						distanceToHomeBase = distance;
 					}
 				}
@@ -168,16 +187,16 @@ export function getAircraftBundle(
 		}
 		case "Escort":
 		case "SEAD": {
-			let distanceToHomeBase = 99999999;
+			let distanceToHomeBase = Infinity;
 
 			for (const homeBase of homeBasesWithMinAmount) {
 				const distance = Utils.Location.distanceToPosition(
-					homeBase.position,
+					homeBase.homeBase.position,
 					args.targetAircraftBundle.homeBase.position,
 				);
 
 				if (distance < distanceToHomeBase) {
-					selectedHomeBase = homeBase;
+					selectedHomeBase = homeBase.homeBase;
 					distanceToHomeBase = distance;
 				}
 			}

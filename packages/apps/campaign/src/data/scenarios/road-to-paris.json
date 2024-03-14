@@ -12,10 +12,10 @@
 	"blue-start-objective-range": [2, 4],
 	"blue": {
 		"airdromeNames": [],
-		"objectivePlans": []
+		"objectives": []
 	},
 	"red": {
 		"airdromeNames": [],
-		"objectivePlans": []
+		"objectives": []
 	}
 }

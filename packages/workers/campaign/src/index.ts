@@ -135,6 +135,10 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 			world.submitMissionState(e.data.payload);
 			break;
 		}
+		case "setHotStart": {
+			store.campaignParams.hotStart = e.data.payload;
+			break;
+		}
 		default: {
 			// eslint-disable-next-line no-console
 			console.warn("Unhandled WorkerMessage", e.data);

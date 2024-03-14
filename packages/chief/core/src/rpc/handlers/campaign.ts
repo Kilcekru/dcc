@@ -90,6 +90,7 @@ const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = a
 			red: campaign.factionDefinitions.red?.countryName ?? "Russia",
 			neutrals: "Switzerland",
 		},
+		hotStart: campaign.campaignParams.hotStart,
 	});
 
 	for (const entity of campaign.entities.values()) {
@@ -132,6 +133,42 @@ const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = a
 				position: entity.position,
 				units,
 				objectiveName: target?.name ?? undefined,
+			});
+		}
+
+		if (entity.entityType === "SAM") {
+			const units = [];
+			let target: Types.Serialization.ObjectiveSerialized | undefined = undefined;
+
+			for (const id of entity.unitIds) {
+				const groundUnit = getEntity<Types.Serialization.GroundUnitSerialized>(id);
+
+				if (groundUnit == null) {
+					continue;
+				}
+
+				if (groundUnit.alive === false) {
+					continue;
+				}
+
+				units.push({
+					type: groundUnit.type,
+					name: groundUnit.name,
+				});
+			}
+
+			if (units.length === 0) {
+				continue;
+			}
+
+			target = getEntity<Types.Serialization.ObjectiveSerialized>(entity.objectiveId);
+
+			mission.createSamGroup({
+				countryName: getCountryForCoalition(entity.coalition, campaign),
+				name: entity.name,
+				units,
+				objectiveName: target?.name ?? undefined,
+				position: entity.position,
 			});
 		}
 

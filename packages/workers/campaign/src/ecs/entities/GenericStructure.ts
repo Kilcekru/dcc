@@ -1,12 +1,22 @@
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 
 import { Serialization } from "../../utils";
+import { QueryKey } from "../store";
 import { Structure, StructureProps } from "./_base/Structure";
 export type GenericStructureProps = Omit<StructureProps, "entityType">;
 
 export class GenericStructure extends Structure {
 	private constructor(args: GenericStructureProps | Types.Serialization.GenericStructureSerialized) {
-		const superArgs = Serialization.isSerialized(args) ? args : { ...args, entityType: "GenericStructure" as const };
+		const superArgs = Serialization.isSerialized(args)
+			? args
+			: {
+					...args,
+					queries: Utils.Config.ignoredStructureTypesForStrikeTargets.includes(args.structureType)
+						? args.queries
+						: (["structures-strike targets", ...(args.queries ?? [])] as QueryKey[]),
+					entityType: "GenericStructure" as const,
+			  };
 		super(superArgs);
 	}
 

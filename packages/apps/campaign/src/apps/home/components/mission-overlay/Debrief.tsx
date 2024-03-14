@@ -181,7 +181,7 @@ export function Debrief(props: { missionState: Types.Campaign.MissionState; onCl
 		}
 
 		for (const aircraftName of props.missionState.destroyedGroundUnits) {
-			const aircraft = getEntityByName(aircraftName);
+			const aircraft = getEntityByName(aircraftName.toString());
 
 			if (aircraft == null) {
 				continue;

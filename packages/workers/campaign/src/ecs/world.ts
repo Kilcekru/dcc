@@ -55,6 +55,8 @@ export class World {
 		});
 
 		const [blueOps, redOps] = generateObjectivePlans({
+			blueObjectiveNames: args.scenario.blue.objectives,
+			redObjectiveNames: args.scenario.red.objectives,
 			blueAirdromes: [...store.queries.airdromes["blue"].values()],
 			redAirdromes: [...store.queries.airdromes["red"].values()],
 			blueRange: args.scenario["blue-start-objective-range"],

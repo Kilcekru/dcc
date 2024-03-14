@@ -57,6 +57,7 @@ type Config = {
 		holdWaypointDuration: number;
 		casEscortRange: number;
 		awacsFrequency: number;
+		helicopterMaxDistanceToTarget: number;
 	};
 	combat: {
 		a2a: {
@@ -68,6 +69,7 @@ type Config = {
 			hitChange: number;
 		};
 	};
+	ignoredStructureTypesForStrikeTargets: DcsJs.StructureType[];
 	campaignVersion: number;
 };
 
@@ -87,14 +89,14 @@ export const Config: Config = {
 	},
 	packages: {
 		AWACS: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 300_000, aircrafts: 1 },
-		"Pinpoint Strike": { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000, aircrafts: 2 },
+		"Pinpoint Strike": { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 300_000, aircrafts: 2 },
 		Escort: { maxActive: { blue: 4, red: 3, neutrals: 0 }, maxDistance: 150_000, aircrafts: 2 },
-		CAS: { maxActive: { blue: 3, red: 2, neutrals: 0 }, maxDistance: 100_000, aircrafts: 2 },
-		DEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000, aircrafts: 2 },
+		CAS: { maxActive: { blue: 3, red: 2, neutrals: 0 }, maxDistance: 200_000, aircrafts: 2 },
+		DEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 300_000, aircrafts: 2 },
 		CSAR: { maxActive: { blue: 2, red: 2, neutrals: 1 }, maxDistance: 30_000, aircrafts: 1 },
 		CAP: { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 100_000, aircrafts: 2 },
 		"Air Assault": { maxActive: { blue: 1, red: 1, neutrals: 1 }, maxDistance: 40_000, aircrafts: 2 },
-		SEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 200_000, aircrafts: 2 },
+		SEAD: { maxActive: { blue: 2, red: 1, neutrals: 0 }, maxDistance: 300_000, aircrafts: 2 },
 	},
 	structureRange: {
 		power: 50_000,
@@ -163,7 +165,9 @@ export const Config: Config = {
 		holdWaypointDuration: Minutes(5),
 		groundGroupSpeed: 6,
 		awacsFrequency: 144,
+		helicopterMaxDistanceToTarget: 30_000,
 	},
+	ignoredStructureTypesForStrikeTargets: ["Hospital", "Farp", "Prison"],
 	combat: {
 		a2a: {
 			rangeMultiplier: 0.66,

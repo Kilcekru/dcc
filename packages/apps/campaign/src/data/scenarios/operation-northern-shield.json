@@ -14,10 +14,10 @@
 	"blue": {
 		"airdromeNames": ["Ramat David"],
 		"carrierObjective": "Alpha",
-		"objectivePlans": []
+		"objectives": []
 	},
 	"red": {
 		"airdromeNames": ["Beirut-Rafic Hariri", "Damascus", "King Hussein Air College", "Al Qusayr", "Hama"],
-		"objectivePlans": []
+		"objectives": []
 	}
 }

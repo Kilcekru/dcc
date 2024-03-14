@@ -30,6 +30,7 @@ export namespace Schema {
 	export const scenarioCoalition = z.object({
 		airdromeNames: z.array(z.string()),
 		carrierObjective: z.string().optional(),
+		objectives: z.array(z.string()),
 	});
 
 	export const scenario = z.object({
@@ -60,6 +61,7 @@ export namespace Schema {
 		training: z.boolean(),
 		nightMissions: z.boolean(),
 		badWeather: z.boolean(),
+		hotStart: z.boolean(),
 	});
 
 	export const campaignTask = z.enum([
@@ -104,7 +106,7 @@ export namespace Schema {
 		missionId: z.string(),
 		missionEnded: z.boolean(),
 		crashedAircrafts: z.array(z.string()),
-		destroyedGroundUnits: z.array(z.string()),
+		destroyedGroundUnits: z.array(z.string().or(z.number())),
 		groupPositions: z.record(DcsJs.coalition, z.array(z.object({ name: z.string(), x: z.number(), y: z.number() }))),
 	});
 }
@@ -281,6 +283,10 @@ export type WorkerMessage =
 	| {
 			name: "submitMissionState";
 			payload: MissionState;
+	  }
+	| {
+			name: "setHotStart";
+			payload: boolean;
 	  };
 
 export type WorkerState = {

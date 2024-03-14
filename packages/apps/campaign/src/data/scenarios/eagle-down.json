@@ -1,23 +1,23 @@
 {
-	"theatre": "Caucasus",
-	"id": "red-bullet",
-	"name": "Red Bullet",
+	"theatre": "PersianGulf",
+	"id": "eagle-down",
+	"name": "Eagle Down",
 	"available": true,
 	"date": "2022-06-01",
 	"era": "Modern",
 	"briefing": "<p>In May 2004, the conflict between Russia-Georgia escalated into a full-scale military conflict, with Russia military forces launching an invasion of Georgia.</p><p>The United States, along with several other Western nations, came to the aid of Georgia during the conflict. The U.S. provided diplomatic, economic, and military support to Georgia, including the deployment of military forces.</p><p>Main goal for the NATO coalition is the <strong>recapture of the Enguri Dam</strong>. To limit the damage to the Geogian infrastructure</p>",
 	"win-condition": {
 		"type": "objective",
-		"value": "Enguri Dam"
+		"value": "Sayeh Khvosh"
 	},
 	"blue-start-objective-range": [1, 3],
 	"blue": {
-		"airdromeNames": ["Kobuleti"],
+		"airdromeNames": ["Sharjah Intl"],
 		"carrierObjective": "Alpha",
-		"objectives": []
+		"objectives": ["Bunji-ye-Maski"]
 	},
 	"red": {
-		"airdromeNames": ["Sukhumi-Babushara", "Nalchik"],
-		"objectives": []
+		"airdromeNames": ["Bandar Abbas Intl", "Lar", "Bandar-e-Jask"],
+		"objectives": ["Seerik", "Chahestan", "Bandar-e Lengeh", "Bandar-e-Jask"]
 	}
 }

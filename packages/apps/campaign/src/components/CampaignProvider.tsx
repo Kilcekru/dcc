@@ -33,6 +33,7 @@ type CampaignStore = [
 		skipToNextDay?: () => void;
 		closeModal?: (name: ModalName) => void;
 		setMissionId?: (id: string) => void;
+		toggleHotStart?: () => void;
 	},
 ];
 
@@ -65,6 +66,7 @@ export const initState: CampaignState = {
 		hardcore: false,
 		nightMissions: false,
 		training: false,
+		hotStart: false,
 	},
 	openModals: new Set(),
 	startTimeReached: false,
@@ -177,6 +179,15 @@ export function CampaignProvider(props: { children?: JSX.Element }) {
 			},
 			setMissionId(id) {
 				setState("missionId", id);
+			},
+			toggleHotStart() {
+				const next = !state.campaignParams.hotStart;
+				sendWorkerMessage({
+					name: "setHotStart",
+					payload: next,
+				});
+
+				setState("campaignParams", "hotStart", next);
 			},
 		},
 	];

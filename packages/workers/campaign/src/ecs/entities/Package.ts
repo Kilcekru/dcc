@@ -56,6 +56,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 	#cruiseSpeed: number = Utils.Config.defaults.cruiseSpeed;
 	#frequency: number;
 	#startTime: number;
+	#plannedStartTime: number;
 	#listenersTrys = 0;
 
 	get cruiseSpeed() {
@@ -77,6 +78,7 @@ export class Package extends Entity<keyof Events.EventMap.Package> {
 		super(superArgs);
 		this.task = args.task;
 		this.#startTime = args.startTime;
+		this.#plannedStartTime = args.startTime;
 		this.#cruiseSpeed = args.cruiseSpeed;
 		this.#frequency = args.frequency;
 

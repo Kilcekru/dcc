@@ -77,19 +77,37 @@ export class StrikeFlightGroup extends EscortedFlightGroup<keyof Events.EventMap
 	 **/
 	static #getTargetStructure(args: Pick<StrikeFlightGroupProps, "coalition" | "homeBase">) {
 		const oppCoalition = Utils.Coalition.opposite(args.coalition);
-		const oppStructures = store.queries.structures[oppCoalition];
+		const structures = store.queries.structures[args.coalition];
+		const oppStructures = store.queries.structures[oppCoalition].get("strike targets");
 		let distanceToHomeBase = 99999999;
 		let targetStructure: Structure | undefined;
 
 		for (const oppStructure of oppStructures) {
+			// Is the structure already targeted by a Strike flight group?
+			if (this.#structureAlreadyTargeted({ coalition: args.coalition, structure: oppStructure })) {
+				continue;
+			}
+
 			const distance = Utils.Location.distanceToPosition(args.homeBase.position, oppStructure.position);
 
-			if (distance < distanceToHomeBase && distance <= Utils.Config.packages["Pinpoint Strike"].maxDistance) {
-				// Is the structure already targeted by a Strike flight group?
-				if (this.#structureAlreadyTargeted({ coalition: args.coalition, structure: oppStructure })) {
-					continue;
+			if (distance > Utils.Config.packages["Pinpoint Strike"].maxDistance) {
+				continue;
+			}
+
+			const nearestFrontline = Utils.Location.findNearest(structures, oppStructure.position, (str) => str.position);
+
+			if (nearestFrontline == null) {
+				if (distance < distanceToHomeBase) {
+					targetStructure = oppStructure;
+					distanceToHomeBase = distance;
 				}
 
+				continue;
+			}
+
+			const distanceToFrontline = Utils.Location.distanceToPosition(oppStructure.position, nearestFrontline.position);
+
+			if (distanceToFrontline < distanceToHomeBase) {
 				targetStructure = oppStructure;
 				distanceToHomeBase = distance;
 			}

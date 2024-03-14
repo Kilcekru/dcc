@@ -19,6 +19,7 @@ const flightGroupQueries = [
 const aircraftSubQueries = ["idle", "in use"];
 const groundGroupSubQueries = ["en route", "on target", "embarked"];
 const samSubQueries = ["active", "inactive"];
+const structureSubQueries = ["strike targets"];
 
 function initializeStore(): Store {
 	return {
@@ -58,9 +59,9 @@ function initializeStore(): Store {
 				neutrals: new Set(),
 			},
 			structures: {
-				blue: new Set(),
-				red: new Set(),
-				neutrals: new Set(),
+				blue: new SuperSet(structureSubQueries),
+				red: new SuperSet(structureSubQueries),
+				neutrals: new SuperSet(structureSubQueries),
 			},
 			unitCamps: {
 				blue: new Set(),
@@ -104,6 +105,7 @@ function initializeStore(): Store {
 			hardcore: false,
 			nightMissions: false,
 			training: false,
+			hotStart: false,
 		},
 		version: 1,
 	};
@@ -116,7 +118,7 @@ interface Queries {
 	groundGroups: Record<DcsJs.Coalition, SuperSet<Entities.GroundGroup, (typeof groundGroupSubQueries)[number]>>;
 	aircrafts: Record<DcsJs.Coalition, SuperSet<Entities.Aircraft, (typeof aircraftSubQueries)[number]>>;
 	groundUnits: Record<DcsJs.Coalition, Set<Entities.GroundUnit>>;
-	structures: Record<DcsJs.Coalition, Set<Entities.Structure>>;
+	structures: Record<DcsJs.Coalition, SuperSet<Entities.Structure, (typeof structureSubQueries)[number]>>;
 	unitCamps: Record<DcsJs.Coalition, Set<Entities.UnitCamp>>;
 	SAMs: Record<DcsJs.Coalition, SuperSet<Entities.SAM, (typeof samSubQueries)[number]>>;
 	mapEntities: Set<Entities.MapEntity>;

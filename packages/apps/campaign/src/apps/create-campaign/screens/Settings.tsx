@@ -60,6 +60,7 @@ export const Settings = (props: {
 							training: training(),
 							nightMissions: nightMissions(),
 							badWeather: badWeather(),
+							hotStart: false,
 						})
 					}
 				>

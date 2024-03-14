@@ -9,7 +9,7 @@ type Lane = {
 	target: DcsJs.Position;
 };
 
-function generateLanes(startPositions: Array<Entities.Airdrome>, targetPositions: Array<Entities.Airdrome>) {
+function generateLanes(startPositions: DcsJs.Objective[], targetPositions: DcsJs.Objective[]) {
 	const lanes: Array<Lane> = [];
 
 	startPositions.forEach(({ position: start }) => {
@@ -436,11 +436,15 @@ function addFrontline(
 }
 
 export function generateObjectivePlans({
+	blueObjectiveNames,
+	redObjectiveNames,
 	blueAirdromes,
 	redAirdromes,
 	blueRange,
 	theatre,
 }: {
+	blueObjectiveNames: string[];
+	redObjectiveNames: string[];
 	blueAirdromes: Array<Entities.Airdrome>;
 	redAirdromes: Array<Entities.Airdrome>;
 	blueRange: [number, number];
@@ -459,9 +463,26 @@ export function generateObjectivePlans({
 		throw new Error("generateObjectivePlans: no strike targets found");
 	}
 
+	const blueObjectives: typeof objectives = [];
+	const redObjectives: typeof objectives = [];
+
+	for (const name of blueObjectiveNames) {
+		const objective = objectives.find((obj) => obj.name === name);
+		if (objective) {
+			blueObjectives.push(objective);
+		}
+	}
+
+	for (const name of redObjectiveNames) {
+		const objective = objectives.find((obj) => obj.name === name);
+		if (objective) {
+			redObjectives.push(objective);
+		}
+	}
+
 	let endOfLine = false;
-	const blueLanes = generateLanes(blueAirdromes, redAirdromes);
-	const redLanes = generateLanes(redAirdromes, blueAirdromes);
+	const blueLanes = generateLanes(blueObjectives, redObjectives);
+	const redLanes = generateLanes(redObjectives, blueObjectives);
 
 	let blueObjs: Array<Types.Campaign.DynamicObjectivePlan> = [];
 	const maxBlueObjsCount = Utils.Random.number(blueRange[0], blueRange[1]);

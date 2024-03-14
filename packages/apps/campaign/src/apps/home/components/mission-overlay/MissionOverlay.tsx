@@ -17,7 +17,7 @@ import Styles from "./MissionOverlay.module.less";
 export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
 	const modalContext = useModalContext();
-	const [state, { pause, setMissionId: generateMissionId }] = useContext(CampaignContext);
+	const [state, { pause, setMissionId: generateMissionId, toggleHotStart }] = useContext(CampaignContext);
 	const [overlayState, setOverlayState] = createSignal<"forwarding" | "ready" | "generated">("forwarding");
 	const [isHowToStartOpen, setIsHowToStartOpen] = createSignal(false);
 	const [missionState, setMissionState] = createSignal<Types.Campaign.MissionState | undefined>(undefined);
@@ -175,14 +175,13 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 						</Components.Button>
 					</div>
 					<div class={cnb(Styles["buttons"], isReady() ? Styles["buttons--show"] : null, Styles["buttons--generate"])}>
-						{/* TODO
 						<Components.Switch
-							checked={state.hotStart ?? false}
+							checked={state.campaignParams.hotStart ?? false}
 							onChange={() => toggleHotStart?.()}
 							class={Styles["hot-start"]}
 						>
 							Hot Start
-	</Components.Switch> */}
+						</Components.Switch>
 						<div class={Styles.buttons__container}>
 							<Components.Button onPress={onClose} class={Styles.button} large>
 								Cancel
