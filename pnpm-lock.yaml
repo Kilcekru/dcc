@@ -74,12 +74,18 @@ importers:
       solid-js:
         specifier: 1.7.7
         version: 1.7.7
+      solid-zustand:
+        specifier: 1.8.0
+        version: 1.8.0(solid-js@1.7.7)(zustand@4.5.2)
       uuid:
         specifier: 9.0.0
         version: 9.0.0
       zod:
         specifier: 3.21.4
         version: 3.21.4
+      zustand:
+        specifier: 4.5.2
+        version: 4.5.2
     devDependencies:
       '@foxdelta2/dcsjs':
         specifier: 0.3.1
@@ -3800,6 +3806,16 @@ packages:
       seroval: 0.5.1
     dev: false
 
+  /solid-zustand@1.8.0(solid-js@1.7.7)(zustand@4.5.2):
+    resolution: {integrity: sha512-h156mTEorOiIpgDubKc4IsYdrg2f704vaT56pWPXGxSFQ4NyzzRxgY3XP9KBpiWTGrqANQMboBNy0om6RB79rw==}
+    peerDependencies:
+      solid-js: ^1.6.0
+      zustand: ^4.4.0
+    dependencies:
+      solid-js: 1.7.7
+      zustand: 4.5.2
+    dev: false
+
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -4187,6 +4203,12 @@ packages:
       punycode: 2.3.0
     dev: true
 
+  /use-sync-external-store@1.2.0:
+    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dev: false
+
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -4277,3 +4299,21 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+
+  /zustand@4.5.2:
+    resolution: {integrity: sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      '@types/react': '>=16.8'
+      immer: '>=9.0.6'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      use-sync-external-store: 1.2.0
+    dev: false

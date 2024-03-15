@@ -6,11 +6,12 @@ import { createMemo, createSignal, For, Match, onMount, Show, Switch } from "sol
 import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
 import { useDataStore } from "../../../components/DataProvider";
 import * as Domain from "../../../domain";
+import { useCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./Factions.module.less";
 
 const Faction = (props: {
 	faction: DcsJs.Faction;
-	onPress: (name: string) => void;
+	onPress: (faction: DcsJs.Faction) => void;
 	onCustomizeFaction: () => void;
 	onDeleteFaction: () => void;
 }) => {
@@ -38,7 +39,7 @@ const Faction = (props: {
 	});
 
 	return (
-		<Components.Card class={Styles.faction} onPress={() => props.onPress(props.faction.name)}>
+		<Components.Card class={Styles.faction} onPress={() => props.onPress(props.faction)}>
 			<Components.Flag class={cnb(Styles.flag)} countryName={props.faction.countryName} />
 			<h2 class={Styles.name}>{props.faction.name}</h2>
 			<h3 class={Styles.year}>{props.faction.year}</h3>
@@ -69,6 +70,7 @@ export const Factions = (props: {
 	customFaction: (template?: DcsJs.Faction) => void;
 	prev: () => void;
 }) => {
+	const store = useCreateCampaignStore();
 	const [factions, setFactions] = createSignal<Array<DcsJs.Faction>>([]);
 	const playableFactions = createMemo(() => factions().filter((faction) => faction.playable === true));
 	const enemyFactions = createMemo(() => factions().filter((faction) => faction.countryName !== props.blueCountry));
@@ -99,9 +101,30 @@ export const Factions = (props: {
 		setFactions(l);
 	}
 
+	function onNext(faction: DcsJs.Faction) {
+		if (store.currentScreen === "Faction") {
+			store.currentScreen = "Enemy Faction";
+			store.faction = faction;
+		} else {
+			store.currentScreen = "Faction";
+		}
+	}
+
+	function onPrev() {
+		if (store.currentScreen === "Faction") {
+			store.currentScreen = "Description";
+		} else {
+			store.currentScreen = "Faction";
+		}
+	}
+
+	function onCustomFaction() {
+		store.currentScreen = "Custom Faction";
+	}
+
 	return (
 		<div class={Styles.wrapper}>
-			<Components.Button large unstyled class={Styles["back-button"]} onPress={() => props.prev()}>
+			<Components.Button large unstyled class={Styles["back-button"]} onPress={onPrev}>
 				<Components.Icons.ArrowBack />
 			</Components.Button>
 			<Switch fallback={<div>Not Found</div>}>
@@ -118,9 +141,7 @@ export const Factions = (props: {
 						{(faction) => (
 							<Faction
 								faction={faction}
-								onPress={() => {
-									props.next(faction);
-								}}
+								onPress={onNext}
 								onCustomizeFaction={() => props.customFaction(faction)}
 								onDeleteFaction={() => onDelete(faction)}
 							/>
@@ -130,7 +151,7 @@ export const Factions = (props: {
 			</Components.ScrollContainer>
 
 			<div class={Styles.buttons}>
-				<Components.Button large onPress={() => props.customFaction()}>
+				<Components.Button large onPress={onCustomFaction}>
 					Create Custom
 				</Components.Button>
 			</div>
