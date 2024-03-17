@@ -1,22 +1,17 @@
-import { useCreateErrorToast } from "@kilcekru/dcc-lib-components";
-import * as Types from "@kilcekru/dcc-shared-types";
-import { createSignal, ErrorBoundary, Match, Switch } from "solid-js";
+import { ErrorBoundary, Match, Switch } from "solid-js";
 
-import { scenarioList } from "../../data";
-import { sendWorkerMessage } from "../../worker";
 import styles from "./CreateCampaign.module.less";
+import { CreateCampaignProvider, useCreateCampaignStore } from "./CreateCampaignContext";
 import { CustomFaction, Factions, ScenarioDescription, Scenarios, Settings } from "./screens";
+import { BalanceSettings } from "./screens/BalanceSettings";
+
 export const optionalClass = (className: string, optionalClass?: string) => {
 	return className + (optionalClass == null ? "" : " " + optionalClass);
 };
 
-export const CreateCampaign = () => {
-	const [currentScreen, setCurrentScreen] = createSignal("Scenarios");
-	const [scenario, setScenario] = createSignal("");
-	const [blueFaction, setBlueFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
-	const [redFaction, setRedFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
-	const [templateFaction, setTemplateFaction] = createSignal<Types.Campaign.Faction | undefined>(undefined);
-	const createToast = useCreateErrorToast();
+const CreateCampaign = () => {
+	const store = useCreateCampaignStore();
+	/* const createToast = useCreateErrorToast();
 
 	const onActivate = async (campaignParams: Types.Campaign.CampaignParams) => {
 		const blue = blueFaction();
@@ -54,96 +49,30 @@ export const CreateCampaign = () => {
 				description: e instanceof Error ? e.message : "Unknown Error",
 			});
 		}
+	}; */
 
-		/* try {
-				activate?.();
-			} catch (e) {
-				// eslint-disable-next-line no-console
-				console.error(e);
-				createToast({
-					title: "Campaign not created",
-					description: e instanceof Error ? e.message : "Unknown Error",
-				});
-			} */
-	};
-
-	const customFactionPrev = () => {
-		if (blueFaction() == null) {
-			setCurrentScreen("Blue Faction");
-		} else {
-			setCurrentScreen("Red Faction");
-		}
-	};
-	const onCustomFactionNext = (faction: Types.Campaign.Faction) => {
-		if (blueFaction() == null) {
-			setBlueFaction(faction);
-			setCurrentScreen("Red Faction");
-		} else {
-			setRedFaction(faction);
-			setCurrentScreen("Settings");
-		}
-	};
-
-	const onSelectScenario = (scenario: Types.Campaign.Scenario) => {
-		setScenario(scenario.name);
-		setCurrentScreen("Start");
-	};
-
-	const onCustomFaction = (template?: Types.Campaign.Faction) => {
-		if (template != null) {
-			setTemplateFaction(template);
-		} else {
-			setTemplateFaction(undefined);
-		}
-
-		setCurrentScreen("Custom Faction");
-	};
 	return (
 		<ErrorBoundary fallback={<div>Something went wrong during campaign creation</div>}>
 			<div class={styles["create-campaign"]}>
 				<div class={styles["create-campaign__content"]}>
 					<Switch fallback={<div>Not Found</div>}>
-						<Match when={currentScreen() === "Scenarios"}>
-							<Scenarios next={onSelectScenario} />
+						<Match when={store.currentScreen === "Scenarios"}>
+							<Scenarios />
 						</Match>
-						<Match when={currentScreen() === "Start"}>
-							<ScenarioDescription
-								scenarioName={scenario()}
-								next={() => setCurrentScreen("Blue Faction")}
-								prev={() => setCurrentScreen("Scenarios")}
-							/>
+						<Match when={store.currentScreen === "Description"}>
+							<ScenarioDescription />
 						</Match>
-						<Match when={currentScreen() === "Blue Faction"}>
-							<Factions
-								next={(faction) => {
-									setBlueFaction(faction);
-									setCurrentScreen("Red Faction");
-								}}
-								prev={() => setCurrentScreen("Start")}
-								customFaction={onCustomFaction}
-								coalition="blue"
-							/>
+						<Match when={store.currentScreen === "Faction" || store.currentScreen === "Enemy Faction"}>
+							<Factions />
 						</Match>
-						<Match when={currentScreen() === "Red Faction"}>
-							<Factions
-								next={(faction) => {
-									setRedFaction(faction);
-									setCurrentScreen("Settings");
-								}}
-								prev={() => {
-									setBlueFaction(undefined);
-									setCurrentScreen("Blue Faction");
-								}}
-								customFaction={onCustomFaction}
-								coalition="red"
-								blueCountry={blueFaction()?.countryName}
-							/>
+						<Match when={store.currentScreen === "Custom Faction"}>
+							<CustomFaction />
 						</Match>
-						<Match when={currentScreen() === "Custom Faction"}>
-							<CustomFaction prev={customFactionPrev} next={onCustomFactionNext} template={templateFaction()} />
+						<Match when={store.currentScreen === "Settings"}>
+							<Settings />
 						</Match>
-						<Match when={currentScreen() === "Settings"}>
-							<Settings next={onActivate} prev={() => setCurrentScreen("Red Faction")} />
+						<Match when={store.currentScreen === "Balance Settings"}>
+							<BalanceSettings />
 						</Match>
 					</Switch>
 				</div>
@@ -151,3 +80,13 @@ export const CreateCampaign = () => {
 		</ErrorBoundary>
 	);
 };
+
+function CreateCampaignWithContext() {
+	return (
+		<CreateCampaignProvider>
+			<CreateCampaign />
+		</CreateCampaignProvider>
+	);
+}
+
+export { CreateCampaignWithContext as CreateCampaign };

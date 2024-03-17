@@ -6,6 +6,7 @@ import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createMemo, createSignal, For, Setter } from "solid-js";
 
 import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
+import { useCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./CustomFaction.module.less";
 import { useFactions } from "./utils";
 
@@ -103,23 +104,20 @@ const CountryList = (props: { selectedCountry: string; toggle: (name: string) =>
 	);
 };
 
-export const CustomFaction = (props: {
-	template?: Types.Campaign.Faction;
-	next: (faction: Types.Campaign.Faction) => void;
-	prev: () => void;
-}) => {
-	const [name, setName] = createSignal(props.template?.name ?? "Custom");
-	const [year, setYear] = createSignal(props.template?.year ?? 2023);
-	const [cap, setCap] = createSignal<Array<string>>(props.template?.aircraftTypes.CAP ?? []);
-	const [cas, setCas] = createSignal<Array<string>>(props.template?.aircraftTypes.CAS ?? []);
-	const [awacs, setAwacs] = createSignal<Array<string>>(props.template?.aircraftTypes.AWACS ?? []);
-	const [sead, setSead] = createSignal<Array<string>>(props.template?.aircraftTypes.SEAD ?? []);
-	const [strike, setStrike] = createSignal<Array<string>>(props.template?.aircraftTypes["Pinpoint Strike"] ?? []);
-	const [csar, setCsar] = createSignal<Array<string>>(props.template?.aircraftTypes.CSAR ?? []);
-	const [airAssault, setAirAssault] = createSignal<Array<string>>(props.template?.aircraftTypes["Air Assault"] ?? []);
-	const [templateName, setTemplateName] = createSignal(props.template?.templateName ?? "USA - Modern");
-	const [carrierName, setCarrierName] = createSignal<string | undefined>(props.template?.carrierName);
-	const [country, setCountry] = createSignal(props.template?.countryName ?? "USA");
+export const CustomFaction = () => {
+	const store = useCreateCampaignStore();
+	const [name, setName] = createSignal(store.faction?.name ?? "Custom");
+	const [year, setYear] = createSignal(store.faction?.year ?? 2023);
+	const [cap, setCap] = createSignal<Array<string>>(store.faction?.aircraftTypes.CAP ?? []);
+	const [cas, setCas] = createSignal<Array<string>>(store.faction?.aircraftTypes.CAS ?? []);
+	const [awacs, setAwacs] = createSignal<Array<string>>(store.faction?.aircraftTypes.AWACS ?? []);
+	const [sead, setSead] = createSignal<Array<string>>(store.faction?.aircraftTypes.SEAD ?? []);
+	const [strike, setStrike] = createSignal<Array<string>>(store.faction?.aircraftTypes["Pinpoint Strike"] ?? []);
+	const [csar, setCsar] = createSignal<Array<string>>(store.faction?.aircraftTypes.CSAR ?? []);
+	const [airAssault, setAirAssault] = createSignal<Array<string>>(store.faction?.aircraftTypes["Air Assault"] ?? []);
+	const [templateName, setTemplateName] = createSignal(store.faction?.templateName ?? "USA - Modern");
+	const [carrierName, setCarrierName] = createSignal<string | undefined>(store.faction?.carrierName);
+	const [country, setCountry] = createSignal(store.faction?.countryName ?? "USA");
 	const { onSave } = useFactions();
 
 	const toggleAircraft = (task: DcsJs.Task, name: string) => {
@@ -192,13 +190,22 @@ export const CustomFaction = (props: {
 			year: year(),
 			templateName: templateName(),
 			carrierName: carrierName(),
-			created: props.template?.created,
+			created: store.faction?.created,
 		};
 
 		// eslint-disable-next-line no-console
 		onSave(f).catch((e) => console.error(Utils.errMsg(e)));
 
-		props.next(f);
+		store.faction = f;
+	};
+
+	const onPrev = () => {
+		if (store.prevScreen == null) {
+			throw new Error("No previous screen");
+		}
+
+		store.currentScreen = store.prevScreen;
+		store.prevScreen = undefined;
 	};
 
 	const validFaction = createMemo(
@@ -207,7 +214,7 @@ export const CustomFaction = (props: {
 
 	return (
 		<div class={Styles.wrapper}>
-			<Components.Button large unstyled class={Styles["back-button"]} onPress={() => props.prev()}>
+			<Components.Button large unstyled class={Styles["back-button"]} onPress={onPrev}>
 				<Components.Icons.ArrowBack />
 			</Components.Button>
 			<h1 class={Styles.title}>Create Custom Faction</h1>

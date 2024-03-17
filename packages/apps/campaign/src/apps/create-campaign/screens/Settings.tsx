@@ -1,69 +1,47 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import * as Components from "@kilcekru/dcc-lib-components";
-import * as Types from "@kilcekru/dcc-shared-types";
-import * as Utils from "@kilcekru/dcc-shared-utils";
-import { createSignal } from "solid-js";
 
+import { useCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./Settings.module.less";
 
-export const Settings = (props: {
-	next: (campaignParams: Types.Campaign.CampaignParams) => void;
-	prev: () => void;
-}) => {
-	const [hardcore, setHardcore] = createSignal(false);
-	const [nightMissions, setNightMissions] = createSignal(false);
-	const [badWeather, setBadWeather] = createSignal(true);
-	const [training, setTraining] = createSignal(false);
-	const [aiSkill, setAiSkill] = createSignal<DcsJs.AiSkill>("Average");
+export const Settings = () => {
+	const store = useCreateCampaignStore();
+
+	function onNext() {
+		store.currentScreen = "Balance Settings";
+	}
+
+	function onPrev() {
+		store.currentScreen = "Enemy Faction";
+	}
+
 	return (
 		<div>
-			<Components.Button large unstyled class={Styles["back-button"]} onPress={() => props.prev()}>
+			<Components.Button large unstyled class={Styles["back-button"]} onPress={onPrev}>
 				<Components.Icons.ArrowBack />
 			</Components.Button>
 
 			<h1 class={Styles.title}>Customize your Campaign</h1>
-			<Components.Switch checked={hardcore()} onChange={(value) => setHardcore(value)}>
+			<Components.Switch checked={store.hardcore} onChange={(value) => (store.hardcore = value)}>
 				Hardcore
 			</Components.Switch>
 			<p class={Styles["hardcore-description"]}>You have one life. When you die the campaign is over</p>
-			<Components.Switch checked={training()} onChange={(value) => setTraining(value)}>
-				Trainings Mode
-			</Components.Switch>
-			<p class={Styles["hardcore-description"]}>
-				The AI(Air and Ground) will not engage in combat during the DCS Mission
-			</p>
 			<Components.Switch
-				checked={nightMissions()}
-				onChange={(value) => setNightMissions(value)}
+				checked={store.nightMissions}
+				onChange={(value) => (store.nightMissions = value)}
 				class={Styles["switch"]}
 			>
 				Allow Night Missions
 			</Components.Switch>
-			<Components.Switch checked={badWeather()} onChange={(value) => setBadWeather(value)} class={Styles["switch"]}>
+			<Components.Switch
+				checked={store.badWeather}
+				onChange={(value) => (store.badWeather = value)}
+				class={Styles["switch"]}
+			>
 				Allow Bad Weather
 			</Components.Switch>
-			<h2 class={Styles["radio-title"]}>AI Skill Level</h2>
-			<Components.RadioGroup id={aiSkill()} onChange={(value) => setAiSkill(value as DcsJs.AiSkill)}>
-				<Components.RadioItem id="Average">{Utils.Params.AiSkillLabel["Average"]}</Components.RadioItem>
-				<Components.RadioItem id="Good">{Utils.Params.AiSkillLabel["Good"]}</Components.RadioItem>
-				<Components.RadioItem id="High">{Utils.Params.AiSkillLabel["High"]}</Components.RadioItem>
-				<Components.RadioItem id="Excellent">{Utils.Params.AiSkillLabel["Excellent"]}</Components.RadioItem>
-			</Components.RadioGroup>
 
 			<div class={Styles.buttons}>
-				<Components.Button
-					large
-					onPress={() =>
-						props.next({
-							aiSkill: aiSkill(),
-							hardcore: hardcore(),
-							training: training(),
-							nightMissions: nightMissions(),
-							badWeather: badWeather(),
-							hotStart: false,
-						})
-					}
-				>
+				<Components.Button large onPress={onNext}>
 					Next
 				</Components.Button>
 			</div>

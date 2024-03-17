@@ -4,6 +4,7 @@ import { cnb } from "cnbuilder";
 import { For, Show } from "solid-js";
 
 import { scenarioList } from "../../../data";
+import { useCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./Scenarios.module.less";
 
 const ScenarioItem = (props: {
@@ -64,14 +65,19 @@ const ScenarioItem = (props: {
 		</Components.Card>
 	);
 };
-export const Scenarios = (props: { next: (scenario: Types.Campaign.Scenario) => void }) => {
+export const Scenarios = () => {
+	const store = useCreateCampaignStore();
+	const onPress = (scenario: Types.Campaign.Scenario) => {
+		store.scenarioName = scenario.name;
+		store.currentScreen = "Description";
+	};
 	return (
 		<div class={Styles.wrapper}>
 			<h1 class={Styles.title}>Select a Scenario</h1>
 			<Components.ScrollContainer>
 				<div class={Styles.list}>
 					<For each={scenarioList} fallback={<div>Loading...</div>}>
-						{(scenario) => <ScenarioItem scenario={scenario} onPress={(scenario) => props.next(scenario)} />}
+						{(scenario) => <ScenarioItem scenario={scenario} onPress={() => onPress(scenario)} />}
 					</For>
 				</div>
 			</Components.ScrollContainer>
