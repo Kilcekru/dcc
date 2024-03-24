@@ -1,17 +1,27 @@
 import * as Components from "@kilcekru/dcc-lib-components";
+import { produce } from "solid-js/store";
 
-import { useCreateCampaignStore } from "../CreateCampaignContext";
+import { useCreateCampaignStore, useSetCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./Settings.module.less";
 
 export const Settings = () => {
 	const store = useCreateCampaignStore();
+	const setStore = useSetCreateCampaignStore();
 
 	function onNext() {
-		store.currentScreen = "Balance Settings";
+		setStore(
+			produce((draft) => {
+				draft.currentScreen = "Balance Settings";
+			}),
+		);
 	}
 
 	function onPrev() {
-		store.currentScreen = "Enemy Faction";
+		setStore(
+			produce((draft) => {
+				draft.currentScreen = "Enemy Faction";
+			}),
+		);
 	}
 
 	return (
@@ -21,20 +31,20 @@ export const Settings = () => {
 			</Components.Button>
 
 			<h1 class={Styles.title}>Customize your Campaign</h1>
-			<Components.Switch checked={store.hardcore} onChange={(value) => (store.hardcore = value)}>
+			<Components.Switch checked={store.hardcore} onChange={(next) => setStore("hardcore", next)}>
 				Hardcore
 			</Components.Switch>
 			<p class={Styles["hardcore-description"]}>You have one life. When you die the campaign is over</p>
 			<Components.Switch
 				checked={store.nightMissions}
-				onChange={(value) => (store.nightMissions = value)}
+				onChange={(next) => setStore("nightMissions", next)}
 				class={Styles["switch"]}
 			>
 				Allow Night Missions
 			</Components.Switch>
 			<Components.Switch
 				checked={store.badWeather}
-				onChange={(value) => (store.badWeather = value)}
+				onChange={(next) => setStore("badWeather", next)}
 				class={Styles["switch"]}
 			>
 				Allow Bad Weather

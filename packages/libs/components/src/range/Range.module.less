@@ -1,0 +1,34 @@
+.range {
+	display: grid;
+	grid-row: repeat(2, 1fr);
+	grid-template-columns: repeat(var(--slots), 1fr);
+	gap: 5px;
+}
+
+.range-input {
+	grid-row: 1;
+	grid-column-start: 1;
+	grid-column-end: none;
+	appearance: none;
+	margin-bottom: 15px;
+
+	&::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		height: 36px;
+		width: 16px;
+		border-radius: 3px;
+		background: var(--action);
+		cursor: pointer;
+		margin-top: -12px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+		box-shadow:
+			1px 1px 1px #000000,
+			0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+	}
+
+	&::-webkit-slider-runnable-track {
+		width: 100%;
+		height: 12px;
+		cursor: pointer;
+		background: var(--background-light);
+	}
+}

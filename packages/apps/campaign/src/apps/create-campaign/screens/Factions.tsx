@@ -4,9 +4,10 @@ import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
 import { createMemo, For, Match, Show, Switch } from "solid-js";
+import { produce } from "solid-js/store";
 
 import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
-import { useCreateCampaignStore } from "../CreateCampaignContext";
+import { useCreateCampaignStore, useSetCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./Factions.module.less";
 import { useFactions } from "./utils";
 
@@ -62,6 +63,7 @@ const Faction = (props: {
 export const Factions = () => {
 	const { factions, onDelete } = useFactions();
 	const store = useCreateCampaignStore();
+	const setStore = useSetCreateCampaignStore();
 	const playableFactions = createMemo(() => factions().filter((faction) => faction.playable === true));
 	const enemyFactions = createMemo(() =>
 		factions().filter((faction) => faction.countryName !== store.faction?.countryName),
@@ -80,31 +82,44 @@ export const Factions = () => {
 	});
 
 	function onNext(faction: Types.Campaign.Faction) {
-		if (store.currentScreen === "Faction") {
-			store.currentScreen = "Enemy Faction";
-			store.faction = faction;
-		} else {
-			store.currentScreen = "Settings";
-		}
+		setStore(
+			produce((draft) => {
+				if (draft.currentScreen === "Faction") {
+					draft.currentScreen = "Enemy Faction";
+					draft.faction = faction;
+				} else {
+					draft.currentScreen = "Settings";
+					draft.enemyFaction = faction;
+				}
+			}),
+		);
 	}
 
 	function onPrev() {
-		if (store.currentScreen === "Faction") {
-			store.currentScreen = "Description";
-		} else {
-			store.currentScreen = "Faction";
-		}
+		setStore(
+			produce((draft) => {
+				if (draft.currentScreen === "Faction") {
+					draft.currentScreen = "Description";
+				} else {
+					draft.currentScreen = "Faction";
+				}
+			}),
+		);
 	}
 
 	function onCustomFaction(faction?: Types.Campaign.Faction) {
-		store.prevScreen = store.currentScreen;
-		store.currentScreen = "Custom Faction";
+		setStore(
+			produce((draft) => {
+				draft.prevScreen = draft.currentScreen;
+				draft.currentScreen = "Custom Faction";
 
-		if (faction == null) {
-			store.faction = undefined;
-		} else {
-			store.faction = faction;
-		}
+				if (faction == null) {
+					draft.faction = undefined;
+				} else {
+					draft.faction = faction;
+				}
+			}),
+		);
 	}
 
 	return (

@@ -76,8 +76,8 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
       '@types/leaflet':
         specifier: 1.9.7
         version: 1.9.7
@@ -100,8 +100,8 @@ importers:
   packages/chief/core:
     dependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
       adm-zip:
         specifier: ^0.5.10
         version: 0.5.10
@@ -207,8 +207,8 @@ importers:
         version: 1.8.3
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
 
   packages/libs/document:
     dependencies:
@@ -217,8 +217,8 @@ importers:
         version: 1.8.3
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
 
   packages/libs/rpc:
     devDependencies:
@@ -233,14 +233,14 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
 
   packages/shared/utils:
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
 
   packages/workers/campaign:
     dependencies:
@@ -249,8 +249,8 @@ importers:
         version: 3.22.4
     devDependencies:
       '@foxdelta2/dcsjs':
-        specifier: 0.4.0-next.7
-        version: 0.4.0-next.7
+        specifier: 0.4.0-next.8
+        version: 0.4.0-next.8
 
   utils/build:
     dependencies:
@@ -885,8 +885,8 @@ packages:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
-  /@foxdelta2/dcsjs@0.4.0-next.7:
-    resolution: {integrity: sha512-EAfdgK0rMDElBXxO17WHOZLEhaSCt5/CwMQERUtDXubnVnNTEOZiHCEgeMHatmftSweKyA4QqxWrnbVt/L32zg==}
+  /@foxdelta2/dcsjs@0.4.0-next.8:
+    resolution: {integrity: sha512-SGlFGbvvtM9OqiiNaYKNqXaL1aSOi9md+JlaTWwk8kpujlHX7Uqmm7inmuvEDfinrIY5iSSxqyTBFYzEfLFdqQ==}
     engines: {node: '>=18.0.0', pnpm: '>=8.6.0'}
     dependencies:
       '@kilcekru/lua-table': 1.1.2

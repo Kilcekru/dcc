@@ -3,14 +3,14 @@ import "leaflet/dist/leaflet.css";
 
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { LOtoLL } from "@kilcekru/dcs-coordinates";
 import L from "leaflet";
 import MilSymbol from "milsymbol";
-import { createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, onMount, useContext } from "solid-js";
 
 import { onWorkerEvent, sendWorkerMessage } from "../../worker";
 import { CampaignContext } from "../CampaignProvider";
-import { useGetEntity } from "../utils";
 
 const sidcUnitCode = {
 	airport: "IBA---",
@@ -146,7 +146,7 @@ export const MapContainer = () => {
 	const markers: Map<string, MarkerItem> = new Map();
 	const circles: Map<string, L.Circle> = new Map();
 	const [state, { selectEntity }] = useContext(CampaignContext);
-	const getEntity = useGetEntity();
+	const getEntity = createMemo(() => Utils.ECS.EntitySelector(state.entities));
 
 	onMount(() => {
 		initializeMap();
@@ -488,11 +488,11 @@ export const MapContainer = () => {
 	createEffect(function selectWaypoints() {
 		deleteWaypoints();
 
-		const entity = state.selectedEntityId == null ? undefined : getEntity(state.selectedEntityId);
+		const entity = state.selectedEntityId == null ? undefined : getEntity()(state.selectedEntityId);
 
 		if (entity?.entityType.includes("FlightGroup")) {
 			const flightGroup = entity as Types.Serialization.FlightGroupSerialized;
-			const flightPlan = getEntity<Types.Serialization.FlightplanSerialized>(flightGroup.flightplanId);
+			const flightPlan = getEntity()<Types.Serialization.FlightplanSerialized>(flightGroup.flightplanId);
 			const linePoints: MapPosition[] = [];
 			const hostile = flightGroup.coalition === "red";
 			const color = hostile ? "rgb(255, 31, 31)" : "rgb(0, 193, 255)";

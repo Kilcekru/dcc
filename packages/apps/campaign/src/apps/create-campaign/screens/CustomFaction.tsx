@@ -4,9 +4,10 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { createMemo, createSignal, For, Setter } from "solid-js";
+import { produce } from "solid-js/store";
 
 import { AircraftLabel } from "../../../components/aircraft-label/AircraftLabel";
-import { useCreateCampaignStore } from "../CreateCampaignContext";
+import { useCreateCampaignStore, useSetCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./CustomFaction.module.less";
 import { useFactions } from "./utils";
 
@@ -119,6 +120,7 @@ export const CustomFaction = () => {
 	const [carrierName, setCarrierName] = createSignal<string | undefined>(store.faction?.carrierName);
 	const [country, setCountry] = createSignal(store.faction?.countryName ?? "USA");
 	const { onSave } = useFactions();
+	const setStore = useSetCreateCampaignStore();
 
 	const toggleAircraft = (task: DcsJs.Task, name: string) => {
 		let list: Array<string> = [];
@@ -200,12 +202,16 @@ export const CustomFaction = () => {
 	};
 
 	const onPrev = () => {
-		if (store.prevScreen == null) {
-			throw new Error("No previous screen");
-		}
+		setStore(
+			produce((draft) => {
+				if (draft.prevScreen == null) {
+					throw new Error("No previous screen");
+				}
 
-		store.currentScreen = store.prevScreen;
-		store.prevScreen = undefined;
+				draft.currentScreen = draft.prevScreen;
+				draft.prevScreen = undefined;
+			}),
+		);
 	};
 
 	const validFaction = createMemo(

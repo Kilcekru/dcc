@@ -6,6 +6,7 @@ export * from "./icons";
 export * from "./list";
 export * from "./modal";
 export * from "./radio-group";
+export * from "./range";
 export * from "./scroll-container";
 export * from "./stat";
 export * from "./switch";

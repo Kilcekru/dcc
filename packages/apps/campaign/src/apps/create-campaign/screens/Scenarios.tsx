@@ -2,9 +2,10 @@ import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { cnb } from "cnbuilder";
 import { For, Show } from "solid-js";
+import { produce } from "solid-js/store";
 
 import { scenarioList } from "../../../data";
-import { useCreateCampaignStore } from "../CreateCampaignContext";
+import { useSetCreateCampaignStore } from "../CreateCampaignContext";
 import Styles from "./Scenarios.module.less";
 
 const ScenarioItem = (props: {
@@ -66,10 +67,15 @@ const ScenarioItem = (props: {
 	);
 };
 export const Scenarios = () => {
-	const store = useCreateCampaignStore();
-	const onPress = (scenario: Types.Campaign.Scenario) => {
-		store.scenarioName = scenario.name;
-		store.currentScreen = "Description";
+	const setStore = useSetCreateCampaignStore();
+
+	const onNext = (scenario: Types.Campaign.Scenario) => {
+		setStore(
+			produce((draft) => {
+				draft.scenarioName = scenario.name;
+				draft.currentScreen = "Description";
+			}),
+		);
 	};
 	return (
 		<div class={Styles.wrapper}>
@@ -77,7 +83,7 @@ export const Scenarios = () => {
 			<Components.ScrollContainer>
 				<div class={Styles.list}>
 					<For each={scenarioList} fallback={<div>Loading...</div>}>
-						{(scenario) => <ScenarioItem scenario={scenario} onPress={() => onPress(scenario)} />}
+						{(scenario) => <ScenarioItem scenario={scenario} onPress={() => onNext(scenario)} />}
 					</For>
 				</div>
 			</Components.ScrollContainer>

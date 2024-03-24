@@ -40,7 +40,7 @@ type CampaignStore = [
 export const initState: CampaignState = {
 	id: "",
 	active: false,
-	paused: true,
+	paused: false,
 	name: "",
 	date: "2021-07-01",
 	time: 32400000,

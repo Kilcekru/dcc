@@ -1,10 +1,10 @@
 import * as Components from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
+import * as Utils from "@kilcekru/dcc-shared-utils";
 import { cnb } from "cnbuilder";
-import { createEffect, createMemo, createSignal, onCleanup, onMount, Show, useContext } from "solid-js";
+import { createMemo, onCleanup, onMount, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
-import { useGetEntity } from "../../../../components/utils";
 import { Airdrome } from "./Airdrome";
 import { FlightGroup } from "./FlightGroup";
 import { GroundGroup } from "./GroundGroup";
@@ -15,8 +15,15 @@ import { Structure } from "./Structure";
 export function OverlaySidebar() {
 	const [state, { clearSelectedEntity }] = useContext(CampaignContext);
 	const isOpen = createMemo(() => state.selectedEntityId != null);
-	const [entity, setEntity] = createSignal<Types.Serialization.EntitySerialized>();
-	const getEntity = useGetEntity();
+	const getEntity = createMemo(() => Utils.ECS.EntitySelector(state.entities));
+	const entity = createMemo(() => {
+		if (state.selectedEntityId == null) {
+			return undefined;
+		}
+
+		return getEntity()(state.selectedEntityId);
+	});
+
 	function onClose() {
 		clearSelectedEntity?.();
 	}
@@ -30,14 +37,6 @@ export function OverlaySidebar() {
 	onMount(() => document.addEventListener("keydown", onKeydown));
 
 	onCleanup(() => document.removeEventListener("keydown", onKeydown));
-
-	createEffect(() => {
-		if (state.selectedEntityId == null) {
-			onClose();
-		} else {
-			setEntity(getEntity(state.selectedEntityId));
-		}
-	});
 
 	return (
 		<div class={cnb(style["overlay-sidebar"], isOpen() ? style["overlay-sidebar--open"] : null)}>

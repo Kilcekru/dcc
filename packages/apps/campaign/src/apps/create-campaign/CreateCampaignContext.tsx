@@ -1,7 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { createContext, JSX, useContext } from "solid-js";
-import { createMutable } from "solid-js/store";
+import { createStore, produce, SetStoreFunction } from "solid-js/store";
 
 export const Screens = [
 	"Scenarios",
@@ -24,7 +24,12 @@ export type CreateCampaignStore = {
 	nightMissions: boolean;
 	badWeather: boolean;
 	scenarioName: string | undefined;
+	a2aLevel: number;
+	shoradLevel: number;
+	samActive: number;
 };
+
+export type CreateCampaignContext = [CreateCampaignStore, SetStoreFunction<CreateCampaignStore> | undefined];
 
 const initState: CreateCampaignStore = {
 	currentScreen: "Scenarios",
@@ -37,16 +42,42 @@ const initState: CreateCampaignStore = {
 	nightMissions: false,
 	badWeather: true,
 	scenarioName: "",
+	a2aLevel: 2,
+	shoradLevel: 2,
+	samActive: 2,
 };
 
-export const CreateCampaignContext = createContext<CreateCampaignStore>(initState);
+export const CreateCampaignContext = createContext<CreateCampaignContext>([initState, undefined]);
 
 export function CreateCampaignProvider(props: { children?: JSX.Element }) {
-	const state = createMutable(structuredClone(initState));
+	const [store, setStore] = createStore(structuredClone(initState));
 
-	return <CreateCampaignContext.Provider value={state}>{props.children}</CreateCampaignContext.Provider>;
+	return <CreateCampaignContext.Provider value={[store, setStore]}>{props.children}</CreateCampaignContext.Provider>;
 }
 
 export function useCreateCampaignStore() {
-	return useContext(CreateCampaignContext);
+	return useContext(CreateCampaignContext)[0];
+}
+
+export function useSetCreateCampaignStore() {
+	const setter = useContext(CreateCampaignContext)[1];
+
+	if (setter == null) {
+		throw new Error("CreateCampaignContext Setter not found");
+	}
+
+	return setter;
+}
+
+export function useSetScreen(next: Screen) {
+	const setStore = useSetCreateCampaignStore();
+
+	return () => {
+		setStore(
+			produce((draft) => {
+				draft.prevScreen = draft.currentScreen;
+				draft.currentScreen = next;
+			}),
+		);
+	};
 }

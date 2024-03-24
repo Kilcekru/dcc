@@ -2,8 +2,6 @@ import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 
-import * as Entities from "../entities";
-
 type Lane = {
 	current: DcsJs.Position | undefined;
 	target: DcsJs.Position;
@@ -147,8 +145,8 @@ function fillObjectives(
 }
 
 function addAirdromeSamObjectives(
-	airdromes: Array<Entities.Airdrome>,
-	oppAirdromes: Array<Entities.Airdrome>,
+	airdromes: DcsJs.Objective[],
+	oppAirdromes: DcsJs.Objective[],
 	targets: Record<string, DcsJs.Target[]>,
 	objectives: Array<DcsJs.Objective>,
 	objectivePlans: Array<Types.Campaign.DynamicObjectivePlan>,
@@ -438,15 +436,11 @@ function addFrontline(
 export function generateObjectivePlans({
 	blueObjectiveNames,
 	redObjectiveNames,
-	blueAirdromes,
-	redAirdromes,
 	blueRange,
 	theatre,
 }: {
 	blueObjectiveNames: string[];
 	redObjectiveNames: string[];
-	blueAirdromes: Array<Entities.Airdrome>;
-	redAirdromes: Array<Entities.Airdrome>;
 	blueRange: [number, number];
 	theatre: DcsJs.Theatre;
 }): [Array<Types.Campaign.DynamicObjectivePlan>, Array<Types.Campaign.DynamicObjectivePlan>] {
@@ -507,8 +501,8 @@ export function generateObjectivePlans({
 
 	const samObjectives = objectives.filter((obj) => targets[obj.name]?.some((st) => st.type === "SAM"));
 
-	blueObjs = addAirdromeSamObjectives(blueAirdromes, redAirdromes, targets, samObjectives, blueObjs);
-	redObjs = addAirdromeSamObjectives(redAirdromes, blueAirdromes, targets, samObjectives, redObjs);
+	blueObjs = addAirdromeSamObjectives(blueObjectives, redObjectives, targets, samObjectives, blueObjs);
+	redObjs = addAirdromeSamObjectives(redObjectives, blueObjectives, targets, samObjectives, redObjs);
 
 	blueObjs = generateFactionStructures({
 		coalition: "blue",
