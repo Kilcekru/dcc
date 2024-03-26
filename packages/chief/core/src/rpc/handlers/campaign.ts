@@ -1,5 +1,5 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
-import * as DcsJSSave from "@foxdelta2/dcsjs/dist/save";
+import * as DcsJSSave from "@foxdelta2/dcsjs/save";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import FS from "fs-extra";
@@ -290,6 +290,11 @@ const generateCampaignMission: Types.Rpc.Campaign["generateCampaignMission"] = a
 			});
 		}
 	}
+
+	mission.generateAWACS({
+		blue: Utils.Random.item(campaign.factionDefinitions.blue?.aircraftTypes["AWACS"] ?? []) ?? "E-3A",
+		red: Utils.Random.item(campaign.factionDefinitions.red?.aircraftTypes["AWACS"] ?? []) ?? "A-50",
+	});
 
 	await DcsJSSave.save(mission, path);
 

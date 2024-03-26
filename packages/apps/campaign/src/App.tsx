@@ -4,12 +4,12 @@ import type * as Types from "@kilcekru/dcc-shared-types";
 import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch, useContext } from "solid-js";
 import { unwrap } from "solid-js/store";
 
-import { CreateCampaign, Home, Open } from "./apps";
 import { CampaignContext, CampaignProvider } from "./components";
 import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
 import { PersistenceModal } from "./components/persistance-modal";
 import { Config } from "./data";
 import { closeCampaign, loadCampaignIntoStore } from "./hooks";
+import { CreateCampaign, Home, Open } from "./pages";
 import { onWorkerEvent } from "./worker";
 
 const App = () => {

@@ -1,3 +1,3 @@
-export * from "./create-campaign";
+export * from "./create";
 export * from "./home";
-export * from "./open-campaign";
+export * from "./open";
