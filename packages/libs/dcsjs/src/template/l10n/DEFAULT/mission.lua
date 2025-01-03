@@ -16,7 +16,7 @@ local function printObj(obj, hierarchyLevel)
     debugLog(obj)
     if (type(obj) == "table") then
         for k,v in pairs(obj) do
-        io.write(whitespace .. "-")
+        -- io.write(whitespace .. "-")
         if (type(v) == "table") then
             printObj(v, hierarchyLevel+1)
         else
