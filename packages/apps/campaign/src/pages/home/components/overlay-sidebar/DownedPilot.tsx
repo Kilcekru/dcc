@@ -1,24 +1,29 @@
-export function DownedPilot() {
-	// TODO
-	/* const [state] = useContext(CampaignContext);
-	const [overlayStore] = useContext(OverlaySidebarContext);
+import * as Types from "@kilcekru/dcc-shared-types";
+import { createMemo, useContext } from "solid-js";
 
-	const faction = createMemo(() => {
-		const coalition = overlayStore.coalition;
+import { CampaignContext } from "../../../../components";
+import { Flag } from "./Flag";
+import Styles from "./Item.module.less";
 
-		if (coalition == null) {
+export function DownedPilot(props: { pilot: Types.Serialization.DownedPilotSerialized }) {
+	const [state] = useContext(CampaignContext);
+	const countryName = createMemo(() => {
+		const coalition = props.pilot.coalition;
+		const faction = state.factionDefinitions[coalition];
+
+		if (faction == null) {
 			return undefined;
 		}
-		return getCoalitionFaction(coalition, state as RunningCampaignState);
+		return faction.countryName;
 	});
 
 	return (
-		<div>
-			<Flag countryName={faction()?.countryName} />
-			<h2 class={Style.title}>
-				Pilot {faction()?.downedPilots.find((p) => p.id === overlayStore.groundGroupId)?.name}
-			</h2>
-		</div>
-	); */
-	return <div />;
+		<>
+			<div>
+				<Flag countryName={countryName()} />
+				<h2 class={Styles.title}>{props.pilot.name}</h2>
+				<h3 class={Styles.subtitle}>Downed Pilot</h3>
+			</div>
+		</>
+	);
 }

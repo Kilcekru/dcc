@@ -6,6 +6,7 @@ import { createMemo, onCleanup, onMount, Show, useContext } from "solid-js";
 
 import { CampaignContext } from "../../../../components";
 import { Airdrome } from "./Airdrome";
+import { DownedPilot } from "./DownedPilot";
 import { FlightGroup } from "./FlightGroup";
 import { GroundGroup } from "./GroundGroup";
 import style from "./OverlaySidebar.module.less";
@@ -57,6 +58,9 @@ export function OverlaySidebar() {
 			</Show>
 			<Show when={entity()?.entityType === "SAM"}>
 				<Sam sam={entity() as Types.Serialization.SAMSerialized} />
+			</Show>
+			<Show when={entity()?.entityType === "DownedPilot"}>
+				<DownedPilot pilot={entity() as Types.Serialization.DownedPilotSerialized} />
 			</Show>
 			<Components.Button onPress={onClose} class={style["close-button"]} large>
 				<Components.Icons.Close />
