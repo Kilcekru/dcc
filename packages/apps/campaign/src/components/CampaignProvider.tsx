@@ -95,7 +95,7 @@ export function CampaignProvider(props: { children?: JSX.Element }) {
 		state,
 		{
 			stateUpdate(next) {
-				setState({ ...next, active: true, paused: true });
+				setState({ ...next, active: true });
 			},
 			timeUpdate(next) {
 				setState("time", next);

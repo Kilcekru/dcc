@@ -133,7 +133,11 @@ export class FlightGroup extends UnitGroup {
 		};
 	}
 
-	#getAirdrome(mission: Mission): Airdrome {
+	#getAirdrome(mission: Mission): Airdrome | null {
+		if (this.homeBaseType !== "Airdrome") {
+			return null;
+		}
+
 		const airdrome = mission.airdromes[this.coalition]?.get(this.homeBaseName);
 
 		if (airdrome == null) {
@@ -150,12 +154,12 @@ export class FlightGroup extends UnitGroup {
 
 	#homeBaseWaypointParams(mission: Mission):
 		| {
-				airdromeId: number;
-		  }
+			airdromeId: number;
+		}
 		| {
-				linkUnit: number;
-				helipadId: number;
-		  } {
+			linkUnit: number;
+			helipadId: number;
+		} {
 		switch (this.homeBaseType) {
 			case "Farp": {
 				const country = mission.getCoalitionCountry(this.coalition);
@@ -171,8 +175,13 @@ export class FlightGroup extends UnitGroup {
 
 				throw new Error(`Farp ${this.homeBaseName} not found`);
 			}
-			default:
-				return { airdromeId: this.#getAirdrome(mission).airdromeDefinition.id };
+			default: {
+				const airdrome = this.#getAirdrome(mission);
+				if (airdrome == null) {
+					throw new Error(`Airdrome ${this.homeBaseName} not found`);
+				}
+				return { airdromeId: airdrome.airdromeDefinition.id };
+			}
 		}
 	}
 
@@ -193,7 +202,11 @@ export class FlightGroup extends UnitGroup {
 			};
 		}
 
-		const stand = this.#getAirdrome(mission).reserveStand(
+		const airdrome = this.#getAirdrome(mission);
+		if (airdrome == null) {
+			throw new Error(`Airdrome ${this.homeBaseName} not found`);
+		}
+		const stand = airdrome.reserveStand(
 			this.isHelicopter,
 			this.startTime,
 			this.#takeOffWaypoint.arrivalTime,
@@ -493,7 +506,7 @@ export class FlightGroup extends UnitGroup {
 		const airdrome = this.#getAirdrome(mission);
 		return {
 			package: this.frequency,
-			airdrome: airdrome.airdromeDefinition.frequency,
+			airdrome: airdrome?.airdromeDefinition.frequency ?? 0,
 			awacs: 144, // Utils.Config.defaults.awacsFrequency,
 		};
 	}
