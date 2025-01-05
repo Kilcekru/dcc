@@ -154,12 +154,12 @@ export class FlightGroup extends UnitGroup {
 
 	#homeBaseWaypointParams(mission: Mission):
 		| {
-			airdromeId: number;
-		}
+				airdromeId: number;
+		  }
 		| {
-			linkUnit: number;
-			helipadId: number;
-		} {
+				linkUnit: number;
+				helipadId: number;
+		  } {
 		switch (this.homeBaseType) {
 			case "Farp": {
 				const country = mission.getCoalitionCountry(this.coalition);
@@ -206,11 +206,7 @@ export class FlightGroup extends UnitGroup {
 		if (airdrome == null) {
 			throw new Error(`Airdrome ${this.homeBaseName} not found`);
 		}
-		const stand = airdrome.reserveStand(
-			this.isHelicopter,
-			this.startTime,
-			this.#takeOffWaypoint.arrivalTime,
-		);
+		const stand = airdrome.reserveStand(this.isHelicopter, this.startTime, this.#takeOffWaypoint.arrivalTime);
 
 		return {
 			parking_id: stand.id,
