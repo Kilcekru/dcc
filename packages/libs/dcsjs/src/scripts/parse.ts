@@ -16,11 +16,23 @@ const withObjectives = process.argv[3] === "objectives";
 const withTargets = process.argv[3] === "targets";
 const withSchema = process.argv[3] === "schema" || withObjectives || withTargets;
 
+// eslint-disable-next-line no-console
+console.log("missionPath", missionPath);
+// eslint-disable-next-line no-console
+console.log("withObjectives", withObjectives);
+// eslint-disable-next-line no-console
+console.log("withTargets", withTargets);
+// eslint-disable-next-line no-console
+console.log("withSchema", withSchema);
+
 if (missionPath == null) {
 	throw new Error("Missing mission path");
 }
 
 const missionName = path.basename(missionPath).split(".")[0];
+
+// eslint-disable-next-line no-console
+console.log("missionName", missionName);
 
 if (missionName == null) {
 	throw new Error("Missing mission name");

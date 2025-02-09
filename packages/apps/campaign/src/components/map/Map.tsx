@@ -117,6 +117,10 @@ export const positionToMapPosition =
 	(theatre: DcsJs.Theatre) =>
 	(pos: { x: number; y: number }): MapPosition => {
 		try {
+			// TODO: Remove this once we have a proper map origin for Afghanistan
+			if (theatre === "Afghanistan") {
+				throw new Error("Afghanistan is not supported");
+			}
 			const latLng = LOtoLL({ theatre, x: pos.x, z: pos.y });
 
 			return [latLng.lat, latLng.lng];

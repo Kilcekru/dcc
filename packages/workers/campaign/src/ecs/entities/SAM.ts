@@ -24,6 +24,7 @@ export class SAM extends Group {
 	readonly #objectiveId: Types.Campaign.Id;
 	public readonly type: DcsJs.SamType;
 	readonly #unitIds: Array<Types.Campaign.Id>;
+	#repairScore: number = 0;
 	#cooldownTime: number | undefined;
 
 	get samTemplate() {
@@ -154,6 +155,10 @@ export class SAM extends Group {
 		}
 
 		this.#cooldownTime = store.time + (this.samTemplate?.fireInterval ?? 120);
+	}
+
+	public repairTick() {
+		this.#repairScore += Utils.Config.deploymentScore.base;
 	}
 
 	override toMapJSON(): Types.Campaign.SAMMapItem {

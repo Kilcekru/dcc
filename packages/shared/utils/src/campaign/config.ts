@@ -45,6 +45,7 @@ type Config = {
 		maxEnRoutePerUnitCamp: number;
 		maxEnRoute: PerCoalition;
 		airAssaultMultiplier: number;
+		samRepairCost: number;
 	};
 	waypoint: {
 		takeOff: number;
@@ -132,11 +133,16 @@ export const Config: Config = {
 		maxEnRoutePerUnitCamp: 1,
 		maxEnRoute: { blue: 6, red: 2, neutrals: 0 },
 		airAssaultMultiplier: 0.8,
+		samRepairCost: 10000,
 	},
 	waypoint: {
 		takeOff: 600,
 	},
 	mapOrigin: {
+		Afghanistan: {
+			x: 0,
+			y: 0,
+		},
 		Caucasus: {
 			x: -37.17517531,
 			y: 634800.6017,
