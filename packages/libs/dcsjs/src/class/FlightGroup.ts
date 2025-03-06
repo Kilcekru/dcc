@@ -154,12 +154,12 @@ export class FlightGroup extends UnitGroup {
 
 	#homeBaseWaypointParams(mission: Mission):
 		| {
-				airdromeId: number;
-		  }
+			airdromeId: number;
+		}
 		| {
-				linkUnit: number;
-				helipadId: number;
-		  } {
+			linkUnit: number;
+			helipadId: number;
+		} {
 		switch (this.homeBaseType) {
 			case "Farp": {
 				const country = mission.getCoalitionCountry(this.coalition);

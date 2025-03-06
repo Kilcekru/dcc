@@ -10,7 +10,7 @@ import {
 	Waypoint,
 	WaypointTemplate,
 } from "../objects/waypoint";
-import {} from "../objects/waypoint/template/TakeOff";
+import { } from "../objects/waypoint/template/TakeOff";
 import { getEntity, store } from "../store";
 import { Entity, EntityProps, FlightGroup } from ".";
 
@@ -161,9 +161,9 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 					waypoint.racetrack == null
 						? undefined
 						: {
-								...waypoint.racetrack,
-								arrivalDuration: this.#calcArrivalDuration(waypoint.position, waypoint.racetrack.position, speed),
-						  },
+							...waypoint.racetrack,
+							arrivalDuration: this.#calcArrivalDuration(waypoint.position, waypoint.racetrack.position, speed),
+						},
 				arrivalDuration: this.#calcArrivalDuration(prev.position, waypoint.position, speed),
 				flightplanId: this.id,
 			}),

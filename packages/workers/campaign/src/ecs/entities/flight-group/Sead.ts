@@ -17,11 +17,12 @@ export class SeadFlightGroup extends EscortingFlightGroup<keyof Events.EventMap.
 	}
 
 	static create(args: CreateSeadFlightGroupProps) {
-		const taskWaypoint: WaypointTemplate = args.holdWaypoint.toEscortWaypoint();
+		const taskWaypoint: WaypointTemplate = args.holdWaypoint;
+		const escortWaypoint: WaypointTemplate = args.holdWaypoint.toEscortWaypoint();
 
 		return new SeadFlightGroup({
 			...args,
-			taskWaypoints: [taskWaypoint],
+			taskWaypoints: [taskWaypoint, escortWaypoint],
 		});
 	}
 
