@@ -69,7 +69,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 
 			// eslint-disable-next-line no-console
 			console.error(errorString);
-			createToast({
+			Components.toaster.error({
 				title: "Mission Generation failed",
 				description: errorString,
 			});
@@ -88,8 +88,6 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 		}
 	});
 
-	const createToast = Components.useCreateErrorToast();
-
 	const onSubmit = async () => {
 		try {
 			const loadedMissionState = await rpc.campaign.loadMissionState();
@@ -97,7 +95,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			if (loadedMissionState == null) {
 				// eslint-disable-next-line no-console
 				console.error("mission state not found");
-				createToast({
+				Components.toaster.error({
 					description: "Mission State not found",
 					title: "Mission not saved",
 				});
@@ -125,7 +123,7 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 			// eslint-disable-next-line no-console
 			console.error(e);
 
-			createToast({
+			Components.toaster.error({
 				description: "Mission Result not found",
 				title: "Mission not saved",
 			});
@@ -175,7 +173,9 @@ export function MissionOverlay(props: { show: boolean; onClose: () => void }) {
 					<div class={cnb(Styles["buttons"], isReady() ? Styles["buttons--show"] : null, Styles["buttons--generate"])}>
 						<Components.Switch
 							checked={state.campaignParams.hotStart ?? false}
-							onChange={() => toggleHotStart?.()}
+							onChange={() => {
+								toggleHotStart?.();
+							}}
 							class={Styles["hot-start"]}
 						>
 							Hot Start

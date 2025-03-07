@@ -9,7 +9,7 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"devDependencies": {
-		"@types/node": "^20.8.9",
-		"electron": "27.0.2"
+		"@types/node": "22.13.9",
+		"electron": "35.0.0"
 	}
 }

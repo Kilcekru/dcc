@@ -160,7 +160,7 @@ export function Table<DataType>({ cell, table }: TableProps<DataType>) {
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</td>
 										);
-								  })
+									})
 								: row.getVisibleCells().map(cell)}
 						</tr>
 					);

@@ -2,11 +2,7 @@ import "./Modal.less";
 
 import * as dialog from "@zag-js/dialog";
 import { normalizeProps, useMachine } from "@zag-js/solid";
-import { cnb } from "cnbuilder";
-import { createEffect, createMemo, createUniqueId, JSX, Show } from "solid-js";
-import { Portal } from "solid-js/web";
-
-import { Close } from "./Close";
+import { createEffect, JSX } from "solid-js";
 
 export const Modal = (props: {
 	isOpen?: boolean;
@@ -15,35 +11,17 @@ export const Modal = (props: {
 	disableClose?: boolean;
 	class?: string;
 }) => {
-	const [state, send] = useMachine(dialog.machine({ id: createUniqueId() }));
+	const service = useMachine(dialog.machine, { id: "1" });
 
-	const api = createMemo(() => dialog.connect(state, send, normalizeProps));
+	const api = dialog.connect(service, normalizeProps);
 
 	createEffect(() => {
 		if (props.isOpen) {
-			api().open();
+			api.setOpen(true);
 		} else {
-			api().close();
+			api.setOpen(false);
 		}
 	});
 
-	return (
-		<Show when={api().isOpen}>
-			<Portal>
-				<div {...api().backdropProps} class={cnb("modal__backdrop", props.class)} />
-				<div {...api().positionerProps} class={cnb("modal__container", props.class)}>
-					<div {...api().contentProps} class={cnb("modal__content", props.class)}>
-						{props.children}
-						<Show when={props.disableClose !== true}>
-							<Close
-								onPress={() => {
-									props.onClose();
-								}}
-							/>
-						</Show>
-					</div>
-				</div>
-			</Portal>
-		</Show>
-	);
+	return null;
 };

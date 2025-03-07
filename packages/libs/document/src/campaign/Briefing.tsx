@@ -166,14 +166,14 @@ export function Briefing(props: { data: Types.Campaign.BriefingDocument }) {
 							Utils.Location.metersToNauticalMiles(
 								Utils.Location.distanceToPosition(waypoint.position, prevWp.position),
 							),
-					  ).toString();
+						).toString();
 
 			const heading =
 				prevWp == null
 					? "-"
 					: Math.round(
 							Utils.Location.positiveDegrees(Utils.Location.headingToPosition(prevWp.position, waypoint.position)),
-					  ).toString();
+						).toString();
 
 			const wp = {
 				index: index++,

@@ -19,7 +19,7 @@ export class DownedPilot extends Group<keyof Events.EventMap.DownedPilot> {
 					entityType: "DownedPilot" as const,
 					queries: ["downedPilots", "mapEntities"] as QueryKey[],
 					position: args.position,
-			  };
+				};
 		super(superArgs);
 
 		this.#created = args.created;

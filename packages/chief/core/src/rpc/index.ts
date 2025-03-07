@@ -18,6 +18,11 @@ export function startRpc() {
 	}
 
 	ipcMain.handle("rpc", async (event, rpcArgs: unknown) => {
+		if (event.senderFrame == null) {
+			// eslint-disable-next-line no-console
+			console.error("Invalid RPC call: sender is null");
+			return null;
+		}
 		if (!validateSender(event.senderFrame)) {
 			// eslint-disable-next-line no-console
 			console.error("Invalid RPC call: sender not allowed");

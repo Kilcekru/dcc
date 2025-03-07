@@ -21,7 +21,6 @@ const App = () => {
 	let timeUpdateSubscription: { dispose: () => void } | undefined;
 	const [loadedState, setLoadedState] = createSignal<Types.Campaign.WorkerState | undefined>(undefined);
 	const [resumeState, setResumeState] = createSignal<"loading" | "loaded" | "error" | "empty">("loading");
-	const createErrorToast = Components.useCreateErrorToast();
 
 	onMount(async () => {
 		try {
@@ -72,7 +71,7 @@ const App = () => {
 		// eslint-disable-next-line solid/reactivity
 		const subscription = onWorkerEvent("loadFailed", () => {
 			setResumeState("error");
-			createErrorToast({
+			Components.toaster.error({
 				title: "Campaign failed to load",
 				description: "Your app version is probably the wrong version for the campaign.",
 				duration: 10000,
@@ -150,11 +149,10 @@ const AppWithContext = () => {
 
 const AppWithData = () => {
 	return (
-		<Components.ToastProvider>
-			<ModalProvider>
-				<AppWithContext />
-			</ModalProvider>
-		</Components.ToastProvider>
+		<ModalProvider>
+			<Components.Toaster />
+			<AppWithContext />
+		</ModalProvider>
 	);
 };
 

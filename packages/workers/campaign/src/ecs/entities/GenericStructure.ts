@@ -16,7 +16,7 @@ export class GenericStructure extends Structure {
 						? args.queries
 						: (["structures-strike targets", ...(args.queries ?? [])] as QueryKey[]),
 					entityType: "GenericStructure" as const,
-			  };
+				};
 		super(superArgs);
 	}
 

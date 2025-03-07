@@ -163,7 +163,7 @@ export class Flightplan extends Entity<keyof Events.EventMap.Flightplan> {
 						: {
 								...waypoint.racetrack,
 								arrivalDuration: this.#calcArrivalDuration(waypoint.position, waypoint.racetrack.position, speed),
-						  },
+							},
 				arrivalDuration: this.#calcArrivalDuration(prev.position, waypoint.position, speed),
 				flightplanId: this.id,
 			}),

@@ -10,7 +10,6 @@ import Styles from "./BalanceSettings.module.less";
 export function BalanceSettings() {
 	const store = useCreateCampaignStore();
 	const setStore = useSetCreateCampaignStore();
-	const createToast = Components.useCreateErrorToast();
 
 	async function generate() {
 		const scenarioDefinition = scenarioList.find((s) => s.name === store.scenarioName);
@@ -48,7 +47,7 @@ export function BalanceSettings() {
 		generate().catch((e) => {
 			// eslint-disable-next-line no-console
 			console.error(e);
-			createToast({
+			Components.toaster.error({
 				title: "Campaign not created",
 				description: e instanceof Error ? e.message : "Unknown Error",
 			});

@@ -24,8 +24,8 @@
 		"@kilcekru/dcc-shared-types": "workspace:*",
 		"@types/adm-zip": "^0.5.3",
 		"@types/fs-extra": "^11.0.3",
-		"@types/node": "^20.8.9",
+		"@types/node": "22.13.9",
 		"@types/semver": "^7.5.4",
-		"electron": "27.0.2"
+		"electron": "35.0.0"
 	}
 }

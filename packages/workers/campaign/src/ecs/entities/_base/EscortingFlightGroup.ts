@@ -35,7 +35,7 @@ export abstract class EscortingFlightGroup<EventNames extends keyof Events.Event
 							}),
 						),
 					],
-			  };
+				};
 		super(superArgs);
 
 		if (Serialization.isSerialized(args)) {

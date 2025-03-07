@@ -75,7 +75,7 @@ export class Waypoint extends WaypointTemplate {
 					: {
 							...this.racetrack,
 							arrivalTime: this.arrivalTime + this.racetrack.arrivalDuration,
-					  },
+						},
 		};
 	}
 }

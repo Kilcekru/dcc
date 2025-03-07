@@ -68,7 +68,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 						args.start === args.target ? "groundGroups-on target" : "groundGroups-en route",
 					] as QueryKey[],
 					position: args.start.position,
-			  };
+				};
 		super(superArgs);
 
 		if (Serialization.isSerialized(args)) {
@@ -92,7 +92,7 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 			Partial<Pick<GroundGroupProps, "type">>,
 	) {
 		const randomNumber = Utils.Random.number(1, 100);
-		const groupType = args.type ?? randomNumber > 50 ? "armor" : "infantry";
+		const groupType = (args.type ?? randomNumber > 50) ? "armor" : "infantry";
 
 		const { groundUnits, shoradGroundUnits } = this.generateUnits(args.coalition, groupType);
 

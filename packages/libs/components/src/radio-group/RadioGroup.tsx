@@ -7,21 +7,12 @@ import Styles from "./RadioGroup.module.less";
 export const RadioContext = createContext<ReturnType<typeof radio.connect>>();
 
 export function RadioGroup(props: { children?: JSX.Element; id?: string; onChange: (value: string) => void }) {
-	const [state, send] = useMachine(
-		radio.machine({
-			id: createUniqueId(),
-			// eslint-disable-next-line solid/reactivity
-			value: props.id,
-			onValueChange({ value }) {
-				props.onChange(value);
-			},
-		}),
-	);
+	const service = useMachine(radio.machine, { id: createUniqueId() });
 
-	const api = createMemo(() => radio.connect(state, send, normalizeProps));
+	const api = createMemo(() => radio.connect(service, normalizeProps));
 
 	return (
-		<div {...api().rootProps} class={Styles.group}>
+		<div {...api().getRootProps()} class={Styles.group}>
 			<RadioContext.Provider value={api() /* eslint-disable-line solid/reactivity */}>
 				{props.children}
 			</RadioContext.Provider>
