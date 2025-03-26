@@ -2232,6 +2232,9 @@ export const aircraftDefinitions: Record<AircraftType, AircraftDefinition> = {
 		maxWaypoints: 3,
 		era: "Late CW",
 		carrierCapable: true,
+		AddPropAircraft: {
+			INSAlignmentStored: true,
+		},
 		loadouts: [
 			{
 				task: "default",
@@ -2362,6 +2365,9 @@ export const aircraftDefinitions: Record<AircraftType, AircraftDefinition> = {
 		maxWaypoints: 3,
 		era: "Late CW",
 		carrierCapable: true,
+		AddPropAircraft: {
+			INSAlignmentStored: true,
+		},
 		loadouts: [
 			{
 				task: "default",
