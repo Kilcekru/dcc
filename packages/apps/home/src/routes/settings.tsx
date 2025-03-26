@@ -1,10 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
-import * as React from 'react'
+import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
 
-export const Route = createFileRoute('/settings')({
-    component: Settings,
-})
+export const Route = createFileRoute("/settings")({
+	component: Settings,
+});
 
 function Settings() {
-    return <div className="p-2">Hello from Settings!</div>
+	return <div className="p-2">Hello from Settings!</div>;
 }

@@ -7,7 +7,7 @@ packages:
   - packages/web
   - utils/*
 onlyBuiltDependencies:
-  - '@parcel/watcher'
+  - "@parcel/watcher"
   - electron
   - esbuild
   - sharp

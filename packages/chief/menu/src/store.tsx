@@ -6,7 +6,7 @@ import * as IPC from "./ipc";
 type MenuState = {
 	expanded: boolean;
 	config?: Types.AppMenu.Config;
-}
+};
 
 export const menuStore = createStore<MenuState>({ expanded: false });
 

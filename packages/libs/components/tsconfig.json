@@ -1,6 +1,4 @@
 {
-    "extends": "../../../utils/config/tsconfig.ui.json",
-    "include": [
-        "src"
-    ]
+	"extends": "../../../utils/config/tsconfig.ui.json",
+	"include": ["src"]
 }

@@ -12,7 +12,6 @@ export async function customFactionList() {
 	return await rpc.campaign.loadFactions();
 }
 
-
 export async function factionList() {
 	const custom = await customFactionList();
 	const predefined = predefinedFactionList();

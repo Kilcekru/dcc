@@ -1,3 +1,3 @@
 export function countryNameToCode(countryName: string) {
-    return "usa"
+	return "usa";
 }

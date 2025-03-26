@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 import * as Path from "node:path";
-import tailwindPlugin from 'esbuild-plugin-tailwindcss';
+import tailwindPlugin from "esbuild-plugin-tailwindcss";
 import { cssExtraPlugin } from "@kilcekru/esbuild-plugin-css-extra";
 import chokidar from "chokidar";
 import esbuild from "esbuild";

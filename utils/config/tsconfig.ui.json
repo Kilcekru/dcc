@@ -3,11 +3,7 @@
 	"compilerOptions": {
 		"jsx": "preserve",
 		"jsxImportSource": "react",
-		"lib": [
-			"DOM",
-			"DOM.Iterable",
-			"ES2021"
-		],
+		"lib": ["DOM", "DOM.Iterable", "ES2021"],
 		"module": "ES2020",
 		"target": "ES2021",
 		"plugins": [
@@ -17,15 +13,9 @@
 		],
 		"experimentalDecorators": true,
 		"paths": {
-			"@foxdelta2/dcsjs": [
-				"../../packages/libs/dcsjs/src/index.ts"
-			],
-			"@kilcekru/dcc-shared-*": [
-				"../../packages/shared/*/src/index.ts"
-			],
-			"@kilcekru/dcc-lib-*": [
-				"../../packages/libs/*/src/index.ts"
-			]
+			"@foxdelta2/dcsjs": ["../../packages/libs/dcsjs/src/index.ts"],
+			"@kilcekru/dcc-shared-*": ["../../packages/shared/*/src/index.ts"],
+			"@kilcekru/dcc-lib-*": ["../../packages/libs/*/src/index.ts"]
 		}
 	}
 }

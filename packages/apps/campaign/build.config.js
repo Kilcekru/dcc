@@ -1,5 +1,5 @@
 module.exports = {
 	assets: {
-        "assets": "./assets",
+		assets: "./assets",
 	},
 };

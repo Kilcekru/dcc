@@ -1,9 +1,9 @@
 import { createStore } from "@kilcekru/dcc-lib-components";
 
 export type TimerControlStore = {
-    timeMultiplier: number;
-}
+	timeMultiplier: number;
+};
 
 export const timerControlStore = createStore<TimerControlStore>({
-    timeMultiplier: 0
+	timeMultiplier: 0,
 });

@@ -96,12 +96,9 @@ function getDomain(item: Types.Campaign.MapItem): "air" | "ground" | "sea" {
 }
 
 export function getMilSymbolCode(item: Types.Campaign.MapItem): string {
-    const hostileCode = item.coalition === "red" ? "H" : "F";
-    const domain = getDomain(item);
-    const unitCode = getUnitCode(item);
-    const domainCode = domain === "air" ? "A" : domain === "sea" ? "S" : "G";
-	return `S${hostileCode}${domainCode}-${
-					sidcUnitCode[unitCode]
-				}`
+	const hostileCode = item.coalition === "red" ? "H" : "F";
+	const domain = getDomain(item);
+	const unitCode = getUnitCode(item);
+	const domainCode = domain === "air" ? "A" : domain === "sea" ? "S" : "G";
+	return `S${hostileCode}${domainCode}-${sidcUnitCode[unitCode]}`;
 }
-
