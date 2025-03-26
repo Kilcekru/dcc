@@ -35,18 +35,6 @@
 	"files": [
 		"dist/**"
 	],
-	"exports": {
-		".": {
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./save": {
-			"import": "./dist/save.mjs",
-			"require": "./dist/save.js",
-			"types": "./dist/save.d.ts"
-		}
-	},
 	"engines": {
 		"node": ">=18.0.0",
 		"pnpm": ">=8.6.0"

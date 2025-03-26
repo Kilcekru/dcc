@@ -1,85 +1,45 @@
-import * as Types from "@kilcekru/dcc-shared-types";
-import { cnb } from "cnbuilder";
-import { createSignal, For, Show } from "solid-js";
-
+import * as React from "react";
 import * as IPC from "../ipc";
-import { useSetExpanded, useState } from "../store";
+import { menuStore, setExpanded } from "../store";
 import logo from "./logo.png";
-import Styles from "./menu.module.less";
+import { cn, MenubarContent, MenubarItem, MenubarMenu, MenubarPortal, MenubarSeparator, MenubarTrigger, useStore } from "@kilcekru/dcc-lib-components";
+import { Menubar } from "@kilcekru/dcc-lib-components";
 
 export const Menu = () => {
-	const state = useState();
-	const setExpanded = useSetExpanded();
-	const [active, setActive] = createSignal<number>();
+	const menus = useStore(menuStore, (state) => state.config?.menu);
 
 	return (
-		<div class={Styles.container}>
-			<img src={logo} class={Styles.logo} />
-			<For each={state.config?.menu}>
-				{(entry, i) => (
-					<Show when={!entry.hidden}>
-						<div
-							class={cnb({
-								[Styles.menu ?? ""]: true,
-								[Styles.active ?? ""]: state.expanded && i() === active(),
-								[Styles.disabled ?? ""]: entry.disabled,
-								[Styles.highlight ?? ""]: entry.highlight,
-							})}
-							onClick={(e) => {
-								if (entry.disabled) {
-									return;
-								}
-								setActive(state.expanded ? undefined : i());
-								setExpanded(!state.expanded);
-								e.stopImmediatePropagation();
-							}}
-							onMouseEnter={() => {
-								if (!entry.disabled && state.expanded) {
-									setActive(i());
-								}
-							}}
-						>
-							{entry.label}
-							<Show when={state.expanded && i() === active()}>
-								<MenuDropdown items={entry.submenu} />
-							</Show>
-						</div>
-					</Show>
-				)}
-			</For>
-		</div>
-	);
-};
-
-const MenuDropdown = (props: { items: Types.AppMenu.MenuEntry[] }) => {
-	return (
-		<div class={Styles.dropdown}>
-			<For each={props.items}>
-				{(entry) => {
-					if (entry.type === "separator") {
-						return <div class={Styles.separator} />;
-					}
-					if (entry.hidden) {
-						return null;
-					}
+		<div className="flex gap-2">
+			<div className="flex h-full items-center justify-center ml-2">
+				<img src={logo} className="h-5 w-5" />
+			</div>
+			<Menubar className="gap-2" onValueChange={(value) => {
+				const show = value !== "";
+				setExpanded(show);
+			}}>
+				{menus?.map((menu) => {
+					if (menu.hidden) return null;
 					return (
-						<div
-							class={cnb(Styles.menuEntry, {
-								[Styles.disabled ?? ""]: entry.disabled,
-								[Styles.highlight ?? ""]: entry.highlight,
-							})}
-							onClick={() => {
-								if (entry.disabled) {
-									return;
-								}
-								IPC.handleAction(entry.action);
-							}}
-						>
-							{entry.label}
-						</div>
-					);
-				}}
-			</For>
+						<MenubarMenu key={menu.label}>
+							<MenubarTrigger disabled={menu.disabled} className="no-drag">
+								{menu.label}
+							</MenubarTrigger>
+							<MenubarPortal>
+								<MenubarContent className="bg-slate-800">
+									{menu.submenu?.map((item) => {
+										if (item.type === "separator") return <MenubarSeparator />;
+										if (item.hidden) return null;
+										return <MenubarItem key={item.label} className={cn("text-white p-2", {
+											"opacity-50": item.disabled
+										})} disabled={item.disabled} onSelect={() => {
+											IPC.handleAction(item.action)
+										}}>{item.label}</MenubarItem>
+									})}
+								</MenubarContent>
+							</MenubarPortal>
+						</MenubarMenu>)
+				})}
+			</Menubar>
 		</div>
 	);
 };

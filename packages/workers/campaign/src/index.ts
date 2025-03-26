@@ -31,7 +31,7 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 				return;
 			}
 			const state = Serialization.serialize();
-
+			console.log("serialize", state);
 			postEvent({
 				name: "serialized",
 				state: {

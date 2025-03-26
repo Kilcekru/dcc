@@ -6,10 +6,26 @@
 		"clean": "rm -rf .turbo",
 		"clean:all": "rm -rf .turbo node_modules",
 		"validate:lint": "eslint src --max-warnings 0",
-		"validate:ts": "tsc --noEmit"
+		"validate:ts": "tsc --noEmit",
+		"generate-routes": "tsr generate"
 	},
 	"dependencies": {
-		"cnbuilder": "3.1.0",
-		"solid-js": "1.8.3"
+		"@tanstack/react-router": "^1.114.17",
+		"motion": "^12.5.0",
+		"postcss": "^8.5.3",
+		"react": "19.0.0",
+		"react-dom": "19.0.0",
+		"lucide-react": "^0.479.0",
+		"tailwind-merge": "^2.3.0",
+		"tailwindcss": "4.0.11",
+		"tailwindcss-animate": "^1.0.7",
+		"@kilcekru/dcc-lib-components": "workspace:*"
+	},
+	"devDependencies": {
+		"@foxdelta2/dcsjs": "0.4.0-next.8",
+		"@tanstack/router-cli": "^1.114.17",
+		"@tanstack/router-devtools": "^1.114.17",
+		"@types/react": "19.0.10",
+		"@types/react-dom": "19.0.4"
 	}
 }

@@ -1,14 +1,14 @@
 import * as Path from "node:path";
 import { pathToFileURL } from "node:url";
-
-import { cssExtraPlugin } from "@kilcekru/esbuild-plugin-css-extra";
+import tailwindPlugin from 'esbuild-plugin-tailwindcss';
 import chokidar from "chokidar";
 import esbuild from "esbuild";
-import { solidPlugin } from "esbuild-plugin-solid";
 import FS from "fs-extra";
-
 import { log, paths } from "./utils.mjs";
 import { watchBuild } from "./watcher.mjs";
+import { TanStackRouterEsbuild } from '@tanstack/router-plugin/esbuild'
+import { build } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export async function buildApps({ env, watch }) {
 	const apps = await findApps();
@@ -16,6 +16,16 @@ export async function buildApps({ env, watch }) {
 	const promises = [];
 
 	for (const app of apps) {
+		/* if (app.name !== "campaign") continue;
+		console.log(app, watch, Path.join(paths.target, "apps", app.name))
+		await build({
+			root: Path.join(paths.apps, app.name, "src"),
+			plugins: [react()],
+			build: {
+				outDir: Path.join(paths.target, "apps", app.name),
+				emptyOutDir: true,
+			}
+		}) */
 		const options = {
 			entryPoints: {
 				index: Path.join(paths.apps, app.name, "src/index.tsx"),
@@ -29,7 +39,7 @@ export async function buildApps({ env, watch }) {
 				".jpg": "file",
 			},
 			assetNames: "[name]",
-			plugins: [solidPlugin(), cssExtraPlugin()],
+			plugins: [tailwindPlugin(), TanStackRouterEsbuild({ target: "react", autoCodeSplitting: false })],
 		};
 
 		if (watch) {
@@ -47,7 +57,7 @@ export async function buildApps({ env, watch }) {
 			promises.push(esbuild.build(options));
 		}
 
-		promises.push(copyAssets({ app }));
+		promises.push(copyAssets({ app })); 
 	}
 	promises.push(buildIndex({ apps, watch }));
 	await Promise.all(promises);
@@ -105,11 +115,20 @@ async function copyIndex({ apps }) {
 }
 
 async function copyAssets({ app }) {
+	console.log(`Copying assets for ${app.name}...`, app.config?.assets);
 	const promises = [];
 	for (const [target, source] of Object.entries(app.config?.assets ?? {})) {
 		const src = Path.isAbsolute(source) ? source : Path.join(paths.apps, app.name, source);
 		const dest = Path.join(paths.target, "apps", app.name, target);
-		promises.push(FS.copy(src, dest));
+		
+		try {
+			const stats = await FS.stat(src);
+			const isDirectory = stats.isDirectory();
+			console.log(`Copying ${isDirectory ? 'directory' : 'file'}: ${src} -> ${dest}`);
+			promises.push(FS.copy(src, dest));
+		} catch (error) {
+			console.error(`Failed to copy asset from ${src} to ${dest}:`, error);
+		}
 	}
 	await Promise.all(promises);
 }

@@ -1,4 +1,7 @@
 {
 	"extends": "../../../utils/config/tsconfig.ui.json",
-	"include": ["src"]
+	"include": [
+		"src",
+		"assets"
+	]
 }

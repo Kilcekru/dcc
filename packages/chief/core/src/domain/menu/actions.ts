@@ -51,8 +51,8 @@ export const actions: Record<Types.AppMenu.Action, () => void> = {
 		);
 	},
 	loadLauncher: () => loadApp("home"),
-	loadSettings: () => loadApp("home", { action: "settings" }),
-	loadAbout: () => loadApp("home", { action: "about" }),
+	loadSettings: () => loadApp("home", "settings"),
+	loadAbout: () => loadApp("home", "about"),
 	loadCampaign: () => loadApp("campaign"),
 	updateDcc: async () => {
 		try {

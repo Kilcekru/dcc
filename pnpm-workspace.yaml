@@ -6,3 +6,9 @@ packages:
   - packages/workers/*
   - packages/web
   - utils/*
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - electron
+  - esbuild
+  - sharp
+  - workerd

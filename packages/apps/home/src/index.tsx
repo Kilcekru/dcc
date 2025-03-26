@@ -1,49 +1,34 @@
-import "./index.less";
+import './output.css'
+import '../../../libs/components/src/output.css'
 
-import { Match, Switch } from "solid-js";
-import { render } from "solid-js/web";
+import { StrictMode } from 'react'
+import ReactDOM from 'react-dom/client'
+import { RouterProvider, createHashHistory, createRouter } from '@tanstack/react-router'
+import * as React from 'react'
 
-import { Launcher, OnBoarding, Settings } from "./pages";
-import { About } from "./pages/about/about";
-import { StoreProvider, useSetAction, useStore } from "./store";
+// Import the generated route tree
+import { routeTree } from './routeTree.gen'
 
-const App = () => {
-	const state = useStore();
-	const setAction = useSetAction();
 
-	return (
-		<>
-			<Switch fallback={<Launcher onSettings={() => setAction("settings")} />}>
-				<Match when={state.error != undefined}>
-					<div>Render error: {state.error?.message}</div>
-				</Match>
-				<Match when={state.loading}>
-					<div />
-				</Match>
-				<Match when={!state.userConfig?.setupComplete}>
-					<OnBoarding />
-				</Match>
-				<Match when={state.userConfig?.dcs.available == undefined || state.action === "settings"}>
-					<Settings />
-				</Match>
-				<Match when={state.action === "about"}>
-					<About />
-				</Match>
-			</Switch>
-		</>
-	);
-};
+const hashHistory = createHashHistory()
 
-const rootElement = document.getElementById("root");
-if (rootElement != undefined) {
-	render(
-		() => (
-			<StoreProvider>
-				<App />
-			</StoreProvider>
-		),
-		rootElement,
-	);
-} else {
-	console.error("Missing root element"); // eslint-disable-line no-console
+// Create a new router instance
+const router = createRouter({ routeTree, history: hashHistory })
+
+// Register the router instance for type safety
+declare module '@tanstack/react-router' {
+	interface Register {
+		router: typeof router
+	}
+}
+
+// Render the app
+const rootElement = document.getElementById('root')!
+if (!rootElement.innerHTML) {
+	const root = ReactDOM.createRoot(rootElement)
+	root.render(
+		<StrictMode>
+			<RouterProvider router={router} />
+		</StrictMode>,
+	)
 }

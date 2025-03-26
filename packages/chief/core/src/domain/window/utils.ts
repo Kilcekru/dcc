@@ -4,8 +4,8 @@ import { getAppPath } from "../../utils";
 import * as Persistance from "../persistance";
 import { mainView, mainWindow, menuView } from "./initialize";
 
-export async function loadApp(name: "home" | "campaign", query?: Record<string, string>) {
-	await mainView.webContents.loadFile(getAppPath(name), { query });
+export async function loadApp(name: "home" | "campaign", hash?: string) {
+	await mainView.webContents.loadFile(getAppPath(name), { hash });
 	await Persistance.State.userConfig.update("currentApp", name);
 }
 

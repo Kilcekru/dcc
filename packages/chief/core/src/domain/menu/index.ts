@@ -7,6 +7,7 @@ import { onConfigChanged, setupIpc } from "./ipc";
 export { onConfigChanged } from "./ipc";
 
 export async function initialize() {
+	console.log("initialize menu")
 	setupIpc();
 
 	Window.mainWindow.on("maximize", onConfigChanged);

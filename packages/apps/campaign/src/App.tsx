@@ -1,159 +1,85 @@
-import * as Components from "@kilcekru/dcc-lib-components";
 import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
+import { useEffect } from "react";
+import { Config } from "./data/config";
+import React from "react";
+import { campaignStore } from "./stores/campaign";
+import { useStore } from "@kilcekru/dcc-lib-components";
+import { Home } from "./routes/__home";
+import { routerStore } from "./stores/router";
+import { onWorkerEvent, Triggers } from "./worker";
 import type * as Types from "@kilcekru/dcc-shared-types";
-import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch, useContext } from "solid-js";
-import { unwrap } from "solid-js/store";
 
-import { CampaignContext, CampaignProvider } from "./components";
-import { ModalProvider, useSetIsPersistanceModalOpen } from "./components/modalProvider";
-import { PersistenceModal } from "./components/persistance-modal";
-import { Config } from "./data";
-import { closeCampaign, loadCampaignIntoStore } from "./hooks";
-import { CreateCampaign, Home, Open } from "./pages";
-import { onWorkerEvent } from "./worker";
+async function loadCampaign() {
+    try {
+        // Load the campaign state from persistence
+        const campaign = await rpc.campaign.resumeCampaign(Config.campaignVersion);
 
-const App = () => {
-	const setIsPersistanceModalOpen = useSetIsPersistanceModalOpen();
-	const [state, { deactivate, stateUpdate, timeUpdate }] = useContext(CampaignContext);
-	const [open, setOpen] = createSignal(false);
-	let serializedSubscription: { dispose: () => void } | undefined;
-	let stateUpdateSubscription: { dispose: () => void } | undefined;
-	let timeUpdateSubscription: { dispose: () => void } | undefined;
-	const [loadedState, setLoadedState] = createSignal<Types.Campaign.WorkerState | undefined>(undefined);
-	const [resumeState, setResumeState] = createSignal<"loading" | "loaded" | "error" | "empty">("loading");
+        // eslint-disable-next-line no-console
+        console.log("campaign loaded", campaign);
 
-	onMount(async () => {
-		try {
-			const campaign = await rpc.campaign.resumeCampaign(Config.campaignVersion);
+        // If no campaign is found, we need to create a new one
+        if (campaign == null) {
+            console.log("campaign is null");
+            routerStore.set({ route: "create" });
+            return;
+        }
 
-			// eslint-disable-next-line no-console
-			console.log("campaign loaded", campaign);
+        // Load the campaign state in the campaign logic worker
+        Triggers.load({ ...campaign });
+    } catch (e) {
+        console.error("Resume Campaign", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
+        routerStore.set({ route: "load-error" });
+    }
+}
+export function App() {
+    const route = useStore(routerStore, (state) => state.route);
+    useEffect(() => {
+        loadCampaign();
+    })
 
-			if (campaign == null) {
-				setResumeState("empty");
-				return;
-			}
+    useEffect(() => {
+        const serializedSubscription = onWorkerEvent("serialized", async (event: Types.Campaign.WorkerEventSerialized) => {
+            console.log("serialized", event);
+            if (event.state.active === false) {
+                // deactivate?.();
+            }
+            // void saveCampaign(event.state);
+        });
+        const stateUpdateSubscription = onWorkerEvent("stateUpdate", async (event: Types.Campaign.WorkerEventStateUpdate) => {
+            routerStore.set({ route: "home" });
+            console.log("stateUpdate", event.state.timeMultiplier, event.state.time);
+            campaignStore.set({
+                campaign: event.state,
+            })
+        });
+        const timeUpdateSubscription = onWorkerEvent("timeUpdate", (event: Types.Campaign.WorkerEventTimeUpdate) => {
+            campaignStore.set((state) => {
+                if (state.campaign == null) return state;
+                const next = structuredClone(state.campaign);
 
-			setLoadedState(campaign);
-			await loadCampaignIntoStore(campaign);
-		} catch (e) {
-			console.error("Resume Campaign", e instanceof Error ? e.message : "unknown error"); // eslint-disable-line no-console
-			setResumeState("error");
-		}
-	});
+                next.time = event.time;
 
-	onEvent("menu.dev.logState", () => {
-		console.log(unwrap(state)); // eslint-disable-line no-console
-	});
+                return {
+                    campaign: next,
+                }
+            })
+        });
 
-	onEvent("menu.campaign.new", () => {
-		setOpen(false);
-		closeCampaign();
-	});
-
-	onEvent("menu.campaign.open", () => {
-		setOpen(true);
-		closeCampaign();
-	});
-
-	onEvent("menu.campaign.persistance", () => {
-		setIsPersistanceModalOpen(true);
-	});
-
-	async function saveCampaign(state: Types.Campaign.WorkerState) {
-		await rpc.campaign
-			.saveCampaign(state)
-			// eslint-disable-next-line no-console
-			.catch((e) => console.error(e instanceof Error ? e.message : "unknown error"));
-	}
-
-	createEffect(() => {
-		// eslint-disable-next-line solid/reactivity
-		const subscription = onWorkerEvent("loadFailed", () => {
-			setResumeState("error");
-			Components.toaster.error({
-				title: "Campaign failed to load",
-				description: "Your app version is probably the wrong version for the campaign.",
-				duration: 10000,
-			});
-
-			const state = loadedState();
-
-			if (state != null) {
-				void saveCampaign({
-					...state,
-					active: false,
-				});
-			}
-		});
-		onCleanup(() => subscription.dispose());
-	});
-
-	onMount(function onMount() {
-		serializedSubscription = onWorkerEvent("serialized", async (event: Types.Campaign.WorkerEventSerialized) => {
-			if (event.state.active === false) {
-				deactivate?.();
-			}
-			void saveCampaign(event.state);
-		});
-		stateUpdateSubscription = onWorkerEvent("stateUpdate", async (event: Types.Campaign.WorkerEventStateUpdate) => {
-			stateUpdate?.(event.state);
-			setResumeState("loaded");
-		});
-		timeUpdateSubscription = onWorkerEvent("timeUpdate", (event: Types.Campaign.WorkerEventTimeUpdate) => {
-			timeUpdate?.(event.time);
-		});
-	});
-
-	onCleanup(() => {
-		serializedSubscription?.dispose();
-		stateUpdateSubscription?.dispose();
-		timeUpdateSubscription?.dispose();
-	});
-
-	function onOpenCreateCampaign() {
-		setOpen(false);
-	}
-
-	return (
-		<>
-			<Show when={resumeState() !== "loading"} fallback={<div>Loading Campaigns...</div>}>
-				<Switch fallback={<div>Not Found</div>}>
-					<Match when={state.active === true}>
-						<Home />
-					</Match>
-					<Match when={state.active === false}>
-						<Switch fallback={<div>Not Found</div>}>
-							<Match when={open()}>
-								<Open onOpenCreateCampaign={onOpenCreateCampaign} />
-							</Match>
-							<Match when={!open()}>
-								<CreateCampaign />
-							</Match>
-						</Switch>
-					</Match>
-				</Switch>
-			</Show>
-			<PersistenceModal />
-		</>
-	);
-};
-
-const AppWithContext = () => {
-	return (
-		<CampaignProvider>
-			<App />
-		</CampaignProvider>
-	);
-};
-
-const AppWithData = () => {
-	return (
-		<ModalProvider>
-			<Components.Toaster />
-			<AppWithContext />
-		</ModalProvider>
-	);
-};
-
-export { AppWithData as App };
+        return () => {
+            serializedSubscription.dispose();
+            stateUpdateSubscription.dispose();
+            timeUpdateSubscription.dispose();
+        }
+    }, []);
+    return <div className="w-full h-full dark dark:bg-black flex flex-col text-white">
+        {route === "init" ? (
+            <div className="w-full h-full flex flex-col justify-center items-center dark:bg-black">
+                <div className='text-white text-4xl'>Welcome</div>
+                <div className='text-white text-2xl opacity-60'>loading campaign...</div>
+            </div>
+        ) : null}
+        {route === "home" ? (
+            <Home />
+        ) : null}
+    </div>
+}

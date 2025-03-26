@@ -1,10 +1,9 @@
 import { createRequire } from "node:module";
 import * as Path from "node:path";
-
+import tailwindPlugin from 'esbuild-plugin-tailwindcss';
 import { cssExtraPlugin } from "@kilcekru/esbuild-plugin-css-extra";
 import chokidar from "chokidar";
 import esbuild from "esbuild";
-import { solidPlugin } from "esbuild-plugin-solid";
 import FS from "fs-extra";
 
 import { log, paths } from "./utils.mjs";
@@ -120,7 +119,7 @@ export async function buildMenu({ env, watch }) {
 			".jpg": "file",
 		},
 		assetNames: "[name]",
-		plugins: [solidPlugin(), cssExtraPlugin()],
+		plugins: [tailwindPlugin()],
 	};
 
 	if (watch) {

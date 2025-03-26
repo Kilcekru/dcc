@@ -1,41 +1,14 @@
-import "./index.less";
+import "./output.css";
 
-import { onMount } from "solid-js";
-import { render } from "solid-js/web";
+import { createRoot } from 'react-dom/client';
+import * as React from 'react'
 
-import { Buttons } from "./buttons";
-import Styles from "./index.module.less";
-import { Menu } from "./menu";
-import { StoreProvider, useSetExpanded } from "./store";
-
-const App = () => {
-	const setExpanded = useSetExpanded();
-
-	onMount(() => {
-		document.addEventListener("click", () => {
-			setExpanded(false);
-		});
-	});
-
-	return (
-		<div class={Styles.container}>
-			<Menu />
-			<div>Digital Crew Chief</div>
-			<Buttons />
-		</div>
-	);
-};
+import { App } from "./app";
 
 const rootElement = document.getElementById("root");
 if (rootElement != undefined) {
-	render(
-		() => (
-			<StoreProvider>
-				<App />
-			</StoreProvider>
-		),
-		rootElement,
-	);
+	const root = createRoot(rootElement);
+	root.render(<App />);
 } else {
 	console.error("Missing root element"); // eslint-disable-line no-console
 }
