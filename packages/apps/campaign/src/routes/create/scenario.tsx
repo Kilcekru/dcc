@@ -1,58 +1,21 @@
-import { useState } from "react";
+import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { motion } from "motion/react";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { ArrowLeft, ChevronRight, Shield, Zap, Mountain, Target } from "lucide-react";
-import { cn } from "@kilcekru/dcc-lib-components";
+import { cn, useStore } from "@kilcekru/dcc-lib-components";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { scenarioList } from "../../data/scenarios";
 import React from "react";
+import type * as Types from "@kilcekru/dcc-shared-types";
+import { createCampaignStore } from "../../stores/create";
 
 export const Route = createFileRoute("/create/scenario")({
 	component: Scenario,
 });
 
-interface Campaign {
-	id: string;
-	name: string;
-	codename: string;
-	description: string;
-	difficulty: "Easy" | "Medium" | "Hard";
-	missions: number;
-	duration: string;
-	image: string;
-	color: string;
-}
-
 export default function Scenario() {
-	const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
-
-	const getDifficultyColor = (difficulty: string) => {
-		switch (difficulty) {
-			case "Easy":
-				return "bg-[#00ffaa]/10 text-[#00ffaa]";
-			case "Medium":
-				return "bg-[#ffcc00]/10 text-[#ffcc00]";
-			case "Hard":
-				return "bg-[#ff00aa]/10 text-[#ff00aa]";
-			default:
-				return "bg-gray-100/10 text-gray-500";
-		}
-	};
-
-	const getDifficultyStars = (difficulty: string) => {
-		switch (difficulty) {
-			case "Easy":
-				return 1;
-			case "Medium":
-				return 2;
-			case "Hard":
-				return 3;
-			default:
-				return 0;
-		}
-	};
-
+	const selectedScenario = useStore(createCampaignStore, (state) => state.scenario);
 	const getCampaignIcon = (id: string) => {
 		switch (id) {
 			case "neon-horizon":
@@ -92,6 +55,9 @@ export default function Scenario() {
 							variant="outline"
 							size="icon"
 							className="h-8 w-8 border-[#ff00aa]/50 bg-[#0b0014]/80 text-[#ff00aa] hover:bg-[#ff00aa]/20"
+							onClick={() => {
+								void rpc.misc.loadApp("home");
+							}}
 						>
 							<ArrowLeft className="h-4 w-4" />
 						</Button>
@@ -117,12 +83,12 @@ export default function Scenario() {
 								initial={{ y: 20, opacity: 0 }}
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ duration: 0.3, delay: scenarioList.indexOf(scenario) * 0.1 }}
-								onClick={() => setSelectedCampaign(scenario.id)}
+								onClick={() => createCampaignStore.set({ scenario })}
 							>
 								<Card
 									className={cn(
 										"group relative h-full overflow-hidden border-[#9900ff]/30 bg-[#0b0014]/80 transition-all duration-300 hover:border-[#ff00aa]/50 hover:shadow-[0_0_20px_rgba(255,0,170,0.3)]",
-										selectedCampaign === scenario.id && "border-[#ff00aa] shadow-[0_0_30px_rgba(255,0,170,0.4)]",
+										selectedScenario?.id === scenario.id && "border-[#ff00aa] shadow-[0_0_30px_rgba(255,0,170,0.4)]",
 									)}
 								>
 									{/* Campaign image */}
@@ -133,11 +99,11 @@ export default function Scenario() {
 										/>
 										<div
 											className="absolute inset-0 bg-gradient-to-t from-[#0b0014] to-transparent"
-											style={{ opacity: selectedCampaign === scenario.id ? 0.7 : 0.5 }}
+											style={{ opacity: selectedScenario?.id === scenario.id ? 0.7 : 0.5 }}
 										/>
 
 										{/* Selected indicator */}
-										{selectedCampaign === scenario.id && <div className="absolute left-0 top-0 h-full w-1" />}
+										{selectedScenario?.id === scenario.id && <div className="absolute left-0 top-0 h-full w-1" />}
 									</div>
 
 									{/* Campaign content */}
@@ -161,7 +127,7 @@ export default function Scenario() {
 										<div
 											className={cn(
 												"mt-2 h-1 w-full transition-all duration-300",
-												selectedCampaign === scenario.id
+												selectedScenario?.id === scenario.id
 													? "bg-gradient-to-r from-[#ff00aa] to-[#9900ff]"
 													: "bg-[#9900ff]/20",
 											)}
@@ -174,10 +140,10 @@ export default function Scenario() {
 
 					{/* Action buttons */}
 					<div className="mt-8 flex justify-end">
-						<Link to="/create/faction" disabled={!selectedCampaign}>
+						<Link to="/create/faction" disabled={selectedScenario == null}>
 							<Button
 								className="group relative flex items-center gap-2 bg-gradient-to-r from-[#ff00aa] to-[#9900ff] px-8 py-6 text-lg font-medium text-white hover:from-[#ff00aa]/90 hover:to-[#9900ff]/90"
-								disabled={!selectedCampaign}
+								disabled={selectedScenario == null}
 							>
 								<span className="retro-font">NEXT: SELECT YOUR FACTION</span>
 								<ChevronRight className="h-5 w-5" />
