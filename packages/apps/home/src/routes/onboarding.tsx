@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import { motion } from "motion/react";
 import { Button } from "@kilcekru/dcc-lib-components";
-import { CheckCircle } from "lucide-react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { loadUserConfig } from "../utils";
-import { userConfigStore } from "../stores/user-config";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { CheckCircle } from "lucide-react";
+import { motion } from "motion/react";
+import React from "react";
 
-export const Route = createFileRoute("/about")({
+import { userConfigStore } from "../stores/user-config";
+import { loadUserConfig } from "../utils";
+
+export const Route = createFileRoute("/onboarding")({
 	component: OnboardingPage,
 });
 
@@ -18,9 +19,11 @@ function OnboardingPage() {
 		try {
 			await rpc.home.setSetupComplete();
 			await loadUserConfig();
-			navigate({ to: "/" });
+			void navigate({ to: "/" });
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Unknown error";
+			// eslint-disable-next-line no-console
+			console.error(msg);
 			userConfigStore.set({
 				error: new Error(`onSetupComplete failed: ${msg}`),
 			});

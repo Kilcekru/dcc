@@ -1,7 +1,3 @@
-import * as React from "react";
-import * as IPC from "../ipc";
-import { menuStore, setExpanded } from "../store";
-import logo from "./logo.png";
 import {
 	cn,
 	MenubarContent,
@@ -10,12 +6,17 @@ import {
 	MenubarPortal,
 	MenubarSeparator,
 	MenubarTrigger,
-	useStore,
 } from "@kilcekru/dcc-lib-components";
 import { Menubar } from "@kilcekru/dcc-lib-components";
+import { useSelector } from "@xstate/store/react";
+import * as React from "react";
+
+import * as IPC from "../ipc";
+import { menuStore, setExpanded } from "../store";
+import logo from "./logo.png";
 
 export const Menu = () => {
-	const menus = useStore(menuStore, (state) => state.config?.menu);
+	const menus = useSelector(menuStore, (state) => state.context.config?.menu);
 
 	return (
 		<div className="flex gap-2">
@@ -38,8 +39,8 @@ export const Menu = () => {
 							</MenubarTrigger>
 							<MenubarPortal>
 								<MenubarContent className="bg-slate-800">
-									{menu.submenu?.map((item) => {
-										if (item.type === "separator") return <MenubarSeparator />;
+									{menu.submenu?.map((item, index) => {
+										if (item.type === "separator") return <MenubarSeparator key={index} />;
 										if (item.hidden) return null;
 										return (
 											<MenubarItem

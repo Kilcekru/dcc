@@ -123,6 +123,12 @@ export class SAM extends Group {
 
 		const groundUnits: Array<GroundUnit> = [];
 
+		if (samTemplate == null) {
+			// eslint-disable-next-line no-console
+			console.error("samTemplate not found", type);
+			return groundUnits;
+		}
+
 		for (const unitName of samTemplate.units) {
 			const unit = GroundUnit.create({
 				category: "sam",

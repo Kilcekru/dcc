@@ -1,19 +1,21 @@
 import React, { useEffect } from "react";
+
 import * as IPC from "./ipc";
-import { menuStore, setExpanded } from "./store";
 import { Menu } from "./menu/menu";
+import { menuStore } from "./store";
 
 async function loadConfig() {
 	const config = await IPC.getConfig();
-	menuStore.set({ config });
+	menuStore.trigger.setConfig({ config });
 }
 
 export function App() {
 	useEffect(() => {
+		// eslint-disable-next-line no-console
 		loadConfig().catch(console.error);
 
 		const configDisposable = IPC.onConfigChanged((config) => {
-			menuStore.set({ config });
+			menuStore.trigger.setConfig({ config });
 		});
 
 		return () => {

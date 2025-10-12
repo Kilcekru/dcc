@@ -1,10 +1,10 @@
 import "./output.css";
 import "./worker";
 
+import { createHashHistory, createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
-import { RouterProvider, createHashHistory, createMemoryHistory, createRouter } from "@tanstack/react-router";
 import * as React from "react";
+import ReactDOM from "react-dom/client";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";

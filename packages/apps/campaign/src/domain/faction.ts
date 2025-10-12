@@ -1,4 +1,3 @@
-import type * as DcsJs from "@foxdelta2/dcsjs";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 
 import { factionList as predefinedFactions } from "../data/factions";

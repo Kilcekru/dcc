@@ -1,13 +1,14 @@
+import { cn } from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSelector } from "@xstate/store/react";
+import { ArrowLeft, ChevronRight, Mountain, Shield, Target,Zap } from "lucide-react";
 import { motion } from "motion/react";
+import * as React from "react";
+
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
-import { ArrowLeft, ChevronRight, Shield, Zap, Mountain, Target } from "lucide-react";
-import { cn, useStore } from "@kilcekru/dcc-lib-components";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { scenarioList } from "../../data/scenarios";
-import React from "react";
-import type * as Types from "@kilcekru/dcc-shared-types";
 import { createCampaignStore } from "../../stores/create";
 
 export const Route = createFileRoute("/create/scenario")({
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/create/scenario")({
 });
 
 export default function Scenario() {
-	const selectedScenario = useStore(createCampaignStore, (state) => state.scenario);
+	const selectedScenario = useSelector(createCampaignStore, (state) => state.context.scenario);
 	const getCampaignIcon = (id: string) => {
 		switch (id) {
 			case "neon-horizon":
@@ -83,7 +84,7 @@ export default function Scenario() {
 								initial={{ y: 20, opacity: 0 }}
 								animate={{ y: 0, opacity: 1 }}
 								transition={{ duration: 0.3, delay: scenarioList.indexOf(scenario) * 0.1 }}
-								onClick={() => createCampaignStore.set({ scenario })}
+								onClick={() => createCampaignStore.trigger.setScenario({ scenario })}
 							>
 								<Card
 									className={cn(

@@ -15,6 +15,7 @@ import { Route as HomeImport } from "./routes/home";
 import { Route as ErrorImport } from "./routes/error";
 import { Route as IndexImport } from "./routes/index";
 import { Route as CreateScenarioImport } from "./routes/create/scenario";
+import { Route as CreateOpponentFactionImport } from "./routes/create/opponent-faction";
 import { Route as CreateFactionImport } from "./routes/create/faction";
 import { Route as CreateCustomFactionImport } from "./routes/create/custom-faction";
 
@@ -41,6 +42,12 @@ const IndexRoute = IndexImport.update({
 const CreateScenarioRoute = CreateScenarioImport.update({
 	id: "/create/scenario",
 	path: "/create/scenario",
+	getParentRoute: () => rootRoute,
+} as any);
+
+const CreateOpponentFactionRoute = CreateOpponentFactionImport.update({
+	id: "/create/opponent-faction",
+	path: "/create/opponent-faction",
 	getParentRoute: () => rootRoute,
 } as any);
 
@@ -95,6 +102,13 @@ declare module "@tanstack/react-router" {
 			preLoaderRoute: typeof CreateFactionImport;
 			parentRoute: typeof rootRoute;
 		};
+		"/create/opponent-faction": {
+			id: "/create/opponent-faction";
+			path: "/create/opponent-faction";
+			fullPath: "/create/opponent-faction";
+			preLoaderRoute: typeof CreateOpponentFactionImport;
+			parentRoute: typeof rootRoute;
+		};
 		"/create/scenario": {
 			id: "/create/scenario";
 			path: "/create/scenario";
@@ -113,6 +127,7 @@ export interface FileRoutesByFullPath {
 	"/home": typeof HomeRoute;
 	"/create/custom-faction": typeof CreateCustomFactionRoute;
 	"/create/faction": typeof CreateFactionRoute;
+	"/create/opponent-faction": typeof CreateOpponentFactionRoute;
 	"/create/scenario": typeof CreateScenarioRoute;
 }
 
@@ -122,6 +137,7 @@ export interface FileRoutesByTo {
 	"/home": typeof HomeRoute;
 	"/create/custom-faction": typeof CreateCustomFactionRoute;
 	"/create/faction": typeof CreateFactionRoute;
+	"/create/opponent-faction": typeof CreateOpponentFactionRoute;
 	"/create/scenario": typeof CreateScenarioRoute;
 }
 
@@ -132,15 +148,38 @@ export interface FileRoutesById {
 	"/home": typeof HomeRoute;
 	"/create/custom-faction": typeof CreateCustomFactionRoute;
 	"/create/faction": typeof CreateFactionRoute;
+	"/create/opponent-faction": typeof CreateOpponentFactionRoute;
 	"/create/scenario": typeof CreateScenarioRoute;
 }
 
 export interface FileRouteTypes {
 	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths: "/" | "/error" | "/home" | "/create/custom-faction" | "/create/faction" | "/create/scenario";
+	fullPaths:
+		| "/"
+		| "/error"
+		| "/home"
+		| "/create/custom-faction"
+		| "/create/faction"
+		| "/create/opponent-faction"
+		| "/create/scenario";
 	fileRoutesByTo: FileRoutesByTo;
-	to: "/" | "/error" | "/home" | "/create/custom-faction" | "/create/faction" | "/create/scenario";
-	id: "__root__" | "/" | "/error" | "/home" | "/create/custom-faction" | "/create/faction" | "/create/scenario";
+	to:
+		| "/"
+		| "/error"
+		| "/home"
+		| "/create/custom-faction"
+		| "/create/faction"
+		| "/create/opponent-faction"
+		| "/create/scenario";
+	id:
+		| "__root__"
+		| "/"
+		| "/error"
+		| "/home"
+		| "/create/custom-faction"
+		| "/create/faction"
+		| "/create/opponent-faction"
+		| "/create/scenario";
 	fileRoutesById: FileRoutesById;
 }
 
@@ -150,6 +189,7 @@ export interface RootRouteChildren {
 	HomeRoute: typeof HomeRoute;
 	CreateCustomFactionRoute: typeof CreateCustomFactionRoute;
 	CreateFactionRoute: typeof CreateFactionRoute;
+	CreateOpponentFactionRoute: typeof CreateOpponentFactionRoute;
 	CreateScenarioRoute: typeof CreateScenarioRoute;
 }
 
@@ -159,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
 	HomeRoute: HomeRoute,
 	CreateCustomFactionRoute: CreateCustomFactionRoute,
 	CreateFactionRoute: CreateFactionRoute,
+	CreateOpponentFactionRoute: CreateOpponentFactionRoute,
 	CreateScenarioRoute: CreateScenarioRoute,
 };
 
@@ -175,6 +216,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
         "/home",
         "/create/custom-faction",
         "/create/faction",
+        "/create/opponent-faction",
         "/create/scenario"
       ]
     },
@@ -192,6 +234,9 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     },
     "/create/faction": {
       "filePath": "create/faction.tsx"
+    },
+    "/create/opponent-faction": {
+      "filePath": "create/opponent-faction.tsx"
     },
     "/create/scenario": {
       "filePath": "create/scenario.tsx"

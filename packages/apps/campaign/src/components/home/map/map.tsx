@@ -1,37 +1,37 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import maplibregl from "maplibre-gl";
-import { Map as MaplibreMap, Marker } from "@vis.gl/react-maplibre";
+
 import * as DcsJs from "@foxdelta2/dcsjs";
-import { LOtoLL } from "@kilcekru/dcs-coordinates";
-import { campaignStore } from "../../../stores/campaign";
-import { useStore } from "@kilcekru/dcc-lib-components";
-import { onWorkerEvent, Triggers } from "../../../worker";
 import * as Types from "@kilcekru/dcc-shared-types";
+import { LOtoLL } from "@kilcekru/dcs-coordinates";
+import { Map as MaplibreMap, Marker } from "@vis.gl/react-maplibre";
+import { useSelector } from "@xstate/store/react";
 import MilSymbol from "milsymbol";
-import { getMilSymbolCode } from "./unit-code";
+import React, { memo, useEffect, useMemo, useState } from "react";
+
+import { campaignStore } from "../../../stores/campaign";
 import { entityDrawerStore } from "../../../stores/entity-drawer";
+import { onWorkerEvent, Triggers } from "../../../worker";
+import { getMilSymbolCode } from "./unit-code";
 
 type MapPosition = [number, number];
 
 export const positionToMapPosition =
 	(theatre: DcsJs.Theatre) =>
-	(pos: { x: number; y: number }): MapPosition => {
-		console.log(theatre, pos);
-		try {
-			// TODO: Remove this once we have a proper map origin for Afghanistan
-			if (theatre === "Afghanistan") {
-				throw new Error("Afghanistan is not supported");
-			}
-			const latLng = LOtoLL({ theatre, x: pos.x, z: pos.y });
+		(pos: { x: number; y: number }): MapPosition => {
+			try {
+				// TODO: Remove this once we have a proper map origin for Afghanistan
+				if (theatre === "Afghanistan") {
+					throw new Error("Afghanistan is not supported");
+				}
+				const latLng = LOtoLL({ theatre, x: pos.x, z: pos.y });
 
-			return [latLng.lat, latLng.lng];
-		} catch (e: unknown) {
-			// eslint-disable-next-line no-console
-			console.error(e, pos);
-			throw new Error("invalid map position");
-		}
-	};
+				return [latLng.lat, latLng.lng];
+			} catch (e: unknown) {
+				// eslint-disable-next-line no-console
+				console.error(e, pos);
+				throw new Error("invalid map position");
+			}
+		};
 
 const Entity = memo(function Entity(props: {
 	entity: Types.Campaign.MapItem;
@@ -41,6 +41,7 @@ const Entity = memo(function Entity(props: {
 		try {
 			return props.getMapPosition(props.entity.position);
 		} catch (e) {
+			// eslint-disable-next-line no-console
 			console.error(e);
 			return undefined;
 		}
@@ -58,7 +59,6 @@ const Entity = memo(function Entity(props: {
 			latitude={position[0]}
 			color={props.entity.coalition === "blue" ? "blue" : "red"}
 			onClick={() => {
-				console.log(props.entity);
 				entityDrawerStore.set({ entityId: props.entity.id });
 			}}
 			className="cursor-pointer"
@@ -69,7 +69,7 @@ const Entity = memo(function Entity(props: {
 });
 
 export function Map() {
-	const theatre = useStore(campaignStore, (state) => state.campaign?.theatre ?? "Caucasus");
+	const theatre = useSelector(campaignStore, (state) => state.context.campaign?.theatre ?? "Caucasus");
 	const getMapPosition = useMemo(() => positionToMapPosition(theatre), [theatre]);
 	const [entities, setEntities] = useState<Types.Campaign.MapItem[]>([]);
 	const [viewState, setViewState] = React.useState({

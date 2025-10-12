@@ -1,9 +1,10 @@
+import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
+
+import { Config } from "../data/config";
 import { routerStore } from "../stores/router";
 import { Triggers } from "../worker";
-import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { Config } from "../data/config";
 
 async function loadCampaign() {
 	try {
@@ -15,7 +16,8 @@ async function loadCampaign() {
 
 		// If no campaign is found, we need to create a new one
 		if (campaign == null) {
-			console.log("campaign is null");
+			// eslint-disable-next-line no-console
+			console.warn("campaign is null");
 			routerStore.set({ route: "create" });
 			return "create";
 		}
@@ -34,22 +36,34 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+	const loading = React.useRef(false);
 	const navigate = useNavigate();
-	React.useEffect(() => {
-		async function load() {
-			const status = await loadCampaign();
-			console.log("status", status);
-			if (status === "ready") {
-				navigate({ to: "/home" });
-			} else if (status === "create") {
-				navigate({ to: "/create/scenario" });
-			} else if (status === "error") {
-				navigate({ to: "/error" });
-			}
-		}
 
-		load();
-	}, []);
+	async function load() {
+		if (loading.current) return;
+		loading.current = true;
+		const status = await loadCampaign();
+
+		switch (status) {
+			case "create":
+				void navigate({ to: "/create/scenario" });
+				break;
+			case "ready":
+				void navigate({ to: "/home" });
+				break;
+			case "error":
+				void navigate({ to: "/error" });
+				break;
+			default:
+				break;
+		}
+	}
+
+	function runInitialLoadEffect() {
+		void load();
+	}
+
+	React.useEffect(runInitialLoadEffect, [navigate]);
 
 	return (
 		<div className="p-2">

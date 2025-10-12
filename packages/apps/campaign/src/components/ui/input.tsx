@@ -1,6 +1,5 @@
-import * as React from "react";
-
 import { cn } from "@kilcekru/dcc-lib-components";
+import * as React from "react";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 	({ className, type, ...props }, ref) => {

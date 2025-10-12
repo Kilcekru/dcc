@@ -166,8 +166,8 @@ export class GroundGroup extends Group<keyof Events.EventMap.GroundGroup> {
 			});
 		}
 
-		if (groupTypeShoradTemplates.length > 0 && store.campaignParams.shoradLevel !== Types.Campaign.ShoradLevel.None) {
-			const threshold = store.campaignParams.shoradLevel === Types.Campaign.ShoradLevel.Some ? 80 : 50;
+		if (groupTypeShoradTemplates.length > 0 && store.campaignParams.shoradLevel !== "none") {
+			const threshold = store.campaignParams.shoradLevel === "some" ? 80 : 50;
 			const length = Utils.Random.number(0, 100) > threshold ? 1 : 0;
 			Array.from({ length }, () => {
 				const unitTemplate = Utils.Random.item(groupTypeShoradTemplates);

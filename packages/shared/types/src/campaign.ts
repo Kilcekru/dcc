@@ -3,17 +3,12 @@ import { z } from "zod";
 
 import type * as Serialization from "./serialization";
 
-export enum SAMActive {
-	None,
-	ActiveNoRepair,
-	ActiveWithRepair,
-}
+export const samActiveStates = ["none", "activeNoRepair", "activeWithRepair"] as const;
+export type SAMActive = (typeof samActiveStates)[number];
 
-export enum ShoradLevel {
-	None,
-	Some,
-	Normal,
-}
+export const shoradLevelStates = ["none", "some", "normal"] as const;
+export type ShoradLevel = (typeof shoradLevelStates)[number];
+
 export namespace Schema {
 	export const campaignSynopsis = z.object({
 		id: z.string(),
@@ -28,6 +23,7 @@ export namespace Schema {
 	});
 
 	export const faction = z.object({
+		id: z.string(),
 		aircraftTypes: z.record(z.array(DcsJs.aircraftType)),
 		countryName: DcsJs.countryName,
 		name: z.string(),
@@ -73,8 +69,8 @@ export namespace Schema {
 		nightMissions: z.boolean(),
 		badWeather: z.boolean(),
 		hotStart: z.boolean(),
-		samActive: z.nativeEnum(SAMActive),
-		shoradLevel: z.nativeEnum(ShoradLevel),
+		samActive: z.enum(samActiveStates),
+		shoradLevel: z.enum(shoradLevelStates),
 	});
 
 	export const campaignTask = z.enum([

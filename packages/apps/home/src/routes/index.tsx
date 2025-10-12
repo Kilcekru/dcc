@@ -1,38 +1,39 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { Button, cn } from "@kilcekru/dcc-lib-components";
-import * as React from "react";
-import { motion } from "motion/react";
+import { rpc } from "@kilcekru/dcc-lib-rpc";
+import { createFileRoute } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
 import { BookOpen, Plane } from "lucide-react";
+import { motion } from "motion/react";
+import * as React from "react";
 import { useState } from "react";
+
 import f14 from "../assets/index.png";
 
-type App = {
+/* type App = {
 	name: string;
 	id: string;
 	available: boolean;
 	description: string;
-};
+}; */
 /* const menuOptions: Array<App> = [
-    {
-        name: "Dynamic Campaign",
-        id: "campaign",
-        available: true,
-        description: "Create and fly your own Campaign",
-    },
-    {
-        name: "Quick Mission",
-        id: "mission",
-        available: false,
-        description: "Create your own Mission in seconds",
-    },
-    {
-        name: "Patcher",
-        id: "patcher",
-        available: false,
-        description: "Perform Updates and Fixes",
-    },
+	{
+		name: "Dynamic Campaign",
+		id: "campaign",
+		available: true,
+		description: "Create and fly your own Campaign",
+	},
+	{
+		name: "Quick Mission",
+		id: "mission",
+		available: false,
+		description: "Create your own Mission in seconds",
+	},
+	{
+		name: "Patcher",
+		id: "patcher",
+		available: false,
+		description: "Perform Updates and Fixes",
+	},
 ]; */
 
 const menuOptions = [
@@ -144,19 +145,19 @@ function Index() {
 		</div>
 	);
 	/*  return (
-        <div className="p-2 flex flex-col gap-2 items-center justify-center w-full flex-1">
-            <h1 className='text-2xl font-bold'>Digital Crew Chief</h1>
-                {appList.map((app) => (
-                    <button key={app.id} className={cn('w-96 bg-gray-800 rounded-lg p-4', {
-                        "opacity-50": !app.available
-                    })} onClick={() => {
-                        if (!app.available) return;
-                        void rpc.misc.loadApp(app.id as "campaign");
-                    }}>
-                        <h2>{app.name}</h2>
-                        <p className='text-sm opacity-60'>{app.description}</p>
-                    </button>
-                ))}
-            </div>
-            ) */
+		<div className="p-2 flex flex-col gap-2 items-center justify-center w-full flex-1">
+			<h1 className='text-2xl font-bold'>Digital Crew Chief</h1>
+				{appList.map((app) => (
+					<button key={app.id} className={cn('w-96 bg-gray-800 rounded-lg p-4', {
+						"opacity-50": !app.available
+					})} onClick={() => {
+						if (!app.available) return;
+						void rpc.misc.loadApp(app.id as "campaign");
+					}}>
+						<h2>{app.name}</h2>
+						<p className='text-sm opacity-60'>{app.description}</p>
+					</button>
+				))}
+			</div>
+			) */
 }

@@ -7,6 +7,7 @@ import { onConfigChanged, setupIpc } from "./ipc";
 export { onConfigChanged } from "./ipc";
 
 export async function initialize() {
+	// eslint-disable-next-line no-console
 	console.log("initialize menu");
 	setupIpc();
 

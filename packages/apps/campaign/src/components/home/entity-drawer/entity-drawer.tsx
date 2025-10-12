@@ -1,12 +1,12 @@
-import React from "react";
 import { useStore } from "@kilcekru/dcc-lib-components";
+import React from "react";
+
 import { entityDrawerStore } from "../../../stores/entity-drawer";
-import { campaignStore } from "../../../stores/campaign";
 
 export function EntityDrawer() {
 	const drawerRef = React.useRef<HTMLDivElement>(null);
 	const entityId = useStore(entityDrawerStore, (state) => state.entityId);
-	const entity = useStore(campaignStore, (state) => state.campaign?.entities.get(entityId ?? ""));
+	// const entity = useSelector(campaignStore, (state) => state.context.campaign?.entities.get(entityId ?? ""));
 
 	React.useEffect(() => {
 		if (entityId) {

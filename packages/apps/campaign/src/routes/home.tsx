@@ -1,12 +1,14 @@
-import { ChevronLeft, ChevronRight, Sun, Clock, Eye, Info, Plane, Shield, Target, Users, Wind } from "lucide-react";
-import React, { useState } from "react";
 import { cn } from "@kilcekru/dcc-lib-components";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 import { createFileRoute } from "@tanstack/react-router";
+import { Eye, Info, Plane, Sun, Target, Users, Wind } from "lucide-react";
+import React from "react";
+
+import { Header } from "../components/home/header";
 import { Map } from "../components/home/map/map";
+import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Tabs, TabsContent,TabsList, TabsTrigger } from "../components/ui/tabs";
 
 const campaignData = {
 	description:
@@ -65,43 +67,12 @@ export const Route = createFileRoute("/home")({
 });
 
 function Home() {
-	const [mapZoom, setMapZoom] = useState(1);
-	const [selectedFlightGroup, setSelectedFlightGroup] = useState(campaignData.flightGroups[0]);
-	const [sidebarVisible, setSidebarVisible] = useState(true);
+	const [mapZoom, setMapZoom] = React.useState(1);
+	const [selectedFlightGroup, setSelectedFlightGroup] = React.useState(campaignData.flightGroups[0]);
 
 	return (
 		<div className="bg-[#0b0014] text-[#e0e0ff]">
-			<div className="border-b border-[#ff00aa]/30 bg-[#0b0014]/90 px-4 py-2 flex">
-				<div className="flex items-center justify-between flex-1">
-					<h1 className="retro-font text-xl font-medium text-[#00ddff]">
-						<span className="text-[#ff00aa]">OPERATION:</span> NEON HORIZON
-					</h1>
-					<div className="flex items-center gap-4">
-						<div className="flex items-center gap-2 text-sm text-[#9900ff]">
-							<Clock className="h-4 w-4" />
-							<span className="retro-font">14:32 Zulu</span>
-						</div>
-						<Button
-							variant="outline"
-							size="sm"
-							className="h-8 border-[#ff00aa]/50 bg-[#0b0014]/80 px-3 text-xs text-[#ff00aa] hover:bg-[#ff00aa]/20"
-						>
-							Takeoff
-						</Button>
-					</div>
-				</div>
-			</div>
-
-			<div className="lg:hidden fixed right-4 top-16 z-20">
-				<Button
-					variant="outline"
-					size="sm"
-					className="h-8 w-8 border-[#ff00aa]/50 bg-[#0b0014]/80 p-0 text-[#ff00aa]"
-					onClick={() => setSidebarVisible(!sidebarVisible)}
-				>
-					{sidebarVisible ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-				</Button>
-			</div>
+			<Header />
 
 			{/* Main content */}
 			<div className="relative flex h-[calc(100vh-56px)] w-full overflow-hidden">
@@ -149,11 +120,6 @@ function Home() {
 
 							<Map />
 						</div>
-						<div className="border-t border-[#ff00aa]/30 bg-[#0b0014]/80 px-4 py-2 text-xs text-[#9900ff]">
-							<span className="retro-font">
-								Grid coordinates: 37°42′N 45°30′E • Elevation: 1,250 ft • Scale: 1:{Math.round(100 / mapZoom)}
-							</span>
-						</div>
 					</div>
 				</div>
 
@@ -162,7 +128,6 @@ function Home() {
 					className={cn(
 						"h-full w-[350px] flex-shrink-0 overflow-y-auto border-l border-[#ff00aa]/30 bg-[#0b0014]/90 transition-all duration-300",
 						"fixed right-0 top-[56px] z-10 lg:relative lg:top-0",
-						!sidebarVisible && "translate-x-full lg:translate-x-0",
 					)}
 				>
 					<div className="flex h-full flex-col gap-4 p-4">

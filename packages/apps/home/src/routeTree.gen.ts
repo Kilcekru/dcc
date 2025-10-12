@@ -8,76 +8,32 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as SettingsRouteImport } from "./routes/settings";
+import { Route as OnboardingRouteImport } from "./routes/onboarding";
+import { Route as AboutRouteImport } from "./routes/about";
+import { Route as IndexRouteImport } from "./routes/index";
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as SettingsImport } from "./routes/settings";
-import { Route as OnboardingImport } from "./routes/onboarding";
-import { Route as AboutImport } from "./routes/about";
-import { Route as IndexImport } from "./routes/index";
-
-// Create/Update Routes
-
-const SettingsRoute = SettingsImport.update({
+const SettingsRoute = SettingsRouteImport.update({
 	id: "/settings",
 	path: "/settings",
-	getParentRoute: () => rootRoute,
+	getParentRoute: () => rootRouteImport,
 } as any);
-
-const OnboardingRoute = OnboardingImport.update({
+const OnboardingRoute = OnboardingRouteImport.update({
 	id: "/onboarding",
 	path: "/onboarding",
-	getParentRoute: () => rootRoute,
+	getParentRoute: () => rootRouteImport,
 } as any);
-
-const AboutRoute = AboutImport.update({
+const AboutRoute = AboutRouteImport.update({
 	id: "/about",
 	path: "/about",
-	getParentRoute: () => rootRoute,
+	getParentRoute: () => rootRouteImport,
 } as any);
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
 	id: "/",
 	path: "/",
-	getParentRoute: () => rootRoute,
+	getParentRoute: () => rootRouteImport,
 } as any);
-
-// Populate the FileRoutesByPath interface
-
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/": {
-			id: "/";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof IndexImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/about": {
-			id: "/about";
-			path: "/about";
-			fullPath: "/about";
-			preLoaderRoute: typeof AboutImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/onboarding": {
-			id: "/onboarding";
-			path: "/onboarding";
-			fullPath: "/onboarding";
-			preLoaderRoute: typeof OnboardingImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/settings": {
-			id: "/settings";
-			path: "/settings";
-			fullPath: "/settings";
-			preLoaderRoute: typeof SettingsImport;
-			parentRoute: typeof rootRoute;
-		};
-	}
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
 	"/": typeof IndexRoute;
@@ -85,22 +41,19 @@ export interface FileRoutesByFullPath {
 	"/onboarding": typeof OnboardingRoute;
 	"/settings": typeof SettingsRoute;
 }
-
 export interface FileRoutesByTo {
 	"/": typeof IndexRoute;
 	"/about": typeof AboutRoute;
 	"/onboarding": typeof OnboardingRoute;
 	"/settings": typeof SettingsRoute;
 }
-
 export interface FileRoutesById {
-	__root__: typeof rootRoute;
+	__root__: typeof rootRouteImport;
 	"/": typeof IndexRoute;
 	"/about": typeof AboutRoute;
 	"/onboarding": typeof OnboardingRoute;
 	"/settings": typeof SettingsRoute;
 }
-
 export interface FileRouteTypes {
 	fileRoutesByFullPath: FileRoutesByFullPath;
 	fullPaths: "/" | "/about" | "/onboarding" | "/settings";
@@ -109,12 +62,44 @@ export interface FileRouteTypes {
 	id: "__root__" | "/" | "/about" | "/onboarding" | "/settings";
 	fileRoutesById: FileRoutesById;
 }
-
 export interface RootRouteChildren {
 	IndexRoute: typeof IndexRoute;
 	AboutRoute: typeof AboutRoute;
 	OnboardingRoute: typeof OnboardingRoute;
 	SettingsRoute: typeof SettingsRoute;
+}
+
+declare module "@tanstack/react-router" {
+	interface FileRoutesByPath {
+		"/settings": {
+			id: "/settings";
+			path: "/settings";
+			fullPath: "/settings";
+			preLoaderRoute: typeof SettingsRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/onboarding": {
+			id: "/onboarding";
+			path: "/onboarding";
+			fullPath: "/onboarding";
+			preLoaderRoute: typeof OnboardingRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/about": {
+			id: "/about";
+			path: "/about";
+			fullPath: "/about";
+			preLoaderRoute: typeof AboutRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+		"/": {
+			id: "/";
+			path: "/";
+			fullPath: "/";
+			preLoaderRoute: typeof IndexRouteImport;
+			parentRoute: typeof rootRouteImport;
+		};
+	}
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -123,33 +108,4 @@ const rootRouteChildren: RootRouteChildren = {
 	OnboardingRoute: OnboardingRoute,
 	SettingsRoute: SettingsRoute,
 };
-
-export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/about",
-        "/onboarding",
-        "/settings"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/about": {
-      "filePath": "about.tsx"
-    },
-    "/onboarding": {
-      "filePath": "onboarding.tsx"
-    },
-    "/settings": {
-      "filePath": "settings.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
+export const routeTree = rootRouteImport._addFileChildren(rootRouteChildren)._addFileTypes<FileRouteTypes>();

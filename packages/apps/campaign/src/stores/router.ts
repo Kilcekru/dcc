@@ -7,5 +7,3 @@ export type RouterStore = {
 export const routerStore = createStore<RouterStore>({
 	route: "init",
 });
-
-(window as any).routerStore = routerStore;

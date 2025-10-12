@@ -1,32 +1,30 @@
-import React from "react";
-
-import { useState } from "react";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { Badge } from "../../components/ui/badge";
+import * as DcsJs from "@foxdelta2/dcsjs";
+import { cn } from "@kilcekru/dcc-lib-components";
+import * as Utils from "@kilcekru/dcc-shared-utils";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+	AlertTriangle,
 	ArrowLeft,
+	Check,
 	ChevronRight,
+	Crosshair,
 	Flag,
-	Plane,
+	LifeBuoy,
+	Radar,
+	Send,
 	Shield,
 	Target,
 	Zap,
-	Check,
-	Info,
-	Crosshair,
-	AlertTriangle,
-	LifeBuoy,
-	Send,
-	Radar,
 } from "lucide-react";
-import { cn } from "@kilcekru/dcc-lib-components";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import * as DcsJs from "@foxdelta2/dcsjs";
-import * as Utils from "@kilcekru/dcc-shared-utils";
+import React from "react";
+import { useState } from "react";
+
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
 import { ScrollArea } from "../../components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 
 export const Route = createFileRoute("/create/custom-faction")({
 	component: CustomFaction,
@@ -36,7 +34,6 @@ const aircrafts = Object.values(DcsJs.aircraftDefinitions).sort((a, b) =>
 	Utils.Sort.String.asc(a.display_name, b.display_name),
 );
 
-console.log({ aircrafts });
 interface Role {
 	id: string;
 	name: string;
@@ -144,20 +141,10 @@ function CustomFaction() {
 		return factionName.trim() !== "" && Object.values(selectedAircraft).some((selections) => selections.length > 0);
 	};
 
-	const getCurrentRoleColor = () => {
-		const currentRole = roles.find((r) => r.id === selectedTab);
-		return currentRole?.color || "#ff00aa";
-	};
-
 	return (
 		<div className="relative flex min-h-screen w-full flex-col bg-[#0b0014]">
-			{/* Grid background */}
 			<div className="absolute inset-0 z-0 bg-cover opacity-20" />
-
-			{/* Synthwave sun/horizon effect */}
 			<div className="absolute bottom-0 left-0 right-0 h-[40vh] bg-gradient-to-t from-[#ff00aa] via-[#9900ff] to-transparent opacity-30" />
-
-			{/* Animated grid lines */}
 			<div
 				className="absolute inset-0 z-0 bg-cover bg-center opacity-20"
 				style={{
@@ -166,8 +153,6 @@ function CustomFaction() {
 					backgroundSize: "40px 40px",
 				}}
 			/>
-
-			{/* Header */}
 			<header className="relative z-10 border-b border-[#ff00aa]/30 bg-[#0b0014]/90 px-4 py-4">
 				<div className="container flex items-center justify-between">
 					<div className="flex items-center gap-3">
@@ -186,8 +171,6 @@ function CustomFaction() {
 					</div>
 				</div>
 			</header>
-
-			{/* Main content */}
 			<ScrollArea className="h-[calc(100vh)]">
 				<main className="relative z-10 flex-1 px-4 py-8">
 					<div className="container">
@@ -195,8 +178,6 @@ function CustomFaction() {
 							<h2 className="retro-font mb-2 text-2xl font-bold text-white">Design Your Air Force</h2>
 							<p className="text-[#9900ff]">Create a custom faction by selecting aircraft for each combat role.</p>
 						</div>
-
-						{/* Faction name input */}
 						<div className="mb-8">
 							<label className="retro-font mb-2 block text-sm font-medium text-[#00ddff]">FACTION NAME</label>
 							<div className="flex gap-4">
@@ -211,8 +192,6 @@ function CustomFaction() {
 								/>
 							</div>
 						</div>
-
-						{/* Aircraft selection by role */}
 						<Card className="mb-8 border-[#ff00aa]/30 bg-[#0b0014]/80 shadow-[0_0_15px_rgba(255,0,170,0.2)]">
 							<CardHeader className="pb-2">
 								<CardTitle className="retro-font text-xl text-white">
@@ -251,8 +230,6 @@ function CustomFaction() {
 												<h3 className="retro-font text-lg font-medium text-white">{role.name}</h3>
 											</div>
 											<p className="text-sm text-[#9900ff]">{role.description}</p>
-
-											{/* Aircraft grid for this role */}
 											<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 												{getAircraftForRole(role.id).map((aircraft) => (
 													<div
@@ -260,7 +237,7 @@ function CustomFaction() {
 														className={cn(
 															"group relative cursor-pointer overflow-hidden rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-4 transition-all duration-300 hover:border-[#ff00aa]/50",
 															selectedAircraft?.[role.id]?.includes(aircraft.name) &&
-																"border-[#ff00aa] shadow-[0_0_15px_rgba(255,0,170,0.3)]",
+															"border-[#ff00aa] shadow-[0_0_15px_rgba(255,0,170,0.3)]",
 														)}
 														onClick={() => toggleAircraftSelection(role.id, aircraft.name)}
 													>
@@ -291,7 +268,6 @@ function CustomFaction() {
 													</div>
 												))}
 											</div>
-											{/* No aircraft available message */}
 											{getAircraftForRole(role.id).length === 0 && (
 												<div className="flex h-32 items-center justify-center rounded-md border border-dashed border-[#9900ff]/30 bg-[#0b0014]/50">
 													<p className="text-[#9900ff]">No aircraft available for this role</p>
@@ -302,8 +278,6 @@ function CustomFaction() {
 								</Tabs>
 							</CardContent>
 						</Card>
-
-						{/* Summary of selections */}
 						<Card className="mb-8 border-[#ff00aa]/30 bg-[#0b0014]/80 shadow-[0_0_15px_rgba(255,0,170,0.2)]">
 							<CardHeader className="pb-2">
 								<CardTitle className="retro-font text-xl text-white">
@@ -341,8 +315,6 @@ function CustomFaction() {
 								</div>
 							</CardContent>
 						</Card>
-
-						{/* Action buttons */}
 						<div className="mt-8 flex justify-between">
 							<Link to="/create/faction">
 								<Button
@@ -366,12 +338,10 @@ function CustomFaction() {
 					</div>
 				</main>
 			</ScrollArea>
-
-			{/* Footer */}
 			<footer className="relative z-10 border-t border-[#ff00aa]/30 bg-[#0b0014]/90 px-4 py-3">
 				<div className="container flex items-center justify-between">
 					<p className="retro-font text-xs text-[#9900ff]">
-						AIRCRAFT AVAILABLE: {aircrafts.length} // ROLES: {roles.length}
+						AIRCRAFT AVAILABLE: {aircrafts.length} / ROLES: {roles.length}
 					</p>
 				</div>
 			</footer>

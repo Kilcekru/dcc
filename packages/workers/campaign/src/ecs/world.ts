@@ -78,7 +78,7 @@ export class World {
 			theatre: args.scenario.theatre,
 		});
 
-		if (store.campaignParams.samActive !== Types.Campaign.SAMActive.None) {
+		if (store.campaignParams.samActive !== "none") {
 			// Create SAMs
 			generateSAMs({
 				coalition: "blue",
@@ -213,9 +213,7 @@ export class World {
 	}
 
 	public logicTick() {
-		console.log("logicTick");
 		logicTickSystems();
-
 		this.stateUpdate();
 	}
 
@@ -236,7 +234,6 @@ export class World {
 		}
 
 		const next = store.time + worldDelta;
-		console.log(store.time, worldDelta, next > earliestStartTime, earliestStartTime);
 
 		// If we next tick will be after the earliest start time, we stop at the start time
 		if (next > earliestStartTime) {

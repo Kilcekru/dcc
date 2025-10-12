@@ -1,14 +1,14 @@
 import * as Path from "node:path";
 import { pathToFileURL } from "node:url";
-import tailwindPlugin from "esbuild-plugin-tailwindcss";
+
+import { TanStackRouterEsbuild } from "@tanstack/router-plugin/esbuild";
 import chokidar from "chokidar";
 import esbuild from "esbuild";
+import tailwindPlugin from "esbuild-plugin-tailwindcss";
 import FS from "fs-extra";
+
 import { log, paths } from "./utils.mjs";
 import { watchBuild } from "./watcher.mjs";
-import { TanStackRouterEsbuild } from "@tanstack/router-plugin/esbuild";
-import { build } from "vite";
-import react from "@vitejs/plugin-react";
 
 export async function buildApps({ env, watch }) {
 	const apps = await findApps();
@@ -115,6 +115,7 @@ async function copyIndex({ apps }) {
 }
 
 async function copyAssets({ app }) {
+	// eslint-disable-next-line no-console
 	console.log(`Copying assets for ${app.name}...`, app.config?.assets);
 	const promises = [];
 	for (const [target, source] of Object.entries(app.config?.assets ?? {})) {
@@ -124,9 +125,11 @@ async function copyAssets({ app }) {
 		try {
 			const stats = await FS.stat(src);
 			const isDirectory = stats.isDirectory();
+			// eslint-disable-next-line no-console
 			console.log(`Copying ${isDirectory ? "directory" : "file"}: ${src} -> ${dest}`);
 			promises.push(FS.copy(src, dest));
 		} catch (error) {
+			// eslint-disable-next-line no-console
 			console.error(`Failed to copy asset from ${src} to ${dest}:`, error);
 		}
 	}

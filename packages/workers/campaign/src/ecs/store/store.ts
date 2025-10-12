@@ -116,8 +116,8 @@ function initializeStore(): Store {
 			nightMissions: false,
 			training: false,
 			hotStart: false,
-			samActive: Types.Campaign.SAMActive.ActiveWithRepair,
-			shoradLevel: Types.Campaign.ShoradLevel.Normal,
+			samActive: "activeWithRepair",
+			shoradLevel: "normal",
 		},
 		version: 1,
 	};
