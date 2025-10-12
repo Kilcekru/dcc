@@ -237,7 +237,7 @@ function CustomFaction() {
 														className={cn(
 															"group relative cursor-pointer overflow-hidden rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-4 transition-all duration-300 hover:border-[#ff00aa]/50",
 															selectedAircraft?.[role.id]?.includes(aircraft.name) &&
-															"border-[#ff00aa] shadow-[0_0_15px_rgba(255,0,170,0.3)]",
+																"border-[#ff00aa] shadow-[0_0_15px_rgba(255,0,170,0.3)]",
 														)}
 														onClick={() => toggleAircraftSelection(role.id, aircraft.name)}
 													>

@@ -17,21 +17,21 @@ type MapPosition = [number, number];
 
 export const positionToMapPosition =
 	(theatre: DcsJs.Theatre) =>
-		(pos: { x: number; y: number }): MapPosition => {
-			try {
-				// TODO: Remove this once we have a proper map origin for Afghanistan
-				if (theatre === "Afghanistan") {
-					throw new Error("Afghanistan is not supported");
-				}
-				const latLng = LOtoLL({ theatre, x: pos.x, z: pos.y });
-
-				return [latLng.lat, latLng.lng];
-			} catch (e: unknown) {
-				// eslint-disable-next-line no-console
-				console.error(e, pos);
-				throw new Error("invalid map position");
+	(pos: { x: number; y: number }): MapPosition => {
+		try {
+			// TODO: Remove this once we have a proper map origin for Afghanistan
+			if (theatre === "Afghanistan") {
+				throw new Error("Afghanistan is not supported");
 			}
-		};
+			const latLng = LOtoLL({ theatre, x: pos.x, z: pos.y });
+
+			return [latLng.lat, latLng.lng];
+		} catch (e: unknown) {
+			// eslint-disable-next-line no-console
+			console.error(e, pos);
+			throw new Error("invalid map position");
+		}
+	};
 
 const Entity = memo(function Entity(props: {
 	entity: Types.Campaign.MapItem;

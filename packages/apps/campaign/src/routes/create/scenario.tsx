@@ -2,7 +2,7 @@ import { cn } from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSelector } from "@xstate/store/react";
-import { ArrowLeft, ChevronRight, Mountain, Shield, Target,Zap } from "lucide-react";
+import { ArrowLeft, ChevronRight, Mountain, Shield, Target, Zap } from "lucide-react";
 import { motion } from "motion/react";
 import * as React from "react";
 
