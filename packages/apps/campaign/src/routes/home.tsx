@@ -1,5 +1,7 @@
 import { cn } from "@kilcekru/dcc-lib-components";
+import * as Types from "@kilcekru/dcc-shared-types";
 import { createFileRoute } from "@tanstack/react-router";
+import { useSelector } from "@xstate/store/react";
 import { Eye, Info, Plane, Sun, Target, Users, Wind } from "lucide-react";
 import React from "react";
 
@@ -9,6 +11,7 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { campaignStore } from "../stores/campaign";
 
 const campaignData = {
 	description:
@@ -18,35 +21,6 @@ const campaignData = {
 	temperature: "28°C",
 	visibility: "10 km",
 	objectives: ["Destroy the primary fuel depot", "Disable the runway", "Eliminate enemy air patrol"],
-	flightGroups: [
-		{
-			id: "alpha",
-			name: "Alpha Squadron",
-			aircraft: "F-16C",
-			count: 4,
-			status: "Ready",
-			mission: "Strike",
-			readiness: 95,
-		},
-		{
-			id: "bravo",
-			name: "Bravo Squadron",
-			aircraft: "A-10C",
-			count: 4,
-			status: "En Route",
-			mission: "CAS",
-			readiness: 72,
-		},
-		{
-			id: "charlie",
-			name: "Charlie Squadron",
-			aircraft: "F/A-18E",
-			count: 2,
-			status: "Maintenance",
-			mission: "CAP",
-			readiness: 30,
-		},
-	],
 };
 
 const getStatusColor = (status: string) => {
@@ -68,7 +42,9 @@ export const Route = createFileRoute("/home")({
 
 function Home() {
 	const [mapZoom, setMapZoom] = React.useState(1);
-	const [selectedFlightGroup, setSelectedFlightGroup] = React.useState(campaignData.flightGroups[0]);
+	const [selectedFlightGroup, setSelectedFlightGroup] =
+		React.useState<Types.Serialization.FlightGroupSerialized | null>(null);
+	const flightGroups = useSelector(campaignStore, (state) => state.context.campaign?.flightGroups);
 
 	return (
 		<div className="bg-[#0b0014] text-[#e0e0ff]">
@@ -206,7 +182,7 @@ function Home() {
 									</TabsList>
 									<TabsContent value="list" className="p-4">
 										<div className="space-y-3">
-											{campaignData.flightGroups.map((group) => (
+											{flightGroups?.map((group) => (
 												<div
 													key={group.id}
 													className={cn(
@@ -217,14 +193,14 @@ function Home() {
 												>
 													<div className="flex items-center justify-between">
 														<h3 className="retro-font font-medium text-white">{group.name}</h3>
-														<Badge className={cn("text-xs", getStatusColor(group.status))}>{group.status}</Badge>
+														{/*<Badge className={cn("text-xs", getStatusColor(group.status))}>{group.status}</Badge>*/}
 													</div>
 													<div className="mt-2 flex items-center justify-between text-sm">
 														<div className="flex items-center gap-1">
 															<Plane className="h-3.5 w-3.5 text-[#00ddff]" />
-															<span className="text-[#9900ff]">{group.aircraft}</span>
+															{/* <span className="text-[#9900ff]">{group.aircraft}</span> */}
 														</div>
-														<span className="text-[#9900ff]">x{group.count}</span>
+														<span className="text-[#9900ff]">x{group.aircraftIds.length}</span>
 													</div>
 												</div>
 											))}
@@ -235,12 +211,12 @@ function Home() {
 											<div className="space-y-4">
 												<div className="flex items-center justify-between">
 													<h3 className="retro-font text-lg font-medium text-white">{selectedFlightGroup.name}</h3>
-													<Badge className={cn("text-xs", getStatusColor(selectedFlightGroup.status))}>
-														{selectedFlightGroup.status}
+													<Badge className={cn("text-xs", getStatusColor(/* selectedFlightGroup.status */ "Ready"))}>
+														{/* selectedFlightGroup.status */}
 													</Badge>
 												</div>
 
-												<div className="space-y-3 rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-3">
+												{/* <div className="space-y-3 rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-3">
 													<div className="grid grid-cols-2 gap-y-2 text-sm">
 														<div>
 															<span className="text-[#9900ff]">Aircraft:</span>
@@ -269,7 +245,7 @@ function Home() {
 															style={{ width: `${selectedFlightGroup.readiness}%` }}
 														/>
 													</div>
-												</div>
+												</div> */}
 
 												<div className="flex justify-end gap-2">
 													<Button
@@ -282,7 +258,7 @@ function Home() {
 													<Button
 														size="sm"
 														className="bg-[#ff00aa] text-white hover:bg-[#ff00aa]/80"
-														disabled={selectedFlightGroup.status !== "Ready"}
+														disabled={/* selectedFlightGroup.status !== "Ready" */ true}
 													>
 														Deploy
 													</Button>

@@ -1,13 +1,14 @@
 import { rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { enableMapSet } from "immer";
 import * as React from "react";
 
+import { Config } from "../data/config";
 import { campaignStore } from "../stores/campaign";
-import { onWorkerEvent } from "../worker";
+import { onWorkerEvent, Triggers } from "../worker";
 
 enableMapSet();
 
@@ -16,6 +17,37 @@ export const Route = createRootRoute({
 });
 
 const queryClient = new QueryClient();
+
+function Content() {
+	const navigate = useNavigate();
+
+	const resumeCampaign = useQuery({
+		queryKey: ["savedState"],
+		queryFn: () => rpc.campaign.resumeCampaign(Config.campaignVersion),
+	});
+
+	if (resumeCampaign.isError) {
+		void navigate({ to: "/error" });
+	}
+
+	React.useEffect(() => {
+		if (resumeCampaign.isSuccess) {
+			if (resumeCampaign.data == null) {
+				void navigate({ to: "/create/scenario" });
+			} else {
+				Triggers.load({ ...resumeCampaign.data });
+				void navigate({ to: "/home" });
+			}
+		}
+	}, [resumeCampaign.isSuccess, resumeCampaign.data, navigate]);
+
+	return (
+		<div className="w-full h-full dark dark:bg-black flex flex-col text-white">
+			<Outlet />
+			<TanStackRouterDevtools />
+		</div>
+	);
+}
 
 function RootComponent() {
 	const saveCampaign = React.useCallback(async function saveCampaign(state: Types.Campaign.WorkerState) {
@@ -51,10 +83,7 @@ function RootComponent() {
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			<div className="w-full h-full dark dark:bg-black flex flex-col text-white">
-				<Outlet />
-				<TanStackRouterDevtools />
-			</div>
+			<Content />
 		</QueryClientProvider>
 	);
 }
