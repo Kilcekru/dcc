@@ -27,7 +27,7 @@ const getStatusColor = (status: string) => {
 export function FlightGroupList() {
 	const [selectedFlightGroup, setSelectedFlightGroup] =
 		React.useState<Types.Serialization.FlightGroupSerialized | null>(null);
-	const flightGroups = useSelector(campaignStore, (state) => state.context.campaign?.flightGroups);
+	const flightGroups = useSelector(campaignStore, (state) => state.context.flightGroups);
 	const blueFlightGroups = React.useMemo(
 		() => flightGroups?.filter((group) => group.coalition === "blue"),
 		[flightGroups],

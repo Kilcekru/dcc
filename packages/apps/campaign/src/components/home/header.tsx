@@ -12,8 +12,8 @@ import { Button } from "../ui/button";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 
 export function Header() {
-	const name = useSelector(campaignStore, (state) => state.context.campaign?.name);
-	const time = useSelector(campaignStore, (state) => state.context.campaign?.time);
+	const name = useSelector(campaignStore, (state) => state.context.name);
+	const time = useSelector(campaignStore, (state) => state.context.time);
 	const timerState = useStore(timerControlStore, (state) => {
 		if (state.timeMultiplier === 0) {
 			return "pause";

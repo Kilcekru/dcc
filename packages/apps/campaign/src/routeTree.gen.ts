@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root";
+import { Route as OpenImport } from "./routes/open";
 import { Route as HomeImport } from "./routes/home";
 import { Route as ErrorImport } from "./routes/error";
 import { Route as IndexImport } from "./routes/index";
@@ -20,6 +21,12 @@ import { Route as CreateFactionImport } from "./routes/create/faction";
 import { Route as CreateCustomFactionImport } from "./routes/create/custom-faction";
 
 // Create/Update Routes
+
+const OpenRoute = OpenImport.update({
+	id: "/open",
+	path: "/open",
+	getParentRoute: () => rootRoute,
+} as any);
 
 const HomeRoute = HomeImport.update({
 	id: "/home",
@@ -88,6 +95,13 @@ declare module "@tanstack/react-router" {
 			preLoaderRoute: typeof HomeImport;
 			parentRoute: typeof rootRoute;
 		};
+		"/open": {
+			id: "/open";
+			path: "/open";
+			fullPath: "/open";
+			preLoaderRoute: typeof OpenImport;
+			parentRoute: typeof rootRoute;
+		};
 		"/create/custom-faction": {
 			id: "/create/custom-faction";
 			path: "/create/custom-faction";
@@ -125,6 +139,7 @@ export interface FileRoutesByFullPath {
 	"/": typeof IndexRoute;
 	"/error": typeof ErrorRoute;
 	"/home": typeof HomeRoute;
+	"/open": typeof OpenRoute;
 	"/create/custom-faction": typeof CreateCustomFactionRoute;
 	"/create/faction": typeof CreateFactionRoute;
 	"/create/opponent-faction": typeof CreateOpponentFactionRoute;
@@ -135,6 +150,7 @@ export interface FileRoutesByTo {
 	"/": typeof IndexRoute;
 	"/error": typeof ErrorRoute;
 	"/home": typeof HomeRoute;
+	"/open": typeof OpenRoute;
 	"/create/custom-faction": typeof CreateCustomFactionRoute;
 	"/create/faction": typeof CreateFactionRoute;
 	"/create/opponent-faction": typeof CreateOpponentFactionRoute;
@@ -146,6 +162,7 @@ export interface FileRoutesById {
 	"/": typeof IndexRoute;
 	"/error": typeof ErrorRoute;
 	"/home": typeof HomeRoute;
+	"/open": typeof OpenRoute;
 	"/create/custom-faction": typeof CreateCustomFactionRoute;
 	"/create/faction": typeof CreateFactionRoute;
 	"/create/opponent-faction": typeof CreateOpponentFactionRoute;
@@ -158,6 +175,7 @@ export interface FileRouteTypes {
 		| "/"
 		| "/error"
 		| "/home"
+		| "/open"
 		| "/create/custom-faction"
 		| "/create/faction"
 		| "/create/opponent-faction"
@@ -167,6 +185,7 @@ export interface FileRouteTypes {
 		| "/"
 		| "/error"
 		| "/home"
+		| "/open"
 		| "/create/custom-faction"
 		| "/create/faction"
 		| "/create/opponent-faction"
@@ -176,6 +195,7 @@ export interface FileRouteTypes {
 		| "/"
 		| "/error"
 		| "/home"
+		| "/open"
 		| "/create/custom-faction"
 		| "/create/faction"
 		| "/create/opponent-faction"
@@ -187,6 +207,7 @@ export interface RootRouteChildren {
 	IndexRoute: typeof IndexRoute;
 	ErrorRoute: typeof ErrorRoute;
 	HomeRoute: typeof HomeRoute;
+	OpenRoute: typeof OpenRoute;
 	CreateCustomFactionRoute: typeof CreateCustomFactionRoute;
 	CreateFactionRoute: typeof CreateFactionRoute;
 	CreateOpponentFactionRoute: typeof CreateOpponentFactionRoute;
@@ -197,6 +218,7 @@ const rootRouteChildren: RootRouteChildren = {
 	IndexRoute: IndexRoute,
 	ErrorRoute: ErrorRoute,
 	HomeRoute: HomeRoute,
+	OpenRoute: OpenRoute,
 	CreateCustomFactionRoute: CreateCustomFactionRoute,
 	CreateFactionRoute: CreateFactionRoute,
 	CreateOpponentFactionRoute: CreateOpponentFactionRoute,
@@ -214,6 +236,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
         "/",
         "/error",
         "/home",
+        "/open",
         "/create/custom-faction",
         "/create/faction",
         "/create/opponent-faction",
@@ -228,6 +251,9 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)._addFileT
     },
     "/home": {
       "filePath": "home.tsx"
+    },
+    "/open": {
+      "filePath": "open.tsx"
     },
     "/create/custom-faction": {
       "filePath": "create/custom-faction.tsx"

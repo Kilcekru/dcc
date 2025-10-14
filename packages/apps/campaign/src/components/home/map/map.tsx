@@ -69,7 +69,7 @@ const Entity = memo(function Entity(props: {
 });
 
 export function Map() {
-	const theatre = useSelector(campaignStore, (state) => state.context.campaign?.theatre ?? "Caucasus");
+	const theatre = useSelector(campaignStore, (state) => state.context.theatre ?? "Caucasus");
 	const getMapPosition = useMemo(() => positionToMapPosition(theatre), [theatre]);
 	const [entities, setEntities] = useState<Types.Campaign.MapItem[]>([]);
 	const [viewState, setViewState] = React.useState({

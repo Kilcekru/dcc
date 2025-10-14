@@ -1,4 +1,4 @@
-import { rpc } from "@kilcekru/dcc-lib-rpc";
+import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
@@ -8,7 +8,7 @@ import * as React from "react";
 
 import { Config } from "../data/config";
 import { campaignStore } from "../stores/campaign";
-import { onWorkerEvent, Triggers } from "../worker";
+import { onWorkerEvent, sendWorkerMessage, Triggers } from "../worker";
 
 enableMapSet();
 
@@ -50,6 +50,8 @@ function Content() {
 }
 
 function RootComponent() {
+	const navigate = useNavigate();
+
 	const saveCampaign = React.useCallback(async function saveCampaign(state: Types.Campaign.WorkerState) {
 		// eslint-disable-next-line no-console
 		console.log("saveCampaign", state);
@@ -68,11 +70,26 @@ function RootComponent() {
 			async (event: Types.Campaign.WorkerEventStateUpdate) => {
 				// eslint-disable-next-line no-console
 				console.log("stateUpdate", event.state);
-				campaignStore.trigger.update({ campaign: event.state });
+				campaignStore.trigger.update({ uiState: event.state });
 			},
 		);
 		const timeUpdateSubscription = onWorkerEvent("timeUpdate", (event: Types.Campaign.WorkerEventTimeUpdate) => {
 			campaignStore.trigger.updateTime({ time: event.time });
+		});
+
+		onEvent("menu.campaign.new", () => {
+			sendWorkerMessage({
+				name: "closeCampaign",
+			});
+			campaignStore.trigger.reset();
+			void navigate({ to: "/create/scenario" });
+		});
+		onEvent("menu.campaign.open", () => {
+			sendWorkerMessage({
+				name: "closeCampaign",
+			});
+			campaignStore.trigger.reset();
+			void navigate({ to: "/open" });
 		});
 		return () => {
 			serializedSubscription.dispose();
