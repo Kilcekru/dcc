@@ -28,10 +28,13 @@ export function FlightGroupList() {
 	const [selectedFlightGroup, setSelectedFlightGroup] =
 		React.useState<Types.Serialization.FlightGroupSerialized | null>(null);
 	const flightGroups = useSelector(campaignStore, (state) => state.context.campaign?.flightGroups);
-	const blueFlightGroups = React.useMemo(() => flightGroups?.filter((group) => group.coalition === "blue"), [flightGroups]);
+	const blueFlightGroups = React.useMemo(
+		() => flightGroups?.filter((group) => group.coalition === "blue"),
+		[flightGroups],
+	);
 
 	return (
-		<Card className="flex-1 border-[#ff00aa]/30 bg-[#0b0014]/80 text-[#e0e0ff] shadow-[0_0_15px_rgba(255,0,170,0.3)]" >
+		<Card className="flex-1 border-[#ff00aa]/30 bg-[#0b0014]/80 text-[#e0e0ff] shadow-[0_0_15px_rgba(255,0,170,0.3)]">
 			<CardHeader className="pb-2">
 				<CardTitle className="flex items-center gap-2 text-lg font-medium text-white">
 					<Users className="h-4 w-4 text-[#ff00aa]" />
@@ -59,28 +62,31 @@ export function FlightGroupList() {
 						<div className="space-y-3">
 							{blueFlightGroups?.map((group) => {
 								const aircraftId = group.aircraftIds[0];
-								const aircraft = aircraftId == null ? null : getEntity<Types.Serialization.AircraftSerialized>(aircraftId);
+								const aircraft =
+									aircraftId == null ? null : getEntity<Types.Serialization.AircraftSerialized>(aircraftId);
 
-								return <div
-									key={group.id}
-									className={cn(
-										"rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-3 transition-colors hover:bg-[#9900ff]/10",
-										selectedFlightGroup?.id === group.id && "border-[#ff00aa]/50 bg-[#ff00aa]/10",
-									)}
-									onClick={() => setSelectedFlightGroup(group)}
-								>
-									<div className="flex items-center justify-between">
-										<h3 className="retro-font font-medium text-white">{group.name}</h3>
-										{/*<Badge className={cn("text-xs", getStatusColor(group.status))}>{group.status}</Badge>*/}
-									</div>
-									<div className="mt-2 flex items-center justify-between text-sm">
-										<div className="flex items-center gap-1">
-											<Plane className="h-3.5 w-3.5 text-[#00ddff]" />
-											<span className="text-[#9900ff]">{aircraft?.aircraftType}</span>
+								return (
+									<div
+										key={group.id}
+										className={cn(
+											"rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-3 transition-colors hover:bg-[#9900ff]/10",
+											selectedFlightGroup?.id === group.id && "border-[#ff00aa]/50 bg-[#ff00aa]/10",
+										)}
+										onClick={() => setSelectedFlightGroup(group)}
+									>
+										<div className="flex items-center justify-between">
+											<h3 className="retro-font font-medium text-white">{group.name}</h3>
+											{/*<Badge className={cn("text-xs", getStatusColor(group.status))}>{group.status}</Badge>*/}
 										</div>
-										<span className="text-[#9900ff]">x{group.aircraftIds.length}</span>
+										<div className="mt-2 flex items-center justify-between text-sm">
+											<div className="flex items-center gap-1">
+												<Plane className="h-3.5 w-3.5 text-[#00ddff]" />
+												<span className="text-[#9900ff]">{aircraft?.aircraftType}</span>
+											</div>
+											<span className="text-[#9900ff]">x{group.aircraftIds.length}</span>
+										</div>
 									</div>
-								</div>
+								);
 							})}
 						</div>
 					</TabsContent>
@@ -146,6 +152,6 @@ export function FlightGroupList() {
 					</TabsContent>
 				</Tabs>
 			</CardContent>
-		</Card >
+		</Card>
 	);
 }

@@ -26,7 +26,6 @@ export const Route = createFileRoute("/home")({
 function Home() {
 	const [mapZoom, setMapZoom] = React.useState(1);
 
-
 	return (
 		<div className="bg-[#0b0014] text-[#e0e0ff]">
 			<Header />
