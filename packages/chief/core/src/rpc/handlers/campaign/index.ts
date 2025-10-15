@@ -13,6 +13,8 @@ const saveCampaign: Types.Rpc.Campaign["saveCampaign"] = async (campaign) => {
 		time: campaign.time ?? 0,
 		countryName: campaign.factionDefinitions.blue?.countryName ?? "",
 		factionName: campaign.factionDefinitions.blue?.name ?? "",
+		opponentCountryName: campaign.factionDefinitions.red?.countryName ?? "",
+		opponentFactionName: campaign.factionDefinitions.red?.name ?? "",
 	});
 };
 

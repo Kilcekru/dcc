@@ -16,6 +16,8 @@ export namespace Schema {
 		active: z.boolean(),
 		name: z.string(),
 		countryName: z.string().optional(),
+		opponentFactionName: z.string().optional(),
+		opponentCountryName: z.string().optional(),
 		// created: z.coerce.date(),
 		edited: z.coerce.date(),
 		time: z.number(),

@@ -1,7 +1,7 @@
 import { onEvent, rpc } from "@kilcekru/dcc-lib-rpc";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
-import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { enableMapSet } from "immer";
 import * as React from "react";
@@ -20,10 +20,22 @@ const queryClient = new QueryClient();
 
 function Content() {
 	const navigate = useNavigate();
+	const { location } = useRouterState();
 
 	const resumeCampaign = useQuery({
 		queryKey: ["savedState"],
-		queryFn: () => rpc.campaign.resumeCampaign(Config.campaignVersion),
+		queryFn: async () => {
+			const result = await rpc.campaign.resumeCampaign(Config.campaignVersion)
+			return result ?? null;
+		},
+	});
+
+	const campaignList = useQuery({
+		queryKey: ["campaigns"],
+		queryFn: async () => {
+			const list = await rpc.campaign.loadCampaignList();
+			return Object.values(list);
+		},
 	});
 
 	if (resumeCampaign.isError) {
@@ -31,15 +43,22 @@ function Content() {
 	}
 
 	React.useEffect(() => {
-		if (resumeCampaign.isSuccess) {
+		const isOnRedirectablePage = location.pathname === "/" || location.pathname === "/error";
+
+		if (resumeCampaign.isSuccess && campaignList.isSuccess && isOnRedirectablePage) {
 			if (resumeCampaign.data == null) {
-				void navigate({ to: "/create/scenario" });
+				// No resume campaign available, check if other save games exist
+				if (campaignList.data.length > 0) {
+					void navigate({ to: "/open" });
+				} else {
+					void navigate({ to: "/create/scenario" });
+				}
 			} else {
 				Triggers.load({ ...resumeCampaign.data });
 				void navigate({ to: "/home" });
 			}
 		}
-	}, [resumeCampaign.isSuccess, resumeCampaign.data, navigate]);
+	}, [location.pathname, resumeCampaign.isSuccess, resumeCampaign.data, campaignList.isSuccess, campaignList.data, navigate]);
 
 	return (
 		<div className="w-full h-full dark dark:bg-black flex flex-col text-white">

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/error")({
 function Error() {
 	return (
 		<div className="p-2">
-			<h3>Welcome Error!</h3>
+			<h3>Error!</h3>
 		</div>
 	);
 }

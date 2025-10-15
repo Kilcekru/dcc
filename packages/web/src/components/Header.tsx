@@ -83,11 +83,6 @@ export function Header() {
 						</ul>
 					</NavigationMenuContent>
 				</NavigationMenuItem>
-				<NavigationMenuItem>
-					<NavigationMenuLink className={navigationMenuTriggerStyle()} href="/roadmap" data-astro-prefetch>
-						Roadmap
-					</NavigationMenuLink>
-				</NavigationMenuItem>
 			</NavigationMenuList>
 			<NavigationMenuList className="hidden sm:flex">
 				<NavigationMenuItem>

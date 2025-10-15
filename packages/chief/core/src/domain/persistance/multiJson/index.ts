@@ -10,8 +10,10 @@ export const CampaignPersistance = new MultiJson({
 		item: z.object({
 			id: z.string(),
 			name: z.string(),
-			factionName: z.string(),
-			countryName: z.string(),
+			factionName: z.string().optional(),
+			countryName: z.string().optional(),
+			opponentFactionName: z.string().optional(),
+			opponentCountryName: z.string().optional(),
 			edited: z.coerce.date(),
 			active: z.boolean(),
 			version: z.number(),
@@ -27,6 +29,8 @@ export const CampaignPersistance = new MultiJson({
 		name: item.name,
 		factionName: item.factionName,
 		countryName: item.countryName,
+		opponentFactionName: item.opponentFactionName,
+		opponentCountryName: item.opponentCountryName,
 		time: item.time,
 	}),
 });
