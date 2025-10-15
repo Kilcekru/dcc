@@ -80,7 +80,9 @@ function Open() {
 
 	const incompatibleCampaigns = React.useMemo(() => {
 		return new Set(
-			campaignListQuery.data?.filter((campaign) => (campaign.version ?? 0) < Config.campaignVersion).map((campaign) => campaign.id) ?? [],
+			campaignListQuery.data
+				?.filter((campaign) => (campaign.version ?? 0) < Config.campaignVersion)
+				.map((campaign) => campaign.id) ?? [],
 		);
 	}, [campaignListQuery.data]);
 
@@ -94,7 +96,6 @@ function Open() {
 		},
 		[incompatibleCampaigns, openCampaignMutation],
 	);
-
 
 	const renderCampaignCard = (synopsis: Types.Campaign.CampaignSynopsis, index: number) => {
 		const incompatible = incompatibleCampaigns.has(synopsis.id);
@@ -179,7 +180,8 @@ function Open() {
 												Confirm Delete
 											</AlertDialogTitle>
 											<AlertDialogDescription className="text-[#c3b3ff]">
-												Remove campaign <span className="text-[#ff00aa]">{synopsis.name}</span>? This action cannot be undone.
+												Remove campaign <span className="text-[#ff00aa]">{synopsis.name}</span>? This action cannot be
+												undone.
 											</AlertDialogDescription>
 										</AlertDialogHeader>
 										<AlertDialogFooter>
@@ -290,7 +292,9 @@ function Open() {
 					<section>
 						<div className="mb-6">
 							<h2 className="retro-font text-2xl font-bold text-white">Saved Campaigns</h2>
-							<p className="text-sm text-[#9900ff]">Manage your operations and resume from the battlefield at any time.</p>
+							<p className="text-sm text-[#9900ff]">
+								Manage your operations and resume from the battlefield at any time.
+							</p>
 						</div>
 
 						<div>

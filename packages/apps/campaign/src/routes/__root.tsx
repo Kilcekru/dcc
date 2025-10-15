@@ -25,7 +25,7 @@ function Content() {
 	const resumeCampaign = useQuery({
 		queryKey: ["savedState"],
 		queryFn: async () => {
-			const result = await rpc.campaign.resumeCampaign(Config.campaignVersion)
+			const result = await rpc.campaign.resumeCampaign(Config.campaignVersion);
 			return result ?? null;
 		},
 	});
@@ -58,7 +58,14 @@ function Content() {
 				void navigate({ to: "/home" });
 			}
 		}
-	}, [location.pathname, resumeCampaign.isSuccess, resumeCampaign.data, campaignList.isSuccess, campaignList.data, navigate]);
+	}, [
+		location.pathname,
+		resumeCampaign.isSuccess,
+		resumeCampaign.data,
+		campaignList.isSuccess,
+		campaignList.data,
+		navigate,
+	]);
 
 	return (
 		<div className="w-full h-full dark dark:bg-black flex flex-col text-white">
