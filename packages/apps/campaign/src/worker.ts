@@ -1,13 +1,36 @@
+import { rpc } from "@kilcekru/dcc-lib-rpc";
 import { Campaign } from "@kilcekru/dcc-shared-types";
 import * as Types from "@kilcekru/dcc-shared-types";
+
+import { campaignStore } from "./stores/campaign";
 const worker = new Worker("./worker.js");
 
 worker.addEventListener("message", (e: MessageEvent<Campaign.WorkerEvent>) => {
 	switch (e.data.name) {
+		case "stateUpdate": {
+			const uiState = e.data.state;
+			campaignStore.trigger.update({ uiState });
+			// start the serialization process to save the campaign
+			sendWorkerMessage({
+				name: "serialize",
+			});
+			break;
+		}
+		case "serialized": {
+			const uiState = e.data.state;
+			// eslint-disable-next-line no-console
+			console.log("saveCampaign", uiState);
+			void rpc.campaign
+				.saveCampaign(uiState)
+				// eslint-disable-next-line no-console
+				.catch((e) => console.error(e instanceof Error ? e.message : "unknown error"));
+			break;
+		}
+		case "timeUpdate": {
+			campaignStore.trigger.updateTime({ time: e.data.time });
+			break;
+		}
 		case "mapUpdate":
-		case "serialized":
-		case "timeUpdate":
-		case "stateUpdate":
 		case "loadFailed": {
 			// handled in onWorkerEvent
 			break;

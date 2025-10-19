@@ -1,24 +1,28 @@
 import * as Types from "@kilcekru/dcc-shared-types";
 import { useSelector } from "@xstate/store/react";
-import { Plane, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import React from "react";
 
-import { getEntity } from "../../lib/get-entity";
 import { cn } from "../../lib/utils";
 import { campaignStore } from "../../stores/campaign";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { FlightGroup } from "./flight-group";
 
-const getStatusColor = (status: string) => {
-	switch (status) {
-		case "Ready":
+const getStatusColor = (state: Types.Serialization.FlightGroupState) => {
+	switch (state) {
+		case "waiting":
 			return "bg-[#00ffaa]/10 text-[#00ffaa]";
-		case "En Route":
+		case "start up":
 			return "bg-[#00ddff]/10 text-[#00ddff]";
-		case "Maintenance":
+		case "in air":
 			return "bg-[#ffcc00]/10 text-[#ffcc00]";
+		case "landed":
+			return "bg-[#9900ff]/10 text-[#9900ff]";
+		case "destroyed":
+			return "bg-gray-100/10 text-gray-500";
 		default:
 			return "bg-gray-100/10 text-gray-500";
 	}
@@ -27,7 +31,7 @@ const getStatusColor = (status: string) => {
 export function FlightGroupList() {
 	const [selectedFlightGroup, setSelectedFlightGroup] =
 		React.useState<Types.Serialization.FlightGroupSerialized | null>(null);
-	const flightGroups = useSelector(campaignStore, (state) => state.context.flightGroups);
+	const flightGroups = useSelector(campaignStore, (state) => state.context.uiState.flightGroups);
 	const blueFlightGroups = React.useMemo(
 		() => flightGroups?.filter((group) => group.coalition === "blue"),
 		[flightGroups],
@@ -60,34 +64,14 @@ export function FlightGroupList() {
 					</TabsList>
 					<TabsContent value="list" className="p-4">
 						<div className="space-y-3">
-							{blueFlightGroups?.map((group) => {
-								const aircraftId = group.aircraftIds[0];
-								const aircraft =
-									aircraftId == null ? null : getEntity<Types.Serialization.AircraftSerialized>(aircraftId);
-
-								return (
-									<div
-										key={group.id}
-										className={cn(
-											"rounded-md border border-[#9900ff]/30 bg-[#0b0014]/80 p-3 transition-colors hover:bg-[#9900ff]/10",
-											selectedFlightGroup?.id === group.id && "border-[#ff00aa]/50 bg-[#ff00aa]/10",
-										)}
-										onClick={() => setSelectedFlightGroup(group)}
-									>
-										<div className="flex items-center justify-between">
-											<h3 className="retro-font font-medium text-white">{group.name}</h3>
-											{/*<Badge className={cn("text-xs", getStatusColor(group.status))}>{group.status}</Badge>*/}
-										</div>
-										<div className="mt-2 flex items-center justify-between text-sm">
-											<div className="flex items-center gap-1">
-												<Plane className="h-3.5 w-3.5 text-[#00ddff]" />
-												<span className="text-[#9900ff]">{aircraft?.aircraftType}</span>
-											</div>
-											<span className="text-[#9900ff]">x{group.aircraftIds.length}</span>
-										</div>
-									</div>
-								);
-							})}
+							{blueFlightGroups?.map((group) => (
+								<FlightGroup
+									key={group.id}
+									group={group}
+									selected={selectedFlightGroup?.id === group.id}
+									onSelect={() => setSelectedFlightGroup(group)}
+								/>
+							))}
 						</div>
 					</TabsContent>
 					<TabsContent value="details" className="p-4">
@@ -95,8 +79,8 @@ export function FlightGroupList() {
 							<div className="space-y-4">
 								<div className="flex items-center justify-between">
 									<h3 className="retro-font text-lg font-medium text-white">{selectedFlightGroup.name}</h3>
-									<Badge className={cn("text-xs", getStatusColor(/* selectedFlightGroup.status */ "Ready"))}>
-										{/* selectedFlightGroup.status */}
+									<Badge className={cn("text-xs", getStatusColor(selectedFlightGroup.state))}>
+										{selectedFlightGroup.state}
 									</Badge>
 								</div>
 
@@ -142,7 +126,7 @@ export function FlightGroupList() {
 									<Button
 										size="sm"
 										className="bg-[#ff00aa] text-white hover:bg-[#ff00aa]/80"
-										disabled={/* selectedFlightGroup.status !== "Ready" */ true}
+										disabled={selectedFlightGroup.state !== "waiting"}
 									>
 										Deploy
 									</Button>
