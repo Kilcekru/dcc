@@ -42,7 +42,7 @@
 	"devDependencies": {
 		"@types/adm-zip": "^0.5.5",
 		"@types/fs-extra": "^11.0.4",
-		"@types/node": "^18.11.9",
+		"@types/node": "22.13.9",
 		"ts-node": "^10.9.1",
 		"tsup": "^6.5.0"
 	},
@@ -50,6 +50,6 @@
 		"@kilcekru/lua-table": "^1.1.2",
 		"adm-zip": "^0.5.10",
 		"fs-extra": "^11.2.0",
-		"zod": "^3.22.4"
+		"zod": "3.24.2"
 	}
 }

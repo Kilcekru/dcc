@@ -22,9 +22,9 @@
 		"make": "electron-forge make"
 	},
 	"devDependencies": {
-		"@electron-forge/cli": "7.7.0",
-		"@electron-forge/maker-squirrel": "7.7.0",
+		"@electron-forge/cli": "7.10.2",
+		"@electron-forge/maker-squirrel": "7.10.2",
 		"chokidar": "^3.5.3",
-		"electron": "35.0.0"
+		"electron": "38.3.0"
 	}
 }

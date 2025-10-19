@@ -137,6 +137,7 @@ function Faction() {
 														</div>
 														<div>
 															<h3 className="retro-font text-lg font-bold text-white">{faction.name}</h3>
+															<p className="text-sm text-[#00ddff]">{faction.year}</p>
 														</div>
 													</div>
 

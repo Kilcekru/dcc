@@ -28,7 +28,6 @@ export function Header() {
 		if (time == null) {
 			return null;
 		}
-
 		return Utils.DateTime.timerToDate(time);
 	}, [time]);
 
@@ -44,13 +43,13 @@ export function Header() {
 		<div className="border-b border-[#ff00aa]/30 bg-[#0b0014]/90 px-4 py-2 flex">
 			<div className="flex items-center justify-between flex-1">
 				<h1 className="retro-font text-xl font-medium text-[#00ddff]">
-					<span className="text-[#ff00aa]">OPERATION:</span> {name || "NEON HORIZON"}
+					<span className="text-[#ff00aa]">OPERATION:</span> {name}
 				</h1>
 				<div className="flex items-center gap-4">
 					{date == null ? null : (
 						<div className="flex items-center gap-2 text-sm text-[#9900ff]">
 							<span className="retro-font">
-								Day {day} {format(date, "HH:mm")} Zulu
+								Day {day} {format(date, "HH:mm:ss")} Zulu
 							</span>
 						</div>
 					)}

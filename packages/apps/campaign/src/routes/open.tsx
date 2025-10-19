@@ -172,7 +172,7 @@ function Open() {
 										</Button>
 									</AlertDialogTrigger>
 									<AlertDialogContent
-										className="w-56 border-[#ff00aa]/40 bg-[#120024] text-[#e0e0ff] shadow-[0_0_30px_rgba(255,0,170,0.35)] rounded-xl"
+										className="w-56 border-[#9900ff]/30 bg-[#0b0014]/80 text-[#e0e0ff] shadow-[0_0_30px_rgba(255,0,170,0.35)] rounded-xl"
 										style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
 									>
 										<AlertDialogHeader>

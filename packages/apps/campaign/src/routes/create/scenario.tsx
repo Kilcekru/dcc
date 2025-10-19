@@ -114,7 +114,7 @@ export default function Scenario() {
 												{getCampaignIcon(scenario.id)}
 											</div>
 											<div>
-												<h3 className="retro-font text-lg font-bold text-white">{scenario.name}</h3>
+												<h3 className="retro-font text-lg font-bold text-white">{scenario.theatre}</h3>
 												<p className="text-sm text-[#9900ff]">{scenario.id}</p>
 											</div>
 										</div>

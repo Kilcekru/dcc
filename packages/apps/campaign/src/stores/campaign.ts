@@ -1,6 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import type * as Types from "@kilcekru/dcc-shared-types";
-import { createStoreWithProducer } from "@xstate/store";
+import { createStore } from "@xstate/store";
 import { produce } from "immer";
 
 export type ModalName = "next day" | "game over";
@@ -61,25 +61,25 @@ export const initState: CampaignState = {
 	missionId: undefined,
 };
 
-export const campaignStore = createStoreWithProducer(produce, {
+export const campaignStore = createStore({
 	context: {
 		...initState,
 		status: "loading",
 	} as CampaignState,
 	on: {
-		update: (context, { uiState }: { uiState: Types.Serialization.UIState }) => {
-			context = {
-				...context,
-				...uiState,
-			};
-		},
+		update: (context, { uiState }: { uiState: Types.Serialization.UIState }) =>
+			produce(context, (draft) => {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				draft = {
+					...draft,
+					...uiState,
+				};
+			}),
 
-		updateTime: (context, { time }: { time: number }) => {
-			context = {
-				...context,
-				time: time,
-			};
-		},
+		updateTime: (context, { time }: { time: number }) =>
+			produce(context, (draft) => {
+				draft.time = time;
+			}),
 		reset: () => initState,
 	},
 });

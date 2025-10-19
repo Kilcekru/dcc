@@ -9,14 +9,14 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"tailwind-merge": "^2.3.0",
-		"tailwindcss": "4.0.11",
-		"tailwindcss-animate": "^1.0.7",
+		"@xstate/store": "^3.7.0",
+		"cnbuilder": "^3.1.0",
 		"postcss": "^8.5.3",
 		"react": "19.0.0",
 		"react-dom": "19.0.0",
-		"cnbuilder": "^3.1.0",
-		"@xstate/store": "^3.7.0"
+		"tailwind-merge": "^3.3.1",
+		"tailwindcss": "^4.1.14",
+		"tailwindcss-animate": "^1.0.7"
 	},
 	"devDependencies": {
 		"@foxdelta2/dcsjs": "0.4.0-next.8",

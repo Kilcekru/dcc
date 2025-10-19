@@ -8,7 +8,6 @@
 		"validate:lint": "eslint src --max-warnings 0",
 		"validate:ts": "tsc --noEmit"
 	},
-	"dependencies": {},
 	"devDependencies": {
 		"@kilcekru/dcc-shared-types": "workspace:*"
 	}

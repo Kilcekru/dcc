@@ -10,17 +10,17 @@
 		"watch": "node src/build.mjs --watch"
 	},
 	"dependencies": {
+		"@deanc/esbuild-plugin-postcss": "1.0.2",
 		"@kilcekru/esbuild-plugin-css-extra": "^0.1.2",
 		"chokidar": "^3.5.3",
 		"esbuild": "0.25.0",
-		"fs-extra": "^11.1.1",
 		"esbuild-plugin-tailwindcss": "2.0.1",
-		"@deanc/esbuild-plugin-postcss": "1.0.2"
+		"fs-extra": "^11.2.0"
 	},
 	"devDependencies": {
-		"regedit": "^5.1.2",
-		"vite": "^6.2.2",
+		"@tanstack/router-plugin": "1.114.17",
 		"@vitejs/plugin-react": "^4.3.4",
-		"@tanstack/router-plugin": "1.114.17"
+		"regedit": "^5.1.2",
+		"vite": "^6.2.2"
 	}
 }
