@@ -1,40 +1,12 @@
 import { Button, cn } from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { createFileRoute } from "@tanstack/react-router";
 import { LogOut, Settings } from "lucide-react";
 import { BookOpen, Plane } from "lucide-react";
 import { motion } from "motion/react";
-import * as React from "react";
+import React from "react";
 import { useState } from "react";
 
 import f14 from "../assets/index.png";
-
-/* type App = {
-	name: string;
-	id: string;
-	available: boolean;
-	description: string;
-}; */
-/* const menuOptions: Array<App> = [
-	{
-		name: "Dynamic Campaign",
-		id: "campaign",
-		available: true,
-		description: "Create and fly your own Campaign",
-	},
-	{
-		name: "Quick Mission",
-		id: "mission",
-		available: false,
-		description: "Create your own Mission in seconds",
-	},
-	{
-		name: "Patcher",
-		id: "patcher",
-		available: false,
-		description: "Perform Updates and Fixes",
-	},
-]; */
 
 const menuOptions = [
 	{ id: "campaign", label: "DYNAMIC CAMPAIGN", icon: BookOpen },
@@ -43,11 +15,7 @@ const menuOptions = [
 	{ id: "exit", label: "EXIT", icon: LogOut },
 ];
 
-export const Route = createFileRoute("/")({
-	component: Index,
-});
-
-function Index() {
+export function Home() {
 	const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
 	return (

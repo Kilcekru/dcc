@@ -1,30 +1,26 @@
 import { Button } from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
 
+import { routerStore } from "../stores/router";
 import { userConfigStore } from "../stores/user-config";
-import { loadUserConfig } from "../utils";
 
-export const Route = createFileRoute("/onboarding")({
-	component: OnboardingPage,
-});
-
-function OnboardingPage() {
-	const navigate = useNavigate();
-
+export function Onboarding() {
 	async function completeSetup() {
 		try {
 			await rpc.home.setSetupComplete();
-			await loadUserConfig();
-			void navigate({ to: "/" });
+			const config = await rpc.misc.getUserConfig();
+			userConfigStore.trigger.set({
+				config,
+			});
+			routerStore.trigger.push({ path: "home" });
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Unknown error";
 			// eslint-disable-next-line no-console
 			console.error(msg);
-			userConfigStore.set({
+			userConfigStore.trigger.setError({
 				error: new Error(`onSetupComplete failed: ${msg}`),
 			});
 		}

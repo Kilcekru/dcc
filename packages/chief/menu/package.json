@@ -9,7 +9,7 @@
 		"validate:ts": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@xstate/store": "^3.7.0",
+		"@xstate/store": "^3.11.1",
 		"cnbuilder": "^3.1.0",
 		"postcss": "^8.5.3",
 		"react": "19.0.0",

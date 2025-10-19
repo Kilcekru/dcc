@@ -42,9 +42,8 @@
 		"validate:ts": "turbo run validate:ts --no-daemon"
 	},
 	"devDependencies": {
-		"@deanc/esbuild-plugin-postcss": "1.0.2",
 		"@kilcekru/ts-basics": "3.2.0",
-		"esbuild-plugin-tailwindcss": "2.0.1",
+		"esbuild-plugin-tailwindcss": "^2.1.0",
 		"eslint": "8.57.0",
 		"husky": "^8.0.3",
 		"npm-run-all": "^4.1.5",

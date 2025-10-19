@@ -15,17 +15,6 @@ export async function buildApps({ env, watch }) {
 	const promises = [];
 
 	for (const app of apps) {
-		/* if (app.name !== "campaign") continue;
-		console.log(app, watch, Path.join(paths.target, "apps", app.name))
-		await build({
-			root: Path.join(paths.apps, app.name, "src"),
-			plugins: [react()],
-			build: {
-				outDir: Path.join(paths.target, "apps", app.name),
-				emptyOutDir: true,
-			}
-		}) */
-
 		const options = {
 			entryPoints: {
 				index: Path.join(paths.apps, app.name, "src/index.tsx"),
