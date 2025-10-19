@@ -1,7 +1,6 @@
 import * as Path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { TanStackRouterEsbuild } from "@tanstack/router-plugin/esbuild";
 import chokidar from "chokidar";
 import esbuild from "esbuild";
 import tailwindPlugin from "esbuild-plugin-tailwindcss";
@@ -26,6 +25,7 @@ export async function buildApps({ env, watch }) {
 				emptyOutDir: true,
 			}
 		}) */
+
 		const options = {
 			entryPoints: {
 				index: Path.join(paths.apps, app.name, "src/index.tsx"),
@@ -39,7 +39,7 @@ export async function buildApps({ env, watch }) {
 				".jpg": "file",
 			},
 			assetNames: "[name]",
-			plugins: [tailwindPlugin(), TanStackRouterEsbuild({ target: "react", autoCodeSplitting: false })],
+			plugins: [tailwindPlugin()],
 		};
 
 		if (watch) {

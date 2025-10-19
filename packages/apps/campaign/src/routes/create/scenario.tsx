@@ -1,34 +1,18 @@
 import { cn } from "@kilcekru/dcc-lib-components";
 import { rpc } from "@kilcekru/dcc-lib-rpc";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSelector } from "@xstate/store/react";
-import { ArrowLeft, ChevronRight, Mountain, Shield, Target, Zap } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
-import * as React from "react";
+import React from "react";
 
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
+import { Link } from "../../components/ui/link";
 import { scenarioList } from "../../data/scenarios";
 import { createCampaignStore } from "../../stores/create";
 
-export const Route = createFileRoute("/create/scenario")({
-	component: Scenario,
-});
-
-export default function Scenario() {
+export function Scenario() {
 	const selectedScenario = useSelector(createCampaignStore, (state) => state.context.scenario);
-	const getCampaignIcon = (id: string) => {
-		switch (id) {
-			case "neon-horizon":
-				return <Zap className="h-6 w-6" />;
-			case "crimson-vortex":
-				return <Target className="h-6 w-6" />;
-			case "phantom-nexus":
-				return <Shield className="h-6 w-6" />;
-			default:
-				return <Mountain className="h-6 w-6" />;
-		}
-	};
 
 	return (
 		<div className="relative flex min-h-screen w-full flex-col bg-[#0b0014]">
@@ -110,9 +94,6 @@ export default function Scenario() {
 									{/* Campaign content */}
 									<div className="p-5">
 										<div className="mb-4 flex items-center gap-3">
-											<div className="flex h-10 w-10 items-center justify-center rounded-full">
-												{getCampaignIcon(scenario.id)}
-											</div>
 											<div>
 												<h3 className="retro-font text-lg font-bold text-white">{scenario.theatre}</h3>
 												<p className="text-sm text-[#9900ff]">{scenario.id}</p>
@@ -141,7 +122,7 @@ export default function Scenario() {
 
 					{/* Action buttons */}
 					<div className="mt-8 flex justify-end">
-						<Link to="/create/faction" disabled={selectedScenario == null}>
+						<Link to="create/faction" disabled={selectedScenario == null}>
 							<Button
 								className="group relative flex items-center gap-2 bg-gradient-to-r from-[#ff00aa] to-[#9900ff] px-8 py-6 text-lg font-medium text-white hover:from-[#ff00aa]/90 hover:to-[#9900ff]/90"
 								disabled={selectedScenario == null}

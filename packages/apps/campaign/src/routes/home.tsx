@@ -1,5 +1,4 @@
 import { cn } from "@kilcekru/dcc-lib-components";
-import { createFileRoute } from "@tanstack/react-router";
 import { Eye, Info, Sun, Target, Wind } from "lucide-react";
 import React from "react";
 
@@ -19,11 +18,7 @@ const campaignData = {
 	objectives: ["Destroy the primary fuel depot", "Disable the runway", "Eliminate enemy air patrol"],
 };
 
-export const Route = createFileRoute("/home")({
-	component: Home,
-});
-
-function Home() {
+export function Home() {
 	const [mapZoom, setMapZoom] = React.useState(1);
 
 	return (

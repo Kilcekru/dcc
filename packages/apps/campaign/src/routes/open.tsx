@@ -3,7 +3,6 @@ import { rpc } from "@kilcekru/dcc-lib-rpc";
 import type * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, CalendarClock, Clock, Shield, Skull, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
@@ -26,14 +25,10 @@ import { Config } from "../data/config";
 import { countryNameToCode } from "../domain/country";
 import { campaignStore } from "../stores/campaign";
 import { createCampaignStore } from "../stores/create";
+import { routerStore } from "../stores/router";
 import { Triggers } from "../worker";
 
-export const Route = createFileRoute("/open")({
-	component: Open,
-});
-
-function Open() {
-	const navigate = useNavigate();
+export function Open() {
 	const queryClient = useQueryClient();
 
 	const campaignListQuery = useQuery({
@@ -46,9 +41,9 @@ function Open() {
 
 	React.useEffect(() => {
 		if (campaignListQuery.isSuccess && campaignListQuery.data.length === 0) {
-			void navigate({ to: "/create/scenario" });
+			routerStore.trigger.push({ path: "create" });
 		}
-	}, [campaignListQuery.isSuccess, campaignListQuery.data, navigate]);
+	}, [campaignListQuery.isSuccess, campaignListQuery.data]);
 
 	const openCampaignMutation = useMutation({
 		mutationFn: async (synopsis: Types.Campaign.CampaignSynopsis) => {
@@ -64,7 +59,7 @@ function Open() {
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ["campaigns"] });
-			void navigate({ to: "/home" });
+			routerStore.trigger.push({ path: "home" });
 		},
 	});
 
@@ -279,7 +274,7 @@ function Open() {
 						className="border-[#ff00aa]/50 bg-[#0b0014]/80 text-[#ff00aa] hover:bg-[#ff00aa]/20"
 						onClick={() => {
 							createCampaignStore.trigger.setScenario({ scenario: null });
-							void navigate({ to: "/create/scenario" });
+							routerStore.trigger.push({ path: "create" });
 						}}
 					>
 						<span className="retro-font">CREATE NEW CAMPAIGN</span>
@@ -308,7 +303,7 @@ function Open() {
 									<p>No campaign data detected.</p>
 									<Button
 										className="bg-gradient-to-r from-[#ff00aa] to-[#9900ff] text-white"
-										onClick={() => void navigate({ to: "/create/scenario" })}
+										onClick={() => routerStore.trigger.push({ path: "create" })}
 									>
 										New Campaign
 									</Button>

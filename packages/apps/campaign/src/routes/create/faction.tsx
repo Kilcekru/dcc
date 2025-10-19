@@ -1,7 +1,6 @@
 import { cn } from "@kilcekru/dcc-lib-components";
 import * as Types from "@kilcekru/dcc-shared-types";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSelector } from "@xstate/store/react";
 import { ArrowLeft, ChevronRight, Plane, Plus } from "lucide-react";
 import { motion } from "motion/react";
@@ -9,14 +8,13 @@ import React from "react";
 
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
+import { Link } from "../../components/ui/link";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { countryNameToCode } from "../../domain/country";
 import { factionList } from "../../domain/faction";
 import { createCampaignStore } from "../../stores/create";
-
-export const Route = createFileRoute("/create/faction")({
-	component: Faction,
-});
+import { routerStore } from "../../stores/router";
+import { sendWorkerMessage } from "../../worker";
 
 function getFactionAircrafts(faction: Types.Campaign.Faction) {
 	const aircrafts = new Set<string>();
@@ -30,12 +28,44 @@ function getFactionAircrafts(faction: Types.Campaign.Faction) {
 	return Array.from(aircrafts);
 }
 
-function Faction() {
+export function Faction({ opponent }: { opponent?: boolean }) {
+	const scenario = useSelector(createCampaignStore, (state) => state.context.scenario);
 	const selectedFaction = useSelector(createCampaignStore, (state) => state.context.faction);
+	const selectedOpponentFaction = useSelector(createCampaignStore, (state) => state.context.oponentFaction);
 	const factionsQuery = useQuery({
 		queryKey: ["factions"],
 		queryFn: factionList,
 	});
+	const activeFaction = opponent ? selectedOpponentFaction : selectedFaction;
+
+	const handleConfirmSelection = async () => {
+		if (selectedFaction == null || scenario == null || selectedOpponentFaction == null) {
+			return;
+		}
+
+		sendWorkerMessage({
+			name: "generate",
+			payload: {
+				blueFactionDefinition: selectedFaction,
+				redFactionDefinition: selectedOpponentFaction,
+				scenario: scenario,
+				campaignParams: {
+					aiSkill: "Average",
+					badWeather: false,
+					hardcore: false,
+					hotStart: false,
+					nightMissions: false,
+					samActive: "activeNoRepair",
+					shoradLevel: "normal",
+					training: false,
+				},
+			},
+		});
+		sendWorkerMessage({
+			name: "serialize",
+		});
+		routerStore.trigger.push({ path: "home" });
+	};
 
 	return (
 		<div className="relative flex min-h-screen w-full flex-col bg-[#0b0014]">
@@ -59,7 +89,7 @@ function Faction() {
 			<header className="relative z-10 border-b border-[#ff00aa]/30 bg-[#0b0014]/90 px-4 py-4">
 				<div className="container flex items-center justify-between">
 					<div className="flex items-center gap-3">
-						<Link to="/create/scenario">
+						<Link to="create">
 							<Button
 								variant="outline"
 								size="icon"
@@ -90,7 +120,7 @@ function Faction() {
 						transition={{ duration: 0.3 }}
 						className="mb-6"
 					>
-						<Link to="/create/custom-faction">
+						<Link to="create/custom-faction">
 							<Button
 								variant="outline"
 								className="group relative flex w-full items-center justify-center gap-2 border-dashed border-[#ff00aa]/50 bg-[#0b0014]/80 py-6 text-[#ff00aa] hover:border-[#ff00aa] hover:bg-[#ff00aa]/10"
@@ -108,83 +138,81 @@ function Faction() {
 							{!factionsQuery.isSuccess || factionsQuery.data == null
 								? null
 								: factionsQuery.data.map((faction, index) => (
-										<motion.div
-											key={faction.id}
-											initial={{ y: 20, opacity: 0 }}
-											animate={{ y: 0, opacity: 1 }}
-											transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
-											onClick={() => createCampaignStore.trigger.setFaction({ faction })}
+									<motion.div
+										key={faction.id}
+										initial={{ y: 20, opacity: 0 }}
+										animate={{ y: 0, opacity: 1 }}
+										transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
+										onClick={() => createCampaignStore.trigger.setFaction({ faction })}
+									>
+										<Card
+											className={cn(
+												"group relative cursor-pointer overflow-hidden border-[#9900ff]/30 bg-[#0b0014]/80 transition-all duration-300 hover:border-[#ff00aa]/50 hover:shadow-[0_0_20px_rgba(255,0,170,0.3)]",
+												activeFaction?.id === faction.id && "border-[#ff00aa] shadow-[0_0_30px_rgba(255,0,170,0.4)]",
+											)}
 										>
-											<Card
-												className={cn(
-													"group relative cursor-pointer overflow-hidden border-[#9900ff]/30 bg-[#0b0014]/80 transition-all duration-300 hover:border-[#ff00aa]/50 hover:shadow-[0_0_20px_rgba(255,0,170,0.3)]",
-													selectedFaction?.id === faction.id &&
-														"border-[#ff00aa] shadow-[0_0_30px_rgba(255,0,170,0.4)]",
-												)}
-											>
-												{/* Selected indicator */}
-												{selectedFaction?.id === faction.id && <div className="absolute left-0 top-0 h-full w-1" />}
+											{/* Selected indicator */}
+											{activeFaction?.id === faction.id && <div className="absolute left-0 top-0 h-full w-1" />}
 
-												{/* Faction content */}
-												<div className="p-5">
-													<div className="mb-4 flex items-center gap-4">
-														<div className="h-12 w-20 overflow-hidden rounded border border-[#9900ff]/30">
-															<img
-																src={`./assets/flags/4x3/${countryNameToCode(faction.countryName)}.svg`}
-																alt={faction.name}
-																className="h-full w-full object-cover"
-															/>
-														</div>
-														<div>
-															<h3 className="retro-font text-lg font-bold text-white">{faction.name}</h3>
-															<p className="text-sm text-[#00ddff]">{faction.year}</p>
-														</div>
+											{/* Faction content */}
+											<div className="p-5">
+												<div className="mb-4 flex items-center gap-4">
+													<div className="h-12 w-20 overflow-hidden rounded border border-[#9900ff]/30">
+														<img
+															src={`./assets/flags/4x3/${countryNameToCode(faction.countryName)}.svg`}
+															alt={faction.name}
+															className="h-full w-full object-cover"
+														/>
 													</div>
-
-													{/* Aircraft list */}
-													<div className="mb-4">
-														<div className="mb-2 flex items-center gap-2 text-sm">
-															<Plane className="h-4 w-4 text-[#00ddff]" />
-															<span className="text-[#9900ff]">Available Aircraft:</span>
-														</div>
-														<div className="grid grid-cols-2 gap-2 text-xs">
-															{getFactionAircrafts(faction).map((aircraft) => (
-																<div key={aircraft} className="flex items-center gap-1.5">
-																	<span className="text-[#ff00aa]">•</span>
-																	<span className="text-[#e0e0ff]">{aircraft}</span>
-																</div>
-															))}
-														</div>
+													<div>
+														<h3 className="retro-font text-lg font-bold text-white">{faction.name}</h3>
+														<p className="text-sm text-[#00ddff]">{faction.year}</p>
 													</div>
-
-													{/* Selection indicator */}
-													<div
-														className={cn(
-															"mt-2 h-1 w-full transition-all duration-300",
-															selectedFaction?.id === faction.id
-																? "bg-gradient-to-r from-[#ff00aa] to-[#9900ff]"
-																: "bg-[#9900ff]/20",
-														)}
-													/>
 												</div>
-											</Card>
-										</motion.div>
-									))}
+
+												{/* Aircraft list */}
+												<div className="mb-4">
+													<div className="mb-2 flex items-center gap-2 text-sm">
+														<Plane className="h-4 w-4 text-[#00ddff]" />
+														<span className="text-[#9900ff]">Available Aircraft:</span>
+													</div>
+													<div className="grid grid-cols-2 gap-2 text-xs">
+														{getFactionAircrafts(faction).map((aircraft) => (
+															<div key={aircraft} className="flex items-center gap-1.5">
+																<span className="text-[#ff00aa]">•</span>
+																<span className="text-[#e0e0ff]">{aircraft}</span>
+															</div>
+														))}
+													</div>
+												</div>
+
+												{/* Selection indicator */}
+												<div
+													className={cn(
+														"mt-2 h-1 w-full transition-all duration-300",
+														activeFaction?.id === faction.id
+															? "bg-gradient-to-r from-[#ff00aa] to-[#9900ff]"
+															: "bg-[#9900ff]/20",
+													)}
+												/>
+											</div>
+										</Card>
+									</motion.div>
+								))}
 						</div>
 					</ScrollArea>
 
 					{/* Action buttons */}
 					<div className="mt-8 flex justify-end">
-						<Link to="/create/opponent-faction" disabled={selectedFaction == null}>
-							<Button
-								className="group relative flex items-center gap-2 bg-gradient-to-r from-[#ff00aa] to-[#9900ff] px-8 py-6 text-lg font-medium text-white hover:from-[#ff00aa]/90 hover:to-[#9900ff]/90"
-								disabled={!selectedFaction}
-							>
-								<span className="retro-font">CONFIRM SELECTION</span>
-								<ChevronRight className="h-5 w-5" />
-								<span className="absolute inset-0 blur-[10px] bg-[#ff00aa]/20 opacity-0 transition-opacity group-hover:opacity-100"></span>
-							</Button>
-						</Link>
+						<Button
+							className="group relative flex items-center gap-2 bg-gradient-to-r from-[#ff00aa] to-[#9900ff] px-8 py-6 text-lg font-medium text-white hover:from-[#ff00aa]/90 hover:to-[#9900ff]/90"
+							disabled={!activeFaction}
+							onClick={handleConfirmSelection}
+						>
+							<span className="retro-font">CONFIRM SELECTION</span>
+							<ChevronRight className="h-5 w-5" />
+							<span className="absolute inset-0 blur-[10px] bg-[#ff00aa]/20 opacity-0 transition-opacity group-hover:opacity-100"></span>
+						</Button>
 					</div>
 				</div>
 			</main>

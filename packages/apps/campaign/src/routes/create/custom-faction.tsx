@@ -1,7 +1,6 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import { cn } from "@kilcekru/dcc-lib-components";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	AlertTriangle,
 	ArrowLeft,
@@ -23,12 +22,9 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { Link } from "../../components/ui/link";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-
-export const Route = createFileRoute("/create/custom-faction")({
-	component: CustomFaction,
-});
 
 const aircrafts = Object.values(DcsJs.aircraftDefinitions).sort((a, b) =>
 	Utils.Sort.String.asc(a.display_name, b.display_name),
@@ -42,7 +38,7 @@ interface Role {
 	color: string;
 }
 
-function CustomFaction() {
+export function CustomFaction() {
 	const [factionName, setFactionName] = useState("");
 	const [selectedTab, setSelectedTab] = useState("CAS");
 	const [selectedAircraft, setSelectedAircraft] = useState<Record<string, string[]>>({
@@ -156,7 +152,7 @@ function CustomFaction() {
 			<header className="relative z-10 border-b border-[#ff00aa]/30 bg-[#0b0014]/90 px-4 py-4">
 				<div className="container flex items-center justify-between">
 					<div className="flex items-center gap-3">
-						<Link to="/create/faction">
+						<Link to="create/faction">
 							<Button
 								variant="outline"
 								size="icon"
@@ -316,7 +312,7 @@ function CustomFaction() {
 							</CardContent>
 						</Card>
 						<div className="mt-8 flex justify-between">
-							<Link to="/create/faction">
+							<Link to="create/faction">
 								<Button
 									variant="outline"
 									className="retro-font border-[#ff00aa]/30 bg-[#0b0014]/80 text-[#00ddff] hover:bg-[#ff00aa]/10 hover:text-white"
