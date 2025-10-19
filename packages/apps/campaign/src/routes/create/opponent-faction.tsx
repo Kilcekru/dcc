@@ -142,70 +142,70 @@ function OpponentFaction() {
 							{!factionsQuery.isSuccess || availableFactions.length === 0
 								? null
 								: availableFactions.map((faction, index) => (
-									<motion.div
-										key={faction.id}
-										initial={{ y: 20, opacity: 0 }}
-										animate={{ y: 0, opacity: 1 }}
-										transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
-										onClick={() => createCampaignStore.trigger.setOponentFaction({ faction })}
-									>
-										<Card
-											className={cn(
-												"group relative cursor-pointer overflow-hidden border-[#9900ff]/30 bg-[#0b0014]/80 transition-all duration-300 hover:border-[#ff00aa]/50 hover:shadow-[0_0_20px_rgba(255,0,170,0.3)]",
-												selectedOpponentFaction?.id === faction.id &&
-												"border-[#ff00aa] shadow-[0_0_30px_rgba(255,0,170,0.4)]",
-											)}
+										<motion.div
+											key={faction.id}
+											initial={{ y: 20, opacity: 0 }}
+											animate={{ y: 0, opacity: 1 }}
+											transition={{ duration: 0.3, delay: 0.1 + index * 0.1 }}
+											onClick={() => createCampaignStore.trigger.setOponentFaction({ faction })}
 										>
-											{/* Selected indicator */}
-											{selectedOpponentFaction?.id === faction.id && (
-												<div className="absolute left-0 top-0 h-full w-1" />
-											)}
+											<Card
+												className={cn(
+													"group relative cursor-pointer overflow-hidden border-[#9900ff]/30 bg-[#0b0014]/80 transition-all duration-300 hover:border-[#ff00aa]/50 hover:shadow-[0_0_20px_rgba(255,0,170,0.3)]",
+													selectedOpponentFaction?.id === faction.id &&
+														"border-[#ff00aa] shadow-[0_0_30px_rgba(255,0,170,0.4)]",
+												)}
+											>
+												{/* Selected indicator */}
+												{selectedOpponentFaction?.id === faction.id && (
+													<div className="absolute left-0 top-0 h-full w-1" />
+												)}
 
-											{/* Faction content */}
-											<div className="p-5">
-												<div className="mb-4 flex items-center gap-4">
-													<div className="h-12 w-20 overflow-hidden rounded border border-[#9900ff]/30">
-														<img
-															src={`./assets/flags/4x3/${countryNameToCode(faction.countryName)}.svg`}
-															alt={faction.name}
-															className="h-full w-full object-cover"
-														/>
+												{/* Faction content */}
+												<div className="p-5">
+													<div className="mb-4 flex items-center gap-4">
+														<div className="h-12 w-20 overflow-hidden rounded border border-[#9900ff]/30">
+															<img
+																src={`./assets/flags/4x3/${countryNameToCode(faction.countryName)}.svg`}
+																alt={faction.name}
+																className="h-full w-full object-cover"
+															/>
+														</div>
+														<div>
+															<h3 className="retro-font text-lg font-bold text-white">{faction.name}</h3>
+															<p className="text-sm text-[#00ddff]">{faction.year}</p>
+														</div>
 													</div>
-													<div>
-														<h3 className="retro-font text-lg font-bold text-white">{faction.name}</h3>
-														<p className="text-sm text-[#00ddff]">{faction.year}</p>
+
+													{/* Aircraft list */}
+													<div className="mb-4">
+														<div className="mb-2 flex items-center gap-2 text-sm">
+															<Plane className="h-4 w-4 text-[#00ddff]" />
+															<span className="text-[#9900ff]">Available Aircraft:</span>
+														</div>
+														<div className="grid grid-cols-2 gap-2 text-xs">
+															{getFactionAircrafts(faction).map((aircraft) => (
+																<div key={aircraft} className="flex items-center gap-1.5">
+																	<span className="text-[#ff00aa]">•</span>
+																	<span className="text-[#e0e0ff]">{aircraft}</span>
+																</div>
+															))}
+														</div>
 													</div>
+
+													{/* Selection indicator */}
+													<div
+														className={cn(
+															"mt-2 h-1 w-full transition-all duration-300",
+															selectedOpponentFaction?.id === faction.id
+																? "bg-gradient-to-r from-[#ff00aa] to-[#9900ff]"
+																: "bg-[#9900ff]/20",
+														)}
+													/>
 												</div>
-
-												{/* Aircraft list */}
-												<div className="mb-4">
-													<div className="mb-2 flex items-center gap-2 text-sm">
-														<Plane className="h-4 w-4 text-[#00ddff]" />
-														<span className="text-[#9900ff]">Available Aircraft:</span>
-													</div>
-													<div className="grid grid-cols-2 gap-2 text-xs">
-														{getFactionAircrafts(faction).map((aircraft) => (
-															<div key={aircraft} className="flex items-center gap-1.5">
-																<span className="text-[#ff00aa]">•</span>
-																<span className="text-[#e0e0ff]">{aircraft}</span>
-															</div>
-														))}
-													</div>
-												</div>
-
-												{/* Selection indicator */}
-												<div
-													className={cn(
-														"mt-2 h-1 w-full transition-all duration-300",
-														selectedOpponentFaction?.id === faction.id
-															? "bg-gradient-to-r from-[#ff00aa] to-[#9900ff]"
-															: "bg-[#9900ff]/20",
-													)}
-												/>
-											</div>
-										</Card>
-									</motion.div>
-								))}
+											</Card>
+										</motion.div>
+									))}
 						</div>
 					</ScrollArea>
 

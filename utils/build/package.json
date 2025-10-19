@@ -18,9 +18,9 @@
 		"fs-extra": "^11.2.0"
 	},
 	"devDependencies": {
-		"@tanstack/router-plugin": "1.114.17",
-		"@vitejs/plugin-react": "^4.3.4",
+		"@tanstack/router-plugin": "1.133.13",
+		"@vitejs/plugin-react": "5.0.4",
 		"regedit": "^5.1.2",
-		"vite": "^6.2.2"
+		"vite": "7.1.10"
 	}
 }
