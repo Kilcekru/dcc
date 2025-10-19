@@ -7,23 +7,20 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://web.digitalcrewchief.at/",
+	site: "https://web.digitalcrewchief.at/",
 
-  integrations: [
-      react(),
-      sitemap(),
-	],
+	integrations: [react(), sitemap()],
 
-  output: "server",
+	output: "server",
 
-  adapter: cloudflare({
-      mode: "directory",
+	adapter: cloudflare({
+		mode: "directory",
 	}),
 
-  prefetch: true,
-  images: passthroughImageService(),
+	prefetch: true,
+	images: passthroughImageService(),
 
-  vite: {
-    plugins: [tailwindcss()],
-  },
+	vite: {
+		plugins: [tailwindcss()],
+	},
 });
