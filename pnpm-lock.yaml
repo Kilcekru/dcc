@@ -425,6 +425,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.13
         version: 0.5.16(tailwindcss@4.1.14)
+      '@tailwindcss/vite':
+        specifier: ^4.1.14
+        version: 4.1.14(vite@7.1.10(@types/node@22.13.9)(jiti@2.6.1)(less@4.2.2)(lightningcss@1.30.1)(sass@1.85.1)(stylus@0.62.0)(yaml@2.7.0))
       '@tanstack/react-table':
         specifier: ^8.16.0
         version: 8.21.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -438,7 +441,7 @@ importers:
         specifier: ^5.14.6
         version: 5.14.6(@types/node@22.13.9)(jiti@2.6.1)(less@4.2.2)(lightningcss@1.30.1)(rollup@4.52.4)(sass@1.85.1)(stylus@0.62.0)(typescript@5.8.2)(yaml@2.7.0)
       class-variance-authority:
-        specifier: ^0.7.0
+        specifier: ^0.7.1
         version: 0.7.1
       clsx:
         specifier: ^2.1.1
@@ -480,6 +483,9 @@ importers:
       prettier-plugin-tailwindcss:
         specifier: ^0.5.14
         version: 0.5.14(prettier-plugin-astro@0.13.0)(prettier@3.5.3)
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
       vite:
         specifier: 7.1.10
         version: 7.1.10(@types/node@22.13.9)(jiti@2.6.1)(less@4.2.2)(lightningcss@1.30.1)(sass@1.85.1)(stylus@0.62.0)(yaml@2.7.0)
@@ -2756,6 +2762,11 @@ packages:
     resolution: {integrity: sha512-0wDLwCVF5V3x3b1SGXPCDcdsbDHMBe+lkFzBRaHeLvNi+nrrnZ1lA18u+OTWO8iSWU2GxUOCvlXtDuqftc1oiA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
+
+  '@tailwindcss/vite@4.1.14':
+    resolution: {integrity: sha512-BoFUoU0XqgCUS1UXWhmDJroKKhNXeDzD7/XwabjkDIAbMnc4ULn5e2FuEuBbhZ6ENZoSYzKlzvZ44Yr6EUDUSA==}
+    peerDependencies:
+      vite: ^5.2.0 || ^6 || ^7
 
   '@tanstack/query-core@5.90.5':
     resolution: {integrity: sha512-wLamYp7FaDq6ZnNehypKI5fNvxHPfTYylE0m/ZpuuzJfJqhR5Pxg9gvGBHZx4n7J+V5Rg5mZxHHTlv25Zt5u+w==}
@@ -7752,7 +7763,7 @@ snapshots:
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
       '@jridgewell/trace-mapping': 0.3.31
 
   '@jridgewell/gen-mapping@0.3.8':
@@ -7763,8 +7774,8 @@ snapshots:
 
   '@jridgewell/remapping@2.3.5':
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.8
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
 
   '@jridgewell/resolve-uri@3.1.2': {}
 
@@ -7782,7 +7793,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.31':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   '@jridgewell/trace-mapping@0.3.9':
     dependencies:
@@ -8745,6 +8756,13 @@ snapshots:
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
       tailwindcss: 4.1.14
+
+  '@tailwindcss/vite@4.1.14(vite@7.1.10(@types/node@22.13.9)(jiti@2.6.1)(less@4.2.2)(lightningcss@1.30.1)(sass@1.85.1)(stylus@0.62.0)(yaml@2.7.0))':
+    dependencies:
+      '@tailwindcss/node': 4.1.14
+      '@tailwindcss/oxide': 4.1.14
+      tailwindcss: 4.1.14
+      vite: 7.1.10(@types/node@22.13.9)(jiti@2.6.1)(less@4.2.2)(lightningcss@1.30.1)(sass@1.85.1)(stylus@0.62.0)(yaml@2.7.0)
 
   '@tanstack/query-core@5.90.5': {}
 
@@ -11027,7 +11045,7 @@ snapshots:
 
   lightningcss@1.30.1:
     dependencies:
-      detect-libc: 2.0.3
+      detect-libc: 2.1.2
     optionalDependencies:
       lightningcss-darwin-arm64: 1.30.1
       lightningcss-darwin-x64: 1.30.1
