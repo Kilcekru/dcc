@@ -69,6 +69,10 @@ export const campaignStore = createStore({
 			produce(context, (draft) => {
 				draft.uiState.time = time;
 			}),
+		updateTimeMultiplier: (context, { timeMultiplier }: { timeMultiplier: number }) =>
+			produce(context, (draft) => {
+				draft.uiState.timeMultiplier = timeMultiplier;
+			}),
 		reset: () => initState,
 	},
 });

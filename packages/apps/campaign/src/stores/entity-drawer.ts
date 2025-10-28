@@ -1,9 +1,3 @@
-import { createStore } from "@kilcekru/dcc-lib-components";
+import { createAtom } from "@xstate/store";
 
-export type EntityDrawerStore = {
-	entityId: string | undefined;
-};
-
-export const entityDrawerStore = createStore<EntityDrawerStore>({
-	entityId: undefined,
-});
+export const selectedEntityIdAtom = createAtom<string | undefined>(undefined);

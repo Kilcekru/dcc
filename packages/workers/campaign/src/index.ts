@@ -45,6 +45,8 @@ addEventListener("message", (e: MessageEvent<Campaign.WorkerMessage>) => {
 		}
 		case "load": {
 			try {
+				// Ensure we start from a clean state to avoid duplicate entities when loading repeatedly
+				reset();
 				Serialization.deserialize(e.data.state);
 
 				store.id = e.data.state.id;

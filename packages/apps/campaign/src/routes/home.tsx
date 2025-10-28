@@ -7,6 +7,7 @@ import { Header } from "../components/home/header";
 import { Map } from "../components/home/map/map";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 const campaignData = {
 	description:
@@ -75,13 +76,13 @@ export function Home() {
 				</div>
 
 				{/* Sidebar - Flight groups and info */}
-				<div
+				<ScrollArea
 					className={cn(
-						"h-full w-[350px] flex-shrink-0 overflow-y-auto border-l border-[#ff00aa]/30 bg-[#0b0014]/90 transition-all duration-300",
+						"h-full w-[350px] flex-shrink-0 border-l border-[#ff00aa]/30 bg-[#0b0014]/90 transition-all duration-300",
 						"fixed right-0 top-[56px] z-10 lg:relative lg:top-0",
 					)}
 				>
-					<div className="flex h-full flex-col gap-4 p-4">
+					<div className="flex h-full flex-col gap-4 p-4 pr-2">
 						{/* Campaign info */}
 						<Card className="border-[#ff00aa]/30 bg-[#0b0014]/80 text-[#e0e0ff] shadow-[0_0_15px_rgba(255,0,170,0.3)]">
 							<CardHeader className="pb-2">
@@ -131,7 +132,7 @@ export function Home() {
 						</Card>
 						<FlightGroupList />
 					</div>
-				</div>
+				</ScrollArea>
 			</div>
 		</div>
 	);

@@ -17,6 +17,7 @@ const queryClient = new QueryClient();
 
 function Content() {
 	const currentRoute = useSelector(routerStore, (state) => state.context.current);
+	const didInitRef = React.useRef(false);
 	const resumeCampaign = useQuery({
 		queryKey: ["savedState"],
 		queryFn: async () => {
@@ -38,7 +39,9 @@ function Content() {
 	}
 
 	React.useEffect(() => {
+		if (didInitRef.current) return;
 		if (resumeCampaign.isSuccess && campaignList.isSuccess) {
+			didInitRef.current = true;
 			if (resumeCampaign.data == null) {
 				// No resume campaign available, check if other save games exist
 				if (campaignList.data.length > 0) {
@@ -51,7 +54,7 @@ function Content() {
 				routerStore.trigger.push({ path: "home" });
 			}
 		}
-	}, [location.pathname, resumeCampaign.isSuccess, resumeCampaign.data, campaignList.isSuccess, campaignList.data]);
+	}, [resumeCampaign.isSuccess, resumeCampaign.data, campaignList.isSuccess, campaignList.data]);
 
 	return (
 		<div className="w-full h-full dark dark:bg-black flex flex-col text-white">

@@ -1,4 +1,3 @@
-import { useStore } from "@kilcekru/dcc-lib-components";
 import * as Utils from "@kilcekru/dcc-shared-utils";
 import { useSelector } from "@xstate/store/react";
 import { format } from "date-fns";
@@ -6,7 +5,6 @@ import { FastForward, Pause, Play } from "lucide-react";
 import React, { useMemo } from "react";
 
 import { campaignStore } from "../../stores/campaign";
-import { timerControlStore } from "../../stores/timer-control";
 import { Triggers } from "../../worker";
 import { Button } from "../ui/button";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
@@ -14,15 +12,8 @@ import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 export function Header() {
 	const name = useSelector(campaignStore, (state) => state.context.uiState.name);
 	const time = useSelector(campaignStore, (state) => state.context.uiState.time);
-	const timerState = useStore(timerControlStore, (state) => {
-		if (state.timeMultiplier === 0) {
-			return "pause";
-		} else if (state.timeMultiplier === 1) {
-			return "play";
-		} else {
-			return "fast-forward";
-		}
-	});
+	const timeMultiplier = useSelector(campaignStore, (state) => state.context.uiState.timeMultiplier);
+	const timerState = timeMultiplier === 0 ? "pause" : timeMultiplier === 1 ? "play" : "fast-forward";
 
 	const date = useMemo(() => {
 		if (time == null) {
@@ -60,15 +51,15 @@ export function Header() {
 						onValueChange={(value) => {
 							switch (value) {
 								case "pause":
-									timerControlStore.set({ timeMultiplier: 0 });
+									campaignStore.trigger.updateTimeMultiplier({ timeMultiplier: 0 });
 									Triggers.pause();
 									break;
 								case "play":
-									timerControlStore.set({ timeMultiplier: 1 });
+									campaignStore.trigger.updateTimeMultiplier({ timeMultiplier: 1 });
 									Triggers.resume(1);
 									break;
 								case "fast-forward":
-									timerControlStore.set({ timeMultiplier: 300 });
+									campaignStore.trigger.updateTimeMultiplier({ timeMultiplier: 300 });
 									Triggers.resume(300);
 									break;
 							}
