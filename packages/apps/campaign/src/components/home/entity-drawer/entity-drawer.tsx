@@ -5,7 +5,7 @@ import { selectedEntityIdAtom } from "../../../stores/entity-drawer";
 
 export function EntityDrawer() {
 	const drawerRef = React.useRef<HTMLDivElement>(null);
-	const entityId = useAtom(selectedEntityIdAtom)
+	const entityId = useAtom(selectedEntityIdAtom);
 	// const entity = useSelector(campaignStore, (state) => state.context.campaign?.entities.get(entityId ?? ""));
 
 	React.useEffect(() => {

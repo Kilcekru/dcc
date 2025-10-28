@@ -1,7 +1,7 @@
 import * as DcsJs from "@foxdelta2/dcsjs";
 import * as Types from "@kilcekru/dcc-shared-types";
 import * as Utils from "@kilcekru/dcc-shared-utils";
-import { Clock,Plane } from "lucide-react";
+import { Clock, Plane } from "lucide-react";
 import React from "react";
 
 import { getEntity } from "../../lib/get-entity";
@@ -10,7 +10,7 @@ import { getTaskColor } from "../../lib/get-task-color";
 import { cn } from "../../lib/utils";
 import { selectedEntityIdAtom } from "../../stores/entity-drawer";
 import { Badge } from "../ui/badge";
-import { Tooltip, TooltipContent,TooltipTrigger } from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function FlightGroup({
 	group,
@@ -38,8 +38,12 @@ export function FlightGroup({
 				<h3 className="retro-font text-base font-semibold text-white">{group.name}</h3>
 			</div>
 			<div className="mt-2 flex items-center gap-2">
-				<Badge variant="outline" className={cn("text-xs", getTaskColor(group.task))}>{group.task}</Badge>
-				<Badge variant="outline" className={cn("text-xs", getStateColor(group.state))}>{group.state}</Badge>
+				<Badge variant="outline" className={cn("text-xs", getTaskColor(group.task))}>
+					{group.task}
+				</Badge>
+				<Badge variant="outline" className={cn("text-xs", getStateColor(group.state))}>
+					{group.state}
+				</Badge>
 			</div>
 			<div className="mt-4 flex items-center justify-between text-sm">
 				<div className="flex items-center gap-2 text-[#9900ff]">
@@ -53,9 +57,7 @@ export function FlightGroup({
 							<span>{Utils.Format.formatTime(group.startTime)}</span>
 						</div>
 					</TooltipTrigger>
-					<TooltipContent sideOffset={4}>
-						Start Time
-					</TooltipContent>
+					<TooltipContent sideOffset={4}>Start Time</TooltipContent>
 				</Tooltip>
 			</div>
 		</div>

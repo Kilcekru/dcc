@@ -15,7 +15,7 @@ export function FlightGroupList() {
 		() => flightGroups?.filter((group) => group.coalition === "blue"),
 		[flightGroups],
 	);
-	const selectedEntityId = useAtom(selectedEntityIdAtom)
+	const selectedEntityId = useAtom(selectedEntityIdAtom);
 
 	return (
 		<Card className="flex-1 border-[#ff00aa]/30 bg-[#0b0014]/80 text-[#e0e0ff] shadow-[0_0_15px_rgba(255,0,170,0.3)]">
@@ -45,11 +45,7 @@ export function FlightGroupList() {
 					<TabsContent value="list" className="p-4">
 						<div className="space-y-3">
 							{blueFlightGroups?.map((group) => (
-								<FlightGroup
-									key={group.id}
-									group={group}
-									selected={selectedEntityId === group.id}
-								/>
+								<FlightGroup key={group.id} group={group} selected={selectedEntityId === group.id} />
 							))}
 						</div>
 					</TabsContent>
